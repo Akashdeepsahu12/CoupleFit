@@ -9,6 +9,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
 | [**`Fixinglist.md`**](Fixinglist.md) | Multi-Command Central Audit | **Defect & Audit Catalog** | Master audit and defect tracking catalog logging all errors, gaps, corrections, and test results against architecture and research specs (`TEST-01` to `APL-03`). |
+| [**`triage.md`**](triage.md) | `/gsd-inbox` Defect Triage | **Triage & Backlog Inbox** | Centralized defect and backlog triage catalog logging all 14 resolved issues, P0/P1 blockers, and domain-categorized backlogs. |
 | [**`visual_hierarchy_architecture.md`**](visual_hierarchy_architecture.md) | `/designer-skills:visual-hierarchy` | **Visual Hierarchy & Scanning** | 4-tier visual hierarchy stack, Squint Test audit (6.8/10), de-carding hero rings, and 52sp HeroMetricDisplay (`VHR-01` to `VHR-03`). |
 | [**`interfaces_that_feel_emotional_design.md`**](interfaces_that_feel_emotional_design.md) | `/designer-skills:interfaces-that-feel` | **Emotional Resonance & Warmth** | Translating felt states into UI physics, living morning pulse, Rest Day compassion mode, and de-robotized human copy (`FEL-01` to `FEL-03`). |
 | [**`data_visualization_chart_qa.md`**](data_visualization_chart_qa.md) | `/designer-skills:data-visualization` | **Data Viz & Chart Engineering** | Deep chart audit (7.4/10), bilateral dual-stream waveform, delta zone shading, and magnetic hourly node snapping (`DTV-01` to `DTV-03`). |
@@ -48,6 +49,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [**`techstackreview.md`**](techstackreview.md): Production readiness audit, dependency matrix, and architectural layers.
 
 ### 2. 🚀 Operations, Roadmap & Releases
+- [**`triage.md`**](triage.md): Master triage inbox, resolved defect registry, and prioritized backlog.
 - [**`phases.md`**](phases.md): Phased roadmap from foundation to production launch.
 - [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) & [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md): Official version release notes and ProGuard audit.
 - [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md): Architectural migration history.
