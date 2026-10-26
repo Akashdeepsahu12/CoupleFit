@@ -23,13 +23,15 @@ graph TD
     end
 
     subgraph UILayer["UI Screens & Composables"]
-        DAS["DashboardAdaptiveScreen.kt<br/>(Pane 1 & Pane 2)"]:::ui
+        DAS["DashboardAdaptiveScreen.kt<br/>(Adaptive Multi-Pane & Telemetry)"]:::ui
         DS["DashboardScreen.kt<br/>(Operational Epicenter)"]:::ui
         MDP["MedicationDuePill.kt<br/>(Contextual Due Pill)"]:::ui
+        QNR["QuickNudgeRow.kt<br/>(Thumb-Zone Partner Cheers)"]:::ui
+        ACPC["ActiveChallengePreviewCard.kt<br/>(Modular Challenge Preview)"]:::ui
         CSCR["ChallengesScreen.kt<br/>(Duels & Trophies)"]:::ui
         HTS["HealthTrendsScreen.kt<br/>(Historical Trends & Meds)"]:::ui
         CHS["CoupleHubScreen.kt<br/>(Partner Profile & Privacy)"]:::ui
-        SET["SettingsScreen.kt<br/>(Account & Danger Zone)"]:::ui
+        SET["SettingsScreen.kt<br/>(Account & 2-Step Safe Unlink)"]:::ui
     end
 
     subgraph DataLayer["Data & Repositories"]
@@ -54,6 +56,9 @@ graph TD
 
     DAS --> DS
     DS --> MDP
+    DS --> QNR
+    DS --> ACPC
+    ACPC -->|CTA: View Duels| CSCR
     CSCR --> CVM
     CSCR --> HE
     CHS -->|Privacy Shortcut [🔒]| SET

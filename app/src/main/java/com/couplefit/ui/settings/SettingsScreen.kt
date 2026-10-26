@@ -765,26 +765,78 @@ fun SettingsScreen(
         )
     }
 
-    // Confirmation Dialog for Unlink Partner
+    // 2-Step Confirmation Dialog for Unlink Partner (CSA-07 / Danger Zone)
+    var unlinkConfirmationText by remember { mutableStateOf("") }
     if (showUnlinkPartnerDialog) {
         AlertDialog(
-            onDismissRequest = { showUnlinkPartnerDialog = false },
-            title = { Text("Unlink Partner") },
-            text = { Text("Are you sure you want to unlink from your partner? Live activity sharing will cease immediately.") },
+            onDismissRequest = {
+                showUnlinkPartnerDialog = false
+                unlinkConfirmationText = ""
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("⚠️", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Unlink Partner",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "This action will permanently sever your fitness connection with your partner. Live activity sharing, shared streaks, and active duels will be terminated.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "To confirm this irreversible action, type UNLINK below:",
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    OutlinedTextField(
+                        value = unlinkConfirmationText,
+                        onValueChange = { unlinkConfirmationText = it },
+                        placeholder = { Text("Type UNLINK") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.error,
+                            focusedLabelColor = MaterialTheme.colorScheme.error
+                        )
+                    )
+                }
+            },
             confirmButton = {
                 Button(
                     onClick = {
                         showUnlinkPartnerDialog = false
-                        authViewModel.unlinkPartner {
-                            onNavigateBack()
+                        val text = unlinkConfirmationText
+                        unlinkConfirmationText = ""
+                        if (text.trim().uppercase() == "UNLINK") {
+                            authViewModel.unlinkPartner {
+                                onNavigateBack()
+                            }
                         }
-                    }
+                    },
+                    enabled = unlinkConfirmationText.trim().uppercase() == "UNLINK",
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+                    )
                 ) {
-                    Text("Confirm Unlink")
+                    Text("Permanently Unlink", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showUnlinkPartnerDialog = false }) {
+                TextButton(
+                    onClick = {
+                        showUnlinkPartnerDialog = false
+                        unlinkConfirmationText = ""
+                    }
+                ) {
                     Text("Cancel")
                 }
             }

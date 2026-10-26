@@ -219,7 +219,8 @@ class MainActivity : ComponentActivity() {
                                                                 triggerThemeSwitchWithReveal(!isDarkTheme, null)
                                                             },
                                                             reduceMotion = effectiveReduceMotion,
-                                                            onOpenSettings = { isSettingsOpen = true }
+                                                            onOpenSettings = { isSettingsOpen = true },
+                                                            onViewAllChallenges = { currentTab = TopLevelDestination.CHALLENGES }
                                                         )
                                                     }
                                                     TopLevelDestination.CHALLENGES -> {

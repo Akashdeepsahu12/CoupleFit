@@ -9,18 +9,20 @@
 - **Deliverables**: Persistent M3 `NavigationBar` & `NavigationRail` in `CoupleFitNavigationSuite.kt`, discrete destination screens (`ChallengesScreen`, `HealthTrendsScreen`, `CoupleHubScreen`), shell integration in `MainActivity.kt`, and `NavigationComposeUiTest.kt`.
 
 ## Phase 3: Contextual "Medication Due" Pill on Today (`CSA-03`)
-- **Status**: 🟡 In Progress (Current Phase)
-- **Goal**: Add an interactive dismissable/clickable contextual reminder pill `[💊 08:00 AM Vitamin D3 Due - Tap to Log [✓]]` at the top of `Today` (`DashboardScreen.kt`) based on tree test TS-04 findings.
-- **Requirements**:
-  - Contextual reminder pill with high visual prominence and minimum 48dp touch target.
-  - Interactive "Tap to Log [✓]" action with instant haptic and animated confirmation.
-  - Dismissable with smooth collapse animation.
-  - Zero-defect test bar: 100% green unit tests, compile Android tests, and ARTEMIS verification.
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**: `MedicationDuePill.kt` with one-tap dose logging (`Log [✓]`), haptic confirmation, smooth dismissability, and `MedicationDuePillComposeUiTest.kt`. Release tag: `v2.1.0-csa03`.
 
-## Phase 4: Modular Screen Extraction (`CSA-04`)
-- **Status**: ⚪ Pending
-- **Goal**: Deconstruct 1,641-line `DashboardScreen.kt` monolith into dedicated composables.
+## Phase 4: Card Sort IA & Ergonomics Convergence (`CSA-04`, `CSA-05`, `CSA-06`, `CSA-07`, `CSA-08`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`CSA-04`**: Modular `ActiveChallengePreviewCard.kt` streamlining `DashboardScreen.kt` and directing duels traffic to Tab 2 `Challenges`.
+  - **`CSA-05` / `NAV-02`**: Real-time bilateral telemetry deep dive on Expanded Pane 2 of `DashboardAdaptiveScreen.kt` with dynamic chips and spline chart.
+  - **`CSA-06`**: Prominent `"Partner Visibility & Sharing Rules [Manage 🔒]"` shortcut in `CoupleHubScreen.kt`.
+  - **`CSA-07`**: Fail-safe 2-step verification modal requiring explicit `"UNLINK"` keyword entry in `SettingsScreen.kt`.
+  - **`CSA-08`**: Thumb-zone `QuickNudgeRow.kt` (`[👋 Poke] [🔥 Keep Going!] [❤️ Love] [💧 Drink Water]`) beneath bilateral gauges.
+  - **Test Suite**: `CardSortConvergenceComposeUiTest.kt` passing with 100% test green policy.
+- **Release Tag**: `v2.2.0-csa-complete`
 
-## Phase 5: Adaptive Multi-Pane Telemetry (`CSA-05` / `NAV-02`)
-- **Status**: ⚪ Pending
-- **Goal**: Bind right-hand pane in `DashboardAdaptiveScreen.kt` to live telemetry metrics.
+## Phase 5: Production Hardening & Remote Synchronization
+- **Status**: ⚪ Pending Next Milestone
+- **Goal**: Full offline-first sync reconciliation, battery-efficient BLE background telemetry polling, and End-to-End device session validation.

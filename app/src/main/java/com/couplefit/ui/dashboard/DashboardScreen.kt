@@ -63,8 +63,10 @@ import com.couplefit.ui.components.SpinningCounter
 import com.couplefit.ui.components.WeeklyStreakRow
 import com.couplefit.ui.components.lenisScroll
 import com.couplefit.ui.components.ChartDataPoint
+import com.couplefit.ui.challenge.ActiveChallengePreviewCard
 import com.couplefit.ui.components.InteractiveChart
 import com.couplefit.ui.components.MedicationDuePill
+import com.couplefit.ui.components.QuickNudgeRow
 import com.couplefit.ui.components.AnimatedSettingsIcon
 import com.couplefit.ui.components.AnimatedHeartIcon
 import com.couplefit.ui.components.AnimatedFootstepsIcon
@@ -93,6 +95,7 @@ fun DashboardScreen(
     onToggleDarkTheme: () -> Unit = {},
     reduceMotion: Boolean = false,
     onOpenSettings: () -> Unit = {},
+    onViewAllChallenges: () -> Unit = {},
     healthConnectViewModel: HealthConnectViewModel = hiltViewModel(),
     challengeViewModel: ChallengeViewModel = hiltViewModel()
 ) {
@@ -680,85 +683,20 @@ fun DashboardScreen(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(AppSpacing.sm))
-
-                            // Interactive Nudge Button
-                            NudgeButton(
-                                text = "Send a Cheer to ${healthData.partnerName}",
-                                onClick = { healthConnectViewModel.sendNudgeToPartner() },
-                                modifier = Modifier.fillMaxWidth()
+                            // Quick-Action Nudges positioned in the Thumb Zone (CSA-08 & Wireframe 1)
+                            QuickNudgeRow(
+                                partnerName = healthData.partnerName,
+                                onSendNudge = { nudgeMessage ->
+                                    healthConnectViewModel.sendNudgeToPartner(nudgeMessage)
+                                }
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.lg))
-
-                            // --- Side-by-Side Couple Challenges Section ---
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = AppSpacing.xs),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "COUPLE CHALLENGES",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    letterSpacing = 0.5.sp
-                                )
-                                TextButton(
-                                    onClick = { showStartChallengeDialog = true }
-                                ) {
-                                    Text(
-                                        text = "+ New Challenge",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = VitalsAccent
-                                    )
-                                }
-                            }
-
-                            val activeChallenge = challengeState.activeChallenge
-                            if (activeChallenge != null) {
-                                SideBySideChallengeCard(
-                                    challenge = activeChallenge,
-                                    partnerName = healthData.partnerName
-                                )
-                            } else {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(20.dp),
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-                                ) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(
-                                            text = "No Active Challenge",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "Challenge ${healthData.partnerName} to a 7-day Steps Race or Active Streak!",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        Button(
-                                            onClick = { showStartChallengeDialog = true },
-                                            shape = RoundedCornerShape(12.dp),
-                                            colors = ButtonDefaults.buttonColors(containerColor = VitalsAccent)
-                                        ) {
-                                            Text(
-                                                text = "Start a Challenge 🎯",
-                                                color = Color.Black,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            // Active Challenge Mini-Preview linking to Tab 2 Challenges (CSA-04 & Wireframe 1)
+                            ActiveChallengePreviewCard(
+                                challenge = challengeState.activeChallenge,
+                                partnerName = healthData.partnerName,
+                                onViewAllChallenges = onViewAllChallenges
+                            )
 
                             Spacer(modifier = Modifier.height(AppSpacing.lg))
 
