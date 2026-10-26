@@ -5,6 +5,10 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
 
@@ -77,31 +81,37 @@ sealed interface CoupleFitDestination {
  */
 enum class TopLevelDestination(
     val route: CoupleFitDestination,
-    val icon: ImageVector,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
     val label: String,
-    val contentDescription: String
+    val contentDescription: String,
+    val icon: ImageVector = selectedIcon
 ) {
     TODAY(
         route = CoupleFitDestination.Today,
-        icon = Icons.Default.Home,
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home,
         label = "Today",
         contentDescription = "Today Operational Dashboard"
     ),
     CHALLENGES(
         route = CoupleFitDestination.Challenges,
-        icon = Icons.Default.Star,
+        selectedIcon = Icons.Filled.Star,
+        unselectedIcon = Icons.Outlined.Star,
         label = "Challenges",
         contentDescription = "Challenges, Duels and Leaderboards"
     ),
     HEALTH_TRENDS(
         route = CoupleFitDestination.HealthTrends,
-        icon = Icons.Default.DateRange,
+        selectedIcon = Icons.Filled.DateRange,
+        unselectedIcon = Icons.Outlined.DateRange,
         label = "Trends",
         contentDescription = "Health, Biometric Trends and Medication"
     ),
     COUPLE_HUB(
         route = CoupleFitDestination.CoupleHub,
-        icon = Icons.Default.Favorite,
+        selectedIcon = Icons.Filled.Favorite,
+        unselectedIcon = Icons.Outlined.FavoriteBorder,
         label = "Couple Hub",
         contentDescription = "Couple Hub, Shared Streaks and Memories"
     );

@@ -258,6 +258,30 @@ Align the app with the quantitative and qualitative card sort findings from `car
 | **Phase 6** | `PrivacyTransparencyScreen.kt`, `PrivacyPolicyActivity.kt`, `SettingsScreen.kt`, `functions/src/index.ts` (`deleteUserData`), `Phase6PrivacyAndReadinessTest.kt`, `DashboardComposeUiTest.kt` | Removal of `WRITE_STEPS`, graceful partial permissions, in-app privacy transparency, unlink & delete my data flows, Play Console declarations. |
 | **Phase 7** | `CoupleFitDestinations.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `MedicationDuePill.kt`, `ActiveChallengePreviewCard.kt`, `DashboardAdaptiveScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, `QuickNudgeRow.kt`, `CardSortConvergenceComposeUiTest.kt` | 4-tab M3 navigation shell, contextual medication logging, modular challenge preview, two-pane telemetry deep dive, 2-step safe unlink verification, and thumb-zone partner cheers. |
 | **Phase 8** | `SettingsScreen.kt`, `HealthConnectViewModel.kt`, `SettingsHubComposeUiTest.kt`, `Documentation/` | Settings 4-Hub architecture deconstruction (IA-03), DataStore metric sharing persistence, documentation governance alignment (IA-04), and instrumented Compose UI testing (IA-10). |
+| **Phase 9** | `CoupleFitDestinations.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `AndroidManifest.xml`, `HealthTrendsScreen.kt`, `ChallengesScreen.kt`, `NavigationComposeUiTest.kt` | Navigation polish & platform hardening: Multi-modal active tab indication with dual-vector icons and bold typography (NAV-03), Android 14+ Predictive Back declaration (PLC-01), Return-to-Home back-stack re-anchoring with 200ms crossfade (BCK-01), dedicated timeframe sub-header (LOC-NAV-01), and challenges sub-navigation tabs (LOC-NAV-02). |
+
+---
+
+## Phase 9: Navigation Architecture Polish & Platform Hardening (`NAV-03`, `PLC-01`, `BCK-01`, `LOC-NAV-01`, `LOC-NAV-02`)
+
+### Objectives
+Refine the M3 navigation framework with accessible multi-modal feedback, integrate native Android 14+ Predictive Back gestures, establish intuitive return-to-home back-stack behavior, and resolve sub-navigation ergonomics across Health Trends and Challenges.
+
+### Key Changes Made
+1. **Multi-Modal Active Tab Indication (`NAV-03`)**:
+   - Upgraded `TopLevelDestination` to define dual-vector pairs: `selectedIcon` (filled) and `unselectedIcon` (outlined) for each primary tab (`Today`, `Challenges`, `Trends`, `Couple Hub`).
+   - Dynamically applied `FontWeight.Bold` on selected labels and fired subtle `HapticFeedbackType.TextHandleMove` haptic feedback on tab transitions, satisfying WCAG 1.4.1 (not relying on color alone).
+2. **Android 14+ Predictive Back Gesture Declaration (`PLC-01`)**:
+   - Added `android:enableOnBackInvokedCallback="true"` to `<application>` in `AndroidManifest.xml` to support smooth system-managed back gesture previews.
+3. **Return-to-Home Back-Stack Re-Anchoring (`BCK-01`)**:
+   - Configured `BackHandler` in `MainActivity.kt` so pressing the system back gesture on any secondary tab returns to `Today` before exiting the application.
+   - Smooth 200ms `AnimatedContent` crossfade between tabs with respect for user's `reduceMotion` accessibility setting.
+4. **Dedicated Local Timeframe Sub-Header (`LOC-NAV-01`)**:
+   - Moved `FilterChip` timeframe selectors from `TopAppBar` into a dedicated sticky sub-header row in `HealthTrendsScreen.kt`, preventing title truncation on compact devices.
+5. **Challenges Sub-Navigation Tabs (`LOC-NAV-02`)**:
+   - Implemented `ChallengeSubTab` segmented chips in `ChallengesScreen.kt` partitioning ongoing head-to-head duels from unlocked milestone trophies.
+6. **Automated Verification**:
+   - Extended `NavigationComposeUiTest.kt` with automated tests verifying active tab typography weight, timeframe sub-header rendering, and challenges sub-tab switching.
 
 ---
 

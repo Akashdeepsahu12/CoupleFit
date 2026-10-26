@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material3.window.size)
     implementation(libs.compose.material)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.text.google.fonts)
     
     // Navigation Compose & Type-Safe Routes

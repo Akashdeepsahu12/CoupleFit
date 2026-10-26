@@ -172,6 +172,11 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             is AuthFlowStep.Dashboard -> {
+                                // Return-to-Home BackHandler (BCK-01)
+                                BackHandler(enabled = !isSettingsOpen && currentTab != TopLevelDestination.TODAY) {
+                                    currentTab = TopLevelDestination.TODAY
+                                }
+
                                 AnimatedContent(
                                     targetState = isSettingsOpen,
                                     transitionSpec = {
@@ -210,29 +215,42 @@ class MainActivity : ComponentActivity() {
                                             onDestinationSelected = { currentTab = it }
                                         ) { innerPadding ->
                                             Box(modifier = Modifier.padding(innerPadding)) {
-                                                when (currentTab) {
-                                                    TopLevelDestination.TODAY -> {
-                                                        DashboardAdaptiveScreen(
-                                                            windowSizeClass = windowSizeClass,
-                                                            isDarkTheme = isDarkTheme,
-                                                            onToggleDarkTheme = {
-                                                                triggerThemeSwitchWithReveal(!isDarkTheme, null)
-                                                            },
-                                                            reduceMotion = effectiveReduceMotion,
-                                                            onOpenSettings = { isSettingsOpen = true },
-                                                            onViewAllChallenges = { currentTab = TopLevelDestination.CHALLENGES }
-                                                        )
-                                                    }
-                                                    TopLevelDestination.CHALLENGES -> {
-                                                        ChallengesScreen()
-                                                    }
-                                                    TopLevelDestination.HEALTH_TRENDS -> {
-                                                        HealthTrendsScreen()
-                                                    }
-                                                    TopLevelDestination.COUPLE_HUB -> {
-                                                        CoupleHubScreen(
-                                                            onNavigateToPrivacySettings = { isSettingsOpen = true }
-                                                        )
+                                                AnimatedContent(
+                                                    targetState = currentTab,
+                                                    transitionSpec = {
+                                                        if (effectiveReduceMotion) {
+                                                            EnterTransition.None.togetherWith(ExitTransition.None)
+                                                        } else {
+                                                            fadeIn(animationSpec = tween(200))
+                                                                .togetherWith(fadeOut(animationSpec = tween(150)))
+                                                        }
+                                                    },
+                                                    label = "tabTransition"
+                                                ) { activeTab ->
+                                                    when (activeTab) {
+                                                        TopLevelDestination.TODAY -> {
+                                                            DashboardAdaptiveScreen(
+                                                                windowSizeClass = windowSizeClass,
+                                                                isDarkTheme = isDarkTheme,
+                                                                onToggleDarkTheme = {
+                                                                    triggerThemeSwitchWithReveal(!isDarkTheme, null)
+                                                                },
+                                                                reduceMotion = effectiveReduceMotion,
+                                                                onOpenSettings = { isSettingsOpen = true },
+                                                                onViewAllChallenges = { currentTab = TopLevelDestination.CHALLENGES }
+                                                            )
+                                                        }
+                                                        TopLevelDestination.CHALLENGES -> {
+                                                            ChallengesScreen()
+                                                        }
+                                                        TopLevelDestination.HEALTH_TRENDS -> {
+                                                            HealthTrendsScreen()
+                                                        }
+                                                        TopLevelDestination.COUPLE_HUB -> {
+                                                            CoupleHubScreen(
+                                                                onNavigateToPrivacySettings = { isSettingsOpen = true }
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }

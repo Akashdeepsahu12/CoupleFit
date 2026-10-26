@@ -15,14 +15,18 @@ graph TD
         FL["Fixinglist.md"]:::doc
         TRI["triage.md"]:::doc
         P5P["PLAN_PHASE_05_IA_SETTINGS.md"]:::doc
+        P6P["PLAN_PHASE_06_NAVIGATION_POLISH.md"]:::doc
         RN23["RELEASE_NOTES_v2.3.0.md"]:::doc
+        RN24["RELEASE_NOTES_v2.4.0.md"]:::doc
+        NAVAUD["navigation_patterns_appwide_audit.md"]:::doc
         AG["AGENTS.md"]:::doc
     end
 
     subgraph NavigationLayer["Navigation & Routing Layer"]
         CFD["CoupleFitDestinations.kt<br/>(Today, Challenges, Trends, Hub)"]:::arch
-        CFNS["CoupleFitNavigationSuite.kt<br/>(M3 NavigationBar & Rail)"]:::arch
-        MA["MainActivity.kt<br/>(Adaptive Scaffold Host)"]:::arch
+        CFNS["CoupleFitNavigationSuite.kt<br/>(Dual Vectors, Bold Weight, Haptics)"]:::arch
+        MA["MainActivity.kt<br/>(Scaffold Host, BackHandler Re-Anchoring)"]:::arch
+        MANI["AndroidManifest.xml<br/>(enableOnBackInvokedCallback)"]:::arch
     end
 
     subgraph UILayer["UI Screens & Composables"]
@@ -96,6 +100,8 @@ graph TD
 | `TopLevelDestination` | Navigation | Metadata enum (routes, icons, labels, a11y descriptions) | `CoupleFitDestinations.kt` | `CoupleFitNavigationSuite.kt`, `MainActivity.kt` |
 | `CoupleFitNavigationSuite` | Navigation | Adaptive M3 `NavigationBar` (<600dp) & `NavigationRail` (≥600dp) | `WindowSizeClass`, `TopLevelDestination` | `MainActivity.kt`, `NavigationComposeUiTest.kt` |
 | `MainActivity` | App Entry | Activity lifecycle, theme reveal, auth router, adaptive shell host | `CoupleFitNavigationSuite`, `AuthViewModel` | Android OS |
-| `ChallengesScreen` | UI (Tab 2) | Head-to-head duels, step races, milestone/trophy vault | `ChallengeViewModel`, `SideBySideChallengeCard` | `MainActivity.kt` |
-| `HealthTrendsScreen` | UI (Tab 3) | Multi-horizon telemetry, medication schedule, sensor diagnostics | `AppSpacing`, Material 3 | `MainActivity.kt` |
+| `ChallengesScreen` | UI (Tab 2) | Head-to-head duels, step races, milestone/trophy vault, sub-tabs | `ChallengeViewModel`, `SideBySideChallengeCard` | `MainActivity.kt` |
+| `HealthTrendsScreen` | UI (Tab 3) | Multi-horizon telemetry, dedicated timeframe sub-header | `AppSpacing`, Material 3 | `MainActivity.kt` |
 | `CoupleHubScreen` | UI (Tab 4) | Relationship anchor, streaks, anniversaries, privacy shortcut | `AppSpacing`, `SettingsScreen` | `MainActivity.kt` |
+| `ChallengeSubTab` | Navigation | Segmented sub-navigation enum (`ACTIVE_DUELS`, `TROPHIES`) | `ChallengesScreen.kt` | `ChallengesScreen.kt`, `NavigationComposeUiTest.kt` |
+| `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs | AndroidX Compose Test Rule | CI / Local Verification |

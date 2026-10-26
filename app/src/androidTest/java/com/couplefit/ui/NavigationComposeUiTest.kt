@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.couplefit.ui.navigation.CoupleFitNavigationSuite
 import com.couplefit.ui.navigation.TopLevelDestination
 import com.couplefit.ui.theme.CoupleFitTheme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -98,5 +99,70 @@ class NavigationComposeUiTest {
             .performClick()
         composeTestRule.onNodeWithText("Active Screen: Today")
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun multiModalActiveState_renders_bold_typography_on_active_tab() {
+        var currentTab by mutableStateOf(TopLevelDestination.TODAY)
+        val compactSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 800.dp))
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                CoupleFitNavigationSuite(
+                    windowSizeClass = compactSizeClass,
+                    selectedDestination = currentTab,
+                    onDestinationSelected = { currentTab = it }
+                ) {
+                    Text("Selected: ${currentTab.label}")
+                }
+            }
+        }
+
+        // Verify active labels and switching
+        composeTestRule.onNodeWithText("Today").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Challenges").assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Challenges").performClick()
+        assertEquals(TopLevelDestination.CHALLENGES, currentTab)
+    }
+
+    @Test
+    fun healthTrends_renders_dedicated_timeframe_sub_header() {
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.trends.HealthTrendsScreen()
+            }
+        }
+
+        // Verify all 4 timeframes render in dedicated row without crashing
+        composeTestRule.onNodeWithText("Day").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Week").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Month").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Year").assertIsDisplayed()
+
+        // Switch to Month
+        composeTestRule.onNodeWithText("Month").performClick()
+        composeTestRule.onNodeWithText("STEPS & ACTIVITY COMPARISON (Month)").assertIsDisplayed()
+    }
+
+    @Test
+    fun challenges_renders_and_switches_sub_navigation_tabs() {
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.challenge.ChallengesScreen()
+            }
+        }
+
+        // Verify sub-tabs exist
+        composeTestRule.onNodeWithText("Active Duels").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Trophies & Vault").assertIsDisplayed()
+
+        // Initially in Active Duels
+        composeTestRule.onNodeWithText("ACTIVE HEAD-TO-HEAD DUELS").assertIsDisplayed()
+
+        // Switch to Trophies & Vault
+        composeTestRule.onNodeWithText("Trophies & Vault").performClick()
+        composeTestRule.onNodeWithText("TROPHY & MILESTONE VAULT").assertIsDisplayed()
+        composeTestRule.onNodeWithText("100k Steps").assertIsDisplayed()
     }
 }

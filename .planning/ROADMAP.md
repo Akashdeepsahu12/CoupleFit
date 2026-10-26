@@ -32,6 +32,17 @@
   - **`IA-10`**: Authored comprehensive instrumented test suite [`SettingsHubComposeUiTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/androidTest/java/com/couplefit/ui/SettingsHubComposeUiTest.kt) testing all 4 hubs, tab switching, and unlinking dialogs.
 - **Release Tag**: `v2.3.0-ia-settings`
 
-## Phase 6: Production Hardening & Accessibility (`RSP-01`, `GST-01`, `CLR-01`, `MSR-01`)
+## Phase 6: Navigation Architecture Polish & Platform Hardening (`NAV-03`, `PLC-01`, `BCK-01`, `LOC-NAV-01`, `LOC-NAV-02`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`NAV-03`**: Multi-modal active tab indication with dual-vector filled/outlined icon switching (`TopLevelDestination`), bold active labels, and subtle tactile haptics.
+  - **`PLC-01`**: Android 14+ Predictive Back declaration (`android:enableOnBackInvokedCallback="true"`) in `AndroidManifest.xml`.
+  - **`BCK-01`**: Return-to-Home Back-Stack re-anchoring in `MainActivity.kt` with smooth 200ms `AnimatedContent` crossfade and `reduceMotion` accessibility bypass.
+  - **`LOC-NAV-01`**: Dedicated local timeframe sub-header on `HealthTrendsScreen.kt` preventing TopAppBar crowding on compact devices.
+  - **`LOC-NAV-02`**: Challenges sub-navigation segmented tabs (`[Active Duels] | [Trophies & Vault]`) on `ChallengesScreen.kt`.
+  - **Test Suite**: `NavigationComposeUiTest.kt` extended with 3 new UI tests verifying active state typography, timeframe sub-headers, and challenge tabs.
+- **Release Tag**: `v2.4.0-nav-polish`
+
+## Phase 7: Production Hardening & Accessibility (`RSP-01`, `GST-01`, `CLR-01`, `MSR-01`)
 - **Status**: ⚪ Pending Next Milestone
 - **Goal**: Auth landscape scrolling & IME padding (`RSP-01`), InteractiveChart touch-slop disambiguation (`GST-01`), WCAG 2.2 AA text pill contrast (`CLR-01`), and tablet line measure constraints (`MSR-01`).

@@ -31,33 +31,50 @@ fun HealthTrendsScreen(
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 },
-                actions = {
-                    Row(
-                        modifier = Modifier.padding(end = AppSpacing.sm),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        listOf("Day", "Week", "Month", "Year").forEach { horizon ->
-                            FilterChip(
-                                selected = selectedTimeHorizon == horizon,
-                                onClick = { selectedTimeHorizon = horizon },
-                                label = { Text(horizon) }
-                            )
-                        }
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = AppSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
         ) {
+            // Local Navigation Sub-Header (LOC-NAV-01): Dedicated Timeframe Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("Day", "Week", "Month", "Year").forEach { horizon ->
+                    val isSelected = selectedTimeHorizon == horizon
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedTimeHorizon = horizon },
+                        label = {
+                            Text(
+                                text = horizon,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = AppSpacing.md),
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            ) {
             item {
                 Text(
                     text = "STEPS & ACTIVITY COMPARISON ($selectedTimeHorizon)",
@@ -181,6 +198,7 @@ fun HealthTrendsScreen(
             }
         }
     }
+}
 }
 
 @Composable

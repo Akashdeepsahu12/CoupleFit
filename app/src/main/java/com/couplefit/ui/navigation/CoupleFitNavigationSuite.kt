@@ -6,14 +6,19 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
  * Adaptive Material 3 Navigation Container.
  *
- * Implements persistent 4-tab navigation adhering to `card-sort-analysis.md` §7.1:
+ * Implements persistent 4-tab navigation adhering to `card-sort-analysis.md` §7.1
+ * and multi-modal active state indication (NAV-01 & NAV-03):
  * - Compact screens (<600dp): Bottom [NavigationBar] (80dp height, thumb-zone optimized)
  * - Medium/Expanded screens (≥600dp): Leading [NavigationRail]
+ * - Multi-modal active indicator: Filled vs Outlined icon vector + bold typography + container pill.
  */
 @Composable
 fun CoupleFitNavigationSuite(
@@ -24,6 +29,7 @@ fun CoupleFitNavigationSuite(
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val haptic = LocalHapticFeedback.current
 
     if (isCompact) {
         // Compact Viewport: Phones (<600dp)
@@ -39,15 +45,23 @@ fun CoupleFitNavigationSuite(
                         val isSelected = destination == selectedDestination
                         NavigationBarItem(
                             selected = isSelected,
-                            onClick = { onDestinationSelected(destination) },
+                            onClick = {
+                                if (!isSelected) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
+                                onDestinationSelected(destination)
+                            },
                             icon = {
                                 Icon(
-                                    imageVector = destination.icon,
+                                    imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
                                     contentDescription = destination.contentDescription
                                 )
                             },
                             label = {
-                                Text(text = destination.label)
+                                Text(
+                                    text = destination.label,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
                             },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -77,15 +91,23 @@ fun CoupleFitNavigationSuite(
                     val isSelected = destination == selectedDestination
                     NavigationRailItem(
                         selected = isSelected,
-                        onClick = { onDestinationSelected(destination) },
+                        onClick = {
+                            if (!isSelected) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
+                            onDestinationSelected(destination)
+                        },
                         icon = {
                             Icon(
-                                imageVector = destination.icon,
+                                imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
                                 contentDescription = destination.contentDescription
                             )
                         },
                         label = {
-                            Text(text = destination.label)
+                            Text(
+                                text = destination.label,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
                         },
                         colors = NavigationRailItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,

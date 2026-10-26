@@ -15,9 +15,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.couplefit.data.local.CoupleChallengeEntity
 import com.couplefit.ui.theme.AppSpacing
 
+enum class ChallengeSubTab(val label: String) {
+    ACTIVE_DUELS("Active Duels"),
+    TROPHIES("Trophies & Vault")
+}
+
 /**
  * Challenges & Duels Screen (Tab 2).
- * Designed according to `card-sort-analysis.md` §7.2 (Wireframe 2).
+ * Designed according to `card-sort-analysis.md` §7.2 (Wireframe 2)
+ * with dedicated sub-navigation (LOC-NAV-02).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +33,7 @@ fun ChallengesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(ChallengeSubTab.ACTIVE_DUELS) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -58,80 +65,123 @@ fun ChallengesScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = AppSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
         ) {
-            item {
-                Text(
-                    text = "ACTIVE DUELS",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = AppSpacing.sm)
-                )
+            // Local Sub-Navigation Control (LOC-NAV-02)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ChallengeSubTab.values().forEach { tab ->
+                    val isSelected = selectedTab == tab
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { selectedTab = tab },
+                        label = {
+                            Text(
+                                text = tab.label,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
-            if (uiState.challenges.isEmpty()) {
-                item {
-                    // Demo fallback card for immediate interactive experience
-                    val sampleChallenge = remember {
-                        CoupleChallengeEntity(
-                            id = "demo_duel_1",
-                            coupleId = "couple_demo",
-                            type = "STEPS_RACE",
-                            goal = 50_000L,
-                            start = "2026-10-21",
-                            end = "2026-10-28",
-                            myProgress = 24_500L,
-                            partnerProgress = 28_200L,
-                            status = "ACTIVE"
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = AppSpacing.md),
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            ) {
+                if (selectedTab == ChallengeSubTab.ACTIVE_DUELS) {
+                    item {
+                        Text(
+                            text = "ACTIVE HEAD-TO-HEAD DUELS",
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = AppSpacing.sm)
                         )
                     }
-                    SideBySideChallengeCard(
-                        challenge = sampleChallenge,
-                        partnerName = "Partner"
-                    )
-                }
-            } else {
-                items(uiState.challenges) { challenge ->
-                    SideBySideChallengeCard(
-                        challenge = challenge,
-                        partnerName = "Partner"
-                    )
-                }
-            }
 
-            item {
-                Spacer(modifier = Modifier.height(AppSpacing.sm))
-                Text(
-                    text = "TROPHY & MILESTONE VAULT",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+                    if (uiState.challenges.isEmpty()) {
+                        item {
+                            // Demo fallback card for immediate interactive experience
+                            val sampleChallenge = remember {
+                                CoupleChallengeEntity(
+                                    id = "demo_duel_1",
+                                    coupleId = "couple_demo",
+                                    type = "STEPS_RACE",
+                                    goal = 50_000L,
+                                    start = "2026-10-21",
+                                    end = "2026-10-28",
+                                    myProgress = 24_500L,
+                                    partnerProgress = 28_200L,
+                                    status = "ACTIVE"
+                                )
+                            }
+                            SideBySideChallengeCard(
+                                challenge = sampleChallenge,
+                                partnerName = "Partner"
+                            )
+                        }
+                    } else {
+                        items(uiState.challenges) { challenge ->
+                            SideBySideChallengeCard(
+                                challenge = challenge,
+                                partnerName = "Partner"
+                            )
+                        }
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = "TROPHY & MILESTONE VAULT",
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = AppSpacing.sm)
+                        )
+                    }
 
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(AppSpacing.md),
-                        verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
-                    ) {
-                        Row(
+                    item {
+                        Card(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                            shape = MaterialTheme.shapes.large,
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
                         ) {
-                            TrophyBadge(icon = "🥇", title = "100k Steps", subtitle = "Unlocked")
-                            TrophyBadge(icon = "🥈", title = "5-Day Sync", subtitle = "Unlocked")
-                            TrophyBadge(icon = "🥉", title = "First 10k", subtitle = "Unlocked")
+                            Column(
+                                modifier = Modifier.padding(AppSpacing.md),
+                                verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    TrophyBadge(icon = "🥇", title = "100k Steps", subtitle = "Unlocked")
+                                    TrophyBadge(icon = "🥈", title = "5-Day Sync", subtitle = "Unlocked")
+                                    TrophyBadge(icon = "🥉", title = "First 10k", subtitle = "Unlocked")
+                                }
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    TrophyBadge(icon = "🔥", title = "Week Streak", subtitle = "In Progress")
+                                    TrophyBadge(icon = "⚡", title = "Speed Demon", subtitle = "Unlocked")
+                                    TrophyBadge(icon = "❤️", title = "Sync Master", subtitle = "Unlocked")
+                                }
+                            }
                         }
                     }
                 }

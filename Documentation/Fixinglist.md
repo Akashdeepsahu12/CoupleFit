@@ -42,7 +42,11 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **IA-10** | System Testing | `.\gradlew.bat connectedDebugAndroidTest` | 🟡 **Missing / Gap** | `app/src/androidTest/` | Missing automated UI tests for Settings 4-Hub architecture and navigation transitions. | UI regressions in settings navigation and unlinking workflows go undetected during CI. | Authored `SettingsHubComposeUiTest.kt` containing 5 comprehensive instrumented tests verifying all 4 hubs, tab switching, unlinking triggers, and privacy navigation. | 🟢 Resolved |
 | **NAV-01** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 🔴 **Error / Failure** | `MainActivity.kt` & `CoupleFitNavigationSuite.kt` | Global navigation failure: The app is missing a persistent Material 3 `NavigationBar` on mobile and `NavigationRail` on tablets/foldables. It switches between screens via a binary boolean `isSettingsOpen`. | Navigation rating drops to 6.5/10 for code implementation. Users cannot freely switch between the 4 core pillars without back-stack churn. | Wrapped main app view inside `CoupleFitNavigationSuite.kt` hosting persistent M3 `NavigationBar` (compact) and `NavigationRail` (expanded). | 🟢 Resolved |
 | **NAV-02** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 🔵 **Correction Needed** | `DashboardAdaptiveScreen.kt` | Tablet Master-Detail gap: The second pane in tablet/foldable view (`≥600dp`) rendered a non-functional static text placeholder (`"Select a metric to see detailed history"`). | Breaks M3 Master-Detail standards; wastes 60% of expanded tablet viewports. | Bound active selected metric state from Pane 1 to render interactive telemetry cards and historical spline graphs on Pane 2. | 🟢 Resolved |
-| **NAV-03** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | M3 `NavigationBarItem` | Navigation active state relies primarily on color tinting without multi-modal visual cues. | Violates accessibility and glanceable orientation standards for colorblind or low-contrast users. | Implement multi-modal active states: M3 pill indicator behind active icon, filled vs. outlined icon vectors, and bold text weight. | 💡 Open |
+| **NAV-03** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | M3 `NavigationBarItem` | Navigation active state relied primarily on color tinting without multi-modal visual cues. | Violates accessibility and glanceable orientation standards for colorblind or low-contrast users. | Implemented multi-modal active states: M3 container pill + filled vs. outlined icon vectors (`Icons.Filled.*` vs `Icons.Outlined.*`) + bold label font weight. | 🟢 Resolved |
+| **PLC-01** | Android Conventions | `/designer-skills:navigation-patterns` | 🔴 **Error / Failure** | `AndroidManifest.xml` | Missing Predictive Back Navigation: `AndroidManifest.xml` lacked `android:enableOnBackInvokedCallback="true"`. | Breaks Android 14+ system back gesture animations and cross-activity previews. | Added `android:enableOnBackInvokedCallback="true"` to `<application>` in `AndroidManifest.xml`. | 🟢 Resolved |
+| **BCK-01** | Back-Stack Navigation | `/designer-skills:navigation-patterns` | 🟡 **Missing / Gap** | `MainActivity.kt` | Pressing Android back gesture on secondary tabs (`Challenges`, `Trends`, `Couple Hub`) immediately exited the app. | Violates M3 Return-to-Home hierarchy; causes accidental app dismissals. | Added `BackHandler` in `MainActivity.kt` re-anchoring to `Today` before exiting to launcher. | 🟢 Resolved |
+| **LOC-NAV-01** | Local Navigation | `/designer-skills:navigation-patterns` | 🟡 **Missing / Gap** | `HealthTrendsScreen.kt` | Header action crowding: 4 timeframe FilterChips in `TopAppBar(actions)` collided with title on compact screens. | Visual truncation and poor touch target ergonomics on 360dp devices. | Relocated timeframe selector to a dedicated, evenly-weighted sub-header row below the TopAppBar. | 🟢 Resolved |
+| **LOC-NAV-02** | Local Navigation | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | `ChallengesScreen.kt` | Active duels and historical trophies were mixed into a single vertical list without sectional sub-filtering. | Cluttered view and lack of dedicated milestone celebration space. | Implemented `[Active Duels] | [Trophies & Vault]` segmented sub-tabs in `ChallengesScreen.kt`. | 🟢 Resolved |
 | **NAV-04** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | Local Navigation | Local sub-views (e.g. `[D] [W] [M] [Y]` time filters) lack tactile haptic feedback and smooth animated indicator pill transitions. | Reduces perceived app polish and micro-interaction fluidity during frequent view switching. | Add bounce click physics, animated container pills, and subtle haptic feedback when toggling local segmented tabs. | 💡 Open |
 | **NAV-05** | Navigation Pattern Architecture | `/designer-skills:navigation-patterns` | 💡 **Design Decision / Principle** | `DashboardScreen.kt` | Architectural decision on "Side-by-side partner tracking tabs" on Today Dashboard: Segregating `[You]` vs `[Partner]` behind tabs creates high interaction friction, destroys the shared synchrony UX, and causes double-tab hierarchy clutter. | Breaks instantaneous 0-tap comparison; separates partner vitals from quick-action nudges (94% card sort cohesion). | Maintain unified bilateral telemetry (concentric dual rings + combined metric cards) on `Today`. Restrict segmented controls (`[Combined] [You] [Partner]`) strictly to `HealthTrendsScreen.kt` for historical chart uncluttering. | 🟢 Documented |
 | **FLOW-01** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Innovation / Feature** | Jetpack Glance Widget | Zero-tap Home Screen accountability: Users currently must unlock phone and open app to view partner telemetry or send nudges. | Missed opportunity for high-velocity daily engagement loops (increases touchpoints from 2x to 12x/day). | Implement 4x2 interactive Glance widget with bilateral mini-rings and a one-tap direct "Poke" button. | 💡 Open |
@@ -1884,7 +1888,7 @@ Following open/closed card sort convergence findings in [`Documentation/card-sor
 
 ---
 
-## 31. Phase 5 Resolution: Information Architecture & Settings 4-Hub Convergence (`IA-03`, `IA-04`, `IA-10`)
+## 31. Phase 5 Resolution: Information Architecture & Settings Convergence
 
 ### 31.1 Executive Summary of Implementation
 Phase 5 resolves the long-standing Information Architecture and Settings convergence defects by deconstructing the legacy 9-accordion monolithic settings screen into a streamlined, high-cohesion 4-Hub architecture:
@@ -1901,6 +1905,44 @@ Phase 5 resolves the long-standing Information Architecture and Settings converg
 - `.\gradlew.bat compileDebugKotlin`: **BUILD SUCCESSFUL in 26s** (0 errors).
 - `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL in 9s** (0 errors).
 - `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL in 15s** (100% pass rate).
+
+---
+
+## 32. Phase 6 Resolution: Navigation Architecture Polish & Platform Hardening
+
+### 32.1 Executive Summary of Implementation
+Phase 6 resolves all remaining navigational ergonomics, accessibility, and platform integration gaps surfaced in the app-wide navigation audit:
+1. **`NAV-03` (Multi-Modal Active Indication)**:
+   - Added dual-vector pairs to `TopLevelDestination` (`selectedIcon` vs `unselectedIcon`):
+     - `Today`: `Icons.Filled.Home` ⇄ `Icons.Outlined.Home`
+     - `Challenges`: `Icons.Filled.Star` ⇄ `Icons.Outlined.Star`
+     - `Trends`: `Icons.Filled.DateRange` ⇄ `Icons.Outlined.DateRange`
+     - `Couple Hub`: `Icons.Filled.Favorite` ⇄ `Icons.Outlined.FavoriteBorder`
+   - Added `fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal` to text labels.
+   - Added subtle tactile haptic feedback (`HapticFeedbackType.TextHandleMove`) on tab switches.
+2. **`BCK-01` (Return-to-Home Back-Stack Re-Anchoring)**:
+   - Wired `BackHandler(enabled = !isSettingsOpen && currentTab != TopLevelDestination.TODAY)` in `MainActivity.kt` to gracefully route users back to `Today` before exiting to launcher.
+   - Added 200ms `AnimatedContent` crossfade between tabs with `reduceMotion` accessibility bypass.
+3. **`PLC-01` (Android 14+ Predictive Back Declaration)**:
+   - Added `android:enableOnBackInvokedCallback="true"` to `<application>` in `AndroidManifest.xml`.
+4. **`LOC-NAV-01` (Local Timeframe Sub-Header)**:
+   - Extracted timeframe filter chips from `TopAppBar(actions)` in `HealthTrendsScreen.kt` into a dedicated, evenly-weighted sub-header row, eliminating header crowding on compact screens.
+5. **`LOC-NAV-02` (Challenges Sub-Navigation)**:
+   - Implemented `ChallengeSubTab` segmented controls (`[Active Duels] | [Trophies & Vault]`) in `ChallengesScreen.kt` to partition head-to-head duels from unlocked milestone trophies.
+
+### 32.2 Test Coverage & Proof
+- **Instrumented Test Suite**: [`NavigationComposeUiTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt) updated with tests for multi-modal active state typography, timeframe sub-headers, and challenges sub-navigation tab switching.
+- **Verification Status**:
+  - `.\gradlew.bat compileDebugKotlin`: **BUILD SUCCESSFUL in 1m 17s** (0 errors).
+  - `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL in 34s** (0 errors).
+  - `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL in 26s** (100% pass rate).
+  - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL in 3m 7s** (Installed on `Pixel_10_Pro(AVD) - 17`).
+- **Live Device ARTEMIS Verification**:
+  - `mobile_get_device_state(view_type="screenshot")`: Visual proof captured and preserved in `nav_polish_live_screen.jpg`, `nav_polish_challenges_screen.jpg`, `nav_polish_trends_screen.jpg`, and `nav_polish_back_to_today_screen.jpg`.
+  - `mobile_get_device_state(view_type="hierarchy")`: Confirmed `[Active Duels] | [Trophies & Vault]` sub-navigation on Tab 2, `[Day] [Week] [Month] [Year]` sticky timeframe sub-header on Tab 3, and active tab bolding.
+  - System `KEYCODE_BACK` gesture verified on live device: pressing Back on `Trends` correctly re-anchors to `Today` rather than exiting.
+
+
 
 
 
