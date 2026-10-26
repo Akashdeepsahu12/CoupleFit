@@ -24,6 +24,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`README.md`**](README.md) | System Architecture Spec | **System Architecture** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
 | [**`techstackreview.md`**](techstackreview.md) | Engineering Architecture Audit | **Technical Specs & Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
 | [**`phases.md`**](phases.md) | Project Planning | **Roadmap & Milestones** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
+| [**`PLAN_PHASE_05_IA_SETTINGS.md`**](PLAN_PHASE_05_IA_SETTINGS.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 5 structured execution plan: 4-hub Settings deconstruction (`IA-03`), Diataxis documentation alignment (`IA-04`), and instrumented UI test coverage (`IA-10`). |
+| [**`RELEASE_NOTES_v2.3.0.md`**](RELEASE_NOTES_v2.3.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.3.0: Settings 4-Hub architecture deconstruction, DataStore sharing persistence, documentation governance, and `SettingsHubComposeUiTest`. |
 | [**`RELEASE_NOTES_v2.2.0.md`**](RELEASE_NOTES_v2.2.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.2.0: 4-tab M3 navigation shell, medication adherence pill, modular challenges, adaptive telemetry, and 2-step safe unlink. |
 | [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) | `.\gradlew.bat assembleRelease` | **Releases & Ops** | Details for release v2.0.1: R8 ProGuard keep rules for Health Connect SDK reflection, build verification, and release APK metadata. |
 | [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.0.0: UI overhaul, dual ring mechanics, dynamic theming, and offline-first Room database sync. |
@@ -51,6 +53,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 ### 2. 🚀 Operations, Roadmap & Releases
 - [**`triage.md`**](triage.md): Master triage inbox, resolved defect registry, and prioritized backlog.
+- [**`PLAN_PHASE_05_IA_SETTINGS.md`**](PLAN_PHASE_05_IA_SETTINGS.md): Phase 5 Information Architecture & Settings Hub convergence milestone plan.
 - [**`phases.md`**](phases.md): Phased roadmap from foundation to production launch.
 - [**`RELEASE_NOTES_v2.2.0.md`**](RELEASE_NOTES_v2.2.0.md), [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) & [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md): Official version release notes and ProGuard audit.
 - [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md): Architectural migration history.

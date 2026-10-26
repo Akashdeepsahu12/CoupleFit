@@ -436,4 +436,34 @@ class HealthConnectViewModel @Inject constructor(
     fun openHealthConnectSettings(context: Context) {
         healthConnectManager.openSettings(context)
     }
+
+    fun updateShareSteps(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setShareSteps(enabled, _dashboardState.value.myUid)
+        }
+    }
+
+    fun updateShareWorkouts(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setShareWorkouts(enabled, _dashboardState.value.myUid)
+        }
+    }
+
+    fun updateShareCalories(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setShareCalories(enabled, _dashboardState.value.myUid)
+        }
+    }
+
+    fun updateShareHr(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setShareHr(enabled, _dashboardState.value.myUid)
+        }
+    }
+
+    fun updateShareSpo2(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setShareSpo2(enabled, _dashboardState.value.myUid)
+        }
+    }
 }

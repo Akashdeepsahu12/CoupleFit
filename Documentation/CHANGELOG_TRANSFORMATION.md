@@ -481,4 +481,24 @@ To verify these implementations locally on an Android device or emulator:
    - `./gradlew compileDebugAndroidTestKotlin`: **0 errors in 17s**.
    - Tagged release: `v2.2.0-csa-complete`.
 
+### 7.9 Settings 4-Hub Architecture & IA Convergence (v2.3.0)
+1. **Deconstruction of Legacy Accordion Monolith (`IA-03`)**:
+   - Replaced 1,007-line 9-accordion monolithic `SettingsScreen.kt` with a modern 4-Hub architecture:
+     * **Hub 1: Partnership & Account (`PartnershipHubContent`)**: User Profile (`UserSession`), Partner status badge, strict 2-step verification unlinking modal (`CSA-07`), and Firebase sign-out.
+     * **Hub 2: Health Sync & Sharing (`HealthSyncHubContent`)**: Health Connect permissions launcher, Samsung Health Bridge toggle, 4-chip background sync cadence (`Every 15m`, `Every 30m`, `Hourly`, `Manual Only`), and granular metric sharing switches (`shareSteps`, `shareWorkouts`, `shareCalories`, `shareHr`, `shareSpo2`) backed by DataStore.
+     * **Hub 3: App Experience (`ExperienceHubContent`)**: Dark Mode (with circular reveal animation), Reduce Motion accessibility switch, Metric/Imperial unit selection, and multi-channel notification controls.
+     * **Hub 4: Privacy & Safety (`PrivacyHubContent`)**: Biometric App Lock, in-place `PrivacyTransparencyScreen` navigation, JSON telemetry export trigger, and permanent account deletion modal.
+     * **Section 5: About & Support Footer (`AboutAndSupportFooter`)**: Semantic app version badge (`v2.3.0`), Privacy Policy link, and open-source licenses dialog.
+2. **DataStore Persistence Layer (`HealthConnectViewModel.kt`)**:
+   - Backed all sharing switches with `updateShareSteps`, `updateShareWorkouts`, `updateShareCalories`, `updateShareHr`, and `updateShareSpo2` writing to `CoupleFitPreferencesDataStore` and mirroring to Firestore.
+3. **Documentation Governance Alignment (`IA-04`)**:
+   - Reconciled flat `Documentation/` directory organization with 4-folder Diataxis taxonomy in `Documentation/INDEX.md`, `phases.md`, and `triage.md`.
+4. **Instrumented Compose UI Test Suite (`IA-10`)**:
+   - Authored `SettingsHubComposeUiTest.kt` verifying all 4 hubs, tab switching, unlinking triggers, and privacy navigation.
+5. **Automated Verification**:
+   - `./gradlew testDebugUnitTest`: **BUILD SUCCESSFUL (100% pass rate in 15s)**.
+   - `./gradlew compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL (0 errors in 9s)**.
+   - Tagged release: `v2.3.0-ia-settings`.
+
+
 

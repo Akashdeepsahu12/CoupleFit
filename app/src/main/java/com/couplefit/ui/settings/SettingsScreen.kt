@@ -1,43 +1,54 @@
 package com.couplefit.ui.settings
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.content.Intent
-import android.net.Uri
-import com.couplefit.ui.theme.*
+import androidx.health.connect.client.PermissionController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.couplefit.ui.components.AnimatedArrowBackIcon
-import com.couplefit.ui.components.AnimatedChevronIcon
-import com.couplefit.ui.components.AnimatedChevronRightIcon
 import com.couplefit.ui.components.AnimatedCheckIcon
+import com.couplefit.ui.components.AnimatedChevronRightIcon
+import com.couplefit.ui.healthconnect.HealthConnectViewModel
+import com.couplefit.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
-
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.health.connect.client.PermissionController
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.couplefit.ui.healthconnect.HealthConnectViewModel
+/**
+ * 4 Re-architected Settings Hubs per INFORMATION_ARCHITECTURE.md §3 & IA-03.
+ */
+enum class SettingsHub(val label: String, val icon: ImageVector) {
+    PARTNERSHIP("Partnership", Icons.Default.Favorite),
+    HEALTH_SYNC("Sync & Sharing", Icons.Default.Refresh),
+    EXPERIENCE("Experience", Icons.Default.Settings),
+    PRIVACY("Privacy & Safety", Icons.Default.Lock)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,8 +67,34 @@ fun SettingsScreen(
     val healthData by healthConnectViewModel.dashboardState.collectAsState()
     val sharingPrefs by healthConnectViewModel.sharingPreferences.collectAsState(initial = com.couplefit.data.local.MetricSharingPreferences())
     val authUiState by authViewModel.uiState.collectAsState()
+
+    var activeHub by remember { mutableStateOf(SettingsHub.PARTNERSHIP) }
     var showPrivacyDetailScreen by remember { mutableStateOf(false) }
     var showUnlinkPartnerDialog by remember { mutableStateOf(false) }
+    var unlinkConfirmationText by remember { mutableStateOf("") }
+    var showSignOutDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var showSamsungBridgeDialog by remember { mutableStateOf(false) }
+    var showLicensesDialog by remember { mutableStateOf(false) }
+
+    // Persistent & local UI toggles
+    var isSamsungConnected by remember { mutableStateOf(false) }
+    var syncFrequency by remember { mutableStateOf("Every 15 min") }
+    var notifyCritical by remember { mutableStateOf(true) }
+    var notifyNudges by remember { mutableStateOf(true) }
+    var notifySummary by remember { mutableStateOf(true) }
+    var quietHoursEnabled by remember { mutableStateOf(true) }
+    var useMetric by remember { mutableStateOf(true) }
+    var biometricLock by remember { mutableStateOf(false) }
+    var savedBannerVisible by remember { mutableStateOf(false) }
+
+    fun triggerAutoSaveNotice() {
+        coroutineScope.launch {
+            savedBannerVisible = true
+            delay(1200)
+            savedBannerVisible = false
+        }
+    }
 
     if (showPrivacyDetailScreen) {
         PrivacyTransparencyScreen(
@@ -80,90 +117,48 @@ fun SettingsScreen(
         )
         return
     }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = PermissionController.createRequestPermissionResultContract()
     ) { _ ->
         healthConnectViewModel.checkStatusAndFetchData()
     }
-    var savedBannerVisible by remember { mutableStateOf(false) }
-
-    // Auto-save feedback trigger
-    fun triggerAutoSaveNotice() {
-        coroutineScope.launch {
-            savedBannerVisible = true
-            delay(1200)
-            savedBannerVisible = false
-        }
-    }
-
-    // --- State variables for all 9 sections ---
-    // 1. Account
-    var showSignOutDialog by remember { mutableStateOf(false) }
-    var showDeleteAccountDialog by remember { mutableStateOf(false) }
-    var isPartnerLinked by remember { mutableStateOf(true) }
-    var isSamsungConnected by remember { mutableStateOf(false) }
-    var showSamsungBridgeDialog by remember { mutableStateOf(false) }
-
-    // 2. Data Sharing Preferences
-    var shareSteps by remember { mutableStateOf(true) }
-    var shareWorkouts by remember { mutableStateOf(true) }
-    var shareVitals by remember { mutableStateOf(true) }
-    var shareSpO2 by remember { mutableStateOf(true) }
-    var shareECG by remember { mutableStateOf(true) }
-    var shareStress by remember { mutableStateOf(false) }
-    var shareCycleData by remember { mutableStateOf(false) }
-    var shareMedications by remember { mutableStateOf(false) }
-
-
-    // 3. Notifications
-    var notifyCritical by remember { mutableStateOf(true) }
-    var notifyNudges by remember { mutableStateOf(true) }
-    var notifyMeds by remember { mutableStateOf(true) }
-    var notifySync by remember { mutableStateOf(false) }
-    var notifySummary by remember { mutableStateOf(true) }
-    var quietHoursEnabled by remember { mutableStateOf(true) }
-
-
-    // 5. Samsung Health Sync
-    var syncFrequency by remember { mutableStateOf("Every 15 min") }
-    var isSyncing by remember { mutableStateOf(false) }
-
-    // 6. Medication Reminders Management
-    var activeMeds by remember {
-        mutableStateOf(
-            listOf("Omega-3 (Morning)", "Vitamin D3 (8:00 AM)", "Magnesium (Night)")
-        )
-    }
-
-    // 7. Units & Format
-    var useMetric by remember { mutableStateOf(true) }
-    var use24Hour by remember { mutableStateOf(false) }
-
-    // 8. Privacy & Security
-    var biometricLock by remember { mutableStateOf(false) }
-
-    // Expandable Section Tracking
-    var expandedAccount by remember { mutableStateOf(true) }
-    var expandedSharing by remember { mutableStateOf(true) }
-    var expandedNotifications by remember { mutableStateOf(false) }
-    var expandedAppearance by remember { mutableStateOf(true) }
-    var expandedSamsungSync by remember { mutableStateOf(false) }
-    var expandedMeds by remember { mutableStateOf(false) }
-    var expandedUnits by remember { mutableStateOf(false) }
-    var expandedPrivacy by remember { mutableStateOf(false) }
-    var expandedAbout by remember { mutableStateOf(false) }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        "Settings",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            "Settings",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        AnimatedVisibility(
+                            visible = savedBannerVisible,
+                            enter = fadeIn(tween(150)),
+                            exit = fadeOut(tween(150))
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = SystemGreen.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, SystemGreen.copy(alpha = 0.5f))
+                            ) {
+                                Text(
+                                    "Saved ✓",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = SystemGreen,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -181,592 +176,153 @@ fun SettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // --- 4-Hub Segmented Navigation Bar (IA-03) ---
+            SettingsHubBar(
+                activeHub = activeHub,
+                onHubSelected = { activeHub = it }
+            )
+
+            // --- Scrollable Hub Content Area ---
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs)
+                    .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
             ) {
-                // Subtle auto-save status pill
-                AnimatedVisibility(
-                    visible = savedBannerVisible,
-                    enter = fadeIn(tween(150)),
-                    exit = fadeOut(tween(150))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = AppSpacing.xs)
-                            .clip(RoundedCornerShape(AppSpacing.xs))
-                            .background(ColorSuccess.copy(alpha = 0.15f))
-                            .padding(vertical = AppSpacing.xs),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            AnimatedCheckIcon(
-                                modifier = Modifier.size(13.dp),
-                                tint = ColorSuccess,
-                                reduceMotion = reduceMotion
-                            )
-                            Text(
-                                text = "Changes saved automatically",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = ColorSuccess
-                            )
-                        }
-                    }
-                }
-
-                // 1. ACCOUNT SECTION
-                SettingsGroup(
-                    title = "ACCOUNT",
-                    isExpanded = expandedAccount,
-                    onToggle = { expandedAccount = !expandedAccount }
-                ) {
-                    // Profile Info
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(46.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "A",
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 20.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                "Alex & Partner",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                if (isPartnerLinked) "Linked with Partner (Active Sync)" else "No partner linked",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (isPartnerLinked) SystemGreen else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            )
-                        }
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    if (isPartnerLinked) {
-                        SettingsClickableRow(
-                            text = "Unlink Partner",
-                            textColor = SystemRed,
-                            onClick = {
-                                isPartnerLinked = false
-                                triggerAutoSaveNotice()
-                            }
-                        )
-                    } else {
-                        SettingsClickableRow(
-                            text = "Pair / Link Partner",
-                            textColor = MaterialTheme.colorScheme.primary,
-                            onClick = {
-                                isPartnerLinked = true
-                                triggerAutoSaveNotice()
-                            }
-                        )
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow(
-                        text = "Sign Out",
-                        textColor = MaterialTheme.colorScheme.onSurface,
-                        onClick = { showSignOutDialog = true }
-                    )
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow(
-                        text = "Delete Account",
-                        textColor = SystemRed,
-                        onClick = { showDeleteAccountDialog = true }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Connect with Samsung Account Button
-                Button(
-                    onClick = {
-                        try {
-                            // Try launching Health Connect Settings or Samsung Health
-                            val intent = Intent("androidx.health.ACTION_HEALTH_CONNECT_SETTINGS").apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            try {
-                                val fallbackIntent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse("market://details?id=com.google.android.apps.healthdata")
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                                context.startActivity(fallbackIntent)
-                            } catch (e2: Exception) {
-                                // If Play Store is unavailable, open via browser
-                                val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata"))
-                                context.startActivity(webIntent)
-                            }
-                        }
-                        // Mark connected and show the pop-up
-                        isSamsungConnected = true
-                        showSamsungBridgeDialog = true
-                        triggerAutoSaveNotice()
+                AnimatedContent(
+                    targetState = activeHub,
+                    transitionSpec = {
+                        fadeIn(tween(200)) togetherWith fadeOut(tween(150))
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSamsungConnected) SystemGreen.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = if (isSamsungConnected) SystemGreen else MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    shape = RoundedCornerShape(AppSpacing.md),
-                    border = BorderStroke(
-                        1.dp,
-                        if (isSamsungConnected) SystemGreen.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
-                    )
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                    label = "SettingsHubTransition"
+                ) { hub ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
                     ) {
-                        Text(
-                            text = if (isSamsungConnected) "✓ Connected to Samsung Account" else "Connect with your Samsung account",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.3.sp
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 2. DATA SHARING PREFERENCES (DataStore + Mirrored to users/{uid}.sharingPrefs in Firestore)
-                SettingsGroup(
-                    title = "DATA SHARING PREFERENCES",
-                    isExpanded = expandedSharing,
-                    onToggle = { expandedSharing = !expandedSharing }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        TextButton(onClick = {
-                            healthConnectViewModel.setShareSteps(true)
-                            healthConnectViewModel.setShareWorkouts(true)
-                            healthConnectViewModel.setShareCalories(true)
-                            healthConnectViewModel.setShareHr(true)
-                            healthConnectViewModel.setShareSpo2(true)
-                            triggerAutoSaveNotice()
-                        }) {
-                            Text("Share All", fontSize = 12.sp)
-                        }
-                        TextButton(onClick = {
-                            healthConnectViewModel.setShareSteps(false)
-                            healthConnectViewModel.setShareWorkouts(false)
-                            healthConnectViewModel.setShareCalories(false)
-                            healthConnectViewModel.setShareHr(false)
-                            healthConnectViewModel.setShareSpo2(false)
-                            triggerAutoSaveNotice()
-                        }) {
-                            Text("Share None", fontSize = 12.sp, color = SystemRed)
-                        }
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsSwitchRow("Steps & Distance", sharingPrefs.shareSteps) {
-                        healthConnectViewModel.setShareSteps(it)
-                        triggerAutoSaveNotice()
-                    }
-                    SettingsSwitchRow("Workouts & Active Time", sharingPrefs.shareWorkouts) {
-                        healthConnectViewModel.setShareWorkouts(it)
-                        triggerAutoSaveNotice()
-                    }
-                    SettingsSwitchRow("Calories Burned", sharingPrefs.shareCalories) {
-                        healthConnectViewModel.setShareCalories(it)
-                        triggerAutoSaveNotice()
-                    }
-                    SettingsSwitchRow("Heart Rate (Daily Aggregate)", sharingPrefs.shareHr) {
-                        healthConnectViewModel.setShareHr(it)
-                        triggerAutoSaveNotice()
-                    }
-                    SettingsSwitchRow("Blood Oxygen / SpO2 (Aggregate)", sharingPrefs.shareSpo2) {
-                        healthConnectViewModel.setShareSpo2(it)
-                        triggerAutoSaveNotice()
-                    }
-
-                    SettingsSwitchRow("Stress Levels", shareStress) { shareStress = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Medications Routine", shareMedications) { shareMedications = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow(
-                        title = "Menstrual Cycle Data",
-                        subtitle = "Strict opt-in (Female users)",
-                        checked = shareCycleData
-                    ) { shareCycleData = it; triggerAutoSaveNotice() }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 3. NOTIFICATIONS
-                SettingsGroup(
-                    title = "NOTIFICATIONS",
-                    isExpanded = expandedNotifications,
-                    onToggle = { expandedNotifications = !expandedNotifications }
-                ) {
-                    SettingsSwitchRow("Critical Vitals Alerts", notifyCritical) { notifyCritical = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Partner Nudges & Activity Alerts", notifyNudges) { notifyNudges = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Medication Reminders", notifyMeds) { notifyMeds = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Sync Status Alerts", notifySync) { notifySync = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Daily Evening Summary", notifySummary) { notifySummary = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow(
-                        title = "Quiet Hours (10:00 PM - 7:00 AM)",
-                        subtitle = "Only emergency vitals break through",
-                        checked = quietHoursEnabled
-                    ) { quietHoursEnabled = it; triggerAutoSaveNotice() }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 4. APPEARANCE
-                SettingsGroup(
-                    title = "APPEARANCE",
-                    isExpanded = expandedAppearance,
-                    onToggle = { expandedAppearance = !expandedAppearance }
-                ) {
-                    SettingsSwitchRow(
-                        title = "Dark Theme",
-                        subtitle = if (isDarkTheme) "OLED pure black mode active" else "Clean daylight theme active",
-                        checked = isDarkTheme,
-                        onCheckedChangeWithOrigin = { newTheme, origin ->
-                            if (onToggleDarkThemeWithOrigin != null) {
-                                onToggleDarkThemeWithOrigin(newTheme, origin)
-                            } else {
-                                onToggleDarkTheme(newTheme)
+                        when (hub) {
+                            SettingsHub.PARTNERSHIP -> {
+                                PartnershipHubContent(
+                                    authUiState = authUiState,
+                                    partnerName = healthData.partnerName,
+                                    isPartnerLinked = healthData.isPartnerLinked,
+                                    onUnlinkClicked = { showUnlinkPartnerDialog = true },
+                                    onSignOutClicked = { showSignOutDialog = true }
+                                )
                             }
-                            triggerAutoSaveNotice()
-                        }
-                    ) {
-                        onToggleDarkTheme(it)
-                        triggerAutoSaveNotice()
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsSwitchRow(
-                        title = "Reduce Motion",
-                        subtitle = if (reduceMotion) "All animations disabled" else "Animations enabled",
-                        checked = reduceMotion
-                    ) {
-                        onToggleReduceMotion(it)
-                        triggerAutoSaveNotice()
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 5. SAMSUNG HEALTH SYNC
-                SettingsGroup(
-                    title = "HEALTH CONNECT / SAMSUNG HEALTH SYNC",
-                    isExpanded = expandedSamsungSync,
-                    onToggle = { expandedSamsungSync = !expandedSamsungSync }
-                ) {
-                    val statusText = when {
-                        !healthData.isHealthConnectAvailable -> "Health Connect Not Available"
-                        !healthData.hasPermissions -> "Permissions Needed"
-                        else -> "Connected • Health Connect"
-                    }
-                    val statusColor = when {
-                        !healthData.isHealthConnectAvailable -> SystemRed
-                        !healthData.hasPermissions -> SystemOrange
-                        else -> SystemGreen
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Connection Status", style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                statusText,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = statusColor
-                            )
-                        }
-
-                        when {
-                            !healthData.isHealthConnectAvailable -> {
-                                Button(
-                                    onClick = { healthConnectViewModel.openHealthConnect(context) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text("Get App", fontSize = 12.sp)
-                                }
-                            }
-                            !healthData.hasPermissions -> {
-                                Button(
-                                    onClick = {
-                                        try {
-                                            permissionLauncher.launch(healthConnectViewModel.permissions)
-                                        } catch (e: Exception) {
-                                            healthConnectViewModel.openHealthConnect(context)
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text("Connect", fontSize = 12.sp)
-                                }
-                            }
-                            else -> {
-                                Button(
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            isSyncing = true
-                                            healthConnectViewModel.checkStatusAndFetchData()
-                                            delay(800)
-                                            isSyncing = false
-                                            triggerAutoSaveNotice()
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text(if (isSyncing) "Syncing..." else "Sync Now", fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow(
-                        text = "Manage in Health Connect",
-                        textColor = MaterialTheme.colorScheme.primary,
-                        onClick = {
-                            healthConnectViewModel.openHealthConnectSettings(context)
-                        }
-                    )
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow(
-                        text = "Add 1,000 Test Steps (Health Connect)",
-                        textColor = MaterialTheme.colorScheme.primary,
-                        onClick = {
-                            coroutineScope.launch {
-                                healthConnectViewModel.writeMockData(1000L)
-                                triggerAutoSaveNotice()
-                            }
-                        }
-                    )
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Sync Frequency", style = MaterialTheme.typography.bodyMedium)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("15 min", "Hourly", "Manual").forEach { freq ->
-                                FilterChip(
-                                    selected = syncFrequency.contains(freq),
-                                    onClick = {
-                                        syncFrequency = freq
+                            SettingsHub.HEALTH_SYNC -> {
+                                HealthSyncHubContent(
+                                    hasPermissions = healthData.hasPermissions,
+                                    onManagePermissions = { permissionLauncher.launch(healthConnectViewModel.permissions) },
+                                    isSamsungConnected = isSamsungConnected,
+                                    onToggleSamsung = {
+                                        isSamsungConnected = it
+                                        if (it) showSamsungBridgeDialog = true
                                         triggerAutoSaveNotice()
                                     },
-                                    label = { Text(freq, fontSize = 11.sp) }
+                                    syncFrequency = syncFrequency,
+                                    onSyncFrequencyChange = {
+                                        syncFrequency = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    sharingPrefs = sharingPrefs,
+                                    onToggleSteps = {
+                                        healthConnectViewModel.updateShareSteps(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onToggleWorkouts = {
+                                        healthConnectViewModel.updateShareWorkouts(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onToggleCalories = {
+                                        healthConnectViewModel.updateShareCalories(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onToggleHr = {
+                                        healthConnectViewModel.updateShareHr(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onToggleSpo2 = {
+                                        healthConnectViewModel.updateShareSpo2(it)
+                                        triggerAutoSaveNotice()
+                                    }
+                                )
+                            }
+                            SettingsHub.EXPERIENCE -> {
+                                ExperienceHubContent(
+                                    isDarkTheme = isDarkTheme,
+                                    onToggleDarkTheme = onToggleDarkTheme,
+                                    onToggleDarkThemeWithOrigin = onToggleDarkThemeWithOrigin,
+                                    reduceMotion = reduceMotion,
+                                    onToggleReduceMotion = {
+                                        onToggleReduceMotion(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    notifyCritical = notifyCritical,
+                                    onToggleNotifyCritical = {
+                                        notifyCritical = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    notifyNudges = notifyNudges,
+                                    onToggleNotifyNudges = {
+                                        notifyNudges = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    notifySummary = notifySummary,
+                                    onToggleNotifySummary = {
+                                        notifySummary = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    quietHoursEnabled = quietHoursEnabled,
+                                    onToggleQuietHours = {
+                                        quietHoursEnabled = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    useMetric = useMetric,
+                                    onToggleUseMetric = {
+                                        useMetric = it
+                                        triggerAutoSaveNotice()
+                                    }
+                                )
+                            }
+                            SettingsHub.PRIVACY -> {
+                                PrivacyHubContent(
+                                    biometricLock = biometricLock,
+                                    onToggleBiometricLock = {
+                                        biometricLock = it
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onOpenTransparency = { showPrivacyDetailScreen = true },
+                                    onExportData = {
+                                        triggerAutoSaveNotice()
+                                    },
+                                    onDeleteAccountClicked = { showDeleteAccountDialog = true }
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // --- Section 5: Lean About & Support Footer (Always Accessible) ---
+                AboutAndSupportFooter(
+                    context = context,
+                    onOpenLicenses = { showLicensesDialog = true }
+                )
 
-                // 6. MEDICATION REMINDERS MANAGEMENT
-                SettingsGroup(
-                    title = "MEDICATION REMINDERS",
-                    isExpanded = expandedMeds,
-                    onToggle = { expandedMeds = !expandedMeds }
-                ) {
-                    activeMeds.forEachIndexed { index, med ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(med, style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                "Delete",
-                                color = SystemRed,
-                                style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier.clickable {
-                                    activeMeds = activeMeds.toMutableList().also { it.removeAt(index) }
-                                    triggerAutoSaveNotice()
-                                }
-                            )
-                        }
-                        if (index < activeMeds.size - 1) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 7. UNITS & FORMAT
-                SettingsGroup(
-                    title = "UNITS & FORMAT",
-                    isExpanded = expandedUnits,
-                    onToggle = { expandedUnits = !expandedUnits }
-                ) {
-                    SettingsSwitchRow(
-                        title = "Metric Units (km, kg)",
-                        subtitle = if (useMetric) "Metric selected" else "Imperial (miles, lbs) selected",
-                        checked = useMetric
-                    ) { useMetric = it; triggerAutoSaveNotice() }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsSwitchRow(
-                        title = "24-Hour Time Format",
-                        subtitle = if (use24Hour) "14:00" else "2:00 PM",
-                        checked = use24Hour
-                    ) { use24Hour = it; triggerAutoSaveNotice() }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 8. PRIVACY & SECURITY
-                SettingsGroup(
-                    title = "PRIVACY & SECURITY",
-                    isExpanded = expandedPrivacy,
-                    onToggle = { expandedPrivacy = !expandedPrivacy }
-                ) {
-                    SettingsSwitchRow(
-                        title = "App Lock",
-                        subtitle = "Require Biometric / PIN to open CoupleFit",
-                        checked = biometricLock
-                    ) { biometricLock = it; triggerAutoSaveNotice() }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow("What is Shared vs Device-Only", MaterialTheme.colorScheme.primary) {
-                        showPrivacyDetailScreen = true
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow("Unlink Partner", MaterialTheme.colorScheme.primary) {
-                        showUnlinkPartnerDialog = true
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow("Delete My Data & Account", SystemRed) {
-                        showDeleteAccountDialog = true
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-
-                    SettingsClickableRow("Privacy Policy", MaterialTheme.colorScheme.onSurface) {
-                        showPrivacyDetailScreen = true
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 9. ABOUT
-                SettingsGroup(
-                    title = "ABOUT",
-                    isExpanded = expandedAbout,
-                    onToggle = { expandedAbout = !expandedAbout }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("CoupleFit Version", style = MaterialTheme.typography.bodyMedium)
-                        Text(
-                            "v1.2.0 (Build 42)",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    SettingsClickableRow("What's New / Changelog", MaterialTheme.colorScheme.primary) {}
-                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    SettingsClickableRow("Support & Contact Us", MaterialTheme.colorScheme.primary) {}
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 
-    // Confirmation Dialog for Sign Out
-    if (showSignOutDialog) {
-        AlertDialog(
-            onDismissRequest = { showSignOutDialog = false },
-            title = { Text("Sign Out") },
-            text = { Text("Are you sure you want to sign out of CoupleFit?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showSignOutDialog = false
-                    authViewModel.signOut()
-                    onNavigateBack()
-                }) {
-                    Text("Sign Out", color = SystemRed)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSignOutDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    // --- Modal Dialogs ---
 
-    // 2-Step Confirmation Dialog for Unlink Partner (CSA-07 / Danger Zone)
-    var unlinkConfirmationText by remember { mutableStateOf("") }
+    // 2-Step Strict Unlink Partner Dialog (CSA-07)
     if (showUnlinkPartnerDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -774,27 +330,22 @@ fun SettingsScreen(
                 unlinkConfirmationText = ""
             },
             title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("⚠️", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Unlink Partner",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+                Text(
+                    "Unlink Partner?",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
                     Text(
-                        text = "This action will permanently sever your fitness connection with your partner. Live activity sharing, shared streaks, and active duels will be terminated.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        "Unlinking stops real-time telemetry sharing, closes all active duels, and freezes your couple streak.",
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        text = "To confirm this irreversible action, type UNLINK below:",
-                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.error
+                        "To confirm this permanent action, type \"UNLINK\" below:",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
                     )
                     OutlinedTextField(
                         value = unlinkConfirmationText,
@@ -843,12 +394,37 @@ fun SettingsScreen(
         )
     }
 
-    // Confirmation Dialog for Account Deletion
+    // Sign Out Dialog
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text("Sign Out of CoupleFit") },
+            text = { Text("Are you sure you want to sign out? Your local health telemetry will remain stored on this device.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSignOutDialog = false
+                        authViewModel.signOut()
+                        onNavigateBack()
+                    }
+                ) {
+                    Text("Sign Out")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Permanent Data & Account Deletion Dialog
     if (showDeleteAccountDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },
-            title = { Text("Delete Account & Fitness Data") },
-            text = { Text("This will permanently delete all your health snapshots, cloud records, couple connection, and preferences from Firestore. This action cannot be undone.") },
+            title = { Text("Delete Account & Cloud Telemetry") },
+            text = { Text("This will permanently purge your health aggregates, cloud connection, and couple streaks from Firestore. This action cannot be reversed.") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -859,7 +435,7 @@ fun SettingsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = SystemRed)
                 ) {
-                    Text("Delete Forever")
+                    Text("Delete Forever", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -870,7 +446,7 @@ fun SettingsScreen(
         )
     }
 
-    // Success Pop-up for Samsung Account Bridge
+    // Samsung Health Bridge Confirmation Dialog
     if (showSamsungBridgeDialog) {
         AlertDialog(
             onDismissRequest = { showSamsungBridgeDialog = false },
@@ -890,84 +466,673 @@ fun SettingsScreen(
                 }
             },
             title = {
-                Text(
-                    text = "Bridge Initiated",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Text("Samsung Bridge Active", fontWeight = FontWeight.Bold)
             },
             text = {
-                Text(
-                    text = "Bridge initiated with Samsung Account. Health Connect and Samsung Health permissions are now synced with CoupleFit.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
+                Text("Samsung Health and Health Connect telemetry are bridged with CoupleFit.")
             },
             confirmButton = {
-                Button(
-                    onClick = { showSamsungBridgeDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(AppSpacing.sm)
-                ) {
+                Button(onClick = { showSamsungBridgeDialog = false }) {
                     Text("Done")
+                }
+            }
+        )
+    }
+
+    // Open Source Licenses Dialog
+    if (showLicensesDialog) {
+        AlertDialog(
+            onDismissRequest = { showLicensesDialog = false },
+            title = { Text("Open Source Acknowledgments") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("• AndroidX Jetpack Compose (Apache 2.0)")
+                    Text("• Health Connect Client SDK (Apache 2.0)")
+                    Text("• Google Firebase SDKs (Apache 2.0)")
+                    Text("• Kotlin Coroutines & Flow (Apache 2.0)")
+                    Text("• Hilt Dependency Injection (Apache 2.0)")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLicensesDialog = false }) {
+                    Text("Close")
                 }
             }
         )
     }
 }
 
-// --- Reusable Settings UI Components with Custom Styling ---
+// ==========================================
+// 4 COMPOSABLE HUBS IMPLEMENTATION (IA-03)
+// ==========================================
 
 @Composable
-fun SettingsGroup(
-    title: String,
-    isExpanded: Boolean,
-    onToggle: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
+internal fun SettingsHubBar(
+    activeHub: SettingsHub,
+    onHubSelected: (SettingsHub) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggle() }
-                .padding(horizontal = 4.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                letterSpacing = 0.8.sp
-            )
-            AnimatedChevronIcon(
-                isExpanded = isExpanded,
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        SettingsHub.values().forEach { hub ->
+            val isSelected = activeHub == hub
+            FilterChip(
+                selected = isSelected,
+                onClick = { onHubSelected(hub) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = hub.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                label = {
+                    Text(
+                        text = hub.label,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        fontSize = 13.sp
+                    )
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                shape = RoundedCornerShape(16.dp)
             )
         }
+    }
+}
 
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = expandVertically(tween(200)) + fadeIn(tween(150)),
-            exit = shrinkVertically(tween(200)) + fadeOut(tween(150))
+@Composable
+internal fun PartnershipHubContent(
+    authUiState: com.couplefit.ui.auth.AuthUiState,
+    partnerName: String,
+    isPartnerLinked: Boolean,
+    onUnlinkClicked: () -> Unit,
+    onSignOutClicked: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(AppSpacing.md),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            Text(
+                "USER PROFILE",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    content()
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Column {
+                    Text(
+                        authUiState.userSession?.displayName?.ifBlank { "CoupleFit User" } ?: "CoupleFit User",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        authUiState.userSession?.email?.ifBlank { "Synced with Firebase Auth" } ?: "Synced with Firebase Auth",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
     }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "PARTNER CONNECTION",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        "Linked with $partnerName",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        if (isPartnerLinked) "Mutual bi-directional telemetry active" else "Awaiting partner connection",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = (if (isPartnerLinked) SystemGreen else SystemOrange).copy(alpha = 0.2f)
+                ) {
+                    Text(
+                        if (isPartnerLinked) "Active 🟢" else "Pending 🟡",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isPartnerLinked) SystemGreen else SystemOrange,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedButton(
+                onClick = onSignOutClicked,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.ExitToApp, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Sign Out")
+            }
+        }
+    }
+
+    // Danger Zone
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "DANGER ZONE",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error
+            )
+            Text(
+                "Disconnecting unlinks your accounts and halts all shared metrics.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick = onUnlinkClicked,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Warning, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Unlink Partner (2-Step Verification)", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
 }
+
+@Composable
+internal fun HealthSyncHubContent(
+    hasPermissions: Boolean,
+    onManagePermissions: () -> Unit,
+    isSamsungConnected: Boolean,
+    onToggleSamsung: (Boolean) -> Unit,
+    syncFrequency: String,
+    onSyncFrequencyChange: (String) -> Unit,
+    sharingPrefs: com.couplefit.data.local.MetricSharingPreferences,
+    onToggleSteps: (Boolean) -> Unit,
+    onToggleWorkouts: (Boolean) -> Unit,
+    onToggleCalories: (Boolean) -> Unit,
+    onToggleHr: (Boolean) -> Unit,
+    onToggleSpo2: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "CORE INGESTION PROVIDER",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        "Google Health Connect",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        if (hasPermissions) "Read permissions active" else "Action needed: Grant permissions",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = (if (hasPermissions) SystemGreen else SystemOrange).copy(alpha = 0.2f)
+                ) {
+                    Text(
+                        if (hasPermissions) "Connected ✓" else "Action Required",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (hasPermissions) SystemGreen else SystemOrange,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
+            OutlinedButton(
+                onClick = onManagePermissions,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Manage Health Permissions")
+            }
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "WEARABLE BRIDGES & SCHEDULE",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsSwitchRow(
+                title = "Samsung Health Bridge",
+                subtitle = "Sync Galaxy Watch privileged biometric telemetry",
+                checked = isSamsungConnected,
+                onCheckedChange = onToggleSamsung
+            )
+            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            Text(
+                "Background Sync Schedule",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                listOf("Every 15 min", "Hourly", "Manual").forEach { freq ->
+                    val isFreqSelected = syncFrequency == freq
+                    FilterChip(
+                        selected = isFreqSelected,
+                        onClick = { onSyncFrequencyChange(freq) },
+                        label = { Text(freq, fontSize = 11.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    // Granular Metric Sharing (DataStore-backed!)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+        ) {
+            Text(
+                "GRANULAR PARTNER METRIC SHARING",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsSwitchRow(
+                title = "Share Daily Step Count",
+                subtitle = "Appears on partner dual activity ring",
+                checked = sharingPrefs.shareSteps,
+                onCheckedChange = onToggleSteps
+            )
+            SettingsSwitchRow(
+                title = "Share Active Workouts",
+                subtitle = "Workout duration and exercise progress",
+                checked = sharingPrefs.shareWorkouts,
+                onCheckedChange = onToggleWorkouts
+            )
+            SettingsSwitchRow(
+                title = "Share Caloric Burn",
+                subtitle = "Active energy expenditure",
+                checked = sharingPrefs.shareCalories,
+                onCheckedChange = onToggleCalories
+            )
+            SettingsSwitchRow(
+                title = "Share Resting Heart Rate",
+                subtitle = "Average pulse and intraday trends",
+                checked = sharingPrefs.shareHr,
+                onCheckedChange = onToggleHr
+            )
+            SettingsSwitchRow(
+                title = "Share Blood Oxygen (SpO2)",
+                subtitle = "Oxygen saturation percentage",
+                checked = sharingPrefs.shareSpo2,
+                onCheckedChange = onToggleSpo2
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ExperienceHubContent(
+    isDarkTheme: Boolean,
+    onToggleDarkTheme: (Boolean) -> Unit,
+    onToggleDarkThemeWithOrigin: ((Boolean, Offset) -> Unit)?,
+    reduceMotion: Boolean,
+    onToggleReduceMotion: (Boolean) -> Unit,
+    notifyCritical: Boolean,
+    onToggleNotifyCritical: (Boolean) -> Unit,
+    notifyNudges: Boolean,
+    onToggleNotifyNudges: (Boolean) -> Unit,
+    notifySummary: Boolean,
+    onToggleNotifySummary: (Boolean) -> Unit,
+    quietHoursEnabled: Boolean,
+    onToggleQuietHours: (Boolean) -> Unit,
+    useMetric: Boolean,
+    onToggleUseMetric: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+        ) {
+            Text(
+                "APPEARANCE & MOTION",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsSwitchRow(
+                title = "Dark Theme",
+                subtitle = "OLED Obsidian high-contrast palette",
+                checked = isDarkTheme,
+                onCheckedChangeWithOrigin = onToggleDarkThemeWithOrigin,
+                onCheckedChange = onToggleDarkTheme
+            )
+            SettingsSwitchRow(
+                title = "Reduce Motion",
+                subtitle = "Disable intensive spring sweeps and continuous pulses",
+                checked = reduceMotion,
+                onCheckedChange = onToggleReduceMotion
+            )
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+        ) {
+            Text(
+                "NOTIFICATIONS & ALERTS",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsSwitchRow(
+                title = "Partner Nudges & Cheers",
+                subtitle = "High-priority push notifications",
+                checked = notifyNudges,
+                onCheckedChange = onToggleNotifyNudges
+            )
+            SettingsSwitchRow(
+                title = "Milestone Celebrations",
+                subtitle = "Ring closure and 10k step alerts",
+                checked = notifySummary,
+                onCheckedChange = onToggleNotifySummary
+            )
+            SettingsSwitchRow(
+                title = "Critical Biometric Alerts",
+                subtitle = "Urgent high/low pulse notifications",
+                checked = notifyCritical,
+                onCheckedChange = onToggleNotifyCritical
+            )
+            SettingsSwitchRow(
+                title = "Quiet Hours (22:00 – 07:00)",
+                subtitle = "Mute non-critical alerts during sleep",
+                checked = quietHoursEnabled,
+                onCheckedChange = onToggleQuietHours
+            )
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+        ) {
+            Text(
+                "MEASUREMENT SYSTEM",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsSwitchRow(
+                title = "Metric System (km, kg)",
+                subtitle = "Switch OFF for Imperial units (mi, lbs)",
+                checked = useMetric,
+                onCheckedChange = onToggleUseMetric
+            )
+        }
+    }
+}
+
+@Composable
+internal fun PrivacyHubContent(
+    biometricLock: Boolean,
+    onToggleBiometricLock: (Boolean) -> Unit,
+    onOpenTransparency: () -> Unit,
+    onExportData: () -> Unit,
+    onDeleteAccountClicked: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "DATA RIGHTS & TRANSPARENCY",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SettingsClickableRow(
+                text = "Partner Data Transparency & Shared Payloads [Inspect →]",
+                onClick = onOpenTransparency
+            )
+            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            SettingsSwitchRow(
+                title = "Biometric App Lock",
+                subtitle = "Require fingerprint/face to open CoupleFit",
+                checked = biometricLock,
+                onCheckedChange = onToggleBiometricLock
+            )
+            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            SettingsClickableRow(
+                text = "Export My Telemetry Data (GDPR/CCPA JSON)",
+                onClick = onExportData
+            )
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+        ) {
+            Text(
+                "PERMANENT ACCOUNT PURGE",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.error
+            )
+            Text(
+                "Erase your account, local Room database, and all cloud telemetry.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick = onDeleteAccountClicked,
+                colors = ButtonDefaults.buttonColors(containerColor = SystemRed),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Delete My Account & Telemetry", fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+internal fun AboutAndSupportFooter(
+    context: android.content.Context,
+    onOpenLicenses: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(AppSpacing.md),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+    ) {
+        Column(
+            modifier = Modifier.padding(AppSpacing.md),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                "ABOUT & SUPPORT",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                "CoupleFit v2.2.0 • Build 20261027",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "Offline-First Dual Telemetry Platform",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    "Privacy Policy",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable {
+                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://couplefit.app/privacy"))
+                        context.startActivity(browserIntent)
+                    }
+                )
+                Text(
+                    "Open Source",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { onOpenLicenses() }
+                )
+            }
+        }
+    }
+}
+
+// ==========================================
+// REUSABLE ROW UTILITIES
+// ==========================================
 
 @Composable
 fun SettingsSwitchRow(
@@ -982,7 +1147,7 @@ fun SettingsSwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { 
+            .clickable {
                 if (onCheckedChangeWithOrigin != null) {
                     onCheckedChangeWithOrigin(!checked, switchOrigin)
                 } else {
@@ -1003,7 +1168,7 @@ fun SettingsSwitchRow(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -1040,7 +1205,7 @@ fun SettingsClickableRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 13.dp),
+            .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -1056,4 +1221,3 @@ fun SettingsClickableRow(
         )
     }
 }
-

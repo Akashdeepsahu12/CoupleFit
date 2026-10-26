@@ -23,6 +23,15 @@
   - **Test Suite**: `CardSortConvergenceComposeUiTest.kt` passing with 100% test green policy.
 - **Release Tag**: `v2.2.0-csa-complete`
 
-## Phase 5: Production Hardening & Remote Synchronization
+## Phase 5: Information Architecture & Settings 4-Hub Convergence (`IA-03`, `IA-04`, `IA-10`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`IA-03`**: Deconstructed 1,007-line legacy 9-accordion monolithic `SettingsScreen.kt` into 4 cohesive composable hubs (`Partnership`, `Health Sync & Sharing`, `Experience`, `Privacy & Safety`) + persistent About & Support footer.
+  - **`DataStore Persistence`**: Wired granular metric sharing toggles (`Steps`, `Workouts`, `Calories`, `Heart Rate`, `SpO2`) directly to `CoupleFitPreferencesDataStore` via `HealthConnectViewModel`.
+  - **`IA-04`**: Aligned and codified documentation governance reconciling flat `Documentation/` directory with 4-folder Diataxis taxonomy in `Documentation/INDEX.md` and `phases.md`.
+  - **`IA-10`**: Authored comprehensive instrumented test suite [`SettingsHubComposeUiTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/androidTest/java/com/couplefit/ui/SettingsHubComposeUiTest.kt) testing all 4 hubs, tab switching, and unlinking dialogs.
+- **Release Tag**: `v2.3.0-ia-settings`
+
+## Phase 6: Production Hardening & Accessibility (`RSP-01`, `GST-01`, `CLR-01`, `MSR-01`)
 - **Status**: ⚪ Pending Next Milestone
-- **Goal**: Full offline-first sync reconciliation, battery-efficient BLE background telemetry polling, and End-to-End device session validation.
+- **Goal**: Auth landscape scrolling & IME padding (`RSP-01`), InteractiveChart touch-slop disambiguation (`GST-01`), WCAG 2.2 AA text pill contrast (`CLR-01`), and tablet line measure constraints (`MSR-01`).

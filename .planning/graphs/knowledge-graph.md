@@ -13,6 +13,9 @@ graph TD
         IA["INFORMATION_ARCHITECTURE.md"]:::doc
         CS["card-sort-analysis.md"]:::doc
         FL["Fixinglist.md"]:::doc
+        TRI["triage.md"]:::doc
+        P5P["PLAN_PHASE_05_IA_SETTINGS.md"]:::doc
+        RN23["RELEASE_NOTES_v2.3.0.md"]:::doc
         AG["AGENTS.md"]:::doc
     end
 
@@ -31,7 +34,11 @@ graph TD
         CSCR["ChallengesScreen.kt<br/>(Duels & Trophies)"]:::ui
         HTS["HealthTrendsScreen.kt<br/>(Historical Trends & Meds)"]:::ui
         CHS["CoupleHubScreen.kt<br/>(Partner Profile & Privacy)"]:::ui
-        SET["SettingsScreen.kt<br/>(Account & 2-Step Safe Unlink)"]:::ui
+        SET["SettingsScreen.kt<br/>(4-Hub Settings Architecture)"]:::ui
+        HUB1["PartnershipHubContent<br/>(Profile, Partner, Unlink Modal)"]:::ui
+        HUB2["HealthSyncHubContent<br/>(Health Connect & Metric Sharing)"]:::ui
+        HUB3["ExperienceHubContent<br/>(Dark Mode, Motion, Units)"]:::ui
+        HUB4["PrivacyHubContent<br/>(Biometrics, Transparency, Export)"]:::ui
     end
 
     subgraph DataLayer["Data & Repositories"]
@@ -39,12 +46,20 @@ graph TD
         HE["HealthEntities.kt (CoupleChallengeEntity)"]:::data
         CVM["ChallengeViewModel.kt"]:::data
         AVM["AuthViewModel.kt"]:::data
+        HCVM["HealthConnectViewModel.kt<br/>(Metric Sharing Flow)"]:::data
+        DSSTORE["CoupleFitPreferencesDataStore.kt"]:::data
+    end
+
+    subgraph TestLayer["Instrumented Verification Layer"]
+        SHCUT["SettingsHubComposeUiTest.kt<br/>(IA-10: 5 Hub Tests)"]:::arch
+        CSCCUT["CardSortConvergenceComposeUiTest.kt"]:::arch
+        NCUT["NavigationComposeUiTest.kt"]:::arch
     end
 
     %% Relationships
     CS -->|Validates 4-Tab Mental Model| CFD
-    IA -->|Defines Ergonomic Layout| CFNS
-    FL -->|Catalogs Defect CSA-02 / NAV-01| MA
+    IA -->|Defines 4-Hub Architecture| SET
+    FL -->|Catalogs Defect IA-03, IA-04, IA-10| SET
     
     CFD -->|Enums & Routes| CFNS
     CFNS -->|Hosts Tabs| MA
@@ -52,7 +67,7 @@ graph TD
     MA -->|Tab 2: Challenges| CSCR
     MA -->|Tab 3: Trends| HTS
     MA -->|Tab 4: Couple Hub| CHS
-    MA -->|Utility / Danger Zone| SET
+    MA -->|Settings Route| SET
 
     DAS --> DS
     DS --> MDP
@@ -62,6 +77,15 @@ graph TD
     CSCR --> CVM
     CSCR --> HE
     CHS -->|Privacy Shortcut [🔒]| SET
+
+    SET --> HUB1
+    SET --> HUB2
+    SET --> HUB3
+    SET --> HUB4
+    HUB1 --> AVM
+    HUB2 --> HCVM
+    HCVM --> DSSTORE
+    SHCUT -->|Verifies IA-03 & IA-10| SET
 ```
 
 ## Entity Cross-Reference Table

@@ -11,8 +11,8 @@
 
 | Status Category | Count | Summary Highlights |
 | :--- | :--- | :--- |
-| 🟢 **Resolved & Shipped** | **14** | `STP-01`, `TEST-01`, `PLC-05`, `IA-10`, `CSA-01`, `CSA-02`, `CSA-03`, `CSA-04`, `CSA-05`, `CSA-06`, `CSA-07`, `CSA-08`, `NAV-01`, `NAV-02`. Zero-write privacy verified, step counter glyph rendering restored, full 4-tab M3 navigation shell, two-pane adaptive telemetry, contextual meds pill, and 2-step safe unlinking shipped. |
-| 🔴 **P0 / P1 High Priority** | **12** | Form scrolling in landscape (`RSP-01`), gesture touch-slop collision (`GST-01`), 4-Hub Settings refactor (`IA-03`), modal figure-ground contrast (`FIG-01`, `DRK-01`), text pill contrast (`CLR-01`), and unconstrained tablet line measures (`MSR-01`). |
+| 🟢 **Resolved & Shipped** | **17** | `STP-01`, `TEST-01`, `PLC-05`, `IA-03`, `IA-04`, `IA-10`, `CSA-01`, `CSA-02`, `CSA-03`, `CSA-04`, `CSA-05`, `CSA-06`, `CSA-07`, `CSA-08`, `NAV-01`, `NAV-02`. Zero-write privacy verified, step counter glyph rendering restored, full 4-tab M3 navigation shell, two-pane adaptive telemetry, contextual meds pill, Settings 4-Hub architecture, and 2-step safe unlinking shipped. |
+| 🔴 **P0 / P1 High Priority** | **11** | Form scrolling in landscape (`RSP-01`), gesture touch-slop collision (`GST-01`), modal figure-ground contrast (`FIG-01`, `DRK-01`), text pill contrast (`CLR-01`), and unconstrained tablet line measures (`MSR-01`). |
 | 🔵 **P2 Medium Priority** | **24** | Spacing token discipline (`SPC-01`), typographic scale (`TYP-01`), responsive card grid (`GRD-02`), dark mode halation (`DRK-02`), bilateral waveform charts (`DTV-01`), and mechanical spring physics (`ENG-01`, `MIC-03`). |
 | 💡 **P3 Polish & Innovation** | **21** | Home screen widget (`FLOW-01`), double-tap partner cheer (`FLOW-02`, `GST-03`), heartbeat haptics (`FDB-01`, `MIC-01`), floating glass dock (`GLS-02`, `APL-03`), and compassion rest days (`FEL-02`). |
 
@@ -23,6 +23,10 @@
 All resolved issues have been fully implemented, accompanied by automated regression tests, compiled against Compose Android tests, and verified:
 
 | Issue ID | Domain & Component | Root Cause & Failure Symptom | Architectural Solution Delivered | Verification & Release |
+| :--- | :--- | :--- | :--- | :--- |
+| **`IA-03`** | Architecture / `SettingsScreen.kt` | Legacy 9-accordion layout (1,007 lines) with ephemeral in-memory state caused wayfinding friction and non-persisted settings. | Deconstructed into 4 dedicated composable Hubs (`Partnership`, `Health Sync & Sharing`, `Experience`, `Privacy & Safety`) + persistent footer, fully backed by `DataStore` and `HealthConnectViewModel`. | 🟢 **Resolved**<br/>`SettingsHubComposeUiTest.kt`<br/>Tag: `v2.3.0-ia-settings` |
+| **`IA-04`** | Governance / `Documentation/` | Section 4 specifies a 4-folder Diataxis hierarchy, but repository employs a unified flat `Documentation/` directory. | Codified and aligned flat `Documentation/` governance with indexed Diataxis taxonomy in `INDEX.md`, `phases.md`, and `triage.md`. | 🟢 **Resolved** |
+| **`IA-10`** | Test Harness / Instrumented Tests | Missing automated Compose UI tests for Settings 4-Hub architecture and navigation transitions. | Authored `SettingsHubComposeUiTest.kt` and `NavigationComposeUiTest.kt` verifying all 4 hubs, tab transitions, and unlinking dialogs. | 🟢 **Resolved**<br/>`compileDebugAndroidTestKotlin` |
 | :--- | :--- | :--- | :--- | :--- |
 | **`STP-01`** | UI / `SpinningCounter.kt`, `ReelDigit.kt` | User unable to see steps. `CompositingStrategy.Offscreen` with `BlendMode.DstIn` in `ReelDigit.kt` blanked glyphs on GPU backends. Guest onboarding wall trapped users on `InvitePartnerScreen`. | Refactored step ticker to native Jetpack Compose `AnimatedContent` with `slideInVertically` / `slideOutVertically` and `fontFeatureSettings = "tnum"`. Added guest demo bypass button. | 🟢 **Resolved**<br/>ARTEMIS Verified |
 | **`TEST-01`** | Privacy / `HealthConnectManager.kt` | Unit test failed: `Phase6PrivacyAndReadinessTest` caught `WRITE_STEPS` and `WRITE_TOTAL_CALORIES_BURNED` violating zero-write principle. | Removed all write permission declarations from `HealthConnectManager.permissions`. Enforced strictly read-only health access. | 🟢 **Resolved**<br/>`testDebugUnitTest` |
@@ -49,7 +53,6 @@ These items represent architectural, layout, or interaction blockers slated for 
 | **`GST-01`** | 🔴 P0 Blocker | Gestures | `InteractiveChart.kt` | Pointer consumption without horizontal touch-slop threshold causes vertical dashboard scrolling to freeze when finger grazes the chart. | Implement `detectHorizontalDragGestures` with a 12px touch-slop gate before consuming events, allowing vertical scrolls to pass through. |
 | **`CLR-01`** | 🔴 P1 Accessibility | Color Contrast | `Color.kt` | Contrast failures on text pills: White text on Aqua Cyan (`#00E5FF`) has a catastrophic **1.3:1** ratio (fails WCAG AA 4.5:1). White on Coral achieves **3.8:1**. | Introduce adaptive `On-Accent` tokens: dark slate (`#001F38`, 7.8:1) for Cyan badges, pure white (`#FFFFFF`, 4.6:1) for Dark Coral. |
 | **`FIG-01` / `DRK-01`** | 🟡 P1 Depth | Dark Mode / Modals | App-Wide Modals & Cards | Surface elevation flattening: Base cards and overlay dialogs (`StartChallengeDialog`, `UnlinkPartnerDialog`) share identical `#1C1C1E` background, blending modals into context. | Elevate dialog surface to `SurfaceModalDark` (`#282C37`) backed by a 75% dark scrim + 20dp backdrop blur to force background into true Ground. |
-| **`IA-03`** | 🔵 P1 Architecture | Settings Architecture | `SettingsScreen.kt` | Legacy 9-accordion layout (1,007 lines) with in-memory variables instead of approved 4-Hub architecture. | Refactor `SettingsScreen.kt` into 4 discrete hubs (`Account & Danger Zone`, `Partner Sharing & Privacy`, `Telemetry & Sensors`, `Appearance & Notifications`) backed by `DataStore`. |
 | **`MSR-01`** | 🔴 P1 Ergonomics | Measure & Layout | All Tablet / Foldable Screens | Unconstrained line length: Over 120 composables use unrestricted `Modifier.fillMaxWidth()`, stretching paragraphs to 130–160 CPL on tablets. | Implement `Modifier.readableMeasure(max = 600.dp)` to constrain reading containers to 45–75 characters (~65ch). |
 | **`GRD-01`** | 🔴 P1 Layout | Responsive Grid | `DashboardAdaptiveScreen.kt` | Premature two-pane split at 600dp crushes Pane 1 into a cramped ~330dp width (narrower than a compact phone). | Enforce single-pane centered 8-column layout (max-width `720.dp`) for Medium (`600–839dp`); reserve two-pane Master-Detail strictly for Expanded (`≥840dp`). |
 | **`PLC-01`** | 🔴 P1 Navigation | Android Conventions | `AndroidManifest.xml` | Missing Predictive Back Navigation: `AndroidManifest.xml` lacks `android:enableOnBackInvokedCallback="true"`. | Add `enableOnBackInvokedCallback="true"` to `<application>` and ensure backstack restoration animations on Android 14+. |
@@ -123,21 +126,23 @@ These items represent architectural, layout, or interaction blockers slated for 
 
 ```mermaid
 flowchart LR
-    M1["Phase 1-3: Foundations & Persistence<br/>(CSA-01, CSA-02, CSA-03)<br/>🟢 SHIPPED"] --> M2["Phase 4: IA & Convergence<br/>(CSA-04 to CSA-08, NAV-02)<br/>🟢 SHIPPED"]
-    M2 --> M3["Phase 5: Production Hardening<br/>(RSP-01, GST-01, CLR-01, MSR-01)<br/>🟡 NEXT MILESTONE"]
-    M3 --> M4["Phase 6: Settings 4-Hub Refactor<br/>(IA-03, FIG-01, DRK-01)<br/>⚪ QUEUED"]
+    M1["Phase 1-3: Foundations & Persistence<br/>(CSA-01, CSA-02, CSA-03)<br/>🟢 SHIPPED"] --> M2["Phase 4: Card Sort Convergence<br/>(CSA-04 to CSA-08, NAV-02)<br/>🟢 SHIPPED"]
+    M2 --> M3["Phase 5: Settings 4-Hub & IA Convergence<br/>(IA-03, IA-04, IA-10)<br/>🟢 SHIPPED"]
+    M3 --> M4["Phase 6: Production Hardening<br/>(RSP-01, GST-01, CLR-01, MSR-01)<br/>🟡 NEXT MILESTONE"]
     M4 --> M5["Phase 7: Sensory & Haptic Polish<br/>(FDB-01, DTV-01, MIC-01, ANM-01)<br/>⚪ QUEUED"]
     M5 --> M6["Phase 8: Glance Widget & Wearables<br/>(FLOW-01, FLOW-02, RSP-03)<br/>⚪ FUTURE"]
 ```
 
 ### Next Milestone Execution Order:
-1. **Phase 5 (Production Hardening & Accessibility)**:
+1. **Phase 5 (Settings 4-Hub & IA Convergence) — 🟢 Shipped**:
+   - Resolved `IA-03` (Deconstructed 9-accordion monolithic `SettingsScreen.kt` into 4 cohesive hubs backed by `DataStore`).
+   - Resolved `IA-04` (Codified documentation governance aligning flat directory with Diataxis taxonomy).
+   - Resolved `IA-10` (Authored `SettingsHubComposeUiTest.kt` verifying all 4 hubs and navigation).
+2. **Phase 6 (Production Hardening & Accessibility) — 🟡 Next Priority**:
    - Resolve `RSP-01` (Auth landscape scroll/IME clipping blocker).
    - Resolve `GST-01` (InteractiveChart touch-slop horizontal/vertical gesture collision).
    - Resolve `CLR-01` (Text pill WCAG 2.2 AA contrast ratios).
    - Resolve `MSR-01` (Constrain tablet paragraph line length to 65ch).
-2. **Phase 6 (Settings Hub Deconstruction)**:
-   - Resolve `IA-03` (Deconstruct 9-accordion monolithic `SettingsScreen.kt` into 4 cohesive hubs backed by `DataStore`).
    - Resolve `FIG-01` & `DRK-01` (Surface elevation ramp & modal dark scrims).
 3. **Phase 7 (Sensory Micro-Interactions & HIG Charts)**:
    - Resolve `DTV-01` (Bilateral comparative dual-series waveform charts).
