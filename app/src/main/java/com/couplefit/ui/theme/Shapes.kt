@@ -6,9 +6,9 @@ import androidx.compose.ui.unit.dp
 
 val Shapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(24.dp),
-    extraLarge = RoundedCornerShape(32.dp)
+    small = RoundedCornerShape(8.dp),     // iOS Badges / Small elements
+    medium = RoundedCornerShape(14.dp),   // iOS standard Button/TextField radius
+    large = RoundedCornerShape(20.dp),    // iOS standard Grouped Card radius
+    extraLarge = RoundedCornerShape(32.dp) // Modals / Sheets
 )
 

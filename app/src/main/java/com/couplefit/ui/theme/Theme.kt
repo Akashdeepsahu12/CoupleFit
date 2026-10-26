@@ -16,17 +16,37 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = SystemRed,
-    secondary = SystemOrange,
+    primary = SystemBlueDark,
+    onPrimary = TextPrimaryDark,
+    secondary = StepsAccent,
+    onSecondary = TextPrimaryDark,
+    tertiary = ExerciseAccent,
     background = BackgroundDark,
-    surface = SurfaceDark
+    onBackground = TextPrimaryDark,
+    surface = SurfaceDark,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = SurfaceElevatedDark,
+    onSurfaceVariant = TextSecondaryDark,
+    outline = BorderSubtleDark,
+    error = SystemRedDark,
+    onError = TextPrimaryDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = SystemRed,
-    secondary = SystemOrange,
+    primary = SystemBlueLight,
+    onPrimary = SurfaceLight,
+    secondary = StepsAccent,
+    onSecondary = SurfaceLight,
+    tertiary = ExerciseAccent,
     background = BackgroundLight,
-    surface = SurfaceLight
+    onBackground = TextPrimaryLight,
+    surface = SurfaceLight,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = SurfaceElevatedLight,
+    onSurfaceVariant = TextSecondaryLight,
+    outline = BorderSubtleLight,
+    error = SystemRedLight,
+    onError = SurfaceLight
 )
 
 @Composable
@@ -47,8 +67,11 @@ fun CoupleFitTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.statusBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
+            window.navigationBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = !darkTheme
+            insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 
@@ -59,4 +82,3 @@ fun CoupleFitTheme(
         content = content
     )
 }
-

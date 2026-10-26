@@ -17,12 +17,16 @@ val provider = GoogleFont.Provider(
 
 val InterFont = GoogleFont("Inter")
 
-val InterFontFamily = FontFamily(
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Medium),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Bold)
-)
+val InterFontFamily = try {
+    FontFamily(
+        Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Normal),
+        Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Medium),
+        Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.SemiBold),
+        Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Bold)
+    )
+} catch (e: Exception) {
+    FontFamily.SansSerif
+}
 
 // Typography mimicking standard iOS dynamic type scales using Inter
 val Typography = Typography(

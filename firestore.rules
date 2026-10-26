@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      // Users can only read/write their own profile doc
+      allow read, write: if isAuthenticated() && isOwner(userId);
+
+      // Raw health data is strictly private to the owner
+      match /healthData/{document=**} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+
+      // Filtered shared views are readable by the explicitly linked partner
+      match /sharedView/{document=**} {
+        // Owner can write to their own shared view
+        allow write: if isAuthenticated() && isOwner(userId);
+        
+        // Partner can read it only if they are the linked partner
+        allow read: if isAuthenticated() && (isOwner(userId) || request.auth.uid == get(/databases/$(database)/documents/users/$(userId)).data.partnerId);
+      }
+      
+      // Cycle tracking defaults to fully private, even for partners, unless explicitly shared
+      match /cycleData/{document=**} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+        // Note: For a partner to read this, it would need to be pushed to /sharedView/ if cycleSharing is true.
+      }
+      
+      // Reminders can be written by the partner, read by either
+      match /reminders/{reminderId} {
+        allow read: if isAuthenticated() && 
+          (isOwner(userId) || request.auth.uid == resource.data.creatorId);
+          
+        allow write: if isAuthenticated() && 
+          (isOwner(userId) || request.auth.uid == request.resource.data.creatorId);
+      }
+    }
+  }
+}
+

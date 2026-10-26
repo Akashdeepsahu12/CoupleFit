@@ -30,20 +30,37 @@ fun ActivityRing(
     thickness: Dp = 16.dp,
     trackColor: Color = Color.DarkGray.copy(alpha = 0.3f),
     animationDuration: Int = 1200,
-    animTrigger: Any? = null
+    animTrigger: Any? = null,
+    reduceMotion: Boolean = false
 ) {
     // Smooth ease-out animation for ring progress
-    val animatedProgress = remember { Animatable(0f) }
+    val animatedProgress = remember { Animatable(progress) } // Start at progress by default
 
-    LaunchedEffect(progress, animTrigger) {
-        animatedProgress.snapTo(0f)
-        animatedProgress.animateTo(
-            targetValue = progress,
-            animationSpec = tween(
-                durationMillis = animationDuration,
-                easing = FastOutSlowInEasing
-            )
-        )
+    LaunchedEffect(progress, animTrigger, reduceMotion) {
+        if (reduceMotion) {
+            animatedProgress.snapTo(progress)
+        } else {
+            if (animTrigger != null) {
+                // Full dramatic entrance (e.g. initial load or explicit refresh)
+                animatedProgress.snapTo(0f)
+                animatedProgress.animateTo(
+                    targetValue = progress,
+                    animationSpec = tween(
+                        durationMillis = animationDuration,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            } else {
+                // Partial smooth update (e.g. background tick)
+                animatedProgress.animateTo(
+                    targetValue = progress,
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            }
+        }
     }
 
     Box(
