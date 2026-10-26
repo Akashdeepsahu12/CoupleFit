@@ -25,6 +25,13 @@
 
 ---
 
+3. **Continuous Documentation Synchronization (Every Step & Every Time)**:
+   - On EVERY single step, phase, bugfix, architectural adjustment, or feature addition, all relevant `.md` files in `Documentation/` MUST be updated immediately and kept synchronized with the live codebase.
+   - Proactively update `Documentation/Fixinglist.md`, `Documentation/triage.md`, `Documentation/INDEX.md`, `Documentation/phases.md`, and associated domain specifications at every step.
+   - **Never delete any `.md` file** during cleanup or refactoring.
+
+---
+
 ## 2. Agent Routing & Dispatch Matrix (from `agents1.md`)
 
 When handling tasks, consult and route according to this functional matrix:

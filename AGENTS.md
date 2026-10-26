@@ -31,6 +31,11 @@ This document establishes the binding development rules for any autonomous agent
    - Track all findings, bug fixes, and feature progress in [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md).
    - Document root causes, solutions, test results, and ARTEMIS verification runs.
 
+5. **Continuous Documentation Synchronization (Every Step & Every Time)**:
+   - On EVERY single step, phase, bugfix, architectural adjustment, or feature addition, all relevant `.md` files in `Documentation/` MUST be updated immediately and kept synchronized with the live codebase.
+   - Proactively update [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md), [`Documentation/triage.md`](file:///D:/Couple_fit/CoupleFit/Documentation/triage.md), [`Documentation/INDEX.md`](file:///D:/Couple_fit/CoupleFit/Documentation/INDEX.md), [`Documentation/phases.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phases.md), and associated domain specifications at every step.
+   - **Never delete any `.md` file** during cleanup or refactoring.
+
 ---
 
 ## 2. Key Specialist Agents Reference

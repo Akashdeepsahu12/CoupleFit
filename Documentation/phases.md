@@ -217,6 +217,35 @@ Audit Health Connect permissions for strict least-privilege compliance, add an i
 
 ---
 
+## Phase 7: Information Architecture & Card Sort Convergence (`CSA-01` to `CSA-08`)
+
+### Objectives
+Align the app with the quantitative and qualitative card sort findings from `card-sort-analysis.md` (91% Today cohesion, 86% Challenges, 83% Trends, 79% Hub). Deconstruct monolithic screens, introduce persistent Material 3 navigation across devices, provide contextual medication logging, and implement fail-safe relationship unlinking.
+
+### Key Changes Made
+1. **Type-Safe Navigation Destinations (`CSA-01`)**:
+   * Created `@Serializable` route objects (`Today`, `Challenges`, `HealthTrends`, `CoupleHub`) and `TopLevelDestination` enum in `CoupleFitDestinations.kt`.
+2. **Persistent Adaptive Navigation Suite (`CSA-02` / `NAV-01`)**:
+   * Implemented `CoupleFitNavigationSuite.kt` hosting persistent 80dp `NavigationBar` on compact viewports (<600dp) and `NavigationRail` on expanded viewports (≥600dp).
+   * Created dedicated top-level destinations: `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`.
+   * Added `NavigationComposeUiTest.kt` (`IA-10`).
+3. **Contextual Medication Due Pill (`CSA-03`)**:
+   * Created `MedicationDuePill.kt` on `Today` with one-tap dose logging (`Log [✓]`), haptic confirmation, smooth dismissability, and TalkBack accessibility.
+   * Added `MedicationDuePillComposeUiTest.kt`.
+4. **Modular Challenge Preview (`CSA-04`)**:
+   * Extracted `ActiveChallengePreviewCard.kt` on `Today` showing primary active duel with bilateral progress tracks and one-tap routing to Tab 2 `Challenges`.
+5. **Two-Pane Adaptive Telemetry Deep-Dive (`CSA-05` / `NAV-02`)**:
+   * Built expanded two-pane telemetry view in `DashboardAdaptiveScreen.kt` with dynamic chips (`Steps`, `Heart Rate`, `Active Minutes`, `Caloric Burn`), comparative stat cards, and interactive spline chart.
+6. **Couple Hub Privacy Rules Shortcut (`CSA-06`)**:
+   * Added `"Partner Visibility & Sharing Rules [Manage 🔒]"` card in `CoupleHubScreen.kt` routing directly to Privacy settings modal.
+7. **2-Step Safe Unlink Verification (`CSA-07`)**:
+   * Upgraded Danger Zone unlinking dialog in `SettingsScreen.kt` to strict 2-step verification modal requiring typing `"UNLINK"` in an `OutlinedTextField` before destruction unlocks.
+8. **Thumb-Zone Quick Nudge Row (`CSA-08`)**:
+   * Built horizontal `QuickNudgeRow.kt` (`[👋 Poke] [🔥 Keep Going!] [❤️ Love] [💧 Drink Water]`) placed directly beneath bilateral gauges on `DashboardScreen.kt`.
+   * Added `CardSortConvergenceComposeUiTest.kt`.
+
+---
+
 ## File Modification Summary
 
 | Phase | Files Created / Modified | Primary Functionality |
@@ -227,6 +256,7 @@ Audit Health Connect permissions for strict least-privilege compliance, add an i
 | **Phase 4** | `CoupleFitFirebaseMessagingService.kt`, `NotificationHelper.kt`, `NotificationPermissionRationaleDialog.kt`, `functions/src/index.ts` (`onNudgeCreated`, `onDailyAggregateUpdated`) | FCM push messaging, real-time nudges with rate limit, milestone crossing detection with daily deduplication, notification channels. |
 | **Phase 5** | `CoupleChallengeEntity`, `ChallengeRepositoryImpl.kt`, `ChallengeViewModel.kt`, `ChallengeComponents.kt`, `CoupleFitAppWidget.kt`, `WidgetEntryPoint.kt`, `RemoteConfigManager.kt`, `baseline-prof.txt`, `proguard-rules.pro`, `.github/workflows/android.yml` | Couple challenges & scheduled scoring, Glance home widget (Room SSOT), Firebase observability & Remote Config, Baseline Profiles, R8 release config, CI workflow. |
 | **Phase 6** | `PrivacyTransparencyScreen.kt`, `PrivacyPolicyActivity.kt`, `SettingsScreen.kt`, `functions/src/index.ts` (`deleteUserData`), `Phase6PrivacyAndReadinessTest.kt`, `DashboardComposeUiTest.kt` | Removal of `WRITE_STEPS`, graceful partial permissions, in-app privacy transparency, unlink & delete my data flows, Play Console declarations. |
+| **Phase 7** | `CoupleFitDestinations.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `MedicationDuePill.kt`, `ActiveChallengePreviewCard.kt`, `DashboardAdaptiveScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, `QuickNudgeRow.kt`, `CardSortConvergenceComposeUiTest.kt` | 4-tab M3 navigation shell, contextual medication logging, modular challenge preview, two-pane telemetry deep dive, 2-step safe unlink verification, and thumb-zone partner cheers. |
 
 ---
 

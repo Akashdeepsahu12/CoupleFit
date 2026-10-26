@@ -453,4 +453,32 @@ To verify these implementations locally on an Android device or emulator:
    - Automated Unit Tests: **All 63 tests passing** (`./gradlew testDebugUnitTest`).
    - Compilation: Verified both Debug and Release APK builds pass cleanly.
 
+### 7.8 Information Architecture & Card Sort Convergence (v2.2.0)
+1. **Step Counter Rendering & Guest Demo Wall Resolution (`STP-01`)**:
+   - Diagnosed `ReelDigit.kt` offscreen alpha masking (`BlendMode.DstIn`) blanking digit glyphs on GPU backends.
+   - Refactored ticker to native Compose `AnimatedContent` with `slideInVertically` / `slideOutVertically` and tabular numbers (`tnum`).
+   - Added guest demo dashboard bypass to eliminate the onboarding blocker.
+2. **Persistent 4-Tab Navigation Shell (`CSA-01`, `CSA-02` / `NAV-01`)**:
+   - Added `@Serializable` routes for `Today`, `Challenges`, `HealthTrends`, `CoupleHub` and `TopLevelDestination` enum in `CoupleFitDestinations.kt`.
+   - Built `CoupleFitNavigationSuite.kt` with 80dp `NavigationBar` (<600dp) and `NavigationRail` (≥600dp).
+   - Created `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, and `CoupleHubScreen.kt`.
+   - Added `NavigationComposeUiTest.kt`.
+3. **Contextual Medication Logging on Today (`CSA-03`)**:
+   - Built `MedicationDuePill.kt` at top of `Today` with one-tap dose logging (`Log [✓]`), haptic confirmation, and dismissability.
+   - Added `MedicationDuePillComposeUiTest.kt`.
+4. **Modular Challenge Preview & Streamlined Today (`CSA-04`)**:
+   - Extracted `ActiveChallengePreviewCard.kt` to replace the 400-line inline challenge list on `DashboardScreen.kt`, routing directly to Tab 2 `Challenges`.
+5. **Adaptive Two-Pane Telemetry Deep-Dive (`CSA-05` / `NAV-02`)**:
+   - Built two-pane telemetry view in `DashboardAdaptiveScreen.kt` for Expanded viewports (≥600dp) with dynamic chips, comparative stat cards, and interactive spline chart.
+6. **Relational Privacy Shortcut & 2-Step Unlink Protection (`CSA-06`, `CSA-07`)**:
+   - Added `"Partner Visibility & Sharing Rules [Manage 🔒]"` card in `CoupleHubScreen.kt`.
+   - Upgraded Danger Zone unlinking dialog in `SettingsScreen.kt` to require typing `"UNLINK"` in an `OutlinedTextField`.
+7. **Ergonomic Quick Nudge Row (`CSA-08`)**:
+   - Built horizontal `QuickNudgeRow.kt` placed directly beneath bilateral gauges on `DashboardScreen.kt`.
+   - Added `CardSortConvergenceComposeUiTest.kt`.
+8. **Automated Verification**:
+   - `./gradlew testDebugUnitTest`: **100% tests passing in 1s**.
+   - `./gradlew compileDebugAndroidTestKotlin`: **0 errors in 17s**.
+   - Tagged release: `v2.2.0-csa-complete`.
+
 
