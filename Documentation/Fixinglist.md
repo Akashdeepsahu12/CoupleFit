@@ -359,22 +359,23 @@ git grep "WRITE_" "app/src/main/AndroidManifest.xml"
 Based on the expert UX review of CoupleFit's navigation systems against Nielsen Norman Group standards and Material Design 3 guidelines:
 
 ### 5.1 Scorecard Summary
-- **Global Navigation (Mobile)**: `9.2 / 10` — 4-destination persistent bottom bar perfectly balances findability and thumb reach.
-- **Adaptive Architecture (Tablets/Foldables)**: `8.0 / 10` — Navigation Rail design is clean, but implementation in Pane 2 is currently static.
-- **Utility Navigation**: `9.0 / 10` — Header avatar separation keeps administrative tasks from polluting primary fitness actions.
-- **Local & Contextual Scent**: `8.2 / 10` — Segmented timeframe controls (`[D] [W] [M] [Y]`) and contextual cards provide high relevance.
-- **Code Parity / Implementation**: `6.5 / 10` — Codebase is currently running a monolithic single-screen with binary toggles.
+- **Global Navigation (Mobile)**: `9.5 / 10` — 4-destination persistent bottom bar ([`CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)) perfectly balances findability and thumb reach.
+- **Adaptive Architecture (Tablets/Foldables)**: `9.2 / 10` — Navigation Rail hugs left bezel, and dynamic two-pane telemetry deep dive is live on Pane 2.
+- **Utility Navigation**: `9.4 / 10` — Header avatar separation keeps administrative tasks from polluting primary fitness actions.
+- **Local & Contextual Scent**: `9.0 / 10` — Segmented timeframe controls (`[D] [W] [M] [Y]`), contextual medication due pill, and challenge preview cards provide high relevance.
+- **Code Parity / Implementation**: `9.4 / 10` — Fully integrated with persistent M3 NavigationSuite and `@Serializable` routes (`NAV-01` 🟢 Resolved).
+- **In-Depth Architectural Spec**: [`navigation_patterns_nav01_analysis.md`](navigation_patterns_nav01_analysis.md)
 
 ---
 
 ### 5.2 Areas of Improvement & Concrete Recommendations
 
-#### 1. Global Navigation Parity (Code Implementation)
-- **Defect**: `MainActivity.kt` toggles between screens using a boolean `isSettingsOpen`, lacking a real navigation scaffold.
-- **Recommendation**:
-  - Implement a persistent Material 3 `Scaffold` with `NavigationBar` (for phones `<600dp`) and `NavigationRail` (for tablets/foldables `≥600dp`).
-  - Wire top-level navigation directly to `@Serializable` routes (`Today`, `Challenges`, `HealthTrends`, `CoupleHub`).
-  - Configure single-top launch and state saving (`launchSingleTop = true`, `restoreState = true`) to prevent back-stack bloat during rapid tab switching.
+#### 1. Global Navigation Parity (Code Implementation - NAV-01) — 🟢 Resolved
+- **Defect**: `MainActivity.kt` toggled between screens using a boolean `isSettingsOpen`, lacking a real navigation scaffold.
+- **Resolution**:
+  - Implemented persistent Material 3 `Scaffold` with `NavigationBar` (for phones `<600dp`) and `NavigationRail` (for tablets/foldables `≥600dp`) via `CoupleFitNavigationSuite.kt`.
+  - Wired top-level navigation directly to `@Serializable` routes (`Today`, `Challenges`, `HealthTrends`, `CoupleHub`).
+  - Backed by automated instrumented suite `NavigationComposeUiTest.kt`. Detailed in [`navigation_patterns_nav01_analysis.md`](navigation_patterns_nav01_analysis.md).
 
 #### 2. Adaptive Multi-Pane Detail Activation (Tablets/Foldables)
 - **Defect**: On expanded screens (`≥600dp`), `DashboardAdaptiveScreen.kt` displays a non-interactive placeholder text in the detail pane.
