@@ -353,7 +353,7 @@ git grep "WRITE_" "app/src/main/AndroidManifest.xml"
 ## 5. Navigation Pattern Evaluation & Comprehensive Recommendations (Score: 8.6 / 10) 🧭
 
 > **Command Trigger**: `/designer-skills:navigation-patterns`  
-> **Associated Defect Logs**: `NAV-01`, `NAV-02`, `NAV-03`, `NAV-04`, `NAV-05`
+> **Associated Defect Logs**: `NAV-01`, `NAV-02`, `NAV-03`, `NAV-04`, `NAV-05`, `LOC-NAV-01`, `BCK-01`
 
 
 Based on the expert UX review of CoupleFit's navigation systems against Nielsen Norman Group standards and Material Design 3 guidelines:
@@ -364,7 +364,7 @@ Based on the expert UX review of CoupleFit's navigation systems against Nielsen 
 - **Utility Navigation**: `9.4 / 10` — Header avatar separation keeps administrative tasks from polluting primary fitness actions.
 - **Local & Contextual Scent**: `9.0 / 10` — Segmented timeframe controls (`[D] [W] [M] [Y]`), contextual medication due pill, and challenge preview cards provide high relevance.
 - **Code Parity / Implementation**: `9.4 / 10` — Fully integrated with persistent M3 NavigationSuite and `@Serializable` routes (`NAV-01` 🟢 Resolved).
-- **In-Depth Architectural Spec**: [`navigation_patterns_nav01_analysis.md`](navigation_patterns_nav01_analysis.md)
+- **In-Depth Architectural Specs**: [`navigation_patterns_nav01_analysis.md`](navigation_patterns_nav01_analysis.md) & [`navigation_patterns_appwide_audit.md`](navigation_patterns_appwide_audit.md)
 
 ---
 
