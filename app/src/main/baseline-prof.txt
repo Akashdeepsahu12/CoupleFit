@@ -1,0 +1,14 @@
+# Baseline Profiles for CoupleFit
+# Improves cold start, dashboard rendering speed, and Glance widget initialization
+HSPLcom/couplefit/CoupleFitApplication;-><init>()V
+HSPLcom/couplefit/CoupleFitApplication;->onCreate()V
+HSPLcom/couplefit/MainActivity;-><init>()V
+HSPLcom/couplefit/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/couplefit/ui/dashboard/DashboardScreenKt;->DashboardScreen(Landroidx/compose/ui/Modifier;ZZZLkotlin/jvm/functions/Function0;Lcom/couplefit/ui/healthconnect/HealthConnectViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/couplefit/ui/components/ActivityRingKt;->ActivityRing(Landroidx/compose/ui/Modifier;FFFJLandroidx/compose/ui/graphics/Color;Landroidx/compose/ui/graphics/Color;Landroidx/compose/ui/graphics/Color;ZLandroidx/compose/runtime/Composer;II)V
+HSPLcom/couplefit/data/local/HealthDao_Impl;-><init>(Landroidx/room/RoomDatabase;)V
+HSPLcom/couplefit/data/local/HealthDatabase_Impl;-><init>()V
+HSPLcom/couplefit/widget/CoupleFitAppWidget;-><init>()V
+HSPLcom/couplefit/widget/CoupleFitAppWidgetReceiver;-><init>()V
+HSPLcom/couplefit/util/RemoteConfigManager;-><init>(Lcom/google/firebase/remoteconfig/FirebaseRemoteConfig;)V
+HSPLcom/couplefit/util/NotificationHelper;->createNotificationChannels(Landroid/content/Context;)V

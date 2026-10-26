@@ -38,14 +38,19 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
     @Volatile
     private var _cachedClient: HealthConnectClient? = null
 
+    // Internal constructor allowing direct injection of HealthConnectClient for testing
+    internal constructor(context: Context, testClient: HealthConnectClient?) : this(context) {
+        this._cachedClient = testClient
+    }
+
     /**
      * Dynamically gets or initializes the HealthConnectClient if SDK is available.
      * Prevents caching null permanently if the user installs or updates Health Connect during app lifecycle.
      */
     fun getClient(): HealthConnectClient? {
+        val current = _cachedClient
+        if (current != null) return current
         if (isHealthConnectAvailable(context) == HealthConnectClient.SDK_AVAILABLE) {
-            val current = _cachedClient
-            if (current != null) return current
             return synchronized(this) {
                 _cachedClient ?: try {
                     HealthConnectClient.getOrCreate(context).also { _cachedClient = it }
@@ -79,20 +84,14 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         return status
     }
 
-    val permissions = setOf(
-        HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class),
-        HealthPermission.getReadPermission(HeartRateRecord::class),
-        HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
-        HealthPermission.getReadPermission(OxygenSaturationRecord::class)
-    )
-
     val readPermissions = setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
         HealthPermission.getReadPermission(HeartRateRecord::class),
         HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getReadPermission(OxygenSaturationRecord::class)
     )
+
+    val permissions = readPermissions
 
     /**
      * Checks if all requested permissions (read + write) are granted.
@@ -160,9 +159,10 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                     pageToken = pageToken
                 )
                 val response = client.readRecords(request)
+                if (response.records.isEmpty()) break
                 steps.addAll(response.records)
                 pageToken = response.pageToken
-            } while (pageToken != null)
+            } while (!pageToken.isNullOrBlank())
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException reading steps", e)
         } catch (e: RemoteException) {
@@ -185,11 +185,12 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                     pageToken = pageToken
                 )
                 val response = client.readRecords(request)
+                if (response.records.isEmpty()) break
                 response.records.forEach { record ->
                     samples.addAll(record.samples)
                 }
                 pageToken = response.pageToken
-            } while (pageToken != null)
+            } while (!pageToken.isNullOrBlank())
         } catch (e: Exception) {
             Log.e(TAG, "Exception reading raw heart rate points", e)
         }
@@ -208,9 +209,10 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                     pageToken = pageToken
                 )
                 val response = client.readRecords(request)
+                if (response.records.isEmpty()) break
                 records.addAll(response.records)
                 pageToken = response.pageToken
-            } while (pageToken != null)
+            } while (!pageToken.isNullOrBlank())
         } catch (e: Exception) {
             Log.e(TAG, "Exception reading oxygen saturation points", e)
         }
@@ -228,16 +230,42 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
     suspend fun getAggregatedData(startTime: Instant, endTime: Instant): AggregatedHealthData {
         val client = getClient() ?: return AggregatedHealthData(0, 0.0, 0L)
         try {
+            val granted = try {
+                client.permissionController.getGrantedPermissions()
+            } catch (e: Exception) {
+                emptySet()
+            }
+
+            val filterByGranted = granted.isNotEmpty()
+            val hasSteps = !filterByGranted || HealthPermission.getReadPermission(StepsRecord::class) in granted
+            val hasHr = !filterByGranted || HealthPermission.getReadPermission(HeartRateRecord::class) in granted
+            val hasCal = !filterByGranted || HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class) in granted
+
+            val metricsToQuery = mutableSetOf<androidx.health.connect.client.aggregate.AggregateMetric<*>>()
+            if (hasSteps) metricsToQuery.add(StepsRecord.COUNT_TOTAL)
+            if (hasHr) metricsToQuery.add(HeartRateRecord.BPM_AVG)
+            if (hasCal) metricsToQuery.add(TotalCaloriesBurnedRecord.ENERGY_TOTAL)
+
+            if (metricsToQuery.isEmpty()) {
+                return AggregatedHealthData(0, 0.0, 0L)
+            }
+
             val response = client.aggregate(
                 AggregateRequest(
-                    metrics = setOf(StepsRecord.COUNT_TOTAL, HeartRateRecord.BPM_AVG, TotalCaloriesBurnedRecord.ENERGY_TOTAL),
+                    metrics = metricsToQuery,
                     timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
                 )
             )
             
-            val totalSteps = response[StepsRecord.COUNT_TOTAL] ?: 0L
-            val averageHeartRate = response[HeartRateRecord.BPM_AVG]?.toDouble() ?: 0.0
-            val totalCalories = response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories?.toLong() ?: 0L
+            val totalSteps = if (hasSteps) response[StepsRecord.COUNT_TOTAL] ?: 0L else 0L
+            val averageHeartRate = if (hasHr) response[HeartRateRecord.BPM_AVG]?.toDouble() ?: 0.0 else 0.0
+            val totalCalories = if (hasCal) {
+                try {
+                    response[TotalCaloriesBurnedRecord.ENERGY_TOTAL]?.inKilocalories?.toLong() ?: 0L
+                } catch (e: Exception) {
+                    0L
+                }
+            } else 0L
             
             return AggregatedHealthData(totalSteps, averageHeartRate, totalCalories)
         } catch (e: SecurityException) {
@@ -247,8 +275,149 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         } catch (e: Exception) {
             Log.e(TAG, "Exception during aggregation", e)
         }
-        return AggregatedHealthData(0, 0.0)
+        return AggregatedHealthData(0, 0.0, 0L)
     }
+
+    suspend fun getChangesToken(
+        recordTypes: Set<kotlin.reflect.KClass<out androidx.health.connect.client.records.Record>> = setOf(
+            StepsRecord::class,
+            HeartRateRecord::class,
+            TotalCaloriesBurnedRecord::class,
+            OxygenSaturationRecord::class
+        )
+    ): String? {
+        val client = getClient() ?: return null
+        return try {
+            client.getChangesToken(
+                androidx.health.connect.client.request.ChangesTokenRequest(recordTypes = recordTypes)
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get changes token", e)
+            null
+        }
+    }
+
+    suspend fun getChanges(changesToken: String): androidx.health.connect.client.response.ChangesResponse? {
+        val client = getClient() ?: return null
+        return try {
+            client.getChanges(changesToken)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get changes for token", e)
+            null
+        }
+    }
+
+    /**
+     * Replaces legacy last-24-hour sync with the Changes API:
+     * - Uses getChangesToken / getChanges
+     * - Handles token expiry with a full resync fallback
+     * - Uses aggregate queries (StepsRecord.COUNT_TOTAL) to deduplicate phone and watch steps
+     */
+    suspend fun syncViaChangesApi(
+        dataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
+        healthDao: com.couplefit.data.local.HealthDao
+    ): Result<AggregatedHealthData> {
+        val client = getClient() ?: return Result.failure(IllegalStateException("Health Connect is unavailable"))
+        val now = Instant.now()
+        val startOfDay = java.time.LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()
+        val dateStr = java.time.LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+        try {
+            var currentToken = dataStore.getChangesToken()
+            var shouldFullResync = false
+
+            if (currentToken == null) {
+                Log.d(TAG, "Changes API: No token stored, performing initial full resync")
+                shouldFullResync = true
+            } else {
+                val changesResponse = getChanges(currentToken)
+                if (changesResponse == null || changesResponse.changesTokenExpired) {
+                    Log.w(TAG, "Changes API: Token expired or invalid, triggering full resync")
+                    shouldFullResync = true
+                } else {
+                    Log.d(TAG, "Changes API: Incremental update received (${changesResponse.changes.size} changes)")
+                    dataStore.saveChangesToken(changesResponse.nextChangesToken)
+                    shouldFullResync = changesResponse.changes.isNotEmpty()
+                }
+            }
+
+            if (shouldFullResync) {
+                val freshToken = getChangesToken()
+                if (freshToken != null) {
+                    dataStore.saveChangesToken(freshToken)
+                }
+            }
+
+            // Deduplicate phone and watch step counts via aggregate query
+            val aggregateData = getAggregatedData(startOfDay, now)
+            val existingLocalAggregate = healthDao.getDailyAggregate(dateStr)
+            val effectiveSteps = if (aggregateData.totalSteps == 0L && existingLocalAggregate != null && existingLocalAggregate.totalSteps > 0L) {
+                existingLocalAggregate.totalSteps
+            } else {
+                aggregateData.totalSteps
+            }
+            val activeMins = (effectiveSteps / 100).coerceAtMost(180)
+            val calories = if (aggregateData.totalCalories == 0L && existingLocalAggregate != null && existingLocalAggregate.totalCalories > 0L) {
+                existingLocalAggregate.totalCalories
+            } else {
+                aggregateData.totalCalories
+            }
+            val avgHr = if (aggregateData.averageHeartRate == 0.0 && existingLocalAggregate != null && existingLocalAggregate.averageHeartRate > 0.0) {
+                existingLocalAggregate.averageHeartRate
+            } else {
+                aggregateData.averageHeartRate
+            }
+
+            val hrPoints = readHeartRatePointsRaw(now.minus(24, ChronoUnit.HOURS), now)
+            val o2Points = readOxygenSaturationPointsRaw(now.minus(24, ChronoUnit.HOURS), now)
+            val avgO2 = if (o2Points.isNotEmpty()) {
+                o2Points.map { it.percentage.value }.average()
+            } else if (existingLocalAggregate != null && existingLocalAggregate.averageOxygenSaturation > 0.0) {
+                existingLocalAggregate.averageOxygenSaturation
+            } else 0.0
+
+            // Persist deduplicated aggregate to Room
+            healthDao.insertAggregate(
+                com.couplefit.data.local.HealthDailyAggregateEntity(
+                    dateStr = dateStr,
+                    totalSteps = effectiveSteps,
+                    totalActiveMinutes = activeMins,
+                    totalCalories = calories,
+                    averageHeartRate = avgHr,
+                    averageOxygenSaturation = avgO2,
+                    lastUpdatedTimestamp = now.toEpochMilli()
+                )
+            )
+
+            val hrEntities = hrPoints.map { sample ->
+                com.couplefit.data.local.HealthMetricEntity(
+                    id = "HEART_RATE_${sample.time.toEpochMilli()}",
+                    metricType = "HEART_RATE",
+                    sourceTimestamp = sample.time.toEpochMilli(),
+                    rawValue = sample.beatsPerMinute.toDouble(),
+                    normalizedValue = sample.beatsPerMinute.toDouble()
+                )
+            }
+            val o2Entities = o2Points.map { record ->
+                com.couplefit.data.local.HealthMetricEntity(
+                    id = "OXYGEN_SATURATION_${record.time.toEpochMilli()}",
+                    metricType = "OXYGEN_SATURATION",
+                    sourceTimestamp = record.time.toEpochMilli(),
+                    rawValue = record.percentage.value,
+                    normalizedValue = record.percentage.value
+                )
+            }
+            if (hrEntities.isNotEmpty() || o2Entities.isNotEmpty()) {
+                healthDao.insertMetrics(hrEntities + o2Entities)
+            }
+
+            return Result.success(aggregateData)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in syncViaChangesApi", e)
+            return Result.failure(e)
+        }
+    }
+
 
     suspend fun diagnoseHealthConnect(timeRangeDays: Long = 7) {
         val client = getClient()
@@ -279,23 +448,27 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         }
     }
 
-    suspend fun writeSampleSteps(count: Long = 1000L) {
-        val client = getClient() ?: return
-        try {
+    suspend fun writeSampleSteps(count: Long = 1000L): Result<Unit> {
+        val client = getClient() ?: return Result.failure(IllegalStateException("Health Connect is not available"))
+        return try {
             val endTime = Instant.now()
             val startTime = endTime.minus(15, ChronoUnit.MINUTES)
+            val zoneOffset = ZoneId.systemDefault().rules.getOffset(endTime)
             
             val record = StepsRecord(
                 count = count,
                 startTime = startTime,
                 endTime = endTime,
-                startZoneOffset = null,
-                endZoneOffset = null
+                startZoneOffset = zoneOffset,
+                endZoneOffset = zoneOffset,
+                metadata = androidx.health.connect.client.records.metadata.Metadata.manualEntry()
             )
             client.insertRecords(listOf(record))
             Log.d(TAG, "Successfully wrote $count sample steps to Health Connect")
+            Result.success(Unit)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to write sample steps", e)
+            Log.e(TAG, "Failed to write sample steps to Health Connect", e)
+            Result.failure(e)
         }
     }
 

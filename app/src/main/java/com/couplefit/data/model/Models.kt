@@ -27,10 +27,14 @@ data class HealthSnapshot(
     val date: Date,
     val steps: Int,
     val distanceMeters: Double,
-    val floorsClimbed: Int,
-    val activeCalories: Double,
-    val sedentaryMinutes: Int
+    val floorsClimbed: Int = 0,
+    val activeCalories: Double = 0.0,
+    val sedentaryMinutes: Int = 0,
+    val activeMinutes: Int = 0,
+    val averageHeartRate: Double? = null,
+    val averageOxygenSaturation: Double? = null
 )
+
 
 data class WorkoutSession(
     val id: String,
@@ -120,8 +124,50 @@ data class SharingPreferences(
     val shareWorkouts: Boolean = true,
     val shareSleep: Boolean = true,
     val shareHR: Boolean = false,
+    val shareSpO2: Boolean = false, // Strictly opt-in per-metric sharing toggle
     val shareCriticalAlerts: Boolean = true,
     val shareCycle: Boolean = false, // Strictly opt-in
     val shareMedications: Boolean = false // Strictly opt-in
 )
+
+enum class ChallengeType { TOTAL_STEPS, ACTIVE_MINUTES, CALORIES_BURNED, STREAK }
+enum class ChallengeStatus { ACTIVE, COMPLETED, EXPIRED }
+
+/**
+ * Challenge state is managed and scored exclusively by Cloud Functions.
+ * Clients have read-only access.
+ */
+data class Challenge(
+    val id: String,
+    val coupleId: String,
+    val title: String,
+    val description: String,
+    val type: ChallengeType,
+    val targetValue: Double,
+    val userAProgress: Double = 0.0,
+    val userBProgress: Double = 0.0,
+    val status: ChallengeStatus = ChallengeStatus.ACTIVE,
+    val startDate: Date,
+    val endDate: Date,
+    val winnerUserId: String? = null
+)
+
+enum class MilestoneType { COMBINED_STEPS, STREAK_DAYS, TOTAL_CALORIES }
+
+/**
+ * Milestones are evaluated and awarded exclusively on the server by Cloud Functions.
+ * Clients have read-only access.
+ */
+data class Milestone(
+    val id: String,
+    val coupleId: String,
+    val title: String,
+    val description: String,
+    val type: MilestoneType,
+    val threshold: Double,
+    val achievedAt: Date,
+    val celebratoryMessage: String
+)
+
+
 

@@ -1,6 +1,7 @@
 package com.couplefit.service
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -23,7 +24,9 @@ class SyncWorker @AssistedInject constructor(
         try {
             // 1. Trigger health repository sync (which internally would fetch from SamsungHealthRepository)
             healthRepository.syncWithPartner()
-            
+            try {
+                com.couplefit.widget.CoupleFitAppWidget().updateAll(applicationContext)
+            } catch (ignored: Exception) {}
             Result.success()
         } catch (e: Exception) {
             e.printStackTrace()

@@ -9,5 +9,7 @@ interface HealthRepository {
     fun getPartnerDailySnapshot(partnerId: String, date: Date): Flow<HealthSnapshot?>
     
     suspend fun syncWithPartner()
+    suspend fun syncWithPartner(partnerId: String, date: Date, prefs: com.couplefit.data.model.SharingPreferences)
 }
+
 

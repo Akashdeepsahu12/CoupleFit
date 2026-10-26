@@ -1,25 +1,57 @@
 # CoupleFit Documentation Hub 📚
 
-Welcome to the centralized documentation directory for the **CoupleFit** ecosystem. Below is an index of all architectural, operational, release, and agent skills documentation.
+Welcome to the centralized documentation directory for the **CoupleFit** ecosystem. Below is an index of all architectural, operational, release, and agent skills documentation, complete with the exact command trigger and associated defect log mappings.
 
 ---
 
 ## 📑 Documentation Index
 
-| Document | Primary Focus | Description |
-| :--- | :--- | :--- |
-| [**`skillscommand.md`**](skillscommand.md) | **Antigravity Skills Directory** | Master directory and cheat sheet for all **14 installed agent plugins** and **288 modular skills** in Antigravity, including intent routers and invocation guides. |
-| [**`README.md`**](README.md) | **Architecture & Implementation** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
-| [**`techstackreview.md`**](techstackreview.md) | **Tech Stack & Production Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
-| [**`phases.md`**](phases.md) | **Milestones & Implementation Phases** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
-| [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) | **Release v2.0.1 Notes** | Details for release v2.0.1: R8 ProGuard keep rules for Health Connect SDK reflection, build verification, and release APK metadata. |
-| [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md) | **Release v2.0.0 Notes** | Major release notes for CoupleFit v2.0.0: UI overhaul, dual ring mechanics, dynamic theming, and offline-first Room database sync. |
-| [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md) | **Transformation Changelog** | Complete historical changelog documenting the transformation from the legacy code into modern Clean Architecture. |
+| Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
+| :--- | :--- | :--- | :--- |
+| [**`Fixinglist.md`**](Fixinglist.md) | Multi-Command Central Audit | **Defect & Audit Catalog** | Master audit and defect tracking catalog logging all errors, gaps, corrections, and test results against architecture and research specs (`TEST-01` to `APL-03`). |
+| [**`visual_hierarchy_architecture.md`**](visual_hierarchy_architecture.md) | `/designer-skills:visual-hierarchy` | **Visual Hierarchy & Scanning** | 4-tier visual hierarchy stack, Squint Test audit (6.8/10), de-carding hero rings, and 52sp HeroMetricDisplay (`VHR-01` to `VHR-03`). |
+| [**`interfaces_that_feel_emotional_design.md`**](interfaces_that_feel_emotional_design.md) | `/designer-skills:interfaces-that-feel` | **Emotional Resonance & Warmth** | Translating felt states into UI physics, living morning pulse, Rest Day compassion mode, and de-robotized human copy (`FEL-01` to `FEL-03`). |
+| [**`data_visualization_chart_qa.md`**](data_visualization_chart_qa.md) | `/designer-skills:data-visualization` | **Data Viz & Chart Engineering** | Deep chart audit (7.4/10), bilateral dual-stream waveform, delta zone shading, and magnetic hourly node snapping (`DTV-01` to `DTV-03`). |
+| [**`animation_principles_qa.md`**](animation_principles_qa.md) | `/designer-skills:animation-principles` | **Animation QA & Modern Techniques** | Deep motion principles audit (6.5/10), 5 critical animation defects, spring retargeting, and shared element morphing (`ANM-01` to `ANM-03`). |
+| [**`motion_system_architecture.md`**](motion_system_architecture.md) | `/designer-skills:motion-system` | **Motion System & Animation Tokens** | Formal duration scales (50ms–700ms), cubic Bézier easing tokens, spring physics curves, and 35ms stagger choreography (`MOT-01` to `MOT-03`). |
+| [**`micro_interaction_specifications.md`**](micro_interaction_specifications.md) | `/designer-skills:micro-interaction-spec` | **Micro-Interactions & Physics** | 6 complete micro-interaction specs (Trigger, Rules, Feedback, Loops), mechanical springs, and particle choreographies (`MIC-01` to `MIC-04`). |
+| [**`gesture_patterns_specification.md`**](gesture_patterns_specification.md) | `/designer-skills:gesture-patterns` | **Gestures & Touch Spec** | Touch slop disambiguation, pointer cancellation, double-tap ring cheer, swipe-to-poke, and pinch chart zoom (`GST-01` to `GST-03`). |
+| [**`feedback_patterns_architecture.md`**](feedback_patterns_architecture.md) | `/designer-skills:feedback-patterns` | **Sensory & Haptics Spec** | 4-level feedback hierarchy, custom heartbeat haptic waveform, floating glass undo snackbar, and ambient presence badges (`FDB-01` to `FDB-03`). |
+| [**`error_handling_and_loading_states.md`**](error_handling_and_loading_states.md) | `/designer-skills:error-handling-ux` & `/designer-skills:loading-states` | **Interaction & Reliability Spec** | Robust error prevention, detection, recovery hierarchy, skeleton shimmer loading, offline resilience, and optimistic UI architecture (`ERR-01..02`, `LOD-01..02`). |
+| [**`card-sort-analysis.md`**](card-sort-analysis.md) | `/designer-skills:card-sort-analysis` | **UX Research & IA** | Quantitative & qualitative hybrid card sort analysis across 30 participants, similarity matrix, cluster dendrograms, and IA navigation recommendations (`CSA-01` to `CSA-08`). |
+| [**`INFORMATION_ARCHITECTURE.md`**](INFORMATION_ARCHITECTURE.md) | `/designer-skills:information-architecture` | **Product & UX Architecture** | Complete app site map, navigation model (adaptive bars & rails), re-architected 4-hub settings IA, and Diataxis documentation structure (`IA-03`, `IA-04`). |
+| [**`README.md`**](README.md) | System Architecture Spec | **System Architecture** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
+| [**`techstackreview.md`**](techstackreview.md) | Engineering Architecture Audit | **Technical Specs & Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
+| [**`phases.md`**](phases.md) | Project Planning | **Roadmap & Milestones** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
+| [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) | `.\gradlew.bat assembleRelease` | **Releases & Ops** | Details for release v2.0.1: R8 ProGuard keep rules for Health Connect SDK reflection, build verification, and release APK metadata. |
+| [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.0.0: UI overhaul, dual ring mechanics, dynamic theming, and offline-first Room database sync. |
+| [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md) | Git & Refactor Tracking | **Releases & Ops** | Complete historical changelog documenting the transformation from legacy code into modern Clean Architecture. |
+| [**`skillscommand.md`**](skillscommand.md) | Antigravity Skills Setup | **SDLC & Agent Manual** | Master directory and cheat sheet for all **18 installed agent plugins** and **687+ modular skills** in Antigravity, including intent routers and invocation guides. |
+| [**`antigravity_sdlc_skills_prompts_master_manual.md`**](antigravity_sdlc_skills_prompts_master_manual.md) | Prompt Engineering Playbook | **SDLC & Agent Manual** | Master prompts catalog, engineering workflows, and agent execution playbooks for Antigravity. |
 
 ---
 
-## 🧭 Navigation & Best Practices
+## 🧭 Navigation & Categorized Documentation Hierarchy
 
-- For day-to-day coding and agent pairing, refer to [**`skillscommand.md`**](skillscommand.md) to trigger relevant skills (e.g., `/impeccable`, `/test-driven-development`, `/performance-optimization`, `/gstack-ship`).
-- For architectural guidelines and backend Cloud Functions contracts, see [**`README.md`**](README.md) and [**`techstackreview.md`**](techstackreview.md).
-- For release history and production build instructions, see [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md).
+### 1. 🏗️ Architecture & UX Specifications
+- [**`INFORMATION_ARCHITECTURE.md`**](INFORMATION_ARCHITECTURE.md): Complete site map, navigation models, and organized Settings IA (`IA-03`, `IA-04`).
+- [**`visual_hierarchy_architecture.md`**](visual_hierarchy_architecture.md): 4-tier visual pyramid, Squint Test audit, and hero metric display (`VHR-01` to `VHR-03`).
+- [**`interfaces_that_feel_emotional_design.md`**](interfaces_that_feel_emotional_design.md): Emotional resonance, Rest Day compassion, and de-robotized human copy (`FEL-01` to `FEL-03`).
+- [**`data_visualization_chart_qa.md`**](data_visualization_chart_qa.md): Bilateral dual-series curves, delta shading, and magnetic scrubbing (`DTV-01` to `DTV-03`).
+- [**`animation_principles_qa.md`**](animation_principles_qa.md): Animation principles QA, liquid spring retargeting, and modern motion techniques (`ANM-01` to `ANM-03`).
+- [**`motion_system_architecture.md`**](motion_system_architecture.md): Formal duration scales, cubic Bézier easings, spring tokens, and stagger rules (`MOT-01` to `MOT-03`).
+- [**`micro_interaction_specifications.md`**](micro_interaction_specifications.md): 6 detailed micro-interaction specs (Trigger $\to$ Rules $\to$ Feedback $\to$ Loops) (`MIC-01` to `MIC-04`).
+- [**`gesture_patterns_specification.md`**](gesture_patterns_specification.md): Touch slop, pointer cancellation, double-tap ring cheer, and swipe actions (`GST-01` to `GST-03`).
+- [**`feedback_patterns_architecture.md`**](feedback_patterns_architecture.md): Multimodal feedback hierarchy, haptic waveforms, and undo snackbars (`FDB-01` to `FDB-03`).
+- [**`error_handling_and_loading_states.md`**](error_handling_and_loading_states.md): Error prevention, recovery hierarchy, skeleton loading, and optimistic interactions (`ERR-01..02`, `LOD-01..02`).
+- [**`README.md`**](README.md): System data flow, hardware ingestion, local Room SSOT, and Firebase security rules.
+- [**`techstackreview.md`**](techstackreview.md): Production readiness audit, dependency matrix, and architectural layers.
+
+### 2. 🚀 Operations, Roadmap & Releases
+- [**`phases.md`**](phases.md): Phased roadmap from foundation to production launch.
+- [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) & [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md): Official version release notes and ProGuard audit.
+- [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md): Architectural migration history.
+
+### 3. 🤖 Developer SDLC & Agent Automation
+- [**`skillscommand.md`**](skillscommand.md): Quick-reference trigger guide for all installed developer skills.
+- [**`antigravity_sdlc_skills_prompts_master_manual.md`**](antigravity_sdlc_skills_prompts_master_manual.md): Comprehensive SDLC prompting manual.

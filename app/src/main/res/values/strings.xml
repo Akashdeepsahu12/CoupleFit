@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">CoupleFit</string>
+    <!-- OAuth 2.0 Web Client ID from Firebase Console (Authentication > Sign-in method > Google) -->
+    <string name="default_web_client_id">574898513514-3p2kef3mqbr6qmcgefb4dfmtfsd8ce0o.apps.googleusercontent.com</string>
 </resources>
 

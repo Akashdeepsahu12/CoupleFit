@@ -22,5 +22,20 @@ abstract class RepositoryModule {
     abstract fun bindSamsungHealthRepository(
         samsungHealthRepositoryImpl: SamsungHealthRepositoryImpl
     ): SamsungHealthRepository
+
+    @Binds
+    abstract fun bindPartnerRepository(
+        partnerRepositoryImpl: com.couplefit.data.repository.PartnerRepositoryImpl
+    ): com.couplefit.domain.repository.PartnerRepository
+
+    @Binds
+    abstract fun bindSyncRepository(
+        syncRepositoryImpl: com.couplefit.data.repository.SyncRepositoryImpl
+    ): com.couplefit.domain.repository.SyncRepository
+
+    @Binds
+    abstract fun bindChallengeRepository(
+        challengeRepositoryImpl: com.couplefit.data.repository.ChallengeRepositoryImpl
+    ): com.couplefit.domain.repository.ChallengeRepository
 }
 

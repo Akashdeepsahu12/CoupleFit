@@ -2,6 +2,7 @@ package com.couplefit.data.healthconnect
 
 import android.content.Context
 import android.util.Log
+import androidx.glance.appwidget.updateAll
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -14,11 +15,13 @@ import java.time.temporal.ChronoUnit
 class HealthConnectSyncWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val healthConnectManager: HealthConnectManager
+    private val healthConnectManager: HealthConnectManager,
+    private val dataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
+    private val healthDao: com.couplefit.data.local.HealthDao
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Starting background sync for Health Connect")
+        Log.d(TAG, "Starting background sync for Health Connect via Changes API")
         
         // Safety check for SDK availability
         if (healthConnectManager.checkAvailability() != androidx.health.connect.client.HealthConnectClient.SDK_AVAILABLE) {
@@ -34,17 +37,21 @@ class HealthConnectSyncWorker @AssistedInject constructor(
         }
 
         return try {
-            val endTime = Instant.now()
-            val startTime = endTime.minus(24, ChronoUnit.HOURS)
-            
-            // Read aggregated data to avoid pulling heavy payloads in background
-            val aggregatedData = healthConnectManager.getAggregatedData(startTime, endTime)
-            
-            Log.d(TAG, "Background sync completed. Steps: ${aggregatedData.totalSteps}, Avg HR: ${aggregatedData.averageHeartRate}")
-            
-            // Here you would upload this data to Firestore or your backend.
-            // For now, we just indicate success.
-            Result.success()
+            // Replaces "last 24 hours" read with the Changes API (handles token expiry with full resync fallback and deduplicates steps via aggregate queries)
+            val syncResult = healthConnectManager.syncViaChangesApi(dataStore, healthDao)
+            if (syncResult.isSuccess) {
+                val aggregatedData = syncResult.getOrNull()
+                Log.d(TAG, "Background sync via Changes API completed. Steps: ${aggregatedData?.totalSteps}, Avg HR: ${aggregatedData?.averageHeartRate}")
+                try {
+                    com.couplefit.widget.CoupleFitAppWidget().updateAll(context)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to update Glance widget", e)
+                }
+                Result.success()
+            } else {
+                Log.w(TAG, "Background sync via Changes API failed with error: ${syncResult.exceptionOrNull()?.message}")
+                Result.retry()
+            }
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException during background sync (Likely missing background permission)", e)
             Result.failure()

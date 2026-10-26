@@ -22,7 +22,15 @@ object DatabaseModule {
             context,
             HealthDatabase::class.java,
             "couplefit_health.db"
-        ).build()
+        )
+        .addMigrations(
+            HealthDatabase.MIGRATION_1_2,
+            HealthDatabase.MIGRATION_2_3,
+            HealthDatabase.MIGRATION_3_4
+        )
+        .fallbackToDestructiveMigration()
+        .build()
+
     }
 
     @Provides

@@ -1,7 +1,7 @@
 # Antigravity Skills & Commands Directory
 
 > **Master Reference, Operations Manual & Task Router** for all installed agent skills in Antigravity.  
-> **14 Installed Plugins | 288 Modular Skills | Global Storage:** `~/.gemini/config/plugins/`
+> **18 Installed Plugins | 687+ Modular Skills | Global Storage:** `~/.gemini/config/plugins/`
 
 ---
 
@@ -47,10 +47,21 @@
    - [8.1 Document Generation & File Formats (4 Skills)](#81-document-generation--file-formats)
    - [8.2 Visual Media, Canvas & Generative Art (6 Skills)](#82-visual-media-canvas--generative-art)
    - [8.3 Tooling, MCP Server Building & Web Artifacts (9 Skills)](#83-tooling-mcp-server-building--web-artifacts)
-9. [How to Invoke & Routing Best Practices](#9-how-to-invoke--routing-best-practices)
-   - [9.1 Direct Command Invocation](#91-direct-slash-command-invocation)
-   - [9.2 Natural Language Intent Matching](#92-natural-language-intent-matching)
-   - [9.3 Performance & Progressive Token Disclosure Architecture](#93-performance--progressive-token-disclosure-architecture)
+9. [Enterprise Engineering & Continuous Learning: Everything Claude Code (ECC) (321 Skills)](#9-enterprise-engineering--continuous-learning-everything-claude-code-ecc-321-skills)
+   - [9.1 Multi-Agent Orchestration & Delivery Gates](#91-multi-agent-orchestration--delivery-gates)
+   - [9.2 Agentic OS, Evals & Autonomous Loops](#92-agentic-os-evals--autonomous-loops)
+   - [9.3 Continuous Learning, Instincts & Memory](#93-continuous-learning-instincts--memory)
+   - [9.4 Full-Stack Framework Patterns & Languages](#94-full-stack-framework-patterns--languages)
+   - [9.5 Cloud, Databases, Security & Compliance](#95-cloud-databases-security--compliance)
+10. [Spec-Driven Development & Context Engineering: Open GSD Core (72 Skills)](#10-spec-driven-development--context-engineering-open-gsd-core-72-skills)
+    - [10.1 Milestone & Phase-Loop Orchestration](#101-milestone--phase-loop-orchestration)
+    - [10.2 Spec, UAT & Milestone Audits](#102-spec-uat--milestone-audits)
+    - [10.3 Codebase Intelligence & Diagnostic Health](#103-codebase-intelligence--diagnostic-health)
+    - [10.4 Memory Palace & Context Capture](#104-memory-palace--context-capture)
+11. [How to Invoke & Routing Best Practices](#11-how-to-invoke--routing-best-practices)
+    - [11.1 Direct Command Invocation](#111-direct-slash-command-invocation)
+    - [11.2 Natural Language Intent Matching](#112-natural-language-intent-matching)
+    - [11.3 Performance & Progressive Token Disclosure Architecture](#113-performance--progressive-token-disclosure-architecture)
 
 ---
 
@@ -72,7 +83,10 @@
 | **`playwright-cli`** | [playwright.dev/agent-cli](https://playwright.dev/agent-cli/skills) | 1 | Headless/headed browser control, DOM ref targeting, test generation |
 | **`gstack`** | [garrytan/gstack](https://github.com/garrytan/gstack) | 58 | Full-stack founder toolkit: reviews, QA, land & deploy, memory |
 | **`anthropics-skills`** | [anthropics/skills](https://github.com/anthropics/skills) | 19 | Document authoring (.docx, .pptx, .xlsx, .pdf), MCP builder, canvas |
-| **TOTAL** | **14 Repositories** | **288** | **Comprehensive Full-Stack AI Pair Programming Suite** |
+| **`ecc`** | [affaan-m/ecc](https://github.com/affaan-m/ecc) | 321 | Enterprise engineering orchestration, continuous learning, architecture patterns, cost optimization, multi-framework test/build/review loops |
+| **`gsd-core`** | [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | 72 | Git. Ship. Done. — Spec-driven milestone loops, context engineering, phase-loop autonomous execution, codebase mapping, memory palace |
+| **`mobbin`** | [mobbin/skills](https://github.com/mobbin/skills) | 4 | Real-world iOS/Android app patterns, screen redesigns, plain UI writing & Mobbin MCP |
+| **TOTAL** | **18 Repositories** | **687+** | **Comprehensive Full-Stack, Spec-Driven & Enterprise AI Pair Programming Suite** |
 
 ---
 
@@ -117,7 +131,22 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | **Create, format, and layout PowerPoint presentations** | `/pptx` | `/slides` | `anthropics-skills` / `ui-ux-pro-max-skill` |
 | **Generate styled Word documents (.docx)** | `/docx` | `/doc-coauthoring` | `anthropics-skills` |
 | **Build a custom Model Context Protocol (MCP) server**| `/mcp-builder` | — | `anthropics-skills` |
+| **Find real iOS/Android patterns & redesign screens** | `/redesign-screen` | `/search` | `mobbin` |
+| **Search real app design references & UI flows** | `/search` | `/best-practices` | `mobbin` |
+| **Strip AI-writing tells from design documentation** | `/plain-writing` | `/antislop-copywriting` | `mobbin` / `antislop` |
 | **Ship code, bump semantic version, and open a PR** | `/gstack-ship` | `/finishing-a-development-branch`| `gstack` / `superpowers` |
+| **Orchestrate adding a new feature end-to-end with tests** | `/orch-add-feature` | `/orch-build-mvp` | `ecc` |
+| **Orchestrate fixing a bug with regression tests** | `/orch-fix-defect` | `/systematic-debugging` | `ecc` / `superpowers` |
+| **Orchestrate safe behavior-preserving refactoring** | `/orch-refine-code` | `/code-simplification` | `ecc` / `agent-skills` |
+| **Run continuous autonomous agent loop with evals** | `/continuous-agent-loop` | `/autonomous-loops` | `ecc` |
+| **Convene a multi-model 4-voice council for tough decisions** | `/council` | `/council-multi-model` | `ecc` |
+| **Track and report LLM token spend & budgets** | `/cost-tracking` | `/cost-aware-llm-pipeline` | `ecc` |
+| **Run autonomous milestone workflow (Git. Ship. Done.)** | `/gsd-next` | `/gsd-autonomous` | `gsd-core` |
+| **Execute plan phase with milestone verification** | `/gsd-plan-phase` | `/gsd-execute-phase` | `gsd-core` |
+| **Map codebase architecture and dependency graph** | `/gsd-map-codebase` | `/codebase-onboarding` | `gsd-core` / `ecc` |
+| **Verify completed work against milestone acceptance criteria** | `/gsd-verify-work` | `/gsd-audit-milestone` | `gsd-core` |
+| **Review project health, backlog and progress** | `/gsd-health` | `/gsd-progress` | `gsd-core` |
+| **Capture knowledge to memory palace** | `/gsd-mempalace-capture`| `/gsd-mempalace-recall` | `gsd-core` |
 
 ---
 
@@ -600,9 +629,152 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 
 ---
 
-## 9. How to Invoke & Routing Best Practices
 
-### 9.1 Direct Slash Command Invocation
+---
+
+## 9. Enterprise Engineering & Continuous Learning: Everything Claude Code (ECC) (321 Skills)
+> Source: [github.com/affaan-m/ecc](https://github.com/affaan-m/ecc)  
+> Focus: Enterprise-grade engineering orchestration, continuous learning with instincts, multi-framework architecture patterns, cost-aware model routing, and delivery gates.
+
+### 9.1 Multi-Agent Orchestration & Delivery Gates
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/orch-add-feature` | **Feature Orchestrator** | Orchestrate building a brand-new feature end to end — research, plan, TDD implementation, review, and gated commit — by delegating each phase to the matching ECC agent. Use when adding a capability that does not exist yet. |
+| `/orch-change-feature` | **Feature Alteration** | Orchestrate altering an existing, working feature to new desired behavior — update its tests to the new spec, change the implementation to match, review, and gated commit. Use when behavior is not broken but should be different. |
+| `/orch-fix-defect` | **Defect Remediation** | Orchestrate fixing a bug — reproduce it as a failing regression test, fix to green, review, and gated commit — by delegating each phase to the matching ECC agent. Use when existing behavior is broken or wrong. |
+| `/orch-refine-code` | **Refactoring Pipeline** | Orchestrate a behavior-preserving refactor — confirm tests are green, restructure without changing behavior, keep tests green, review, and gated commit. Use when the structure should improve but behavior must not change. |
+| `/orch-build-mvp` | **MVP Greenfield** | Orchestrate greenfield MVP creation from zero to a working, tested release. |
+| `/orch-pipeline` | **End-to-End Pipeline** | Full multi-phase orchestration pipeline combining planning, task breakdown, testing, and delivery gates. |
+| `/delivery-gate` | **Quality Verification Gate** | Enforce delivery gates, linting, test suites, and git staging rules before allowing commits or merges. |
+| `/gateguard` | **Destructive Git Guard** | Guard against destructive git operations, unverified commits, and broken PR flows. |
+
+### 9.2 Agentic OS, Evals & Autonomous Loops
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/agentic-engineering` | **Agentic Operating Model** | Operate as an agentic engineer using eval-first execution, decomposition, and cost-aware model routing. Use when planning or executing engineering work that agents will carry out end to end. |
+| `/agentic-os` | **Autonomous Agent OS** | Operating system for autonomous multi-agent task management, queue allocation, and shared memory. |
+| `/continuous-agent-loop` | **Self-Checking Loop** | Patterns for continuous autonomous agent loops with quality gates, evals, and recovery controls. Use when running an agent loop that must self-check, gate on evals, and recover from failures. |
+| `/autonomous-loops` | **Autonomous Task Driver** | Long-running autonomous task execution with checkpoints, rollback capability, and state persistence. |
+| `/council` | **4-Voice Council** | Convene a four-voice council for ambiguous decisions, tradeoffs, and go/no-go calls. Use when multiple valid paths exist and you need structured disagreement before choosing. |
+| `/council-multi-model` | **Multi-Model Deliberation** | Deliberate decisions across heterogeneous model perspectives (Flash, Pro, Sonnet, Opus) to stress-test architecture. |
+| `/cost-aware-llm-pipeline` | **Cost & Token Optimizer** | Cost optimization patterns for LLM API usage — model routing by task complexity, budget tracking, retry logic, and prompt caching. |
+| `/cost-tracking` | **Token Usage & Spend** | Track and report token usage, spending, and budgets from the local ECC cost-tracker metrics log. |
+| `/eval-harness` | **Automated Eval Suites** | Build and execute evaluation harnesses to score agent completions against ground truth. |
+| `/mle-workflow` | **ML Production Workflow** | Production machine-learning engineering workflow for data contracts, reproducible training, model evaluation, deployment, monitoring, and rollback. |
+
+### 9.3 Continuous Learning, Instincts & Memory
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/continuous-learning` | **Instinct Engine** | Automatically extract learned engineering patterns, preferences, and corrections into reusable instincts. |
+| `/continuous-learning-v2` | **Instinct Engine v2** | Advanced instinct lifecycle: observation, clustering, pending review, confidence scoring, and global promotion. |
+| `/instinct-status` | **Instinct Inspection** | Show learned instincts (project + global scope) with confidence scores and usage statistics. |
+| `/instinct-export` | **Export Instincts** | Export instincts from project/global scope to shareable JSON or markdown files. |
+| `/instinct-import` | **Import Instincts** | Import instincts from file or URL into project or global scope. |
+| `/evolve` | **Analyze & Evolve** | Analyze instincts and suggest or generate evolved agent structures, rules, and skills. |
+| `/promote` | **Global Promotion** | Promote project-scoped instincts to global machine-wide scope. |
+| `/prune` | **Cleanup Stale Instincts** | Delete pending instincts older than 30 days that were never promoted. |
+| `/unified-memory` | **Cross-Session Memory** | Maintain unified cross-session memory across local files, vector embeddings, and project contexts. |
+
+### 9.4 Full-Stack Framework Patterns & Languages
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/android-clean-architecture` | **Android / Jetpack Compose** | Android Clean Architecture with Kotlin, Jetpack Compose, ViewModel, StateFlow, Room SSOT, and Hilt/Koin DI. |
+| `/compose-multiplatform-patterns`| **Compose Multiplatform** | Cross-platform UI patterns for Compose Multiplatform targeting Android, iOS, Desktop, and Web. |
+| `/kotlin-patterns` | **Idiomatic Kotlin** | Idiomatic Kotlin conventions, coroutines, flows, sealed classes, and functional patterns. |
+| `/kotlin-testing` | **Kotlin Testing** | Comprehensive Kotlin testing with JUnit 5, MockK, Turbine (Flows), and Kotest. |
+| `/dart-flutter-patterns` | **Flutter Architecture** | Idiomatic Flutter patterns, BLoC/Riverpod state management, widget testing, and platform channels. |
+| `/python-patterns` | **Idiomatic Python** | Modern Python 3.12+ patterns, type hints, PEP 8 standards, and clean architecture. |
+| `/python-testing` | **Pytest & TDD** | Robust pytest test suites, fixtures, mocking, parametrization, and coverage thresholds. |
+| `/fastapi-patterns` | **FastAPI Architecture** | High-performance FastAPI patterns, Pydantic v2 validation, dependency injection, and async handlers. |
+| `/django-patterns` | **Django & DRF** | Django architecture patterns, REST API design with DRF, ORM optimization, caching, and signals. |
+| `/django-tdd` | **Django TDD** | Test-driven development for Django and DRF using pytest-django, factory_boy, and mock backends. |
+| `/springboot-patterns` | **Spring Boot 3** | Production Spring Boot 3 enterprise patterns, REST APIs, JPA repositories, and security filters. |
+| `/springboot-tdd` | **Spring Boot TDD** | TDD with JUnit 5, Mockito, MockMvc, and Testcontainers. |
+| `/rust-patterns` | **Modern Rust** | Idiomatic Rust patterns, ownership, borrow checker safety, error handling, and concurrency. |
+| `/rust-testing` | **Rust Testing** | Comprehensive Rust unit, integration, and property-based testing (proptest). |
+| `/golang-patterns` | **Idiomatic Go** | Go idioms, error handling, goroutines, channels, interfaces, and package architecture. |
+| `/golang-testing` | **Go Table Tests** | Table-driven tests, subtests, benchmarks, fuzzing, and coverage measurement in Go. |
+| `/dotnet-patterns` | **C# / .NET 8** | Modern C# patterns, dependency injection, async/await idioms, and clean architecture. |
+| `/frontend-patterns` | **React & Next.js** | Production React 19 / Next.js patterns, Server Components, client state, and rendering optimization. |
+| `/nuxt4-patterns` | **Nuxt 4 / Vue 3** | Nuxt 4 hydration safety, SSR-safe data fetching, route rules, and Vue 3 Composition API. |
+| `/liquid-glass-design` | **iOS Liquid Glass** | iOS Liquid Glass design system: dynamic glass material with blur, reflection, and morphing. |
+
+### 9.5 Cloud, Databases, Security & Compliance
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/security-review` | **Security Audit Checklist** | Deep security checklist for authentication, user input validation, secret handling, and API endpoints. |
+| `/security-scan` | **Vulnerability Scanner** | Automated vulnerability scan across dependencies, SAST, secret leaks, and configurations. |
+| `/hipaa-compliance` | **HIPAA / Healthcare** | US healthcare compliance: PHI data handling, encryption in transit/rest, BAAs, and audit logs. |
+| `/healthcare-phi-compliance` | **PHI Protection** | De-identification, access controls, and boundary verification for protected health information. |
+| `/postgres-patterns` | **PostgreSQL Optimization** | Query optimization, schema indexing, execution plan analysis, connection pooling, and RLS. |
+| `/mysql-patterns` | **MySQL / MariaDB** | Schema design, indexing strategies, transaction isolation, replication lag, and pool tuning. |
+| `/clickhouse-io` | **ClickHouse Analytics** | High-performance analytical schemas, MergeTree engines, query vectorization, and data ingest. |
+| `/redis-patterns` | **Redis Caching** | Cache-aside patterns, eviction strategies, distributed locking, and Pub/Sub workflows. |
+| `/docker-patterns` | **Docker Multi-Stage** | Minimal multi-stage Dockerfiles, rootless execution, layer caching, and slim production images. |
+| `/kubernetes-patterns` | **K8s Deployments** | Production Kubernetes manifests, Helm charts, probes, resource requests/limits, and ingress. |
+| `/uncloud` | **Uncloud Cluster** | Deploy and manage services on Uncloud clusters, Caddy ingress, static proxy routes, and volume ops. |
+
+---
+
+## 10. Spec-Driven Development & Context Engineering: Open GSD Core (72 Skills)
+> Source: [github.com/open-gsd/gsd-core](https://github.com/open-gsd/gsd-core)  
+> Focus: Git. Ship. Done. — Spec-driven milestone loops, context right-sizing, anti-context-rot, phase-based execution, and codebase mapping.
+
+### 10.1 Milestone & Phase-Loop Orchestration
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/gsd-next` | **Next Action Driver** | Determine and execute the immediate next logical action in the active milestone or task loop. |
+| `/gsd-autonomous` | **Full Autonomous Loop** | Run an end-to-end autonomous engineering cycle from intent through verification and commit. |
+| `/gsd-phase` | **Phase Management** | Inspect, transition, or initialize project phases across the GSD lifecycle. |
+| `/gsd-plan-phase` | **Milestone Planning** | Draft a structured milestone plan with explicit acceptance criteria, task dependencies, and test bars. |
+| `/gsd-execute-phase` | **Phase Execution** | Execute planned milestone tasks in strict dependency order, keeping context lean and right-sized. |
+| `/gsd-verify-work` | **Verification Gate** | Execute automated test suites and deterministic verification checks against milestone criteria. |
+| `/gsd-ship` | **Ship & Commit** | Finalize completed work, verify git status, commit with conventional messaging, and tag release. |
+| `/gsd-quick` | **Fast-Path Task** | Lightweight execution path for small, self-contained tasks bypassing full multi-phase overhead. |
+| `/gsd-quick-batch` | **Batch Execution** | Execute a batch of discrete, independent quick-fixes or updates in sequence. |
+| `/gsd-pause-work` | **Checkpoint & Pause** | Safely save all in-flight working state, context notes, and uncommitted artifacts before stopping. |
+| `/gsd-resume-work` | **Resume Context** | Restore saved checkpoint state, review milestone position, and seamlessly resume execution. |
+
+### 10.2 Spec, UAT & Milestone Audits
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/gsd-spec-phase` | **Spec Authoring** | Author formal technical specifications and user journeys before committing to implementation code. |
+| `/gsd-audit-milestone` | **Milestone Audit** | Audit a completed or in-flight milestone for spec compliance, dead code, and test coverage. |
+| `/gsd-audit-uat` | **User Acceptance Testing** | Conduct end-to-end User Acceptance Testing against customer-facing requirements and flows. |
+| `/gsd-complete-milestone` | **Milestone Closeout** | Formally close out a milestone, generate summary report, and archive phase artifacts. |
+| `/gsd-new-milestone` | **Initialize Milestone** | Scaffold a new project milestone with structured directories, tracking files, and goals. |
+| `/gsd-new-project` | **Scaffold New Project** | Initialize a brand-new project with GSD standards, git hygiene, and baseline configurations. |
+| `/gsd-ultraplan-phase` | **Deep Strategic Planning** | Exhaustive multi-milestone planning for high-complexity, mission-critical systems. |
+| `/gsd-validate-phase` | **Phase Validation** | Validate phase deliverables against upstream requirements and architecture boundaries. |
+
+### 10.3 Codebase Intelligence & Diagnostic Health
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/gsd-map-codebase` | **Codebase Cartography** | Map project architecture, entry points, module boundaries, data flows, and critical paths. |
+| `/gsd-health` | **Project Health Check** | Comprehensive project health audit: build status, test pass rates, lint hygiene, and context rot. |
+| `/gsd-progress` | **Milestone Progress** | Display visual progress meters, completed tasks, remaining blockers, and velocity. |
+| `/gsd-stats` | **Codebase Metrics** | Calculate code health statistics, test-to-code ratios, churn rate, and complexity hot spots. |
+| `/gsd-code-review` | **GSD Code Review** | Review diffs against spec requirements, style rules, and anti-complexity guidelines. |
+| `/gsd-add-tests` | **Test Augmentation** | Analyze existing test suites and generate missing edge-case, unit, or integration tests. |
+| `/gsd-debug` | **Root Cause Investigation** | Systematic GSD diagnostic loop to reproduce, isolate, and fix regressions without guessing. |
+| `/gsd-forensics` | **Git History Forensics** | Investigate git commit histories, blame graphs, and regressions to identify breaking changes. |
+| `/gsd-cleanup` | **Cruft & Dead Code Removal** | Identify and safely eliminate unused files, orphan stubs, commented code, and stale artifacts. |
+
+### 10.4 Memory Palace & Context Capture
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/gsd-mempalace-capture` | **Store to Memory Palace** | Ingest architectural decisions, user preferences, and project facts into long-term structured memory. |
+| `/gsd-mempalace-recall` | **Recall from Memory Palace**| Query and retrieve specific project context, historical choices, and rationale from memory. |
+| `/gsd-capture` | **Quick Knowledge Capture** | Fast capture of ephemeral thoughts, snippets, or bug reports into the GSD inbox. |
+| `/gsd-inbox` | **Triage Inbox** | Triage and organize captured notes, tickets, and ideas into actionable milestones. |
+| `/gsd-ns-context` | **Namespaced Context** | Manage namespaced context slices to prevent prompt pollution and reduce token bloat. |
+| `/gsd-surface` | **Surface Key Facts** | Surface high-priority context and constraints relevant to the current file or module. |
+| `/gsd-ingest-docs` | **Documentation Ingestion** | Ingest third-party library documentation, APIs, and schemas into local working context. |
+| `/gsd-graphify` | **Knowledge Graph Builder** | Build a local knowledge graph linking files, symbols, documentation, and dependencies. |
+
+## 11. How to Invoke & Routing Best Practices
+
+### 11.1 Direct Slash Command Invocation
 To immediately force execution of any skill, type its slash command anywhere in your prompt (typically at the beginning):
 
 ```markdown
@@ -614,7 +786,7 @@ To immediately force execution of any skill, type its slash command anywhere in 
 /performance-optimization - Profile Web Vitals and diagnose main-thread latency
 ```
 
-### 9.2 Natural Language Intent Matching
+### 11.2 Natural Language Intent Matching
 Antigravity features native semantic routing: when you describe your goal in natural language, the assistant matches your request directly to the appropriate skill without requiring explicit slash commands.
 
 | Natural Language Prompt Pattern | Automatic Skill Trigger | Targeted Action |
@@ -637,10 +809,10 @@ Antigravity features native semantic routing: when you describe your goal in nat
 | *"Test this build on my connected physical iPhone"* | `/gstack-ios-qa` | Tests native views over USB tunnel with vision-driven feedback. |
 | *"Prepare production release, bump version, and open a PR"* | `/gstack-ship` | Merges base, runs test suites, bumps semver, and crafts PR. |
 
-### 9.3 Performance & Progressive Token Disclosure Architecture
+### 11.3 Performance & Progressive Token Disclosure Architecture
 Antigravity employs an intelligent **two-tier progressive disclosure engine** to keep your context window lean, fast, and token-efficient:
 
-1. **Tier 1 (Descriptor Mode):** All 288 skills remain in memory as ultra-compact 2-line descriptors (name, category, trigger criteria), consuming less than 1.5% of the total context window.
+1. **Tier 1 (Descriptor Mode):** All 683+ skills remain in memory as ultra-compact 2-line descriptors (name, category, trigger criteria), consuming less than 1.5% of the total context window.
 2. **Tier 2 (Full Runbook Mode):** When a specific skill is triggered by a slash command or natural language intent, Antigravity loads only that specific skill's `SKILL.md` instructions, scripts, and examples into active working memory.
 3. **Autonomous Composition:** Multiple skills can compose seamlessly (e.g. `/impeccable` + `/antislop-human` + `/animate`) without conflicting, allowing deep specialization across design, engineering, and testing.
 

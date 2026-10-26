@@ -62,7 +62,7 @@ class LenisNestedScrollConnection(
         source: NestedScrollSource
     ): Offset {
         // Only apply rubber-band when dragging (not flinging), and there is leftover scroll
-        if (source == NestedScrollSource.Drag && available.y != 0f) {
+        if (source == NestedScrollSource.UserInput && available.y != 0f) {
             val rawDelta = available.y
             // Logarithmic resistance: stretch shrinks as you pull further
             val resistance = resistanceFactor / (1f + abs(overScrollOffset.value) * 0.008f)

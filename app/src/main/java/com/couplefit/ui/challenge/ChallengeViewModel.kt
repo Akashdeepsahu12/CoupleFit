@@ -1,0 +1,96 @@
+package com.couplefit.ui.challenge
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.couplefit.data.local.CoupleChallengeEntity
+import com.couplefit.domain.repository.ChallengeRepository
+import com.couplefit.util.RemoteConfigManager
+import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
+
+data class ChallengeUiState(
+    val challenges: List<CoupleChallengeEntity> = emptyList(),
+    val activeChallenge: CoupleChallengeEntity? = null,
+    val isLoading: Boolean = false,
+    val userMessage: String? = null
+)
+
+@HiltViewModel
+class ChallengeViewModel @Inject constructor(
+    private val challengeRepository: ChallengeRepository,
+    private val auth: FirebaseAuth,
+    private val remoteConfigManager: RemoteConfigManager
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ChallengeUiState())
+    val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
+
+    init {
+        observeChallenges()
+    }
+
+    fun observeChallenges(coupleId: String = "couple_1", partnerUid: String = "partner_1") {
+        val myUid = auth.currentUser?.uid ?: "me"
+        viewModelScope.launch {
+            challengeRepository.listenToCoupleChallenges(coupleId, myUid, partnerUid)
+                .collectLatest { list ->
+                    val active = list.firstOrNull { it.status == "ACTIVE" }
+                    _uiState.value = _uiState.value.copy(
+                        challenges = list,
+                        activeChallenge = active
+                    )
+                }
+        }
+    }
+
+    fun createChallenge(
+        coupleId: String,
+        type: String = "STEPS_RACE",
+        goal: Long? = null,
+        durationDays: Long = 7
+    ) {
+        viewModelScope.launch {
+            val myUid = auth.currentUser?.uid ?: "me"
+            val targetGoal = goal ?: if (type == "STEPS_RACE") {
+                remoteConfigManager.stepsRaceGoal
+            } else {
+                remoteConfigManager.activeMinutesStreakGoal
+            }
+
+            val today = LocalDate.now()
+            val start = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val end = today.plusDays(durationDays).format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+            val result = challengeRepository.createChallenge(
+                coupleId = coupleId,
+                type = type,
+                goal = targetGoal,
+                start = start,
+                end = end,
+                creatorUid = myUid
+            )
+
+            if (result.isSuccess) {
+                _uiState.value = _uiState.value.copy(
+                    userMessage = "New ${if (type == "STEPS_RACE") "Steps Race" else "Active Streak"} challenge started! 🎯"
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    userMessage = "Could not start challenge. Please try again."
+                )
+            }
+        }
+    }
+
+    fun clearMessage() {
+        _uiState.value = _uiState.value.copy(userMessage = null)
+    }
+}

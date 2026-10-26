@@ -44,7 +44,25 @@ data class HealthDashboardUiState(
     val hasPermissions: Boolean = false,
     val hasAllPermissions: Boolean = false,
     val lastSyncedAt: Instant? = null,
-    val hasTodayData: Boolean = false
+    val hasTodayData: Boolean = false,
+    // Partner Health Telemetry (Single Source of Truth: Room partnerDaily table)
+    val partnerId: String = "partner_1",
+    val partnerName: String = "Partner",
+    val isPartnerLinked: Boolean = true,
+    val partnerSteps: Long = 0L,
+    val partnerStepsGoal: Long = 10000L,
+    val partnerStepsProgress: Float = 0f,
+    val partnerActiveMinutes: Long = 0L,
+    val partnerExerciseProgress: Float = 0f,
+    val partnerCaloriesBurned: Long = 0L,
+    val partnerAverageHeartRate: Double = 0.0,
+    val partnerAverageOxygenSaturation: Double = 0.0,
+    val partnerHasTodayData: Boolean = false,
+    val partnerLastUpdated: Long? = null,
+    val partnerLastUpdatedLabel: String = "Awaiting sync",
+    val coupleId: String = "couple_1",
+    val myUid: String = "me",
+    val nudgeSentMessage: String? = null
 )
 
 sealed class HealthConnectUiState {
@@ -58,7 +76,11 @@ sealed class HealthConnectUiState {
 @HiltViewModel
 class HealthConnectViewModel @Inject constructor(
     private val healthConnectManager: HealthConnectManager,
-    private val healthDao: HealthDao
+    private val healthDao: HealthDao,
+    private val healthRepository: com.couplefit.domain.repository.HealthRepository,
+    private val partnerRepository: com.couplefit.domain.repository.PartnerRepository,
+    private val syncRepository: com.couplefit.domain.repository.SyncRepository,
+    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HealthConnectUiState>(HealthConnectUiState.Loading)
@@ -68,6 +90,7 @@ class HealthConnectViewModel @Inject constructor(
     val dashboardState: StateFlow<HealthDashboardUiState> = _dashboardState.asStateFlow()
 
     val permissions = healthConnectManager.permissions
+    val sharingPreferences = preferencesDataStore.sharingPreferencesFlow
 
     private var dbObservationJob: Job? = null
     
@@ -76,32 +99,80 @@ class HealthConnectViewModel @Inject constructor(
         startObservingLocalDb()
     }
 
+    private fun formatLastUpdated(timestamp: Long?): String {
+        if (timestamp == null || timestamp == 0L) return "Awaiting sync"
+        val diff = System.currentTimeMillis() - timestamp
+        val seconds = (diff / 1000).coerceAtLeast(0)
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+
+        return when {
+            minutes < 1 -> "Last updated just now"
+            minutes < 60 -> "Last updated ${minutes}m ago"
+            hours < 24 -> "Last updated ${hours}h ago"
+            else -> "Last updated ${days}d ago"
+        }
+    }
+
     private fun startObservingLocalDb() {
         dbObservationJob?.cancel()
         dbObservationJob = viewModelScope.launch {
             val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             
-            // Observe Daily Aggregates from Room
-            healthDao.getDailyAggregateFlow(dateStr).collectLatest { aggregate ->
-                if (aggregate != null) {
-                    val steps = aggregate.totalSteps
-                    val goal = 10000L
-                    val progress = (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
-                    val activeMins = aggregate.totalActiveMinutes
-                    val exProgress = (activeMins.toFloat() / 60f).coerceIn(0f, 1f)
-                    val calories = aggregate.totalCalories
-                    val hasData = steps > 0L || aggregate.averageHeartRate > 0.0
-                    
-                    _dashboardState.value = _dashboardState.value.copy(
-                        steps = steps,
-                        stepsProgress = progress,
-                        activeMinutes = activeMins,
-                        exerciseProgress = exProgress,
-                        caloriesBurned = calories,
-                        averageHeartRate = aggregate.averageHeartRate,
-                        hasTodayData = hasData
-                    )
-                }
+            // Expose combine(myFlow, partnerFlow) from Room repository
+            partnerRepository.getCombinedDashboardFlow(dateStr).collectLatest { combined ->
+                val myAggregate = combined.myDaily
+                val partnerDaily = combined.partnerDaily
+
+                val steps = myAggregate?.totalSteps ?: 0L
+                val goal = 10000L
+                val progress = (steps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
+                val activeMins = myAggregate?.totalActiveMinutes ?: 0L
+                val exProgress = (activeMins.toFloat() / 60f).coerceIn(0f, 1f)
+                val calories = myAggregate?.totalCalories ?: 0L
+                val hasData = steps > 0L || (myAggregate?.averageHeartRate ?: 0.0) > 0.0
+
+                val pSteps = partnerDaily?.steps ?: 0L
+                val pProgress = (pSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
+                val pActiveMins = partnerDaily?.activeMinutes ?: 0L
+                val pExProgress = (pActiveMins.toFloat() / 60f).coerceIn(0f, 1f)
+                val pCalories = partnerDaily?.calories ?: 0L
+                val pAvgHr = partnerDaily?.avgHr ?: 0.0
+                val pAvgSpo2 = partnerDaily?.avgSpo2 ?: 0.0
+                val pHasData = partnerDaily != null && (pSteps > 0L || pAvgHr > 0.0)
+                val pLastUpdated = partnerDaily?.lastUpdated
+                val pLastUpdatedLabel = formatLastUpdated(pLastUpdated)
+
+                _dashboardState.value = _dashboardState.value.copy(
+                    steps = steps,
+                    stepsProgress = progress,
+                    activeMinutes = activeMins,
+                    exerciseProgress = exProgress,
+                    caloriesBurned = calories,
+                    averageHeartRate = myAggregate?.averageHeartRate ?: 0.0,
+                    hasTodayData = hasData,
+                    partnerSteps = pSteps,
+                    partnerStepsProgress = pProgress,
+                    partnerActiveMinutes = pActiveMins,
+                    partnerExerciseProgress = pExProgress,
+                    partnerCaloriesBurned = pCalories,
+                    partnerAverageHeartRate = pAvgHr,
+                    partnerAverageOxygenSaturation = pAvgSpo2,
+                    partnerHasTodayData = pHasData,
+                    partnerLastUpdated = pLastUpdated,
+                    partnerLastUpdatedLabel = pLastUpdatedLabel
+                )
+            }
+        }
+
+        // Listen to partner's Firestore document and stream to Room
+        viewModelScope.launch {
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val coupleId = _dashboardState.value.coupleId
+            val partnerId = _dashboardState.value.partnerId
+            partnerRepository.listenToPartnerDaily(coupleId, partnerId, dateStr).collect {
+                // PartnerRepository writes incoming snapshots into Room partnerDaily table
             }
         }
         
@@ -131,6 +202,7 @@ class HealthConnectViewModel @Inject constructor(
             }
         }
     }
+
 
     fun checkStatusAndFetchData() {
         viewModelScope.launch {
@@ -171,6 +243,7 @@ class HealthConnectViewModel @Inject constructor(
         try {
             val now = Instant.now()
             val startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             
             Log.d("Sync", "Starting Sync Cycle: Fetching from SDK. $startOfDay to $now")
             
@@ -179,77 +252,24 @@ class HealthConnectViewModel @Inject constructor(
             val hasHeartRateRead = granted.contains(HealthPermission.getReadPermission(HeartRateRecord::class))
             val hasO2Read = granted.contains(HealthPermission.getReadPermission(OxygenSaturationRecord::class))
 
-            // Fetch aggregated data
-            val aggregatedData = if (hasStepsRead || hasHeartRateRead) {
-                healthConnectManager.getAggregatedData(startOfDay, now)
+            // 1. Changes API sync: handles token expiry with full resync fallback and deduplicates steps via aggregate queries
+            val changesSyncResult = healthConnectManager.syncViaChangesApi(preferencesDataStore, healthDao)
+            val aggregatedData = if (changesSyncResult.isSuccess) {
+                changesSyncResult.getOrNull() ?: AggregatedHealthData(0L, 0.0, 0L)
             } else {
-                AggregatedHealthData(0L, 0.0, 0L)
+                Log.w("Sync", "Changes API fallback to direct aggregate: ${changesSyncResult.exceptionOrNull()?.message}")
+                if (hasStepsRead || hasHeartRateRead) {
+                    healthConnectManager.getAggregatedData(startOfDay, now)
+                } else {
+                    AggregatedHealthData(0L, 0.0, 0L)
+                }
             }
 
-            val heartRatePoints = if (hasHeartRateRead) {
-                healthConnectManager.readHeartRatePointsRaw(
-                    startTime = now.minus(24, ChronoUnit.HOURS),
-                    endTime = now
-                )
-            } else {
-                emptyList()
-            }
-            
-            val steps = aggregatedData.totalSteps
-            val activeMins = (steps / 100).coerceAtMost(180)
-            val calories = aggregatedData.totalCalories
-            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-            
-            // Update Room Aggregate
-            healthDao.insertAggregate(
-                com.couplefit.data.local.HealthDailyAggregateEntity(
-                    dateStr = dateStr,
-                    totalSteps = steps,
-                    totalActiveMinutes = activeMins,
-                    totalCalories = calories,
-                    averageHeartRate = aggregatedData.averageHeartRate,
-                    lastUpdatedTimestamp = now.toEpochMilli()
-                )
-            )
-            
-            val oxygenSaturationPoints = if (hasO2Read) {
-                healthConnectManager.readOxygenSaturationPointsRaw(
-                    startTime = now.minus(24, ChronoUnit.HOURS),
-                    endTime = now
-                )
-            } else {
-                emptyList()
-            }
-            
-            val hrEntities = heartRatePoints.map { sample ->
-                val timestamp = sample.time.toEpochMilli()
-                val id = "HEART_RATE_${timestamp}"
-                com.couplefit.data.local.HealthMetricEntity(
-                    id = id,
-                    metricType = "HEART_RATE",
-                    sourceTimestamp = timestamp,
-                    rawValue = sample.beatsPerMinute.toDouble(),
-                    normalizedValue = sample.beatsPerMinute.toDouble(),
-                    syncedToRemote = false
-                )
-            }
-            val oxEntities = oxygenSaturationPoints.map { record ->
-                val timestamp = record.time.toEpochMilli()
-                val id = "OXYGEN_SATURATION_${timestamp}"
-                com.couplefit.data.local.HealthMetricEntity(
-                    id = id,
-                    metricType = "OXYGEN_SATURATION",
-                    sourceTimestamp = timestamp,
-                    rawValue = record.percentage.value,
-                    normalizedValue = record.percentage.value,
-                    syncedToRemote = false
-                )
-            }
-            if (hrEntities.isNotEmpty() || oxEntities.isNotEmpty()) {
-                healthDao.insertMetrics(hrEntities + oxEntities)
-            }
-            
-            Log.d("Sync", "Sync Cycle Complete: Saved ${hrEntities.size} HR records and ${oxEntities.size} O2 records to Room.")
+            // 2. Upload MY daily aggregate (steps, activeMinutes, calories, avgHr) to couples/{coupleId}/daily/{myUid_date}
+            // strictly filtering for metrics enabled in sharing preferences, throttled to 15 minutes
+            val coupleId = _dashboardState.value.coupleId
+            val myUid = _dashboardState.value.myUid
+            syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = false)
 
             _dashboardState.value = _dashboardState.value.copy(
                 isSyncing = false,
@@ -265,10 +285,147 @@ class HealthConnectViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Called on app foreground:
+     * Triggers syncOnAppForeground to upload MY aggregate and refresh Health Connect
+     */
+    fun onAppForeground() {
+        viewModelScope.launch {
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val coupleId = _dashboardState.value.coupleId
+            val myUid = _dashboardState.value.myUid
+            syncRepository.syncOnAppForeground(coupleId, myUid, dateStr)
+            checkStatusAndFetchData()
+        }
+    }
+
+    // Per-metric sharing toggle handlers (DataStore + Firestore mirroring)
+    fun setShareSteps(enabled: Boolean) {
+        viewModelScope.launch { preferencesDataStore.setShareSteps(enabled, _dashboardState.value.myUid) }
+    }
+    fun setShareWorkouts(enabled: Boolean) {
+        viewModelScope.launch { preferencesDataStore.setShareWorkouts(enabled, _dashboardState.value.myUid) }
+    }
+    fun setShareCalories(enabled: Boolean) {
+        viewModelScope.launch { preferencesDataStore.setShareCalories(enabled, _dashboardState.value.myUid) }
+    }
+    fun setShareHr(enabled: Boolean) {
+        viewModelScope.launch { preferencesDataStore.setShareHr(enabled, _dashboardState.value.myUid) }
+    }
+    fun setShareSpo2(enabled: Boolean) {
+        viewModelScope.launch { preferencesDataStore.setShareSpo2(enabled, _dashboardState.value.myUid) }
+    }
+
+    fun sendNudgeToPartner(message: String = "Time to get active and close your rings! 🏃") {
+        viewModelScope.launch {
+            val state = _dashboardState.value
+            val coupleId = state.coupleId
+            val partnerUid = state.partnerId
+            val myUid = state.myUid
+
+            if (coupleId.isBlank() || partnerUid.isBlank()) {
+                _dashboardState.value = _dashboardState.value.copy(
+                    nudgeSentMessage = "Please link with your partner first!"
+                )
+                delay(2500)
+                _dashboardState.value = _dashboardState.value.copy(nudgeSentMessage = null)
+                return@launch
+            }
+
+            val result = partnerRepository.sendNudge(
+                coupleId = coupleId,
+                senderUid = myUid,
+                senderName = "You",
+                recipientUid = partnerUid,
+                message = message
+            )
+
+            if (result.isSuccess) {
+                _dashboardState.value = _dashboardState.value.copy(
+                    nudgeSentMessage = "Sent a cheer to ${state.partnerName}! ❤️"
+                )
+            } else {
+                _dashboardState.value = _dashboardState.value.copy(
+                    nudgeSentMessage = "Could not deliver nudge right now."
+                )
+            }
+            delay(2500)
+            _dashboardState.value = _dashboardState.value.copy(nudgeSentMessage = null)
+        }
+    }
+
+
     fun writeMockData(count: Long = 1000L) {
         viewModelScope.launch {
-            healthConnectManager.writeSampleSteps(count)
-            checkStatusAndFetchData()
+            val now = Instant.now()
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+
+            // 1. Read existing local Room aggregate or initialize
+            val existing = healthDao.getDailyAggregate(dateStr)
+            val updatedSteps = (existing?.totalSteps ?: 0L) + count
+            val updatedActiveMinutes = (updatedSteps / 100).coerceAtMost(180)
+            val updatedCalories = (existing?.totalCalories ?: 0L) + (count * 0.04).toLong()
+            val avgHr = if ((existing?.averageHeartRate ?: 0.0) > 0.0) existing!!.averageHeartRate else 72.0
+            val avgO2 = if ((existing?.averageOxygenSaturation ?: 0.0) > 0.0) existing!!.averageOxygenSaturation else 98.0
+
+            val aggregateEntity = com.couplefit.data.local.HealthDailyAggregateEntity(
+                dateStr = dateStr,
+                totalSteps = updatedSteps,
+                totalActiveMinutes = updatedActiveMinutes,
+                totalCalories = updatedCalories,
+                averageHeartRate = avgHr,
+                averageOxygenSaturation = avgO2,
+                lastUpdatedTimestamp = now.toEpochMilli()
+            )
+            healthDao.insertAggregate(aggregateEntity)
+
+            // 2. Also insert a HealthMetricEntity for step records
+            val metricEntity = com.couplefit.data.local.HealthMetricEntity(
+                id = "STEPS_${now.toEpochMilli()}",
+                metricType = "STEPS",
+                sourceTimestamp = now.toEpochMilli(),
+                rawValue = count.toDouble(),
+                normalizedValue = count.toDouble(),
+                syncedToRemote = false
+            )
+            healthDao.insertMetrics(listOf(metricEntity))
+
+            // 3. Immediately reflect in UI State so user sees instant feedback
+            val goal = _dashboardState.value.stepsGoal.coerceAtLeast(1L)
+            _dashboardState.value = _dashboardState.value.copy(
+                steps = updatedSteps,
+                stepsProgress = (updatedSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f),
+                activeMinutes = updatedActiveMinutes,
+                exerciseProgress = (updatedActiveMinutes.toFloat() / 60f).coerceIn(0f, 1f),
+                caloriesBurned = updatedCalories,
+                averageHeartRate = avgHr,
+                hasTodayData = true,
+                lastSyncedAt = now
+            )
+            _uiState.value = HealthConnectUiState.Success(
+                data = AggregatedHealthData(
+                    totalSteps = updatedSteps,
+                    averageHeartRate = avgHr,
+                    totalCalories = updatedCalories
+                ),
+                lastSyncedAt = now
+            )
+
+            // 4. Try to write to Health Connect SDK if available & permitted (non-blocking)
+            try {
+                healthConnectManager.writeSampleSteps(count)
+            } catch (e: Exception) {
+                Log.w("HealthConnectVM", "Health Connect SDK write skipped or failed: ${e.message}")
+            }
+
+            // 5. Upload to remote partner sync so partner can see the mock steps too
+            try {
+                val coupleId = _dashboardState.value.coupleId
+                val myUid = _dashboardState.value.myUid
+                syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = true)
+            } catch (e: Exception) {
+                Log.w("HealthConnectVM", "Remote aggregate sync skipped: ${e.message}")
+            }
         }
     }
 

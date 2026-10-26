@@ -1,0 +1,165 @@
+package com.couplefit.data.repository
+
+import com.couplefit.data.local.HealthDao
+import com.couplefit.data.local.PartnerDailyEntity
+import com.couplefit.domain.repository.PartnerRepository
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class PartnerRepositoryImpl @Inject constructor(
+    private val healthDao: HealthDao,
+    private val firestore: FirebaseFirestore
+) : PartnerRepository {
+
+    private val repositoryScope = CoroutineScope(Dispatchers.IO)
+
+    override fun getPartnerDailyFlow(partnerId: String, dateStr: String): Flow<PartnerDailyEntity?> {
+        return healthDao.getPartnerDailyFlow(partnerId, dateStr)
+    }
+
+    override fun getPartnerDailyFlow(dateStr: String): Flow<PartnerDailyEntity?> {
+        return healthDao.getPartnerDailyFlow(dateStr)
+    }
+
+    override suspend fun getPartnerDaily(partnerId: String, dateStr: String): PartnerDailyEntity? {
+        return healthDao.getPartnerDaily(partnerId, dateStr)
+    }
+
+    override suspend fun savePartnerDaily(entity: PartnerDailyEntity) {
+        healthDao.insertPartnerDaily(entity)
+    }
+
+    override suspend fun clearPartnerDaily(partnerId: String) {
+        healthDao.deletePartnerDailyData(partnerId)
+    }
+
+    override fun getCombinedDashboardFlow(
+        partnerId: String,
+        dateStr: String
+    ): Flow<com.couplefit.domain.model.CombinedDailyDashboard> {
+        val myFlow = healthDao.getDailyAggregateFlow(dateStr)
+        val partnerFlow = healthDao.getPartnerDailyFlow(partnerId, dateStr)
+        return kotlinx.coroutines.flow.combine(myFlow, partnerFlow) { myDaily, partnerDaily ->
+            com.couplefit.domain.model.CombinedDailyDashboard(myDaily, partnerDaily)
+        }
+    }
+
+    override fun getCombinedDashboardFlow(
+        dateStr: String
+    ): Flow<com.couplefit.domain.model.CombinedDailyDashboard> {
+        val myFlow = healthDao.getDailyAggregateFlow(dateStr)
+        val partnerFlow = healthDao.getPartnerDailyFlow(dateStr)
+        return kotlinx.coroutines.flow.combine(myFlow, partnerFlow) { myDaily, partnerDaily ->
+            com.couplefit.domain.model.CombinedDailyDashboard(myDaily, partnerDaily)
+        }
+    }
+
+    /**
+     * Listens to partner's daily document at couples/{coupleId}/daily/{partnerUid_date}.
+     * When remote snapshots arrive, writes directly to Room table 'partnerDaily'.
+     * Emits from Room to ensure offline-first SSOT for the dashboard UI.
+     */
+    override fun listenToPartnerDaily(
+        coupleId: String,
+        partnerUid: String,
+        dateStr: String
+    ): Flow<PartnerDailyEntity?> = callbackFlow {
+        val docId = "${partnerUid}_$dateStr"
+        val docRef = firestore.collection("couples")
+            .document(coupleId)
+            .collection("daily")
+            .document(docId)
+
+        val registration = docRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Timber.w(error, "Error listening to partner daily doc: couples/$coupleId/daily/$docId")
+                return@addSnapshotListener
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                val data = snapshot.data ?: emptyMap<String, Any>()
+                val steps = (data["steps"] as? Number)?.toLong() ?: 0L
+                val activeMinutes = (data["activeMinutes"] as? Number)?.toLong() ?: 0L
+                val calories = (data["calories"] as? Number)?.toLong() ?: 0L
+                val avgHr = (data["avgHr"] as? Number)?.toDouble()
+                    ?: ((data["averageHeartRate"] as? Number)?.toDouble() ?: 0.0)
+                val avgSpo2 = (data["avgSpo2"] as? Number)?.toDouble()
+                    ?: ((data["averageOxygenSaturation"] as? Number)?.toDouble())
+                val lastUpdated = (data["lastUpdated"] as? Number)?.toLong()
+                    ?: ((data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis())
+
+                val partnerDaily = PartnerDailyEntity(
+                    id = docId,
+                    partnerId = partnerUid,
+                    dateStr = dateStr,
+                    steps = steps,
+                    activeMinutes = activeMinutes,
+                    calories = calories,
+                    avgHr = avgHr,
+                    avgSpo2 = avgSpo2,
+                    lastUpdated = lastUpdated
+                )
+
+                repositoryScope.launch {
+                    healthDao.insertPartnerDaily(partnerDaily)
+                    Timber.d("Cached partner daily doc to Room: $docId")
+                }
+            }
+        }
+
+        // Also emit Room flow updates so consumer gets offline data instantly
+        val job = launch {
+            healthDao.getPartnerDailyFlow(partnerUid, dateStr).collect { entity ->
+                trySend(entity)
+            }
+        }
+
+        awaitClose {
+            registration.remove()
+            job.cancel()
+        }
+    }.flowOn(Dispatchers.IO)
+
+    override suspend fun sendNudge(
+        coupleId: String,
+        senderUid: String,
+        senderName: String?,
+        recipientUid: String,
+        message: String
+    ): Result<String> = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        try {
+            val nudgeRef = firestore.collection("couples").document(coupleId)
+                .collection("nudges").document()
+
+            val payload = mapOf(
+                "id" to nudgeRef.id,
+                "coupleId" to coupleId,
+                "senderUid" to senderUid,
+                "senderName" to (senderName ?: "Partner"),
+                "recipientUid" to recipientUid,
+                "message" to message,
+                "type" to "NUDGE",
+                "status" to "PENDING",
+                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+
+            nudgeRef.set(payload).await()
+            Timber.d("Created nudge document ${nudgeRef.id} in couples/$coupleId/nudges")
+            Result.success(nudgeRef.id)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to create nudge document in Firestore")
+            Result.failure(e)
+        }
+    }
+}

@@ -67,8 +67,12 @@ fun CoupleFitTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
-            window.navigationBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
+            if (Build.VERSION.SDK_INT < 35) {
+                @Suppress("DEPRECATION")
+                window.statusBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
+                @Suppress("DEPRECATION")
+                window.navigationBarColor = androidx.compose.ui.graphics.Color.Transparent.toArgb()
+            }
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = !darkTheme
             insetsController.isAppearanceLightNavigationBars = !darkTheme

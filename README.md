@@ -183,6 +183,75 @@ All comprehensive architectural and operational documentation has been organized
 
 ---
 
+## 🌀 Spinning Counter (Jetpack Compose Port)
+
+A faithful native Android Jetpack Compose port of the **"Spinning counter"** transition from [transitions.dev](https://transitions.dev/detail.html?t=spinning-counter).
+
+### What it is
+`SpinningCounter(value: Long, ...)` renders numbers as a row of per-digit reels. When `value` changes:
+- Only the individual digits that changed spin to their new values (up to three full revolutions plus landing).
+- Left-to-right stagger (`90ms`) provides an organic cascading transition.
+- Soft edge mask at the top and bottom of each reel cell via `BlendMode.DstIn`.
+- Vertical motion blur streak during spin on Android 12+ (API 31+) using `RenderEffect.createBlurEffect`.
+- Respects system accessibility reduced-motion preferences (`Settings.Global.ANIMATOR_DURATION_SCALE == 0f`).
+
+### Usage
+```kotlin
+import com.couplefit.ui.components.SpinningCounter
+import com.couplefit.ui.components.SpinConfig
+
+// Basic usage with theme defaults
+SpinningCounter(value = todaySteps)
+
+// Custom motion configuration
+SpinningCounter(
+    value = todaySteps,
+    style = MaterialTheme.typography.displayMedium,
+    config = SpinConfig(
+        durationMs = 1400,
+        cell = 48.dp,
+        cellWidth = 26.dp,
+        spinBlur = 3.dp,
+        staggerMs = 90,
+        spins = 3
+    ),
+    animateOnFirstComposition = false
+)
+```
+
+### Motion-Token Reference
+| `SpinConfig` field | Default | transitions.dev equivalent | Description |
+|---|---|---|---|
+| `durationMs` | `1400` | `--reel-dur` | Spin animation duration |
+| `cell` | `30.dp` | `--reel-cell` | Height of each single digit cell |
+| `cellWidth` | `null` (falls back to `cell`) | N/A | Optional custom width per digit |
+| `spinBlur` | `3.dp` | `--reel-spin-blur` | Vertical motion blur on spin |
+| `staggerMs` | `90` | `--reel-stagger` | Left-to-right delay between adjacent columns |
+| `spins` | `3` | `SPINS` | Full revolutions before landing |
+| `easing` | `CubicBezierEasing(0.16f, 1f, 0.3f, 1f)` | `--reel-ease` | Acceleration & settling curve |
+
+### Behavioral & Accessibility Notes
+- **First Composition**: Defaults to sit statically without spinning (`animateOnFirstComposition = false`).
+- **Selective Animation**: Only changed digits spin; static digits never restart.
+- **Static Separators**: Thousands separators (`,`), decimal points, and signs (`+`, `-`) are static and do not spin.
+- **Accessibility**: Exposes `contentDescription = value.toString()` on the root `Row` so screen readers (TalkBack) read the complete number once rather than speaking individual spinning reels.
+- **GPU-Friendly**: Animations are computed via `graphicsLayer { translationY = ... }` with no per-frame layout recalculation.
+- **Tabular Numerals**: `fontFeatureSettings = "tnum"` ensures monospace alignment across all reels preventing width jitter.
+
+### Divergences from the Web Recipe
+| Web | Android | Why |
+|---|---|---|
+| CSS `translateY` transition | `Animatable<Float>` + `graphicsLayer { translationY }` | Same visual, same interpolation |
+| `transition-delay` per column | `delay(i * staggerMs)` inside a `coroutineScope` | Same stagger semantics |
+| SVG `feGaussianBlur (0, Y)` | `RenderEffect.createBlurEffect(0, blurY, DECAL)` | Vertical-only blur, API 31+ |
+| `mask-image: linear-gradient(…)` | `drawWithContent { drawRect(brush, DstIn) }` | Edge fade |
+| CSS `cubic-bezier(.16,1,.3,1)` | `CubicBezierEasing(0.16f, 1f, 0.3f, 1f)` | Same curve |
+| `prefers-reduced-motion: reduce` | `Settings.Global.ANIMATOR_DURATION_SCALE == 0f` | Android-native signal |
+| `font-variant-numeric: tabular-nums` | `TextStyle(fontFeatureSettings = "tnum")` | Same result |
+| React re-render | Keyed per-column `Animatable` + `LaunchedEffect(targetDigit)` | Only changed digits spin |
+
+---
+
 ## 📄 License & Privacy
 
 - **Privacy Policy**: CoupleFit requests only the health permissions strictly required for the dashboard. Intraday raw sensor waveforms, GPS routes, and toggled-off metrics never leave your device.

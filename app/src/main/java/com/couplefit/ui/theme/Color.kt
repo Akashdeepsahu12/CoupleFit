@@ -102,3 +102,17 @@ val VitalsGradientEndDark = Color(0xFFEB3B6B)     // Controlled medical magenta
 val VitalsGradientStartLight = Color(0xFF00B4D8)
 val VitalsGradientMidLight = Color(0xFF0077B6)
 val VitalsGradientEndLight = Color(0xFFD90429)
+
+// Motion Graphic Arc Gauge Tokens (Inspired by 558.mp4)
+val MotionCyanStart = Color(0xFF00F5D4)
+val MotionSkyMid = Color(0xFF00C2FF)
+val MotionBlueEnd = Color(0xFF0A84FF)
+val MotionGlowCyan = Color(0xFF00F0FF)
+val MotionTrackDark = Color(0xFF1E2838)
+val MotionTrackLight = Color(0xFFE2E8F0)
+
+val MotionPartnerStart = Color(0xFFFF3366)
+val MotionPartnerMid = Color(0xFFFF5E3A)
+val MotionPartnerEnd = Color(0xFFFF9500)
+val MotionPartnerGlow = Color(0xFFFF453A)
+

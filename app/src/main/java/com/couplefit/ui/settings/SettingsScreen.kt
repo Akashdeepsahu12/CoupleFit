@@ -48,11 +48,38 @@ fun SettingsScreen(
     onToggleDarkThemeWithOrigin: ((Boolean, Offset) -> Unit)? = null,
     reduceMotion: Boolean = false,
     onToggleReduceMotion: (Boolean) -> Unit = {},
-    healthConnectViewModel: HealthConnectViewModel = hiltViewModel()
+    healthConnectViewModel: HealthConnectViewModel = hiltViewModel(),
+    authViewModel: com.couplefit.ui.auth.AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val healthData by healthConnectViewModel.dashboardState.collectAsState()
+    val sharingPrefs by healthConnectViewModel.sharingPreferences.collectAsState(initial = com.couplefit.data.local.MetricSharingPreferences())
+    val authUiState by authViewModel.uiState.collectAsState()
+    var showPrivacyDetailScreen by remember { mutableStateOf(false) }
+    var showUnlinkPartnerDialog by remember { mutableStateOf(false) }
+
+    if (showPrivacyDetailScreen) {
+        PrivacyTransparencyScreen(
+            onNavigateBack = { showPrivacyDetailScreen = false },
+            sharingPrefs = sharingPrefs,
+            onUnlinkPartner = {
+                authViewModel.unlinkPartner {
+                    showPrivacyDetailScreen = false
+                    onNavigateBack()
+                }
+            },
+            onDeleteMyData = {
+                authViewModel.deleteUserData {
+                    showPrivacyDetailScreen = false
+                    onNavigateBack()
+                }
+            },
+            isUnlinking = authUiState.isLoading,
+            isDeleting = authUiState.isLoading
+        )
+        return
+    }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = PermissionController.createRequestPermissionResultContract()
     ) { _ ->
@@ -81,10 +108,12 @@ fun SettingsScreen(
     var shareSteps by remember { mutableStateOf(true) }
     var shareWorkouts by remember { mutableStateOf(true) }
     var shareVitals by remember { mutableStateOf(true) }
+    var shareSpO2 by remember { mutableStateOf(true) }
     var shareECG by remember { mutableStateOf(true) }
     var shareStress by remember { mutableStateOf(false) }
     var shareCycleData by remember { mutableStateOf(false) }
     var shareMedications by remember { mutableStateOf(false) }
+
 
     // 3. Notifications
     var notifyCritical by remember { mutableStateOf(true) }
@@ -239,7 +268,7 @@ fun SettingsScreen(
                         }
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     if (isPartnerLinked) {
                         SettingsClickableRow(
@@ -261,7 +290,7 @@ fun SettingsScreen(
                         )
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsClickableRow(
                         text = "Sign Out",
@@ -269,7 +298,7 @@ fun SettingsScreen(
                         onClick = { showSignOutDialog = true }
                     )
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsClickableRow(
                         text = "Delete Account",
@@ -335,7 +364,7 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 2. DATA SHARING PREFERENCES
+                // 2. DATA SHARING PREFERENCES (DataStore + Mirrored to users/{uid}.sharingPrefs in Firestore)
                 SettingsGroup(
                     title = "DATA SHARING PREFERENCES",
                     isExpanded = expandedSharing,
@@ -348,25 +377,50 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         TextButton(onClick = {
-                            shareSteps = true; shareWorkouts = true; shareVitals = true; shareECG = true; shareStress = true; shareMedications = true
+                            healthConnectViewModel.setShareSteps(true)
+                            healthConnectViewModel.setShareWorkouts(true)
+                            healthConnectViewModel.setShareCalories(true)
+                            healthConnectViewModel.setShareHr(true)
+                            healthConnectViewModel.setShareSpo2(true)
                             triggerAutoSaveNotice()
                         }) {
                             Text("Share All", fontSize = 12.sp)
                         }
                         TextButton(onClick = {
-                            shareSteps = false; shareWorkouts = false; shareVitals = false; shareECG = false; shareStress = false; shareCycleData = false; shareMedications = false
+                            healthConnectViewModel.setShareSteps(false)
+                            healthConnectViewModel.setShareWorkouts(false)
+                            healthConnectViewModel.setShareCalories(false)
+                            healthConnectViewModel.setShareHr(false)
+                            healthConnectViewModel.setShareSpo2(false)
                             triggerAutoSaveNotice()
                         }) {
                             Text("Share None", fontSize = 12.sp, color = SystemRed)
                         }
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
-                    SettingsSwitchRow("Steps & Distance", shareSteps) { shareSteps = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Workouts & Active Time", shareWorkouts) { shareWorkouts = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("Heart Rate & Vitals", shareVitals) { shareVitals = it; triggerAutoSaveNotice() }
-                    SettingsSwitchRow("ECG Data", shareECG) { shareECG = it; triggerAutoSaveNotice() }
+                    SettingsSwitchRow("Steps & Distance", sharingPrefs.shareSteps) {
+                        healthConnectViewModel.setShareSteps(it)
+                        triggerAutoSaveNotice()
+                    }
+                    SettingsSwitchRow("Workouts & Active Time", sharingPrefs.shareWorkouts) {
+                        healthConnectViewModel.setShareWorkouts(it)
+                        triggerAutoSaveNotice()
+                    }
+                    SettingsSwitchRow("Calories Burned", sharingPrefs.shareCalories) {
+                        healthConnectViewModel.setShareCalories(it)
+                        triggerAutoSaveNotice()
+                    }
+                    SettingsSwitchRow("Heart Rate (Daily Aggregate)", sharingPrefs.shareHr) {
+                        healthConnectViewModel.setShareHr(it)
+                        triggerAutoSaveNotice()
+                    }
+                    SettingsSwitchRow("Blood Oxygen / SpO2 (Aggregate)", sharingPrefs.shareSpo2) {
+                        healthConnectViewModel.setShareSpo2(it)
+                        triggerAutoSaveNotice()
+                    }
+
                     SettingsSwitchRow("Stress Levels", shareStress) { shareStress = it; triggerAutoSaveNotice() }
                     SettingsSwitchRow("Medications Routine", shareMedications) { shareMedications = it; triggerAutoSaveNotice() }
                     SettingsSwitchRow(
@@ -421,7 +475,7 @@ fun SettingsScreen(
                         triggerAutoSaveNotice()
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsSwitchRow(
                         title = "Reduce Motion",
@@ -513,7 +567,7 @@ fun SettingsScreen(
                         }
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsClickableRow(
                         text = "Manage in Health Connect",
@@ -523,7 +577,7 @@ fun SettingsScreen(
                         }
                     )
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsClickableRow(
                         text = "Add 1,000 Test Steps (Health Connect)",
@@ -536,7 +590,7 @@ fun SettingsScreen(
                         }
                     )
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     Row(
                         modifier = Modifier
@@ -589,7 +643,7 @@ fun SettingsScreen(
                             )
                         }
                         if (index < activeMeds.size - 1) {
-                            Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                         }
                     }
                 }
@@ -608,7 +662,7 @@ fun SettingsScreen(
                         checked = useMetric
                     ) { useMetric = it; triggerAutoSaveNotice() }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
                     SettingsSwitchRow(
                         title = "24-Hour Time Format",
@@ -631,15 +685,29 @@ fun SettingsScreen(
                         checked = biometricLock
                     ) { biometricLock = it; triggerAutoSaveNotice() }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
-                    SettingsClickableRow("Export Health Data (JSON/CSV)", MaterialTheme.colorScheme.primary) {
-                        triggerAutoSaveNotice()
+                    SettingsClickableRow("What is Shared vs Device-Only", MaterialTheme.colorScheme.primary) {
+                        showPrivacyDetailScreen = true
                     }
 
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
-                    SettingsClickableRow("Privacy Policy", MaterialTheme.colorScheme.onSurface) {}
+                    SettingsClickableRow("Unlink Partner", MaterialTheme.colorScheme.primary) {
+                        showUnlinkPartnerDialog = true
+                    }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+
+                    SettingsClickableRow("Delete My Data & Account", SystemRed) {
+                        showDeleteAccountDialog = true
+                    }
+
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+
+                    SettingsClickableRow("Privacy Policy", MaterialTheme.colorScheme.onSurface) {
+                        showPrivacyDetailScreen = true
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -663,9 +731,9 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         )
                     }
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                     SettingsClickableRow("What's New / Changelog", MaterialTheme.colorScheme.primary) {}
-                    Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                     SettingsClickableRow("Support & Contact Us", MaterialTheme.colorScheme.primary) {}
                 }
 
@@ -681,7 +749,11 @@ fun SettingsScreen(
             title = { Text("Sign Out") },
             text = { Text("Are you sure you want to sign out of CoupleFit?") },
             confirmButton = {
-                TextButton(onClick = { showSignOutDialog = false }) {
+                TextButton(onClick = {
+                    showSignOutDialog = false
+                    authViewModel.signOut()
+                    onNavigateBack()
+                }) {
                     Text("Sign Out", color = SystemRed)
                 }
             },
@@ -693,15 +765,46 @@ fun SettingsScreen(
         )
     }
 
+    // Confirmation Dialog for Unlink Partner
+    if (showUnlinkPartnerDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnlinkPartnerDialog = false },
+            title = { Text("Unlink Partner") },
+            text = { Text("Are you sure you want to unlink from your partner? Live activity sharing will cease immediately.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showUnlinkPartnerDialog = false
+                        authViewModel.unlinkPartner {
+                            onNavigateBack()
+                        }
+                    }
+                ) {
+                    Text("Confirm Unlink")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnlinkPartnerDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     // Confirmation Dialog for Account Deletion
     if (showDeleteAccountDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },
-            title = { Text("Delete Account") },
-            text = { Text("This will permanently delete all your health snapshots, couple connection, and preferences. This action cannot be undone.") },
+            title = { Text("Delete Account & Fitness Data") },
+            text = { Text("This will permanently delete all your health snapshots, cloud records, couple connection, and preferences from Firestore. This action cannot be undone.") },
             confirmButton = {
                 Button(
-                    onClick = { showDeleteAccountDialog = false },
+                    onClick = {
+                        showDeleteAccountDialog = false
+                        authViewModel.deleteUserData {
+                            onNavigateBack()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = SystemRed)
                 ) {
                     Text("Delete Forever")
