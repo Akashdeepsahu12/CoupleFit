@@ -193,3 +193,10 @@ graph TD
   - Links: `DashboardScreen.kt`, `InteractiveChart.kt`, `LiveHeartRateEmptyWaveform.kt`, `NavigationComposeUiTest.kt`.
 - **Node**: `LiveHeartRateEmptyWaveform.kt`
   - Implements ambient ECG cardiogram rhythm canvas (`ENG-06`).
+
+### Phase 20: Liqui Design Liquid Glass Heart Rate Redesign & Antislop-UI Polish
+- **Node**: `PLAN_PHASE_20_LIQUI_DESIGN_HEART_RATE.md`
+  - Defines `LQ-01`, `LQ-02`, `AS-01`.
+  - Links: `LiquiGlassTokens.kt`, `DashboardScreen.kt`, `LiveHeartRateEmptyWaveform.kt`, `NavigationComposeUiTest.kt`.
+- **Node**: `LiquiGlassTokens.kt`
+  - Ports official `leefanv/liqui-design` 4-layer optical model, tint wash, and directional specular rim (`LQ-01`).

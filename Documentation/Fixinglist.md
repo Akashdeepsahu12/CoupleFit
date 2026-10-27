@@ -2459,3 +2459,38 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `live_heart_rate_layout_polished_verified.jpg`: Verified horizontal, unwrapped `[ ● LIVE ]` pill (bounds: [840,525][901,538]), authoritative `-- BPM • Listening for pulse` hero readout, seamless unbroken frosted glass, and living ECG waveform canvas with "Sync Now ↻" button.
+
+## 43. Phase 20 Liqui Design Liquid Glass Heart Rate Redesign & Antislop-UI Polish (`LQ-01`, `LQ-02`, `AS-01`) 💧💓
+
+> **Command Trigger**: `/antislop:antislop-ui`  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `LQ-01`, `LQ-02`, `AS-01`  
+> **Reference Repository**: [leefanv/liqui-design](https://github.com/leefanv/liqui-design)  
+> **Release Target**: `v2.9.5-liqui-design-heart-rate`
+
+### 43.1 Design Problem Statement & Craft Audit
+1. **`LQ-01` (Porting leefanv/liqui-design 4-Layer Optical Model)**:
+   - *Root Cause*: Previous card used generic Compose blur with single-tone tint. It lacked the true optical physics of liquid glass: directional specular bevel rim, multi-stop tint gradient wash, and continuous superellipse squircle curvature.
+   - *Fix*: Ported `LiquiTokens.kt` from official `leefanv/liqui-design` repository: 2-stop optical tint wash (`DarkTint` 62% to `DarkTintDeep` 40%), directional specular rim bevel (`DarkRimHi` to `DarkRimLo`), 22dp squircle radius, and depth shadow elevation.
+2. **`LQ-02` (Two-Material Philosophy for Actions)**:
+   - *Root Cause*: "Sync Now" button was rendered as a translucent glass pill, violating Liqui Design's Two-Material principle: *"Glass is for surfaces you act through. Solid fill is for controls that carry value."*
+   - *Fix*: Upgraded the "Sync Health Connect" CTA in `LiveHeartRateEmptyWaveform.kt` into a solid tactile button in `VitalsAccent` with high-contrast white text, delivering clear actionability.
+3. **`AS-01` (Antislop-UI Clean Hierarchy & Elimination of Fake Studio Loops)**:
+   - *Root Cause*: Previous card carried a generic AI `VITALS PULSE` eyebrow badge duplicating the headline, paired with an endless-pulsing studio recording dot.
+   - *Fix*: Removed `VITALS PULSE` eyebrow; elevated `Heart Rate` to direct H2 title. Replaced endless-loop dot with a calm, tactile `Health Connect` / `Live Telemetry` state pill.
+
+### 43.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/theme/LiquiGlassTokens.kt`**:
+   - Created official Liqui Design tokens (`LiquiTokens`) and `Modifier.liquiGlass()`.
+2. **`app/src/main/java/com/couplefit/ui/components/LiveHeartRateEmptyWaveform.kt`**:
+   - Upgraded to Liqui Design optical background and solid tactile "Sync Health Connect" button.
+3. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Applied `.liquiGlass()`, removed eyebrow badges, and streamlined biometric hierarchy.
+4. **`app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt`**:
+   - Added `liqui_design_and_antislop_heart_rate_verified()`.
+
+### 43.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `liqui_design_heart_rate_verified.jpg`: Verified clean `Heart Rate` title, calm `Health Connect` telemetry tag, `-- BPM • Awaiting pulse stream` hero metric, hospital-grade ECG baseline, and solid tactile `Sync Health Connect ↻` button.

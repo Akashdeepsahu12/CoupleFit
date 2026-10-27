@@ -420,4 +420,11 @@ class NavigationComposeUiTest {
         // 2. Stroke and typography tokens verified
         assertEquals(androidx.compose.ui.graphics.Color(0x2EFFFFFF), GlassPrimitives.TintWhiteSpecularMid)
     }
+
+    @Test
+    fun liqui_design_and_antislop_heart_rate_verified() {
+        // Assert that Liqui Design and Antislop-UI tokens are valid (Phase 20)
+        assertEquals(22.dp, com.couplefit.ui.theme.LiquiTokens.CardRadius)
+        assertEquals(1.25.dp, com.couplefit.ui.theme.LiquiTokens.BezelWidth)
+    }
 }

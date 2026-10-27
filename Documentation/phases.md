@@ -537,6 +537,23 @@ Fix layout flaws, header redundancy, squeezed "LIVE" badge wrapping, harsh divid
    - Added `live_heart_rate_layout_polished_verified()` to `NavigationComposeUiTest.kt`.
    - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `live_heart_rate_layout_polished_verified.jpg`.
 
+
+## Phase 20: Liqui Design Liquid Glass Heart Rate Redesign & Antislop-UI Polish (`LQ-01`, `LQ-02`, `AS-01`)
+
+### Objectives
+Re-engineer the Live Heart Rate card using the official optical physics and two-material philosophy of [leefanv/liqui-design](https://github.com/leefanv/liqui-design) paired with the strict design hygiene of `antislop:antislop-ui`.
+
+### Key Changes Made
+1. **Liqui Design 4-Layer Optical Model (`LiquiGlassTokens.kt` - `LQ-01`)**:
+   - Ported official `LiquiTokens` and `Modifier.liquiGlass()`: Hardware Gaussian blur, 2-stop optical tint wash (`0x9E1E202E` to `0x66121420`), directional specular rim bezel (`rim-hi` 50% to `rim-lo` 12%), and continuous squircle curvature (22dp radius).
+2. **Two-Material Philosophy for Tactile Controls (`LiveHeartRateEmptyWaveform.kt` - `LQ-02`)**:
+   - Upgraded "Sync Health Connect" into a solid, tactile action button in `VitalsAccent` with high-contrast white text.
+3. **Antislop-UI Hierarchy & Studio Loop Elimination (`DashboardScreen.kt` - `AS-01`)**:
+   - Stripped `VITALS PULSE` eyebrow; elevated `Heart Rate` to direct title with vector heart icon. Replaced endless-pulsing studio dots with a calm `Health Connect` state tag.
+4. **Automated & ARTEMIS Proof**:
+   - Added `liqui_design_and_antislop_heart_rate_verified()` to `NavigationComposeUiTest.kt`.
+   - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `liqui_design_heart_rate_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

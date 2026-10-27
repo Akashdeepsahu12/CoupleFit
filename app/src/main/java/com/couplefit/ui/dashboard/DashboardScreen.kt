@@ -83,6 +83,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.couplefit.ui.healthconnect.HealthConnectViewModel
 import com.couplefit.ui.healthconnect.HealthDashboardUiState
 import com.couplefit.ui.theme.*
+import com.couplefit.ui.theme.LiquiTokens
+import com.couplefit.ui.theme.liquiGlass
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -773,13 +775,16 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                            // Permanent Live Heart Rate & Vitals Waveform Card (VHR-04, VHR-05, DSN-04, ENG-06)
+                            // Redesigned Liqui Design & Antislop-UI Heart Rate Card (Phase 20)
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = AppSpacing.xs)
-                                    .iosGlass(shape = MaterialTheme.shapes.large),
-                                shape = MaterialTheme.shapes.large,
+                                    .liquiGlass(
+                                        shape = RoundedCornerShape(LiquiTokens.CardRadius),
+                                        frost = 0.35f
+                                    ),
+                                shape = RoundedCornerShape(LiquiTokens.CardRadius),
                                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                                 border = null
                             ) {
@@ -788,7 +793,7 @@ fun DashboardScreen(
                                         .fillMaxWidth()
                                         .padding(AppSpacing.md)
                                 ) {
-                                    // 1. Header Row (Icon + Category Title + Unwrapped LIVE Badge)
+                                    // 1. Antislop-UI Clean Header (Real Title without Duplicate Eyebrow Pills)
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -797,51 +802,41 @@ fun DashboardScreen(
                                         Row(
                                             modifier = Modifier.weight(1f, fill = false),
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
                                             AnimatedHeartIcon(
-                                                modifier = Modifier.size(20.dp),
+                                                modifier = Modifier.size(22.dp),
                                                 tint = VitalsAccent,
                                                 isPulsing = healthData.averageHeartRate > 0,
                                                 reduceMotion = reduceMotion
                                             )
                                             Text(
-                                                text = "VITALS PULSE",
-                                                style = MaterialTheme.typography.labelSmall,
+                                                text = "Heart Rate",
+                                                style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                letterSpacing = 0.5.sp,
+                                                color = MaterialTheme.colorScheme.onSurface,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                         }
 
-                                        // High-Polish Unwrapped LIVE Telemetry Badge (Pro-Rules: NoWrap, No vertical squeeze)
+                                        // Honest Telemetry Tag (No endless-pulsing studio dots)
                                         Surface(
-                                            shape = RoundedCornerShape(12.dp),
-                                            color = VitalsAccent.copy(alpha = 0.12f),
-                                            border = BorderStroke(1.dp, VitalsAccent.copy(alpha = 0.35f))
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = if (healthData.averageHeartRate > 0) VitalsAccent.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (healthData.averageHeartRate > 0) VitalsAccent.copy(alpha = 0.35f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                                            )
                                         ) {
-                                            Row(
-                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(6.dp)
-                                                        .clip(CircleShape)
-                                                        .background(VitalsAccent)
-                                                )
-                                                Text(
-                                                    text = "LIVE",
-                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                                    color = VitalsAccent,
-                                                    letterSpacing = 0.6.sp,
-                                                    maxLines = 1,
-                                                    softWrap = false
-                                                )
-                                            }
+                                            Text(
+                                                text = if (healthData.averageHeartRate > 0) "Live Telemetry" else "Health Connect",
+                                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                                color = if (healthData.averageHeartRate > 0) VitalsAccent else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                                maxLines = 1,
+                                                softWrap = false
+                                            )
                                         }
                                     }
 
@@ -882,7 +877,7 @@ fun DashboardScreen(
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
-                                                    text = "• Today's Avg",
+                                                    text = "• Resting Avg",
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                     modifier = Modifier.alignByBaseline()
@@ -892,19 +887,19 @@ fun DashboardScreen(
                                                     text = "--",
                                                     style = MaterialTheme.typography.displaySmall,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                                                     modifier = Modifier.alignByBaseline()
                                                 )
                                                 Text(
                                                     text = "BPM",
                                                     style = MaterialTheme.typography.titleMedium,
                                                     fontWeight = FontWeight.Bold,
-                                                    color = VitalsAccent.copy(alpha = 0.5f),
+                                                    color = VitalsAccent.copy(alpha = 0.45f),
                                                     modifier = Modifier.alignByBaseline()
                                                 )
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text(
-                                                    text = "• Listening for pulse",
+                                                    text = "• Awaiting pulse stream",
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                                     modifier = Modifier.alignByBaseline()
@@ -952,7 +947,7 @@ fun DashboardScreen(
 
                                     Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                                    // 3. Waveform / Chart Container (Seamless liquid glass, no harsh divider)
+                                    // 3. Liqui Glass Waveform Stage (Two-Material Philosophy)
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
