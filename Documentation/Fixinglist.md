@@ -2494,3 +2494,45 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `liqui_design_heart_rate_verified.jpg`: Verified clean `Heart Rate` title, calm `Health Connect` telemetry tag, `-- BPM • Awaiting pulse stream` hero metric, hospital-grade ECG baseline, and solid tactile `Sync Health Connect ↻` button.
+
+
+## 44. Phase 21: Razor-Sharp Optical Liquid Glass Refactor (`BLR-01`) 💎🔍
+
+> **Associated Defect Log in Fixinglist.md**: `BLR-01`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.6-heart-rate-crisp-optical-glass`
+
+### 44.1 Design & Defect Diagnosis
+1. **`BLR-01` (Card-Wide Hardware Gaussian Blur Rendering Effect on Child Subtree)**:
+   - *Symptom*: User reported during live device testing that the newly redesigned Heart Rate card and its contents looked completely blurry and unreadable.
+   - *Root Cause Analysis*:
+     In `app/src/main/java/com/couplefit/ui/theme/LiquiGlassTokens.kt`, `Modifier.liquiGlass()` contained:
+     ```kotlin
+     Modifier.graphicsLayer {
+         renderEffect = RenderEffect
+             .createBlurEffect(20f, 20f, Shader.TileMode.CLAMP)
+             .asComposeRenderEffect()
+     }
+     ```
+     Unlike CSS `backdrop-filter: blur()` (which selectively blurs only background content behind the element while leaving child DOM elements crisp), Jetpack Compose's `Modifier.graphicsLayer { renderEffect = createBlurEffect(...) }` post-processes the **entire Composable layer including all child drawings**. Because `.liquiGlass()` was chained directly onto the parent `Card` container in `DashboardScreen.kt`, every single text glyph (`Heart Rate`, `--`, `BPM`, `Sync Health Connect`), icon, and canvas was rendered into the blurred offscreen layer and smudged by 20 pixels of Gaussian blur.
+   - *Fix*:
+     Eliminated the container-level `RenderEffect` blur from `Modifier.liquiGlass()`. Aligned with `GlassTokens.kt` (`iosGlass`) principle: *"Preserves foreground typography and icon crispness by avoiding child RenderEffect blurring"*. Optical liquid glass depth is achieved with zero-blur overhead via:
+     1. Directional ambient and spot drop shadows (`ambientColor` 0x66000005, `spotColor` 0x88000005, 8dp elevation).
+     2. Superellipse squircle clipping (`LiquiTokens.SquircleCornerShape`, 22dp radius).
+     3. Dual-phase optical tint background (`DarkTintDeep` base + 2-stop directional `tintBrush` wash).
+     4. Directional specular rim light bezel border (`DarkRimHi` to `DarkRimLo` 1.25dp).
+     Foreground text and vector icons now render directly to the window buffer with 100% native raster clarity, razor sharpness, and maximum contrast.
+
+### 44.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/theme/LiquiGlassTokens.kt`**:
+   - Removed `RenderEffect` and `Shader` imports and the `graphicsLayer` blur modifier.
+   - Implemented base substrate background color + gradient tint brush + directional specular rim border.
+2. **`Documentation/PLAN_PHASE_21_CRISP_OPTICAL_GLASS.md`**:
+   - Documented root cause, Compose vs CSS blur physics, and verification criteria.
+
+### 44.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `heart_rate_crisp_verified.jpg`: Visually confirmed 100% razor-sharp typography for `"Heart Rate"`, `"-- BPM"`, `"Awaiting Heart Rate Stream"`, `"Wear your watch or sync Health Connect to display telemetry"`, and `"Sync Health Connect ↻"`, with multi-layered specular liquid glass depth.

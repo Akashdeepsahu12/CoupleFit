@@ -200,3 +200,13 @@ graph TD
   - Links: `LiquiGlassTokens.kt`, `DashboardScreen.kt`, `LiveHeartRateEmptyWaveform.kt`, `NavigationComposeUiTest.kt`.
 - **Node**: `LiquiGlassTokens.kt`
   - Ports official `leefanv/liqui-design` 4-layer optical model, tint wash, and directional specular rim (`LQ-01`).
+
+
+### Phase 21: Razor-Sharp Optical Liquid Glass Refactor
+- **Node**: `PLAN_PHASE_21_CRISP_OPTICAL_GLASS.md`
+  - Defines `BLR-01` (container RenderEffect blur elimination).
+  - Links: `LiquiGlassTokens.kt`, `DashboardScreen.kt`, `LiveHeartRateEmptyWaveform.kt`.
+- **Node**: `LiquiGlassTokens.kt`
+  - Eliminates card-wide `graphicsLayer { renderEffect = ... }` container blur.
+  - Retains 4-layer optical model (directional shadow, squircle clip, deep tint base + gradient wash, directional specular rim).
+  - Preserves 100% native raster clarity and typography sharpness.

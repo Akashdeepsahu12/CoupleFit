@@ -554,6 +554,25 @@ Re-engineer the Live Heart Rate card using the official optical physics and two-
    - Added `liqui_design_and_antislop_heart_rate_verified()` to `NavigationComposeUiTest.kt`.
    - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `liqui_design_heart_rate_verified.jpg`.
 
+
+## Phase 21: Razor-Sharp Optical Liquid Glass Refactor (BLR-01)
+
+### Objectives
+Diagnose and permanently eliminate the card-wide blur defect on the Heart Rate card identified during live testing on emulator-5554, restoring 100% razor-sharp typography and vector rendering while preserving the multi-layered optical depth of Liqui Design.
+
+### Key Changes Made
+1. **Defect Root Cause Identified (BLR-01)**:
+   - In Compose, Modifier.graphicsLayer { renderEffect = RenderEffect.createBlurEffect(20f, 20f, CLAMP) } acts as a layer post-processor that blurs both the container and all of its child Composable drawings (text, numbers, icons, buttons), unlike CSS ackdrop-filter: blur().
+2. **Container Blur Elimination (LiquiGlassTokens.kt)**:
+   - Removed the graphicsLayer 
+enderEffect blur from Modifier.liquiGlass().
+   - Optical liquid glass depth is now rendered via directional ambient & spot drop shadow, deep substrate tint, 2-stop gradient wash, and 1.25dp directional specular rim bezel.
+   - Restored 100% native raster clarity, razor-sharp typography, and pristine contrast.
+3. **Automated & ARTEMIS Proof**:
+   - .\gradlew.bat testDebugUnitTest: BUILD SUCCESSFUL (100% pass rate).
+   - .\gradlew.bat compileDebugAndroidTestKotlin: BUILD SUCCESSFUL (0 errors).
+   - Verified on live Android emulator (emulator-5554) via ARTEMIS: captured heart_rate_crisp_verified.jpg.
+
 ## Verification & Build Status
 
 ```bash

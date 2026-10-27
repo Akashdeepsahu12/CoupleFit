@@ -1,8 +1,5 @@
 package com.couplefit.ui.theme
 
-import android.graphics.RenderEffect
-import android.graphics.Shader
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -21,7 +18,7 @@ import androidx.compose.ui.unit.dp
  * Ported from official repository: https://github.com/leefanv/liqui-design
  *
  * Implements the 4-layer optical model:
- * 1. Base Hardware Optical Blur (RenderEffect on API 31+)
+ * 1. Base Hardware Translucent Optical Substrate (Preserves foreground typography & icon crispness by avoiding child RenderEffect blurring)
  * 2. Multi-stop Tint Legibility Wash (--lq-tint to --lq-tint-deep)
  * 3. Directional Specular Bevel Rim (--lq-rim-hi to --lq-rim-lo)
  * 4. Superellipse Continuous Squircle Geometry (22dp radius)
@@ -112,14 +109,9 @@ fun Modifier.liquiGlass(
             spotColor = if (isDark) Color(0x88000005) else Color(0x380A0F28)
         )
         .clip(shape)
-        .then(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Modifier.graphicsLayer {
-                    renderEffect = RenderEffect
-                        .createBlurEffect(20f, 20f, Shader.TileMode.CLAMP)
-                        .asComposeRenderEffect()
-                }
-            } else Modifier
+        .background(
+            color = if (isDark) LiquiTokens.DarkTintDeep else LiquiTokens.LightTintDeep,
+            shape = shape
         )
         .background(brush = tintBrush, shape = shape)
         .border(width = LiquiTokens.BezelWidth, brush = specularRimBrush, shape = shape)
