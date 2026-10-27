@@ -233,4 +233,32 @@ class NavigationComposeUiTest {
         com.couplefit.widget.CoupleFitAppWidget.markPoked()
         assertTrue(com.couplefit.widget.CoupleFitAppWidget.isRecentlyPoked())
     }
+
+    @Test
+    fun wireframeSpec_metricTriad_and_startChallengeSheet() {
+        var challengeLaunched = false
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.trends.HealthTrendsScreen()
+                com.couplefit.ui.challenge.StartChallengeDialog(
+                    onDismiss = {},
+                    onStartChallenge = { _, _ -> challengeLaunched = true }
+                )
+            }
+        }
+
+        // Verify Metric Triad in Combined view (WF-02)
+        composeTestRule.onNodeWithText("⚡ 532 active mins").assertIsDisplayed()
+        composeTestRule.onNodeWithText("🔥 4,630 kcal burned").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Synchrony: 94% ✨").assertIsDisplayed()
+
+        // Verify StartChallengeDialog bottom sheet content (WF-04)
+        composeTestRule.onNodeWithText("Start a Couple Challenge").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Steps Race").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Active Streak").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Launch Challenge 🚀").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Launch Challenge 🚀").performClick()
+        assertTrue(challengeLaunched)
+    }
 }

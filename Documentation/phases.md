@@ -259,6 +259,9 @@ Align the app with the quantitative and qualitative card sort findings from `car
 | **Phase 7** | `CoupleFitDestinations.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `MedicationDuePill.kt`, `ActiveChallengePreviewCard.kt`, `DashboardAdaptiveScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, `QuickNudgeRow.kt`, `CardSortConvergenceComposeUiTest.kt` | 4-tab M3 navigation shell, contextual medication logging, modular challenge preview, two-pane telemetry deep dive, 2-step safe unlink verification, and thumb-zone partner cheers. |
 | **Phase 8** | `SettingsScreen.kt`, `HealthConnectViewModel.kt`, `SettingsHubComposeUiTest.kt`, `Documentation/` | Settings 4-Hub architecture deconstruction (IA-03), DataStore metric sharing persistence, documentation governance alignment (IA-04), and instrumented Compose UI testing (IA-10). |
 | **Phase 9** | `CoupleFitDestinations.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `AndroidManifest.xml`, `HealthTrendsScreen.kt`, `ChallengesScreen.kt`, `NavigationComposeUiTest.kt` | Navigation polish & platform hardening: Multi-modal active tab indication with dual-vector icons and bold typography (NAV-03), Android 14+ Predictive Back declaration (PLC-01), Return-to-Home back-stack re-anchoring with 200ms crossfade (BCK-01), dedicated timeframe sub-header (LOC-NAV-01), and challenges sub-navigation tabs (LOC-NAV-02). |
+| **Phase 10** | `HealthTrendsScreen.kt`, `ChallengesScreen.kt`, `DashboardAdaptiveScreen.kt`, `NavigationComposeUiTest.kt` | Local sub-navigation tactile polish & animated indicators (NAV-04), and bilateral perspective architecture (NAV-05). |
+| **Phase 11** | `CoupleFitAppWidget.kt`, `PokeActionCallback.kt`, `WidgetEntryPoint.kt`, `DashboardScreen.kt`, `NavigationComposeUiTest.kt` | User flow innovations: Home screen Glance widget mini-gauges & zero-cold-start poke callback (FLOW-01), direct-manipulation partner ring double-tap cheer (FLOW-02), and stale telemetry diagnostic dialog (FLOW-03). |
+| **Phase 12** | `DashboardScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`, `NoInternetDialog.kt`, `ChallengeComponents.kt`, `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt`, `NavigationComposeUiTest.kt` | Wireframe ergonomics & fold integrity (WF-01 to WF-07): progressive disclosure chart collapse, thumb-zone quick nudges, universal metric triad, non-blocking offline banner, modal bottom sheet, form scrolling resilience, and warm Day-1 onboarding. |
 
 ---
 
@@ -325,6 +328,35 @@ Maximize high-velocity interpersonal engagement loops and telemetry resilience t
 4. **Automated & Live Verification**:
    - Added instrumented test in `NavigationComposeUiTest.kt` asserting status pill click, diagnostic dialog opening, ping button trigger, double-tap hint cheer dispatch, and Glance widget poke callback state.
    - Verified on live Android device (`emulator-5554`) via ARTEMIS.
+
+---
+
+## Phase 12: Wireframe Ergonomics, Viewport Fold Integrity & Form Resilience (`WF-01` to `WF-07`)
+
+### Objectives
+Eliminate fold overflow on the Today dashboard, position interactive controls in the natural thumb zone (<600dp), standardize the universal CoupleFit Metric Triad across all analytical views, replace blocking modal dialogs with non-blocking status surfaces, modernize bottom sheet dialogs, guarantee 100% auth form keyboard scrollability, and introduce warm Day-1 onboarding guidance.
+
+### Key Changes Made
+1. **Viewport Fold Integrity & Progressive Disclosure (`WF-01` & `WF-07`)**:
+   - Elevated `QuickNudgeRow` directly beneath hero activity rings into the primary thumb zone ($y < 600\text{dp}$).
+   - Removed redundant 120dp `PartnerOfflineCard` from the Side-by-Side dashboard view.
+   - Replaced auto-expanded 280dp `InteractiveChart` with a progressive disclosure card (`[📈 Live Heart Rate • 72 BPM Avg [Expand ▾]]`) expanding on demand, reducing initial fold height from 1,206dp to ~620dp.
+2. **Universal Metric Triad Harmonization (`WF-02`)**:
+   - Enforced universal metric triad sequence: **Steps $\to$ Active Minutes $\to$ Caloric Burn**.
+   - Added Caloric Burn (`🔥 4,630 kcal burned`) to `CombinedTelemetryCard` on `HealthTrendsScreen.kt` alongside active minutes and steps.
+3. **Dynamic Online Status & Non-Blocking Offline Banner (`WF-03`)**:
+   - Replaced hardcoded status in `CoupleHubScreen.kt` with live dynamic binding to `NetworkViewModel.isConnected` (`🟢 Partner Online • Live ⚡` / `🟡 Offline Mode • Cached Profile`).
+   - Replaced disruptive blocking `AlertDialog` in `NoInternetDialog.kt` with an animated, non-blocking top status banner (`🟡 Offline Mode (Cached Vitals)`) featuring inline dismiss.
+4. **Thumb-Zone Modal Bottom Sheet (`WF-04`)**:
+   - Converted centered blocking `StartChallengeDialog` in `ChallengeComponents.kt` to Material 3 `ModalBottomSheet` anchored to the ergonomic thumb zone with a visual drag handle and tablet width constraints (`widthIn(max = 520.dp)`).
+5. **Form Keyboard Resilience & Viewport Adaptability (`WF-05` / `RSP-01`)**:
+   - Wrapped `SignInScreen.kt`, `InvitePartnerScreen.kt`, and `EnterCodeScreen.kt` in `verticalScroll(rememberScrollState())`, `imePadding()`, and `widthIn(max = 480.dp)`.
+   - Guaranteed full form inputs and primary CTA button reachability under open virtual keyboards and landscape orientation.
+6. **Warm Day-1 Cold-Start Guidance (`WF-06`)**:
+   - Replaced raw 0-step debug/empty buttons with a welcoming motivational card on `DashboardScreen.kt`: *"A fresh day together! Take your first morning steps with your partner 🌱"*.
+7. **Automated & Live Device Verification**:
+   - Added `wireframeSpec_metricTriad_and_startChallengeSheet()` in `NavigationComposeUiTest.kt`.
+   - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS with 5 verified screenshot artifacts.
 
 ---
 

@@ -6,10 +6,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.couplefit.ui.network.NetworkViewModel
 import com.couplefit.ui.theme.AppSpacing
 
 /**
@@ -20,8 +24,11 @@ import com.couplefit.ui.theme.AppSpacing
 @Composable
 fun CoupleHubScreen(
     modifier: Modifier = Modifier,
-    onNavigateToPrivacySettings: () -> Unit = {}
+    onNavigateToPrivacySettings: () -> Unit = {},
+    networkViewModel: NetworkViewModel = hiltViewModel()
 ) {
+    val isConnected by networkViewModel.isConnected.collectAsState()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -89,10 +96,11 @@ fun CoupleHubScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                                val statusText = if (isConnected) "🟢 Partner Online • Live ⚡" else "🟡 Offline Mode • Cached Profile"
                                 Text(
-                                    text = "🟢 Partner Online • Battery 84%",
+                                    text = statusText,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                 )
                             }
                         }

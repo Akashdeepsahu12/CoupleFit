@@ -10,6 +10,7 @@ import com.couplefit.ui.challenge.SideBySideChallengeCard
 import com.couplefit.ui.challenge.StartChallengeDialog
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -439,16 +440,49 @@ fun DashboardScreen(
                 )
 
                 if (healthData.steps == 0L) {
-                    Text(
-                        text = "+ Add 1,000 Test Steps",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                    Card(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .clickable { healthConnectViewModel.writeMockData(1000L) }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
+                            .fillMaxWidth()
+                            .padding(horizontal = AppSpacing.md)
+                            .padding(bottom = AppSpacing.xs),
+                        shape = RoundedCornerShape(AppSpacing.md),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = AppSpacing.sm, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("🌱", fontSize = 16.sp)
+                                Column {
+                                    Text(
+                                        text = "A fresh day together!",
+                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = "Take your first morning steps with your partner.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            TextButton(
+                                onClick = { healthConnectViewModel.writeMockData(1000L) },
+                                shape = RoundedCornerShape(AppSpacing.sm)
+                            ) {
+                                Text("+1k Test Steps", style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -631,19 +665,17 @@ fun DashboardScreen(
                                 }
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.md))
+                            Spacer(modifier = Modifier.height(AppSpacing.xs))
 
-                            // Partner Offline Card: shows last known values when offline with "last updated" label
-                            PartnerOfflineCard(
+                            // Quick-Action Nudges elevated directly into the Thumb Zone under rings (WF-01 / WF-07)
+                            QuickNudgeRow(
                                 partnerName = healthData.partnerName,
-                                partnerSteps = healthData.partnerSteps,
-                                partnerActiveMinutes = healthData.partnerActiveMinutes,
-                                partnerCalories = healthData.partnerCaloriesBurned,
-                                partnerAvgHr = healthData.partnerAverageHeartRate,
-                                lastUpdatedLabel = healthData.partnerLastUpdatedLabel
+                                onSendNudge = { nudgeMessage ->
+                                    healthConnectViewModel.sendNudgeToPartner(nudgeMessage)
+                                }
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.md))
+                            Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                             // Standings Card
                             Card(
@@ -689,14 +721,6 @@ fun DashboardScreen(
                                 }
                             }
 
-                            // Quick-Action Nudges positioned in the Thumb Zone (CSA-08 & Wireframe 1)
-                            QuickNudgeRow(
-                                partnerName = healthData.partnerName,
-                                onSendNudge = { nudgeMessage ->
-                                    healthConnectViewModel.sendNudgeToPartner(nudgeMessage)
-                                }
-                            )
-
                             // Active Challenge Mini-Preview linking to Tab 2 Challenges (CSA-04 & Wireframe 1)
                             ActiveChallengePreviewCard(
                                 challenge = challengeState.activeChallenge,
@@ -704,57 +728,95 @@ fun DashboardScreen(
                                 onViewAllChallenges = onViewAllChallenges
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.lg))
+                            Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                            // InteractiveChart Section
-                            Text(
-                                text = "VITALS PULSE",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                letterSpacing = 0.5.sp,
-                                modifier = Modifier.padding(bottom = AppSpacing.xs)
-                            )
+                            // InteractiveChart Section with Progressive Disclosure (WF-01)
+                            var isVitalsChartExpanded by remember { mutableStateOf(false) }
 
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(260.dp),
+                                    .animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                             ) {
-                                val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
-                                    healthData.heartRatePoints
-                                } else if (healthData.averageHeartRate > 0) {
-                                    listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
-                                } else {
-                                    emptyList()
-                                }
-
-                                if (chartPoints.isNotEmpty()) {
-                                    InteractiveChart(
-                                        data = chartPoints,
-                                        lineColor = VitalsAccent,
-                                        metricTitle = "Heart Rate Pulse (BPM)",
-                                        reduceMotion = reduceMotion,
-                                        syncTrigger = if (isExplicitRefresh) syncTrigger else 0,
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Row(
                                         modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(AppSpacing.md)
-                                    )
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
+                                            .fillMaxWidth()
+                                            .clickable { isVitalsChartExpanded = !isVitalsChartExpanded }
                                             .padding(AppSpacing.md),
-                                        contentAlignment = Alignment.Center
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text("📈", fontSize = 18.sp)
+                                            Column {
+                                                Text(
+                                                    text = "VITALS PULSE",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    letterSpacing = 0.5.sp
+                                                )
+                                                val avgBpm = if (healthData.averageHeartRate > 0) "${healthData.averageHeartRate} BPM Avg" else "Listening for pulse"
+                                                Text(
+                                                    text = "Live Heart Rate • $avgBpm",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        }
                                         Text(
-                                            text = "Sync Health Connect to view interactive charts",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            text = if (isVitalsChartExpanded) "Collapse ▲" else "Expand ▼",
+                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = VitalsAccent
                                         )
+                                    }
+
+                                    if (isVitalsChartExpanded) {
+                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(220.dp)
+                                                .padding(AppSpacing.md)
+                                        ) {
+                                            val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
+                                                healthData.heartRatePoints
+                                            } else if (healthData.averageHeartRate > 0) {
+                                                listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
+                                            } else {
+                                                emptyList()
+                                            }
+
+                                            if (chartPoints.isNotEmpty()) {
+                                                InteractiveChart(
+                                                    data = chartPoints,
+                                                    lineColor = VitalsAccent,
+                                                    metricTitle = "Heart Rate Pulse (BPM)",
+                                                    reduceMotion = reduceMotion,
+                                                    syncTrigger = if (isExplicitRefresh) syncTrigger else 0,
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            } else {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = "Sync Health Connect to view interactive charts",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

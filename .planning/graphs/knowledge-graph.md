@@ -19,6 +19,8 @@ graph TD
         RN23["RELEASE_NOTES_v2.3.0.md"]:::doc
         RN24["RELEASE_NOTES_v2.4.0.md"]:::doc
         RN25["RELEASE_NOTES_v2.5.0.md"]:::doc
+        RN26["RELEASE_NOTES_v2.6.0.md"]:::doc
+        P8P["PLAN_PHASE_08_WIREFRAME_WF01_TO_WF07.md"]:::doc
         P7P["PLAN_PHASE_07_USER_FLOWS_FLOW01_02_03.md"]:::doc
         UFD["user_flow_diagram_flow01_flow02_flow03_analysis.md"]:::doc
         UFR["user_flow_innovations_resolution.md"]:::doc
@@ -107,6 +109,8 @@ graph TD
     WFS -->|Specifies Fold & Triad| DS
     WFS -->|Specifies Triad & Perspectives| HTS
     WFS -->|Specifies Thumb Bottom Sheet| CSCR
+    P8P -->|Specifies Fold & Triad Plan| WFS
+    RN26 -->|Documents Release v2.6.0| P8P
 ```
 
 ## Entity Cross-Reference Table
@@ -114,6 +118,8 @@ graph TD
 | Symbol / File | Layer | Primary Responsibility | Upstream Dependencies | Downstream Consumers |
 | :--- | :--- | :--- | :--- | :--- |
 | `wireframe_spec_wf01_wf02_wf03_analysis.md` | Spec / UX | Master wireframe spec, 3-tier fold, universal triad, modal bottom sheets | `/designer-skills:wireframe-spec` | `DashboardScreen.kt`, `ChallengesScreen.kt`, `HealthTrendsScreen.kt` |
+| `PLAN_PHASE_08_WIREFRAME_WF01_TO_WF07.md` | Plan / Roadmap | Milestone plan for wireframe ergonomics, fold integrity, triad, sheets, auth resilience | `/gsd-plan-phase` | `DashboardScreen.kt`, `ChallengesScreen.kt`, `HealthTrendsScreen.kt` |
+| `RELEASE_NOTES_v2.6.0.md` | Release / Ops | Version 2.6.0 release notes: Fold integrity, triad standardization, M3 bottom sheet | Release Deployment | Production Stakeholders |
 | `CoupleFitDestination` | Navigation | Type-safe `@Serializable` routes for 4 validated tabs + Settings | `card-sort-analysis.md` | `TopLevelDestination`, `MainActivity.kt` |
 | `TopLevelDestination` | Navigation | Metadata enum (routes, icons, labels, a11y descriptions) | `CoupleFitDestinations.kt` | `CoupleFitNavigationSuite.kt`, `MainActivity.kt` |
 | `CoupleFitNavigationSuite` | Navigation | Adaptive M3 `NavigationBar` (<600dp) & `NavigationRail` (≥600dp) | `WindowSizeClass`, `TopLevelDestination` | `MainActivity.kt`, `NavigationComposeUiTest.kt` |

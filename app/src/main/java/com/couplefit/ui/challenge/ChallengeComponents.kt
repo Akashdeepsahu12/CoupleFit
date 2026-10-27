@@ -215,6 +215,7 @@ fun SideBySideChallengeCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartChallengeDialog(
     onDismiss: () -> Unit,
@@ -222,110 +223,115 @@ fun StartChallengeDialog(
 ) {
     var selectedType by remember { mutableStateOf("STEPS_RACE") }
     var selectedGoal by remember { mutableStateOf(50_000L) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        containerColor = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 520.dp)
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Text(
+                text = "Start a Couple Challenge",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Compete with your partner over the next 7 days!",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Type Selectors
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "Start a Couple Challenge",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                FilterChip(
+                    selected = selectedType == "STEPS_RACE",
+                    onClick = {
+                        selectedType = "STEPS_RACE"
+                        selectedGoal = 50_000L
+                    },
+                    label = { Text("Steps Race") },
+                    modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Compete with your partner over the next 7 days!",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                FilterChip(
+                    selected = selectedType == "ACTIVE_MINUTES_STREAK",
+                    onClick = {
+                        selectedType = "ACTIVE_MINUTES_STREAK"
+                        selectedGoal = 7L
+                    },
+                    label = { Text("Active Streak") },
+                    modifier = Modifier.weight(1f)
                 )
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Type Selectors
+            // Goal Presets
+            Text(
+                text = if (selectedType == "STEPS_RACE") "Target Steps Goal:" else "Streak Days Goal:",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (selectedType == "STEPS_RACE") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    FilterChip(
-                        selected = selectedType == "STEPS_RACE",
-                        onClick = {
-                            selectedType = "STEPS_RACE"
-                            selectedGoal = 50_000L
-                        },
-                        label = { Text("Steps Race") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    FilterChip(
-                        selected = selectedType == "ACTIVE_MINUTES_STREAK",
-                        onClick = {
-                            selectedType = "ACTIVE_MINUTES_STREAK"
-                            selectedGoal = 7L
-                        },
-                        label = { Text("Active Streak") },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Goal Presets
-                Text(
-                    text = if (selectedType == "STEPS_RACE") "Target Steps Goal:" else "Streak Days Goal:",
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (selectedType == "STEPS_RACE") {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(30_000L, 50_000L, 75_000L).forEach { g ->
-                            FilterChip(
-                                selected = selectedGoal == g,
-                                onClick = { selectedGoal = g },
-                                label = { Text("${g / 1000}k") },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        listOf(5L, 7L, 14L).forEach { g ->
-                            FilterChip(
-                                selected = selectedGoal == g,
-                                onClick = { selectedGoal = g },
-                                label = { Text("$g Days") },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                    listOf(30_000L, 50_000L, 75_000L).forEach { g ->
+                        FilterChip(
+                            selected = selectedGoal == g,
+                            onClick = { selectedGoal = g },
+                            label = { Text("${g / 1000}k") },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        onStartChallenge(selectedType, selectedGoal)
-                        onDismiss()
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = SystemRed)
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Launch Challenge 🚀", fontWeight = FontWeight.Bold)
+                    listOf(5L, 7L, 14L).forEach { g ->
+                        FilterChip(
+                            selected = selectedGoal == g,
+                            onClick = { selectedGoal = g },
+                            label = { Text("$g Days") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    onStartChallenge(selectedType, selectedGoal)
+                    onDismiss()
+                },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = SystemRed)
+            ) {
+                Text("Launch Challenge 🚀", fontWeight = FontWeight.Bold)
             }
         }
     }
