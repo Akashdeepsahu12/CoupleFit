@@ -262,6 +262,7 @@ Align the app with the quantitative and qualitative card sort findings from `car
 | **Phase 10** | `HealthTrendsScreen.kt`, `ChallengesScreen.kt`, `DashboardAdaptiveScreen.kt`, `NavigationComposeUiTest.kt` | Local sub-navigation tactile polish & animated indicators (NAV-04), and bilateral perspective architecture (NAV-05). |
 | **Phase 11** | `CoupleFitAppWidget.kt`, `PokeActionCallback.kt`, `WidgetEntryPoint.kt`, `DashboardScreen.kt`, `NavigationComposeUiTest.kt` | User flow innovations: Home screen Glance widget mini-gauges & zero-cold-start poke callback (FLOW-01), direct-manipulation partner ring double-tap cheer (FLOW-02), and stale telemetry diagnostic dialog (FLOW-03). |
 | **Phase 12** | `DashboardScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`, `NoInternetDialog.kt`, `ChallengeComponents.kt`, `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt`, `NavigationComposeUiTest.kt` | Wireframe ergonomics & fold integrity (WF-01 to WF-07): progressive disclosure chart collapse, thumb-zone quick nudges, universal metric triad, non-blocking offline banner, modal bottom sheet, form scrolling resilience, and warm Day-1 onboarding. |
+| **Phase 13** | `Color.kt`, `Theme.kt`, `Type.kt`, `ConfettiCelebration.kt`, `DashboardScreen.kt`, `HealthTrendsScreen.kt`, `NavigationComposeUiTest.kt` | Frontend design, visual identity & celebration choreography (DSN-01 to DSN-03, TST-01, TST-02, CLR-01, CLR-02, TYP-01, TYP-03): Electric Cyan & Vibrant Coral identity tokens, 60fps Canvas confetti, floating heart clusters, tabular numbers, and directional specular rim lighting. |
 
 ---
 
@@ -357,6 +358,36 @@ Eliminate fold overflow on the Today dashboard, position interactive controls in
 7. **Automated & Live Device Verification**:
    - Added `wireframeSpec_metricTriad_and_startChallengeSheet()` in `NavigationComposeUiTest.kt`.
    - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS with 5 verified screenshot artifacts.
+
+---
+
+## Phase 13: Frontend Design, Visual Identity & Celebration Choreography (`DSN-01` to `DSN-03`, `TST-01`, `TST-02`, `CLR-01`, `CLR-02`, `TYP-01`, `TYP-03`)
+
+### Objectives
+Establish unambiguous visual identity through dual-partner signature spectrums, celebrate 100% daily ring closures with high-performance 60fps Canvas particle physics, eliminate digit jitter on counters with OpenType tabular figures, add directional specular rim lighting for physical depth, and enforce accessible contrast tokens.
+
+### Key Changes Made
+1. **Dual Signature Palettes (`DSN-01`, `CLR-02`)**:
+   - Established `CoupleFitIdentityTokens` in `Color.kt` and `Theme.kt`: **Electric Cyan** (`#00F5D4` $	o$ `#00C2FF` $	o$ `#0A84FF`) for User and **Vibrant Coral** (`#FF3366` $	o$ `#FF5E3A` $	o$ `#FF9500`) for Partner.
+   - Upgraded `CombinedTelemetryCard` on `HealthTrendsScreen.kt` with a custom two-tone bilateral progress indicator displaying User's Cyan contribution (52%) and Partner's Coral contribution (48%).
+   - Mapped `tertiary = MotionPartnerStart` in `Theme.kt`.
+2. **60fps Canvas Ring Closure & Cheer Celebration (`DSN-02`, `MIC-02`)**:
+   - Built `ConfettiCelebration.kt` hosting `ConfettiParticleExplosion` (28 radial particles with gravity decay) and `FloatingHeartCheerCluster` (`❤️`, `💖`, `🔥`, `✨`, `💕`).
+   - Integrated into `DashboardScreen.kt` with ascending fanfare haptic escalation.
+   - Graceful `reduceMotion` fallback: suppresses moving particles and displays an accessible golden ring pulse.
+3. **Direction C Brand Personality (`DSN-03`)**:
+   - Codified "Apple Fitness+ Deluxe meets Modern Telemetry HUD": pure OLED black `#000000`, metallic rim lighting, and high-energy synchrony.
+4. **Tabular Numerals & Typographic Rigor (`TST-01`, `TYP-01`, `TYP-03`)**:
+   - Applied `fontFeatureSettings = "tnum"` to display and headline typography styles in `Type.kt`.
+   - Added `HeroMetricDisplay` (`52.sp`, ExtraBold, line height `56.sp`).
+   - Increased uppercase tracking on `labelSmall` to `0.8.sp` for outdoor sunlight legibility.
+5. **Directional Specular Rim Lighting (`TST-02`)**:
+   - Added `directionalRimBrush()` vertical gradient border (22% white highlight descending to 4% ambient shadow) on primary cards.
+6. **Accessible Contrast Tokens (`CLR-01`)**:
+   - Added `OnUserAccent` (`#001F38`, 7.8:1) and `OnPartnerAccent` (`#FFFFFF`, 4.6:1), exceeding WCAG 2.2 AA.
+7. **Automated & Live Verification**:
+   - Added `frontendDesign_identityTokens_and_confettiCelebration()` in `NavigationComposeUiTest.kt`.
+   - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS.
 
 ---
 

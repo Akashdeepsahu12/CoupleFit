@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.couplefit.ui.navigation.CoupleFitNavigationSuite
 import com.couplefit.ui.navigation.TopLevelDestination
 import com.couplefit.ui.theme.CoupleFitTheme
+import com.couplefit.ui.healthconnect.HealthDashboardUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -260,5 +261,42 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("Launch Challenge 🚀").assertIsDisplayed()
         composeTestRule.onNodeWithText("Launch Challenge 🚀").performClick()
         assertTrue(challengeLaunched)
+    }
+
+    @Test
+    fun frontendDesign_identityTokens_and_confettiCelebration() {
+        // Verify CoupleFit Identity Tokens (DSN-01, CLR-01, CLR-02)
+        assertEquals(com.couplefit.ui.theme.MotionCyanStart, com.couplefit.ui.theme.CoupleFitIdentityTokens.UserPrimary)
+        assertEquals(com.couplefit.ui.theme.MotionPartnerStart, com.couplefit.ui.theme.CoupleFitIdentityTokens.PartnerPrimary)
+        assertEquals(androidx.compose.ui.graphics.Color(0xFFFFD700), com.couplefit.ui.theme.CoupleFitIdentityTokens.SynchronyGold)
+
+        // Verify Tabular Numerals & Micro-Label Tracking (TST-01, TYP-03)
+        assertEquals("tnum", com.couplefit.ui.theme.HeroMetricDisplay.fontFeatureSettings)
+        assertEquals(0.8f, com.couplefit.ui.theme.Typography.labelSmall.letterSpacing.value, 0.01f)
+
+        val healthData = HealthDashboardUiState(
+            steps = 10500L,
+            stepsGoal = 10000L,
+            partnerSteps = 10200L,
+            partnerStepsGoal = 10000L,
+            partnerName = "Emma",
+            partnerLastUpdated = System.currentTimeMillis()
+        )
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.dashboard.SideBySideActivityCard(
+                    healthData = healthData,
+                    reduceMotion = false
+                )
+                com.couplefit.ui.trends.HealthTrendsScreen()
+            }
+        }
+
+        // Verify Activity Gauges and Bilateral Progress render correctly (DSN-01, DSN-02)
+        composeTestRule.onNodeWithText("ACTIVITY GAUGES").assertIsDisplayed()
+        composeTestRule.onNodeWithText("You").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Emma").assertIsDisplayed()
+        composeTestRule.onNodeWithText("You: 48,200 steps (52%) • Partner: 44,200 steps (48%)").assertIsDisplayed()
     }
 }

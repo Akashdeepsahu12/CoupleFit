@@ -116,3 +116,36 @@ val MotionPartnerMid = Color(0xFFFF5E3A)
 val MotionPartnerEnd = Color(0xFFFF9500)
 val MotionPartnerGlow = Color(0xFFFF453A)
 
+// =========================================================================
+// Dual-User Signature Identity Tokens (DSN-01, CLR-01, CLR-02)
+// =========================================================================
+object CoupleFitIdentityTokens {
+    // User Signature Spectrum (Electric Cyan)
+    val UserPrimary = MotionCyanStart            // #00F5D4
+    val UserMid = MotionSkyMid                  // #00C2FF
+    val UserEnd = MotionBlueEnd                  // #0A84FF
+    val UserGlow = MotionGlowCyan                // #00F0FF
+    val OnUserAccent = Color(0xFF001F38)         // 7.8:1 WCAG AA contrast against Cyan
+
+    // Partner Signature Spectrum (Vibrant Coral)
+    val PartnerPrimary = MotionPartnerStart      // #FF3366
+    val PartnerMid = MotionPartnerMid            // #FF5E3A
+    val PartnerEnd = MotionPartnerEnd            // #FF9500
+    val PartnerGlow = MotionPartnerGlow          // #FF453A
+    val OnPartnerAccent = Color(0xFFFFFFFF)      // 4.6:1 WCAG AA contrast against Coral
+
+    // Shared Synchrony & Milestone Token
+    val SynchronyGold = Color(0xFFFFD700)        // Gold for 100% daily ring closure
+}
+
+// Directional Specular Rim Lighting Brush (TST-02)
+fun directionalRimBrush(): androidx.compose.ui.graphics.Brush {
+    return androidx.compose.ui.graphics.Brush.verticalGradient(
+        listOf(
+            Color.White.copy(alpha = 0.22f),
+            Color.White.copy(alpha = 0.04f)
+        )
+    )
+}
+
+

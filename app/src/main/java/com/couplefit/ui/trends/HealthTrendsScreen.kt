@@ -15,10 +15,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.couplefit.ui.theme.AppSpacing
-import com.couplefit.ui.theme.SystemGreen
+import com.couplefit.ui.theme.*
 
 enum class TelemetryPerspective(val label: String, val icon: String) {
     COMBINED("Both", "👥"),
@@ -175,7 +175,7 @@ fun HealthTrendsScreen(
                                     dailyAvg = "6,885",
                                     activeMins = "280",
                                     calories = "2,450",
-                                    accentColor = MaterialTheme.colorScheme.primary
+                                    accentColor = CoupleFitIdentityTokens.UserPrimary // Electric Cyan (DSN-01)
                                 )
                             }
                             TelemetryPerspective.PARTNER -> {
@@ -187,7 +187,7 @@ fun HealthTrendsScreen(
                                     dailyAvg = "6,314",
                                     activeMins = "252",
                                     calories = "2,180",
-                                    accentColor = MaterialTheme.colorScheme.tertiary
+                                    accentColor = CoupleFitIdentityTokens.PartnerPrimary // Vibrant Coral (DSN-01)
                                 )
                             }
                         }
@@ -275,7 +275,7 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+        border = BorderStroke(1.dp, directionalRimBrush())
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -297,15 +297,29 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                 )
             }
 
-            LinearProgressIndicator(
-                progress = { 0.92f },
+            // Bilateral Two-Tone Split Indicator (DSN-01)
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Row(modifier = Modifier.fillMaxWidth(0.92f).fillMaxHeight()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(0.52f)
+                            .background(CoupleFitIdentityTokens.UserPrimary)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(0.48f)
+                            .background(CoupleFitIdentityTokens.PartnerPrimary)
+                    )
+                }
+            }
 
             Text(
                 text = "You: 48,200 steps (52%) • Partner: 44,200 steps (48%)",

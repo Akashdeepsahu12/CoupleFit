@@ -66,6 +66,8 @@ import com.couplefit.ui.components.lenisScroll
 import com.couplefit.ui.components.ChartDataPoint
 import com.couplefit.ui.challenge.ActiveChallengePreviewCard
 import com.couplefit.ui.components.InteractiveChart
+import com.couplefit.ui.components.ConfettiParticleExplosion
+import com.couplefit.ui.components.FloatingHeartCheerCluster
 import com.couplefit.ui.components.MedicationDuePill
 import com.couplefit.ui.components.QuickNudgeRow
 import com.couplefit.ui.components.AnimatedSettingsIcon
@@ -684,7 +686,7 @@ fun DashboardScreen(
                                     .padding(vertical = AppSpacing.xs),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                border = BorderStroke(1.dp, directionalRimBrush())
                             ) {
                                 Column(modifier = Modifier.padding(AppSpacing.md)) {
                                     Row(
@@ -739,7 +741,7 @@ fun DashboardScreen(
                                     .animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                border = BorderStroke(1.dp, directionalRimBrush())
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Row(
@@ -1457,6 +1459,22 @@ fun SideBySideActivityCard(
     var cheerCooldownUntil by remember { mutableLongStateOf(0L) }
     var cheerTriggerCount by remember { mutableIntStateOf(0) }
     var showCheerCelebration by remember { mutableStateOf(false) }
+    var userClosureCelebrated by remember { mutableStateOf(false) }
+    var partnerClosureCelebrated by remember { mutableStateOf(false) }
+
+    LaunchedEffect(healthData.stepsProgress) {
+        if (healthData.stepsProgress >= 1f && !userClosureCelebrated) {
+            userClosureCelebrated = true
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
+
+    LaunchedEffect(healthData.partnerStepsProgress) {
+        if (healthData.partnerStepsProgress >= 1f && !partnerClosureCelebrated) {
+            partnerClosureCelebrated = true
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
 
     val isStale = remember(healthData.partnerLastUpdated) {
         val ts = healthData.partnerLastUpdated
@@ -1468,7 +1486,7 @@ fun SideBySideActivityCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        border = BorderStroke(1.dp, directionalRimBrush())
     ) {
         Column(modifier = Modifier.padding(AppSpacing.md)) {
             Row(
@@ -1525,14 +1543,22 @@ fun SideBySideActivityCard(
                         color = MotionCyanStart
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    MotionArcProgressGauge(
-                        progress = healthData.stepsProgress,
-                        currentValue = healthData.steps,
-                        compact = true,
-                        gradientColors = listOf(MotionCyanStart, MotionSkyMid, MotionBlueEnd),
-                        glowColor = MotionGlowCyan,
-                        reduceMotion = reduceMotion
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        MotionArcProgressGauge(
+                            progress = healthData.stepsProgress,
+                            currentValue = healthData.steps,
+                            compact = true,
+                            gradientColors = listOf(MotionCyanStart, MotionSkyMid, MotionBlueEnd),
+                            glowColor = MotionGlowCyan,
+                            reduceMotion = reduceMotion
+                        )
+                        ConfettiParticleExplosion(
+                            visible = userClosureCelebrated,
+                            modifier = Modifier.size(160.dp),
+                            radius = 70.dp,
+                            reduceMotion = reduceMotion
+                        )
+                    }
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
                     Text(
                         text = "${healthData.activeMinutes}m • ${healthData.caloriesBurned} kcal",
@@ -1548,7 +1574,7 @@ fun SideBySideActivityCard(
                         .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
                 )
 
-                // Partner Column with Double-Tap Cheer Micro-Interaction (FLOW-02)
+                // Partner Column with Double-Tap Cheer Micro-Interaction (FLOW-02, DSN-02)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
@@ -1589,25 +1615,21 @@ fun SideBySideActivityCard(
                             reduceMotion = reduceMotion
                         )
 
-                        // Floating Heart / Confetti Particle Overlay (FLOW-02)
-                        if (showCheerCelebration) {
-                            LaunchedEffect(cheerTriggerCount) {
-                                delay(1800L)
-                                showCheerCelebration = false
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clip(CircleShape)
-                                    .background(SystemRed.copy(alpha = 0.3f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "❤️🔥",
-                                    fontSize = 28.sp
-                                )
-                            }
-                        }
+                        // High-performance Floating Heart & Flame Cluster (FLOW-02, DSN-02)
+                        FloatingHeartCheerCluster(
+                            visible = showCheerCelebration,
+                            modifier = Modifier.size(140.dp),
+                            reduceMotion = reduceMotion,
+                            onAnimationEnd = { showCheerCelebration = false }
+                        )
+
+                        // 100% Daily Ring Closure Confetti (DSN-02, MIC-02)
+                        ConfettiParticleExplosion(
+                            visible = partnerClosureCelebrated,
+                            modifier = Modifier.size(160.dp),
+                            radius = 70.dp,
+                            reduceMotion = reduceMotion
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
