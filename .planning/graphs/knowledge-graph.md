@@ -22,6 +22,7 @@ graph TD
         P7P["PLAN_PHASE_07_USER_FLOWS_FLOW01_02_03.md"]:::doc
         UFD["user_flow_diagram_flow01_flow02_flow03_analysis.md"]:::doc
         UFR["user_flow_innovations_resolution.md"]:::doc
+        WFS["wireframe_spec_wf01_wf02_wf03_analysis.md"]:::doc
         NAVAUD["navigation_patterns_appwide_audit.md"]:::doc
         AG["AGENTS.md"]:::doc
     end
@@ -102,12 +103,17 @@ graph TD
     HUB2 --> HCVM
     HCVM --> DSSTORE
     SHCUT -->|Verifies IA-03 & IA-10| SET
+    
+    WFS -->|Specifies Fold & Triad| DS
+    WFS -->|Specifies Triad & Perspectives| HTS
+    WFS -->|Specifies Thumb Bottom Sheet| CSCR
 ```
 
 ## Entity Cross-Reference Table
 
 | Symbol / File | Layer | Primary Responsibility | Upstream Dependencies | Downstream Consumers |
 | :--- | :--- | :--- | :--- | :--- |
+| `wireframe_spec_wf01_wf02_wf03_analysis.md` | Spec / UX | Master wireframe spec, 3-tier fold, universal triad, modal bottom sheets | `/designer-skills:wireframe-spec` | `DashboardScreen.kt`, `ChallengesScreen.kt`, `HealthTrendsScreen.kt` |
 | `CoupleFitDestination` | Navigation | Type-safe `@Serializable` routes for 4 validated tabs + Settings | `card-sort-analysis.md` | `TopLevelDestination`, `MainActivity.kt` |
 | `TopLevelDestination` | Navigation | Metadata enum (routes, icons, labels, a11y descriptions) | `CoupleFitDestinations.kt` | `CoupleFitNavigationSuite.kt`, `MainActivity.kt` |
 | `CoupleFitNavigationSuite` | Navigation | Adaptive M3 `NavigationBar` (<600dp) & `NavigationRail` (≥600dp) | `WindowSizeClass`, `TopLevelDestination` | `MainActivity.kt`, `NavigationComposeUiTest.kt` |

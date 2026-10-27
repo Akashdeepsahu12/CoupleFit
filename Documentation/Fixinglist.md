@@ -55,6 +55,10 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **WF-01** | Wireframe Priority & Ergonomics | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | `DashboardScreen.kt` | Viewport fold overflow: Placing rings, nudges, expanded Bézier curves, and duels on mobile creates an 850dp scroll height, pushing nudges and telemetry offscreen on smaller devices (<600dp). | High interaction cost; requires scrolling to perform primary daily actions. | Implement progressive disclosure for Live Biometrics: render a compact 56dp summary card that expands into the full Bézier stream on tap. | 🔵 Open |
 | **WF-02** | Wireframe Content Consistency | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | All Screens | Inconsistent metric triad: Today shows Steps and Calories, while Health Trends shows Steps without immediate Active Minutes. | Cognitive friction and disjointed telemetry tracking across screens. | Standardize the primary metric triad across all 4 screens: Steps, Active Minutes, and Caloric Burn. | 🔵 Open |
 | **WF-03** | Wireframe Status Synchronization | `/designer-skills:wireframe-spec` | 💡 **UX Transparency** | Top App Bar | Header shows static `"🟢 Partner Online"` even when device connectivity drops or sync stalls. | Misleading network state representation. | Wire `ConnectivityObserver` directly to the status chip to show `"🟡 Offline Mode (Cached vitals)"` when disconnected. | 💡 Open |
+| **WF-04** | Wireframe Modal Ergonomics | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | `ChallengeComponents.kt` & `SettingsScreen.kt` | Centered floating `Dialog` used for complex task workflows (`StartChallengeDialog`, `UnlinkPartnerDialog`) on mobile screens (<600dp). | Forces awkward reach into the upper 40% of the screen; violates mobile thumb reach ergonomics. | Transition workflow dialogs to Material 3 `ModalBottomSheet` anchored to the bottom thumb zone on compact screens (<600dp). | 🔵 Open |
+| **WF-05** | Wireframe Form Resilience | `/designer-skills:wireframe-spec` | 🔴 **Layout Failure** | `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt` | Unscrollable auth containers: Root onboarding `Column`s lack `verticalScroll` and `imePadding`. When keyboard opens or in landscape, primary CTAs are clipped off-screen with zero scrollability. | Critical blocker: Users cannot authenticate or link partner accounts in landscape mode or on compact viewports with open keyboard. | Wrap auth screens in `ResponsiveAuthContainer` featuring `verticalScroll(rememberScrollState())`, `imePadding()`, and `widthIn(max = 480.dp)`. | 🔴 Open |
+| **WF-06** | Wireframe Cold-Start Hierarchy | `/designer-skills:wireframe-spec` | 💡 **UX Guidance** | All Primary Screens | Missing structured empty/cold-start state: When steps = 0 or no active challenges exist, UI renders inert empty smudges or debug text (+ Add 1,000 Test Steps) without motivational guidance. | Demotivates new couples on Day 1; lacks clear onboarding next steps. | Establish 4-tier wireframe state contract (Empty, Loading Shimmer, Populated, Offline Cached) with warm contextual CTAs. | 💡 Open |
+| **WF-07** | Wireframe Information Density | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | `DashboardScreen.kt` | "Card Mania" & Redundancy: 11 stacked rectangular cards sharing identical `#1C1C1E` containers; `PartnerOfflineCard` redundantly duplicates metrics already shown in `SideBySideActivityCard`. | Creates visual fatigue, buries quick nudges 400dp below the fold, and flattens reading hierarchy. | De-card Hero Activity Rings to breathe directly on canvas; eliminate redundant `PartnerOfflineCard`; elevate Quick Nudges into thumb zone. | 🔵 Open |
 | **DSN-01** | Visual Design / Aesthetic | `/designer-skills:frontend-design` | 💡 **Visual Identity** | Color Tokens | Both partners currently share identical color palettes for rings and graphs, causing glance ambiguity. | High cognitive load deciphering whose metric is whose on charts and rings. | Assign distinct signature colors: Electric Cyan (`#007AFF` / `#00C7BE`) for User vs. Vibrant Coral (`#FF2D55` / `#FF6482`) for Partner. | 💡 Open |
 | **DSN-02** | Micro-Interaction / Polish | `/designer-skills:frontend-design` | 💡 **Sensory Feedback** | `ActivityRing.kt` | Ring closure currently updates statically without celebratory payoff. | Missed emotional reward moment upon achieving daily fitness milestones together. | Trigger a 60fps Compose Canvas confetti particle burst + celebration haptic pattern when either partner closes their ring. | 💡 Open |
 | **DSN-03** | Design Concept Exploration | `/designer-skills:frontend-design` | 💡 **Concept Direction** | App Theme / Feel | Existing aesthetic is functional but generic hybrid. Needs a distinctive brand signature. | Product lacks an unmistakable brand personality in a crowded fitness market. | Three conceptual directions proposed: (A) "Cyberpunk Telemetry HUD", (B) "Calm Scandinavian Living", (C) "Apple Fitness+ Deluxe". (See Section 8). | 🟢 Documented |
@@ -2032,5 +2036,37 @@ Phase 7 tackled critical user flow friction and high-velocity engagement loops, 
   - Tapped `Ping Partner Device 📡`: Verified high-priority ping dispatched and green confirmation banner `✓ High-priority sync ping sent to Partner!` displayed. Captured screenshot: `flow03_ping_partner_confirmed.jpg`.
   - Tapped `Close`: Verified smooth dismissal and return to Today dashboard.
   - Tapped `Double-tap ring to cheer 💖`: Verified cheer micro-interaction trigger and 3-second debounce cooldown.
+
+---
+
+## 35. Master Wireframe Specification & Ergonomics Analysis (`WF-01` to `WF-07`) 📐📱
+
+### 35.1 Overview & Architectural Objectives
+Executed a deep-dive wireframe and ergonomics audit across all 4 primary screens, auth/onboarding flows, and modal dialog architectures in accordance with `/designer-skills:wireframe-spec`. Formulated master specifications for `WF-01`, `WF-02`, and `WF-03`, while discovering and codifying 4 new critical wireframe defects (`WF-04`, `WF-05`, `WF-06`, `WF-07`):
+1. **`WF-01` (Viewport Fold Overflow & Progressive Disclosure)**:
+   - Audited `DashboardScreen.kt`: Current compact mobile height is 1,206dp against an effective viewport fold of ~680dp, burying `QuickNudgeRow` (64dp at 720dp) and `InteractiveChart` (260dp at 946dp) deep offscreen.
+   - Master Spec: De-card hero rings, elevate `QuickNudgeRow` directly into thumb zone under rings, and replace static 260dp chart with a 56dp summary pill `[📈 Heart Rate Pulse • 72 BPM Avg [Expand ▾]]` with progressive disclosure.
+2. **`WF-02` (Universal Metric Triad Consistency)**:
+   - Audited `HealthTrendsScreen.kt` & `CombinedTelemetryCard`: Omission of Caloric Burn in combined view while present in solo view.
+   - Master Spec: Codified universal triad contract: Steps (Hero, `xx,xxx`) $\to$ Active Minutes (Secondary, `xxx min`, ⚡) $\to$ Caloric Burn (Secondary, `x,xxx kcal`, 🔥) across all cards, screens, and widgets.
+3. **`WF-03` (Wireframe Status Synchronization & Non-Blocking State)**:
+   - Audited `CoupleHubScreen.kt` (line 93 hardcoded `"🟢 Partner Online"`) and `MainActivity.kt` (`NoInternetDialog` blocking modal).
+   - Master Spec: Codified non-blocking top app bar status banner: `[🟢 Live ⚡]` / `[🟡 Partner Synced 18m ago • Cached [↺]]` / `[⚪ Offline Mode • Local Cache Active]`.
+4. **`WF-04` (Modal Dialog vs. Bottom Sheet Ergonomics)**:
+   - Audited `StartChallengeDialog` & `UnlinkPartnerDialog`: Centered floating dialogs on mobile (<600dp) force awkward reach into upper 40% screen zone.
+   - Master Spec: Compact (<600dp) adapts to Material 3 `ModalBottomSheet` anchored to thumb zone; Medium/Expanded ($\ge 600\text{dp}$) renders centered dialog with `maxWidth = 480.dp`.
+5. **`WF-05` (Auth & Pairing Form Resilience / `RSP-01`)**:
+   - Audited `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt`: Unscrollable `Column`s lacking `verticalScroll` and `imePadding` clip primary CTAs on keyboard open or in landscape.
+   - Master Spec: Codified `ResponsiveAuthContainer` with `verticalScroll(rememberScrollState())`, `imePadding()`, and `widthIn(max = 480.dp)`.
+6. **`WF-06` (4-State Wireframe Contract)**:
+   - Audited cold-start & zero-data handling: Blank smudges and debug buttons replaced with formal 4-state contract: Empty (Guided Onboarding CTA) $\to$ Loading (0px CLS Skeleton Shimmer) $\to$ Populated (Live Dual Vitals) $\to$ Offline / Cached (Room SSOT + Manual Sync Action).
+7. **`WF-07` (De-Cluttering "Card Mania" & Information Density)**:
+   - Audited 11 consecutive stacked `#1C1C1E` cards and redundant `PartnerOfflineCard`.
+   - Master Spec: Emancipate Hero Activity Rings to float directly on canvas, eliminate `PartnerOfflineCard`, and group actions into unified deck.
+
+### 35.2 Documentation & Specification Deliverables
+- Master Wireframe Spec: [`Documentation/wireframe_spec_wf01_wf02_wf03_analysis.md`](file:///D:/Couple_fit/CoupleFit/Documentation/wireframe_spec_wf01_wf02_wf03_analysis.md).
+- Registered in [`Documentation/INDEX.md`](file:///D:/Couple_fit/CoupleFit/Documentation/INDEX.md), [`Documentation/triage.md`](file:///D:/Couple_fit/CoupleFit/Documentation/triage.md), and [`.planning/graphs/knowledge-graph.md`](file:///D:/Couple_fit/CoupleFit/.planning/graphs/knowledge-graph.md).
+
 
 

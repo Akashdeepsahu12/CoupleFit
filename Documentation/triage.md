@@ -59,7 +59,7 @@ These items represent architectural, layout, or interaction blockers slated for 
 
 | ID | Priority | Category | Component | Failure Description & User Impact | Action Required |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`RSP-01`** | 🔴 P0 Blocker | Layout / Auth | `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt` | Onboarding columns lack `verticalScroll` and `imePadding()`. In landscape (~360dp height) or when IME opens, primary CTAs are clipped off-screen with zero ability to scroll. | Wrap auth screens in `ResponsiveAuthContainer` featuring `verticalScroll`, `imePadding()`, and `widthIn(max = 480.dp)`. |
+| **`RSP-01` / `WF-05`** | 🔴 P0 Blocker | Layout / Auth | `SignInScreen.kt`, `InvitePartnerScreen.kt`, `EnterCodeScreen.kt` | Onboarding columns lack `verticalScroll` and `imePadding()`. In landscape (~360dp height) or when IME opens, primary CTAs are clipped off-screen with zero ability to scroll. | Wrap auth screens in `ResponsiveAuthContainer` featuring `verticalScroll`, `imePadding()`, and `widthIn(max = 480.dp)`. |
 | **`GST-01`** | 🔴 P0 Blocker | Gestures | `InteractiveChart.kt` | Pointer consumption without horizontal touch-slop threshold causes vertical dashboard scrolling to freeze when finger grazes the chart. | Implement `detectHorizontalDragGestures` with a 12px touch-slop gate before consuming events, allowing vertical scrolls to pass through. |
 | **`CLR-01`** | 🔴 P1 Accessibility | Color Contrast | `Color.kt` | Contrast failures on text pills: White text on Aqua Cyan (`#00E5FF`) has a catastrophic **1.3:1** ratio (fails WCAG AA 4.5:1). White on Coral achieves **3.8:1**. | Introduce adaptive `On-Accent` tokens: dark slate (`#001F38`, 7.8:1) for Cyan badges, pure white (`#FFFFFF`, 4.6:1) for Dark Coral. |
 | **`FIG-01` / `DRK-01`** | 🟡 P1 Depth | Dark Mode / Modals | App-Wide Modals & Cards | Surface elevation flattening: Base cards and overlay dialogs (`StartChallengeDialog`, `UnlinkPartnerDialog`) share identical `#1C1C1E` background, blending modals into context. | Elevate dialog surface to `SurfaceModalDark` (`#282C37`) backed by a 75% dark scrim + 20dp backdrop blur to force background into true Ground. |
@@ -100,6 +100,10 @@ These items represent architectural, layout, or interaction blockers slated for 
 | **`FEL-03`** | Copywriting | `strings.xml` | Robotic database copy (`"Connected to Firebase"`, `"Error 404"`). De-robotize into human language (*"Listening for today's movements..."*). |
 | **`VHR-01`** | Hierarchy | `DashboardScreen.kt` | "Squint test" failure: 9 identical dark rectangular cards flattens hierarchy. De-card Activity Rings to float as Tier 1 hero on canvas. |
 | **`APL-02`** | Fluid UI | `BounceClick.kt` | Response on release instead of pointer-down causes perceived lag. Highlight and scale button immediately on `pointer-down` (`0.975x` spring). |
+| **`WF-01`** | Wireframe Ergonomics | `DashboardScreen.kt` | Viewport fold overflow: 1,206dp scroll height buries quick nudges and challenges 300–500dp offscreen. Reorganize into 3-tier hierarchy with progressive disclosure. |
+| **`WF-02`** | Wireframe Consistency | All Screens | Inconsistent metric triad: Combined telemetry drops calories while solo telemetry keeps them. Standardize immutable Steps + Active Mins + Calories triad. |
+| **`WF-04`** | Modal Ergonomics | `ChallengeComponents.kt` | Centered floating task dialogs force awkward reach into upper 40% screen zone on mobile. Adapt to Material 3 `ModalBottomSheet` on compact (<600dp). |
+| **`WF-07`** | Information Density | `DashboardScreen.kt` | "Card Mania" & redundancy: 11 stacked `#1C1C1E` cards and duplicate `PartnerOfflineCard`. De-card hero rings and elevate quick nudges into thumb zone. |
 
 ---
 
@@ -107,6 +111,8 @@ These items represent architectural, layout, or interaction blockers slated for 
 
 | ID | Feature / Innovation | Domain | Delivered Concept & Value Proposition |
 | :--- | :--- | :--- | :--- |
+| **`WF-03`** | Status Sync & Awareness | Top App Bar | Header shows static `"🟢 Partner Online"` and modal disconnect dialog blocks workouts. Implement non-blocking reactive top bar status banner with cache delta. |
+| **`WF-06`** | Cold-Start Hierarchy | All Screens | Missing structured cold start: 0-step empty smudges and debug buttons replaced by 4-state wireframe contract (Empty, Loading, Populated, Offline). |
 | **`DSN-01`** | Dual Signature Palettes | Visual Identity | Assign distinct signature colors: Electric Cyan (`#007AFF`) for User vs. Vibrant Coral (`#FF2D55`) for Partner across all charts and rings. |
 | **`DSN-02` / `MIC-02`** | Ring Celebration Choreography | Sensory Feedback | Canvas confetti burst + specular perimeter shimmer + ascending crescendo haptic pattern on 100% daily ring closure. |
 | **`ENG-03` / `MIC-01` / `FDB-01`** | Heartbeat Haptics | Sensory Feedback | Custom dual-pulse "Heartbeat Haptic" (`15ms @ 40%` $\to$ `75ms gap` $\to$ `22ms @ 85%`) replacing heavy blunt LongPress buzz. |
