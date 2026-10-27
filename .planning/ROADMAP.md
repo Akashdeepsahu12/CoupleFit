@@ -43,6 +43,14 @@
   - **Test Suite**: `NavigationComposeUiTest.kt` extended with 3 new UI tests verifying active state typography, timeframe sub-headers, and challenge tabs.
 - **Release Tag**: `v2.4.0-nav-polish`
 
+## Phase 6C: Local Sub-Navigation Tactile Polish & Bilateral Telemetry Architecture (`NAV-04`, `NAV-05`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`NAV-04`**: Material 3 connected `SingleChoiceSegmentedButtonRow` with `SegmentedButtonDefaults.itemShape`, `FontWeight.Bold`, and `TextHandleMove` mechanical haptics across Trends, Challenges, and Adaptive screens.
+  - **`NAV-05`**: Preserved 0-tap unified bilateral telemetry invariant on Today. Implemented dedicated `TelemetryPerspective` segmented row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` with solo telemetry cards and animated content switching.
+  - **Test Suite**: `NavigationComposeUiTest.kt` extended with UI tests verifying perspective toggle and card rendering.
+- **Release Tag**: `v2.4.2-nav04-nav05`
+
 ## Phase 7: Production Hardening & Accessibility (`RSP-01`, `GST-01`, `CLR-01`, `MSR-01`)
 - **Status**: ⚪ Pending Next Milestone
 - **Goal**: Auth landscape scrolling & IME padding (`RSP-01`), InteractiveChart touch-slop disambiguation (`GST-01`), WCAG 2.2 AA text pill contrast (`CLR-01`), and tablet line measure constraints (`MSR-01`).

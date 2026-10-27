@@ -101,7 +101,8 @@ graph TD
 | `CoupleFitNavigationSuite` | Navigation | Adaptive M3 `NavigationBar` (<600dp) & `NavigationRail` (≥600dp) | `WindowSizeClass`, `TopLevelDestination` | `MainActivity.kt`, `NavigationComposeUiTest.kt` |
 | `MainActivity` | App Entry | Activity lifecycle, theme reveal, auth router, adaptive shell host | `CoupleFitNavigationSuite`, `AuthViewModel` | Android OS |
 | `ChallengesScreen` | UI (Tab 2) | Head-to-head duels, step races, milestone/trophy vault, sub-tabs | `ChallengeViewModel`, `SideBySideChallengeCard` | `MainActivity.kt` |
-| `HealthTrendsScreen` | UI (Tab 3) | Multi-horizon telemetry, dedicated timeframe sub-header | `AppSpacing`, Material 3 | `MainActivity.kt` |
+| `HealthTrendsScreen` | UI (Tab 3) | Multi-horizon telemetry, connected M3 timeframe & perspective rows | `TelemetryPerspective`, Material 3 | `MainActivity.kt`, `NavigationComposeUiTest.kt` |
+| `TelemetryPerspective` | Navigation / Domain | Segmented perspective enum (`COMBINED`, `YOU`, `PARTNER`) | `HealthTrendsScreen.kt` | `HealthTrendsScreen.kt`, `NavigationComposeUiTest.kt` |
 | `CoupleHubScreen` | UI (Tab 4) | Relationship anchor, streaks, anniversaries, privacy shortcut | `AppSpacing`, `SettingsScreen` | `MainActivity.kt` |
 | `ChallengeSubTab` | Navigation | Segmented sub-navigation enum (`ACTIVE_DUELS`, `TROPHIES`) | `ChallengesScreen.kt` | `ChallengesScreen.kt`, `NavigationComposeUiTest.kt` |
-| `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs | AndroidX Compose Test Rule | CI / Local Verification |
+| `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs, perspective | AndroidX Compose Test Rule | CI / Local Verification |

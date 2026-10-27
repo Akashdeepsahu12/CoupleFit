@@ -47,8 +47,8 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **BCK-01** | Back-Stack Navigation | `/designer-skills:navigation-patterns` | 🟡 **Missing / Gap** | `MainActivity.kt` | Pressing Android back gesture on secondary tabs (`Challenges`, `Trends`, `Couple Hub`) immediately exited the app. | Violates M3 Return-to-Home hierarchy; causes accidental app dismissals. | Added `BackHandler` in `MainActivity.kt` re-anchoring to `Today` before exiting to launcher. | 🟢 Resolved |
 | **LOC-NAV-01** | Local Navigation | `/designer-skills:navigation-patterns` | 🟡 **Missing / Gap** | `HealthTrendsScreen.kt` | Header action crowding: 4 timeframe FilterChips in `TopAppBar(actions)` collided with title on compact screens. | Visual truncation and poor touch target ergonomics on 360dp devices. | Relocated timeframe selector to a dedicated, evenly-weighted sub-header row below the TopAppBar. | 🟢 Resolved |
 | **LOC-NAV-02** | Local Navigation | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | `ChallengesScreen.kt` | Active duels and historical trophies were mixed into a single vertical list without sectional sub-filtering. | Cluttered view and lack of dedicated milestone celebration space. | Implemented `[Active Duels] | [Trophies & Vault]` segmented sub-tabs in `ChallengesScreen.kt`. | 🟢 Resolved |
-| **NAV-04** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | Local Navigation | Local sub-views (e.g. `[D] [W] [M] [Y]` time filters) lack tactile haptic feedback and smooth animated indicator pill transitions. | Reduces perceived app polish and micro-interaction fluidity during frequent view switching. | Add bounce click physics, animated container pills, and subtle haptic feedback when toggling local segmented tabs. | 💡 Open |
-| **NAV-05** | Navigation Pattern Architecture | `/designer-skills:navigation-patterns` | 💡 **Design Decision / Principle** | `DashboardScreen.kt` | Architectural decision on "Side-by-side partner tracking tabs" on Today Dashboard: Segregating `[You]` vs `[Partner]` behind tabs creates high interaction friction, destroys the shared synchrony UX, and causes double-tab hierarchy clutter. | Breaks instantaneous 0-tap comparison; separates partner vitals from quick-action nudges (94% card sort cohesion). | Maintain unified bilateral telemetry (concentric dual rings + combined metric cards) on `Today`. Restrict segmented controls (`[Combined] [You] [Partner]`) strictly to `HealthTrendsScreen.kt` for historical chart uncluttering. | 🟢 Documented |
+| **NAV-04** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | Local Navigation | Local sub-views (e.g. `[D] [W] [M] [Y]` time filters) lack tactile haptic feedback and smooth animated indicator pill transitions. | Reduces perceived app polish and micro-interaction fluidity during frequent view switching. | Upgraded to M3 `SingleChoiceSegmentedButtonRow`, connected borders, `FontWeight.Bold`, and `TextHandleMove` haptics across Trends, Challenges, and Adaptive screens. | 🟢 Resolved |
+| **NAV-05** | Navigation Pattern Architecture | `/designer-skills:navigation-patterns` | 💡 **Design Decision / Principle** | `DashboardScreen.kt`, `HealthTrendsScreen.kt` | Architectural decision on "Side-by-side partner tracking tabs" on Today Dashboard: Segregating `[You]` vs `[Partner]` behind tabs creates high interaction friction, destroys shared synchrony UX, and causes double-tab hierarchy clutter. | Breaks instantaneous 0-tap comparison; separates partner vitals from quick-action nudges (94% card sort cohesion). | Preserved 0-tap bilateral telemetry on `Today`. Implemented dedicated `TelemetryPerspective` segmented button row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` for solo deep-dive filtering. | 🟢 Resolved |
 | **FLOW-01** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Innovation / Feature** | Jetpack Glance Widget | Zero-tap Home Screen accountability: Users currently must unlock phone and open app to view partner telemetry or send nudges. | Missed opportunity for high-velocity daily engagement loops (increases touchpoints from 2x to 12x/day). | Implement 4x2 interactive Glance widget with bilateral mini-rings and a one-tap direct "Poke" button. | 💡 Open |
 | **FLOW-02** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Micro-Interaction** | `DashboardScreen.kt` (Dual Rings) | Nudge button discoverability: Reaction chips sit below rings and require scrolling on smaller viewports. | Users miss intuitive direct manipulation affordances. | Implement "Double-Tap Partner's Ring to Cheer": double-tapping partner's outer ring emits confetti/heart burst and fires immediate haptic nudge. | 💡 Open |
 | **FLOW-03** | User Flow Resilience | `/designer-skills:user-flow-diagram` | 💡 **UX Transparency** | `Today` Telemetry Banner | Offline/Stale telemetry transparency: When partner is offline or watch is disconnected, vitals appear static without explanation. | User confusion regarding whether partner is inactive vs. device offline. | Add subtle status pill above rings: `[🟡 Partner synced 42m ago • Showing cached vitals]` when delta > 15 minutes. | 💡 Open |
@@ -1941,6 +1941,52 @@ Phase 6 resolves all remaining navigational ergonomics, accessibility, and platf
   - `mobile_get_device_state(view_type="screenshot")`: Visual proof captured and preserved in `nav_polish_live_screen.jpg`, `nav_polish_challenges_screen.jpg`, `nav_polish_trends_screen.jpg`, and `nav_polish_back_to_today_screen.jpg`.
   - `mobile_get_device_state(view_type="hierarchy")`: Confirmed `[Active Duels] | [Trophies & Vault]` sub-navigation on Tab 2, `[Day] [Week] [Month] [Year]` sticky timeframe sub-header on Tab 3, and active tab bolding.
   - System `KEYCODE_BACK` gesture verified on live device: pressing Back on `Trends` correctly re-anchors to `Today` rather than exiting.
+
+---
+
+## 33. Phase 6C: Local Sub-Navigation Ergonomics (`NAV-04`) & Bilateral Perspective Architecture (`NAV-05`)
+
+### 33.1 Overview & Architectural Deliverables
+Phase 6C resolved the remaining local sub-navigation ergonomics (`NAV-04`) and solidified the relational navigation invariant (`NAV-05`):
+1. **`NAV-04` (Tactile Haptic Feedback & Animated Segmented Indicator Transitions)**:
+   - Upgraded local timeframe and perspective selectors across secondary screens to Material 3 `SingleChoiceSegmentedButtonRow` and `SegmentedButton`.
+   - Wired `SegmentedButtonDefaults.itemShape(index, count)` for seamless connected pill contours with fluid selection indicator transitions.
+   - Wired `LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)` on every sub-view toggle across `HealthTrendsScreen.kt`, `ChallengesScreen.kt`, and `DashboardAdaptiveScreen.kt`.
+   - Applied bold typographic weighting (`FontWeight.Bold`) to active segmented items to satisfy multi-modal state accessibility (WCAG 1.4.1).
+2. **`NAV-05` (Bilateral Telemetry vs. Perspective Filtering Architecture)**:
+   - **Today Screen Invariant**: Strictly preserved 0-tap unified bilateral telemetry (concentric dual rings + combined metric cards + quick nudges simultaneously visible without tab switching). Rejected segregating `[You]` vs `[Partner]` behind tabs on Today (94% card sort cohesion).
+   - **Health Trends Perspective Filtering**: Implemented a dedicated `TelemetryPerspective` segmented button row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` allowing users to isolate personal curves without cluttering or fracturing the home dashboard.
+   - Built dynamic `AnimatedContent` switching between `CombinedTelemetryCard` and `SoloTelemetryCard` for `You` and `Partner` with dedicated metrics (steps, goal ratio, daily average pace, active duration, calories burned).
+
+### 33.2 Code Modifications & Files Touched
+- [`HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt):
+  - Defined `TelemetryPerspective` enum (`COMBINED`, `YOU`, `PARTNER`).
+  - Added Material 3 `SingleChoiceSegmentedButtonRow` for timeframes (`Day`, `Week`, `Month`, `Year`) with `TextHandleMove` haptics and `FontWeight.Bold` on active selection.
+  - Added Material 3 `SingleChoiceSegmentedButtonRow` for `TelemetryPerspective` directly beneath timeframes.
+  - Added `AnimatedContent` rendering `CombinedTelemetryCard` or `SoloTelemetryCard` (`You` / `Partner`).
+- [`ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt):
+  - Injected `LocalHapticFeedback.current` and wired `TextHandleMove` haptics on sub-tabs (`Active Duels` / `Trophies & Vault`), category filter chips (`All`, `Steps`, `Streaks`, `Speed`), and quick format start buttons.
+- [`DashboardAdaptiveScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardAdaptiveScreen.kt):
+  - Replaced deprecated `TelemetryMetric.values()` with `TelemetryMetric.entries`.
+  - Injected `LocalHapticFeedback.current` on telemetry selection chips in Expanded Pane 2 with `FontWeight.Bold` on active selection.
+- [`NavigationComposeUiTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt):
+  - Added `healthTrendsScreen_perspectiveFiltering_togglesViewAccurately()` asserting `Both`, `You`, and `Partner` segmented buttons, verifying text transitions to personal telemetry and partner telemetry.
+- [`Documentation/navigation_patterns_nav04_nav05_resolution.md`](file:///D:/Couple_fit/CoupleFit/Documentation/navigation_patterns_nav04_nav05_resolution.md):
+  - Authored comprehensive architectural resolution and design system contract.
+
+### 33.3 Test Coverage & Proof
+- **Automated Compilations & Tests**:
+  - `.\gradlew.bat compileDebugKotlin`: **BUILD SUCCESSFUL** (0 errors).
+  - `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+  - `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate).
+  - `.\gradlew.bat assembleDebug`: **BUILD SUCCESSFUL**.
+  - `adb install -r app/build/outputs/apk/debug/app-debug.apk`: **Success**.
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - Tapped `You 👤` segment: Verified "YOUR PERSONAL TELEMETRY (Week)" with solo stats (48,200 steps, 96% of goal, 280 active mins, 2,450 kcal). Captured screenshot: `nav04_nav05_trends_you_screen.png`.
+  - Tapped `Partner 💖` segment: Verified "PARTNER'S TELEMETRY (Week)" with partner stats (44,200 steps, 88% of goal, 252 active mins, 2,180 kcal). Captured screenshot: `nav04_nav05_trends_partner_screen.png`.
+  - Tapped `Both 👥` segment: Verified return to "STEPS & ACTIVITY COMPARISON (Week • Both Partners)" with synchrony index (94%) and joint steps (92,400).
+  - Tapped `Today` tab: Verified 0-tap bilateral telemetry preserved without tab segregation. Concentric rings, partner telemetry card, and quick nudges rendered simultaneously.
+
 
 
 

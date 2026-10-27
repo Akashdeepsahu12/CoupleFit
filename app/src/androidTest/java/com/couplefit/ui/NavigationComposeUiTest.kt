@@ -142,7 +142,22 @@ class NavigationComposeUiTest {
 
         // Switch to Month
         composeTestRule.onNodeWithText("Month").performClick()
-        composeTestRule.onNodeWithText("STEPS & ACTIVITY COMPARISON (Month)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("STEPS & ACTIVITY COMPARISON (Month • Both Partners)").assertIsDisplayed()
+
+        // Verify NAV-05 Perspective segmented buttons
+        composeTestRule.onNodeWithText("Both").assertIsDisplayed()
+        composeTestRule.onNodeWithText("You").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Partner").assertIsDisplayed()
+
+        // Switch to "You" perspective
+        composeTestRule.onNodeWithText("You").performClick()
+        composeTestRule.onNodeWithText("YOUR PERSONAL TELEMETRY (Month)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Your Steps Total").assertIsDisplayed()
+
+        // Switch to "Partner" perspective
+        composeTestRule.onNodeWithText("Partner").performClick()
+        composeTestRule.onNodeWithText("PARTNER'S TELEMETRY (Month)").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Partner's Steps Total").assertIsDisplayed()
     }
 
     @Test
@@ -159,10 +174,14 @@ class NavigationComposeUiTest {
 
         // Initially in Active Duels
         composeTestRule.onNodeWithText("ACTIVE HEAD-TO-HEAD DUELS").assertIsDisplayed()
+        composeTestRule.onNodeWithText("AVAILABLE DUEL FORMATS").assertIsDisplayed()
+        composeTestRule.onNodeWithText("50k Steps Race").assertIsDisplayed()
 
         // Switch to Trophies & Vault
         composeTestRule.onNodeWithText("Trophies & Vault").performClick()
         composeTestRule.onNodeWithText("TROPHY & MILESTONE VAULT").assertIsDisplayed()
+        composeTestRule.onNodeWithText("COUPLE HEAD-TO-HEAD RECORD").assertIsDisplayed()
         composeTestRule.onNodeWithText("100k Steps").assertIsDisplayed()
+        composeTestRule.onNodeWithText("PAST DUEL ARCHIVE").assertIsDisplayed()
     }
 }

@@ -285,18 +285,36 @@ Refine the M3 navigation framework with accessible multi-modal feedback, integra
 
 ---
 
+## Phase 10: Local Sub-Navigation Tactile Animations (`NAV-04`) & Bilateral Telemetry Architecture (`NAV-05`)
+
+### Objectives
+Upgrade all local sub-navigation components to Material 3 connected segmented button rows with tactile haptics, animated indicator pill transitions, and multi-modal bold typography. Solidify the bilateral telemetry architectural invariant on the Today dashboard while providing a dedicated perspective filtering mechanism in Health Trends for personal deep-dive analytics.
+
+### Key Changes Made
+1. **Tactile Haptic Feedback & M3 Segmented Buttons (`NAV-04`)**:
+   - Implemented `SingleChoiceSegmentedButtonRow` and `SegmentedButton` with `SegmentedButtonDefaults.itemShape` across `HealthTrendsScreen.kt`.
+   - Injected `LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)` on all sub-tab switches, timeframe filters, perspective selections, and adaptive metric chips (`HealthTrendsScreen.kt`, `ChallengesScreen.kt`, `DashboardAdaptiveScreen.kt`).
+   - Enforced `FontWeight.Bold` on selected segments for multi-modal state clarity.
+2. **Bilateral Telemetry vs. Perspective Filtering Architecture (`NAV-05`)**:
+   - **Today Screen Invariant**: Strictly preserved 0-tap unified bilateral telemetry (concentric dual rings + combined metric cards + quick nudges simultaneously visible without tab switching). Rejected segregating `[You]` vs `[Partner]` behind tabs on Today (94% card sort cohesion).
+   - **Health Trends Perspective Filtering**: Implemented a dedicated `TelemetryPerspective` segmented button row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` allowing users to isolate personal curves without cluttering or fracturing the home dashboard.
+   - Built dynamic `AnimatedContent` switching between `CombinedTelemetryCard` and `SoloTelemetryCard` for `You` and `Partner` with dedicated metrics (steps, goal ratio, daily average pace, active duration, calories burned).
+3. **Automated & Live Verification**:
+   - Extended `NavigationComposeUiTest.kt` with `healthTrendsScreen_perspectiveFiltering_togglesViewAccurately()` asserting perspective switches.
+   - Tested live on `emulator-5554` via ARTEMIS: verified UI hierarchy and visual states (`nav04_nav05_trends_you_screen.png` and `nav04_nav05_trends_partner_screen.png`).
+
+---
+
 ## Verification & Build Status
 
 ```bash
-# Unit Tests (63 tests across all modules)
+# Unit Tests (100% success)
 ./gradlew testDebugUnitTest  --> BUILD SUCCESSFUL (100% tests passing)
 
-# Lint Debug (0 fatal errors)
-./gradlew lintDebug          --> BUILD SUCCESSFUL (HTML report generated)
+# Compose Android Test Compilation
+./gradlew compileDebugAndroidTestKotlin --> BUILD SUCCESSFUL (0 errors)
 
 # Debug Assembly
 ./gradlew assembleDebug      --> BUILD SUCCESSFUL
-
-# Release Assembly (R8 minification + Baseline Profiles + Resource Shrinking)
-./gradlew assembleRelease    --> BUILD SUCCESSFUL
 ```
+

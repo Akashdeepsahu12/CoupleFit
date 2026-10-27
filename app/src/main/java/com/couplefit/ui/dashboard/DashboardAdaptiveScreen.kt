@@ -101,12 +101,23 @@ fun DashboardAdaptiveScreen(
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                         )
 
+                        val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            TelemetryMetric.values().forEach { metric ->
+                            TelemetryMetric.entries.forEach { metric ->
+                                val isSelected = selectedMetric == metric
                                 FilterChip(
-                                    selected = selectedMetric == metric,
-                                    onClick = { selectedMetric = metric },
-                                    label = { Text(metric.label, fontSize = 12.sp) },
+                                    selected = isSelected,
+                                    onClick = {
+                                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                        selectedMetric = metric
+                                    },
+                                    label = {
+                                        Text(
+                                            metric.label,
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
                                     colors = FilterChipDefaults.filterChipColors(
                                         selectedContainerColor = metric.color.copy(alpha = 0.2f),
                                         selectedLabelColor = metric.color
