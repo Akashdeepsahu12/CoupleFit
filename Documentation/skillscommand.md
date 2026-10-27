@@ -1,11 +1,11 @@
-# Antigravity Skills & Commands Directory
+﻿# Antigravity Skills & Commands Directory
 
 > **Master Reference, Operations Manual & Task Router** for all installed agent skills in Antigravity.  
-> **18 Installed Plugins | 687+ Modular Skills | Global Storage:** `~/.gemini/config/plugins/`
+> **19 Installed Plugins | 688+ Modular Skills | Global Storage:** `~/.gemini/config/plugins/`
 
 ---
 
-## 📑 Table of Contents
+## ðŸ“‘ Table of Contents
 
 1. [Plugin Ecosystem Overview](#1-plugin-ecosystem-overview)
 2. [Master Intent Router ("I want to...")](#2-master-intent-router-i-want-to)
@@ -58,10 +58,16 @@
     - [10.2 Spec, UAT & Milestone Audits](#102-spec-uat--milestone-audits)
     - [10.3 Codebase Intelligence & Diagnostic Health](#103-codebase-intelligence--diagnostic-health)
     - [10.4 Memory Palace & Context Capture](#104-memory-palace--context-capture)
-11. [How to Invoke & Routing Best Practices](#11-how-to-invoke--routing-best-practices)
-    - [11.1 Direct Command Invocation](#111-direct-slash-command-invocation)
-    - [11.2 Natural Language Intent Matching](#112-natural-language-intent-matching)
-    - [11.3 Performance & Progressive Token Disclosure Architecture](#113-performance--progressive-token-disclosure-architecture)
+11. [Liqui Design — Liquid Glass Component Suite (38 Components)](#11-liqui-design--liquid-glass-component-suite-38-components)
+    - [11.1 The Optical Physical Model](#111-the-optical-physical-model)
+    - [11.2 The Two-Material Philosophy](#112-the-two-material-philosophy)
+    - [11.3 38-Component Catalog & Usage Matrix](#113-38-component-catalog--usage-matrix)
+    - [11.4 Android Jetpack Compose Porting Pattern](#114-android-jetpack-compose-porting-pattern)
+12. [How to Invoke & Routing Best Practices](#12-how-to-invoke--routing-best-practices)
+    - [12.1 Direct Slash Command Invocation](#121-direct-slash-command-invocation)
+    - [12.2 Natural Language Intent Matching](#122-natural-language-intent-matching)
+    - [12.3 Performance & Progressive Token Disclosure Architecture](#123-performance--progressive-token-disclosure-architecture)
+
 
 ---
 
@@ -86,7 +92,8 @@
 | **`ecc`** | [affaan-m/ecc](https://github.com/affaan-m/ecc) | 321 | Enterprise engineering orchestration, continuous learning, architecture patterns, cost optimization, multi-framework test/build/review loops |
 | **`gsd-core`** | [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | 72 | Git. Ship. Done. — Spec-driven milestone loops, context engineering, phase-loop autonomous execution, codebase mapping, memory palace |
 | **`mobbin`** | [mobbin/skills](https://github.com/mobbin/skills) | 4 | Real-world iOS/Android app patterns, screen redesigns, plain UI writing & Mobbin MCP |
-| **TOTAL** | **18 Repositories** | **687+** | **Comprehensive Full-Stack, Spec-Driven & Enterprise AI Pair Programming Suite** |
+| **`liqui-design`** | [leefanv/liqui-design](https://github.com/leefanv/liqui-design) | 1 | Liquid glass design system: optical refraction, specular rims, 38 components & Jetpack Compose porting |
+| **TOTAL** | **19 Repositories** | **688+** | **Comprehensive Full-Stack, Spec-Driven & Enterprise AI Pair Programming Suite** |
 
 ---
 
@@ -107,6 +114,7 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | **Build physics-accurate 60fps web animations** | `/animate` | `/animate-expo` | `emilkowalski-skills` |
 | **Audit motion performance & frame drops (jank)** | `/animation-performance` | `/improve-animations` | `emilkowalski-skills` |
 | **Fix mobile web quirks (100vh, notch, tap delay)** | `/mobile-native` | `/antislop-layoutmobile` | `emilkowalski-skills` / `antislop` |
+| **Implement optical liquid glass UI & components (38 items)** | `/liqui-design` | `/liquid-glass-design`, `/redesign-screen` | `liqui-design` / `ecc` |
 | **Translate Apple HIG physics & blur to the web** | `/apple-design` | `/interfaces-that-feel` | `emilkowalski-skills` / `designer-skills` |
 | **Audit accessibility against WCAG 2.1 AA/AAA** | `/accessibility-audit` | `/antislop-human` | `designer-skills` / `antislop` |
 | **Practice Red-Green-Refactor test-driven development** | `/test-driven-development` | `/tdd` | `superpowers` / `mattpocock-skills` |
@@ -168,7 +176,7 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | `/improve-animations` | **Motion Audit** | Survey a codebase's animation and motion code as a senior motion advisor, then produce a prioritized audit and self-contained implementation plans for other agents (or cheaper models) to execute. Read-only on source code — it plans improvements, it does not apply them. Use when the user asks to "improve the animations", "audit the motion", "make this app feel better", or wants a roadmap of animation fixes rather than a review of a single diff. |
 | `/find-animation-opportunities` | **Motion Discovery** | Search a codebase or UI for places that don't animate but should, and reject everything that shouldn't. Read-only; it proposes motion with exact values, it does not implement it. Use when the user asks "what could be animated here — or wants to "make this feel more alive". For fixing existing animations, use improve-animations or review-animations instead. |
 | `/animation-performance` | **Frame Budgets** | Keep web animations inside the frame budget — animate composite-only properties, keep motion off the main thread when the page is busy, and find the cause when an animation drops frames. Covers the layout/paint/composite pipeline, cheaper property swaps, CSS vs WAAPI vs requestAnimationFrame, Framer Motion's hardware-accelerated path, React re-rendering per frame, inherited CSS variable recalculation, blur cost, and when `will-change` actually helps. Use when an animation is janky, choppy, stutters, or drops frames; when choosing which property to animate; when deciding between CSS and JS animation on performance grounds; or when reaching for `will-change` or GPU layers. For choosing easing, duration, or whether to animate at all use animate; for reviewing motion as a whole use review-animations. |
-| `/animation-vocabulary` | **Motion Glossary** | Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop in; "the iOS rubber-band scroll" → Rubber-banding). Use when the user asks "what's it called when…", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one. |
+| `/animation-vocabulary` | **Motion Glossary** | Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" â†’ Pop in; "the iOS rubber-band scroll" â†’ Rubber-banding). Use when the user asks "what's it called whenâ€¦", or describes a motion effect without knowing its name and wants the right word to prompt an AI or designer with. For naming an effect, not designing or building one. |
 | `/mobile-native` | **Mobile Web Feel** | Make a web app feel native on a phone — the small CSS and meta-tag fixes that separate "a website in a browser" from something that feels installed. Covers sticky hover states, tap highlight flashes, the 100vh bug, inputs that zoom the page, laggy taps, pull-to-refresh hijacking scroll, content under the notch, long-press selecting button text, carousels that scroll the wrong way, mismatched status bars, and the rule that you test on real hardware. Use when a web app is being built for or reviewed on mobile, when something "works in Chrome but feels wrong on my phone", when building a PWA, a bottom sheet, a carousel, a full-screen layout, or any touch interaction. For motion itself use animate; for React Native use animate-expo. |
 | `/apple-design` | **Apple HIG Web** | Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces. |
 | `/write-swift` | **Native Swift 6** | How to write modern Swift well — modeling with value types, Swift 6 data-race safety and approachable concurrency (@concurrent, main-actor-by-default, actors, task groups), protocols and generics (some vs any), API design, performance and ARC, Swift Testing, macros, and the modern language features agents don't know about yet. Use when writing, reviewing, or migrating Swift, or when a concurrency error, a hang, a data race, a retain cycle, or a performance problem needs fixing. |
@@ -189,8 +197,8 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | Command | Action / Category | Operational Description |
 | :--- | :--- | :--- |
 | `/ui-ux-pro-max` | **Searchable Database** | UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 79 searchable styles (50 active), 192 product palettes and reasoning profiles, 74 font pairings, 119 UX guidelines, 105 icons, 17 GSAP presets, 25 chart types, and 22 stacks. |
-| `/design` | **Brand & Logo Design** | Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social photos, social media images, brand identity, design system. Platforms: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads. |
-| `/design-system` | **3-Layer Token System** | Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations. |
+| `/design` | **Brand & Logo Design** | Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTMLâ†’screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social photos, social media images, brand identity, design system. Platforms: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads. |
+| `/design-system` | **3-Layer Token System** | Token architecture, component specifications, and slide generation. Three-layer tokens (primitiveâ†’semanticâ†’component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations. |
 | `/ui-styling` | **shadcn & Tailwind** | Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications. |
 | `/banner-design` | **Social & Ads Creative** | Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. |
 | `/brand` | **Brand Strategy & Tone** | Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides. |
@@ -772,9 +780,86 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | `/gsd-ingest-docs` | **Documentation Ingestion** | Ingest third-party library documentation, APIs, and schemas into local working context. |
 | `/gsd-graphify` | **Knowledge Graph Builder** | Build a local knowledge graph linking files, symbols, documentation, and dependencies. |
 
-## 11. How to Invoke & Routing Best Practices
+## 11. Liqui Design — Liquid Glass Component Suite (38 Components)
 
-### 11.1 Direct Slash Command Invocation
+> **Plugin:** `liqui-design` (v1.0.0) | **Official Website:** [liqui.design](https://liqui.design) | **Docs:** [liqui.design/docs/components](https://liqui.design/docs/components)  
+> **Source:** [leefanv/liqui-design](https://github.com/leefanv/liqui-design) | **Component Source Files:** `~/.gemini/config/plugins/liqui-design/skills/liqui-design/references/ui/`
+
+Liqui Design is an optical physics-driven liquid glass design system. Unlike basic glassmorphism (which uses simple flat white overlays and static blur), Liqui surfaces physically refract what sits behind them using displacement maps, specular rims, and adaptive frosted materials.
+
+### 11.1 The Optical Physical Model
+Every Liqui Glass surface is constructed from 4 stacked physical layers plus isolated content:
+1. **Backdrop A (`blur()` + `saturate()`):** Quiets background visual noise without delaying paint.
+2. **Backdrop B (`displacement-map`):** Samples Backdrop A and refracts light around edges based on surface curvature.
+3. **Tint (`--lq-tint` gradient):** Linear gradient wash ensuring typographic contrast (`rgba(255,255,255,0.48)` to `0.14`).
+4. **Specular (`shine`):** Polished rim lighting along the top edge simulating physical silica bevels.
+5. **Continuous Squircles:** Border curvature follows $|x|^4 + |y|^4 = r^4$ so displacement optics and clipping agree.
+
+### 11.2 The Two-Material Philosophy
+- **Glass Surfaces:** For surfaces you act *through* (floating nav bars, cards, bottom sheets, dialogs, popovers, menus). Translucency and refraction exist to reveal the wallpaper or scrolling content beneath.
+- **Solid Controls (`--lq-accent` / `--lq-danger`):** For controls carrying *value* or primary actions (Primary submit buttons, active switches, checked markers). A tinted lens contradicts itself because the accent color is the message.
+
+### 11.3 38-Component Catalog & Usage Matrix
+| Category | Components | Primary Visual Material | Key Dials / Props |
+| :--- | :--- | :--- | :--- |
+| **Actions** | `button`, `toggle`, `toggle-group` | Glass default, Solid Accent/Danger for primary | `radius: 12`, `refraction: 45`, `bezel: 11` |
+| **Inputs** | `input`, `number-field`, `otp-field`, `field`, `fieldset`, `form` | Frosted Glass with focused accent glow border | `radius: 10`, `frost: 0.40`, high-contrast text |
+| **Selections** | `checkbox`, `checkbox-group`, `radio-group`, `switch`, `slider` | Solid Control fills with hairline rest borders | Flat `--lq-control`, active `--lq-accent` |
+| **Dropdowns** | `select`, `combobox`, `autocomplete` | Glass trigger + floating refractive dropdown panel | `radius: 12`, `bezel: 16`, elevation shadows |
+| **Overlays** | `dialog`, `alert-dialog`, `drawer`, `popover`, `tooltip` | Multi-layer liquid glass with darkened backdrops | `bezel: 28`, `specular: 1.0`, `frost: 0.50` |
+| **Navigation** | `tab-bar`, `tabs`, `navigation-menu`, `toolbar`, `menu`, `menubar` | Floating liquid glass bar with sliding pill indicators | `radius: 24`, superellipse continuous clip |
+| **Feedback** | `progress`, `meter`, `toast`, `avatar`, `accordion`, `collapsible` | Liquid filled tracks and refractive capsules | Adaptive light falloff and spring morphing |
+
+### 11.4 Android Jetpack Compose Porting Pattern
+For native Android apps like **CoupleFit**, Liqui Design's 4 layers are implemented natively:
+```kotlin
+// LiquidGlassSurface in Jetpack Compose
+@Composable
+fun LiquidGlassSurface(
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 20.dp,
+    frost: Float = 0.35f,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val shape = RoundedCornerShape(cornerRadius)
+    val specularBorder = Brush.verticalGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.45f * (1f + frost * 0.2f)),
+            Color.White.copy(alpha = 0.10f),
+            Color.Transparent
+        )
+    )
+    val tintBackground = Brush.linearGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.18f + frost * 0.12f),
+            Color.White.copy(alpha = 0.05f + frost * 0.05f)
+        )
+    )
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .then(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Modifier.graphicsLayer {
+                        renderEffect = RenderEffect
+                            .createBlurEffect(20f, 20f, Shader.TileMode.CLAMP)
+                            .asComposeRenderEffect()
+                    }
+                } else Modifier
+            )
+            .background(brush = tintBackground, shape = shape)
+            .border(width = 1.dp, brush = specularBorder, shape = shape)
+            .padding(16.dp),
+        content = content
+    )
+}
+```
+
+---
+
+## 12. How to Invoke & Routing Best Practices
+
+### 12.1 Direct Slash Command Invocation
 To immediately force execution of any skill, type its slash command anywhere in your prompt (typically at the beginning):
 
 ```markdown
@@ -786,7 +871,7 @@ To immediately force execution of any skill, type its slash command anywhere in 
 /performance-optimization - Profile Web Vitals and diagnose main-thread latency
 ```
 
-### 11.2 Natural Language Intent Matching
+### 12.2 Natural Language Intent Matching
 Antigravity features native semantic routing: when you describe your goal in natural language, the assistant matches your request directly to the appropriate skill without requiring explicit slash commands.
 
 | Natural Language Prompt Pattern | Automatic Skill Trigger | Targeted Action |
@@ -809,7 +894,7 @@ Antigravity features native semantic routing: when you describe your goal in nat
 | *"Test this build on my connected physical iPhone"* | `/gstack-ios-qa` | Tests native views over USB tunnel with vision-driven feedback. |
 | *"Prepare production release, bump version, and open a PR"* | `/gstack-ship` | Merges base, runs test suites, bumps semver, and crafts PR. |
 
-### 11.3 Performance & Progressive Token Disclosure Architecture
+### 12.3 Performance & Progressive Token Disclosure Architecture
 Antigravity employs an intelligent **two-tier progressive disclosure engine** to keep your context window lean, fast, and token-efficient:
 
 1. **Tier 1 (Descriptor Mode):** All 683+ skills remain in memory as ultra-compact 2-line descriptors (name, category, trigger criteria), consuming less than 1.5% of the total context window.
