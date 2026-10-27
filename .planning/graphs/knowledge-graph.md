@@ -24,6 +24,7 @@ graph TD
         RN28["RELEASE_NOTES_v2.8.0.md"]:::doc
         P14P["PLAN_PHASE_14_DESIGN_ENGINEERING_ENG01_TO_ENG04.md"]:::doc
         ENGD["emil_design_eng_eng01_to_eng04_analysis.md"]:::doc
+        GLSD["design_system_glassmorphism_gls01_gls02_analysis.md"]:::doc
         P9P["PLAN_PHASE_09_FRONTEND_DESIGN_DSN01_TO_DSN03.md"]:::doc
         FDD["frontend_design_dsn01_dsn02_dsn03_analysis.md"]:::doc
         P8P["PLAN_PHASE_08_WIREFRAME_WF01_TO_WF07.md"]:::doc
@@ -38,6 +39,7 @@ graph TD
     subgraph NavigationLayer["Navigation & Routing Layer"]
         CFD["CoupleFitDestinations.kt<br/>(Today, Challenges, Trends, Hub)"]:::arch
         CFNS["CoupleFitNavigationSuite.kt<br/>(Dual Vectors, Bold Weight, Haptics)"]:::arch
+        FND["FloatingGlassNavBar<br/>(16dp Elevation, 32dp Pill, 28dp Blur)"]:::arch
         MA["MainActivity.kt<br/>(Scaffold Host, BackHandler Re-Anchoring)"]:::arch
         MANI["AndroidManifest.xml<br/>(enableOnBackInvokedCallback)"]:::arch
     end
@@ -60,6 +62,8 @@ graph TD
         BCK["BounceClick.kt<br/>(Asymmetric Spring 1000f/750f, Scale 0.975x)"]:::ui
         AR["ActivityRing.kt<br/>(Fluid Spring 120f, Luminescent Track Glow)"]:::ui
         CFH["CoupleFitHaptics.kt<br/>(Heartbeat Tick 12ms/80ms/18ms)"]:::arch
+        GLST["GlassTokens.kt<br/>(Primitive -> Semantic -> Component)"]:::arch
+        MODG["Modifier.iosGlass()<br/>(20dp Blur, 8% White Tint, Specular Rim)"]:::ui
         TDD["TelemetryDiagnosticDialog<br/>(Room SSOT Cache, Ping Partner)"]:::ui
     end
 
@@ -108,6 +112,10 @@ graph TD
     CFH -->|Heartbeat Nudge Haptic| QNR
     CFH -->|Milestone Cheer Haptic| SBAC
     AR -->|Luminescent Track & Fluid Spring| DS
+    GLST -->|Tokens| MODG
+    MODG -->|Translucency & Specular Rim| DS
+    MODG -->|Translucency & Specular Rim| HTS
+    FND -->|Floating Dock Shell| CFNS
     CHS -->|Privacy Shortcut [🔒]| SET
 
     SET --> HUB1
