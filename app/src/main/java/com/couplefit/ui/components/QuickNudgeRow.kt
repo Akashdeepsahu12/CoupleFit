@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.AppSpacing
+import com.couplefit.ui.theme.CoupleFitHaptics
 
 /**
  * Quick-action Nudge Pill Row positioned in the Natural Thumb Zone directly below
@@ -26,6 +28,7 @@ fun QuickNudgeRow(
     modifier: Modifier = Modifier,
     onSendNudge: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
     val quickNudges = listOf(
@@ -59,7 +62,8 @@ fun QuickNudgeRow(
             quickNudges.forEach { action ->
                 Surface(
                     onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        // Dual-pulse heartbeat sensory haptic (ENG-03, MIC-01)
+                        CoupleFitHaptics.performHeartbeat(context, haptic)
                         onSendNudge("${action.emoji} ${action.label}")
                     },
                     shape = RoundedCornerShape(20.dp),

@@ -21,6 +21,9 @@ graph TD
         RN25["RELEASE_NOTES_v2.5.0.md"]:::doc
         RN26["RELEASE_NOTES_v2.6.0.md"]:::doc
         RN27["RELEASE_NOTES_v2.7.0.md"]:::doc
+        RN28["RELEASE_NOTES_v2.8.0.md"]:::doc
+        P14P["PLAN_PHASE_14_DESIGN_ENGINEERING_ENG01_TO_ENG04.md"]:::doc
+        ENGD["emil_design_eng_eng01_to_eng04_analysis.md"]:::doc
         P9P["PLAN_PHASE_09_FRONTEND_DESIGN_DSN01_TO_DSN03.md"]:::doc
         FDD["frontend_design_dsn01_dsn02_dsn03_analysis.md"]:::doc
         P8P["PLAN_PHASE_08_WIREFRAME_WF01_TO_WF07.md"]:::doc
@@ -54,6 +57,9 @@ graph TD
         HUB3["ExperienceHubContent<br/>(Dark Mode, Motion, Units)"]:::ui
         HUB4["PrivacyHubContent<br/>(Biometrics, Transparency, Export)"]:::ui
         SBAC["SideBySideActivityCard<br/>(Double-Tap Ring Cheer, Status Pill)"]:::ui
+        BCK["BounceClick.kt<br/>(Asymmetric Spring 1000f/750f, Scale 0.975x)"]:::ui
+        AR["ActivityRing.kt<br/>(Fluid Spring 120f, Luminescent Track Glow)"]:::ui
+        CFH["CoupleFitHaptics.kt<br/>(Heartbeat Tick 12ms/80ms/18ms)"]:::arch
         TDD["TelemetryDiagnosticDialog<br/>(Room SSOT Cache, Ping Partner)"]:::ui
     end
 
@@ -98,6 +104,10 @@ graph TD
     ACPC -->|CTA: View Duels| CSCR
     CSCR --> CVM
     CSCR --> HE
+    BCK -->|Calibrated Touch Press| DS
+    CFH -->|Heartbeat Nudge Haptic| QNR
+    CFH -->|Milestone Cheer Haptic| SBAC
+    AR -->|Luminescent Track & Fluid Spring| DS
     CHS -->|Privacy Shortcut [🔒]| SET
 
     SET --> HUB1

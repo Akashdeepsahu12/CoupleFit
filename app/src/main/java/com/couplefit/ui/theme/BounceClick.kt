@@ -1,5 +1,6 @@
 package com.couplefit.ui.theme
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
@@ -16,32 +17,47 @@ import androidx.compose.ui.semantics.Role
 /**
  * Replaces the default Android Ripple effect with an iOS-style spring scale and dim micro-animation.
  * When the user presses the component, it scales down slightly and drops opacity.
+ *
+ * Emil Kowalski Craft Specifications (ENG-01, APL-02, MIC-03):
+ * - Pointer-down: Instant mechanical depression with zero lag (stiffness = 1000f, damping = 1.0f).
+ * - Release: Snappy mechanical glass-click return without rubbery cartoonish oscillation (stiffness = 750f, damping = 0.82f).
+ * - Scale: Subtle 2.5% compression (pressedScale = 0.975f) preventing 18px horizontal layout twitch on full-width cards.
  */
 fun Modifier.iosClickable(
     interactionSource: MutableInteractionSource? = null,
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
+    pressedScale: Float = 0.975f,
+    pressedAlpha: Float = 0.88f,
     onClick: () -> Unit
 ) = composed {
     val actualInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
     val isPressed by actualInteractionSource.collectIsPressedAsState()
 
-    // iOS spring physics for the press/release bounce
+    // Asymmetric iOS spring physics: instant mechanical depression on press-down,
+    // crisp calibrated settling on release (ENG-01, APL-02, MIC-03)
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = 0.6f, // Slight bounce on release
-            stiffness = 400f
-        ),
+        targetValue = if (isPressed) pressedScale else 1f,
+        animationSpec = if (isPressed) {
+            spring(
+                dampingRatio = Spring.DampingRatioNoBouncy, // 1.0f: zero lag or wobble on contact
+                stiffness = Spring.StiffnessHigh // 1000f: immediate tactile feedback
+            )
+        } else {
+            spring(
+                dampingRatio = 0.82f, // Near-critical damping: no cartoonish rubbery overshoot
+                stiffness = 750f // Snappy mechanical glass-click return
+            )
+        },
         label = "iosScale"
     )
 
     val alpha by animateFloatAsState(
-        targetValue = if (isPressed) 0.7f else 1f,
+        targetValue = if (isPressed) pressedAlpha else 1f,
         animationSpec = spring(
             dampingRatio = 1f, // No bounce for opacity
-            stiffness = 500f
+            stiffness = 600f
         ),
         label = "iosAlpha"
     )

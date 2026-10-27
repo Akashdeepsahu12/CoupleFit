@@ -391,6 +391,30 @@ Establish unambiguous visual identity through dual-partner signature spectrums, 
 
 ---
 
+## Phase 14: Emil Kowalski Design Engineering Craft & Sensory Micro-Interactions (`ENG-01` to `ENG-04`, `APL-02`, `ANM-01`, `ANM-02`, `MIC-01`, `MIC-03`)
+
+### Objectives
+Elevate CoupleFit from functional correctness to tactile craft excellence. Calibrate spring physics, eliminate layout twitch, ensure uninterrupted fluid progress kinematics, illuminate activity ring tracks, and implement intimate heartbeat haptics according to Emil Kowalski's Design Engineering framework.
+
+### Key Changes Made
+1. **Asymmetric Spring Physics & Scale Calibration (`ENG-01`, `APL-02`, `MIC-03`, `ANM-02`)**:
+   - In `BounceClick.kt`: Implemented asymmetric spring dynamics: `StiffnessHigh` (1000f, `dampingRatio = 1.0f`) on pointer-down for immediate tactile depression, and `750f, dampingRatio = 0.82f` on release for snappy glass-click mechanical return without cartoonish rubbery wobble.
+   - Parameterized `pressedScale: Float = 0.975f` (subtle 2.5% max compression) and `pressedAlpha: Float = 0.88f`, eliminating the 18px horizontal layout twitch on full-width dashboard cards.
+2. **Fluid Physics Ring Kinematics & Continuity (`ENG-02`, `ANM-01`)**:
+   - In `ActivityRing.kt`: Replaced rigid `tween(1200)` and jarring `snapTo(0f)` with fluid physics `spring(dampingRatio = 0.78f, stiffness = 120f)`.
+   - Continuous uninterrupted momentum: When progress updates or sync refreshes, the ring retargets gracefully from its current position rather than snapping to zero and flashing.
+3. **Sensory Engineering & Heartbeat Haptics (`ENG-03`, `MIC-01`)**:
+   - Built `CoupleFitHaptics.kt` providing an anatomical dual-pulse "Heartbeat Tick" (`12ms @ 40% -> 80ms pause -> 18ms @ 70%`) via Android `VibrationEffect` waveform with graceful fallback to `HapticFeedbackType.TextHandleMove`.
+   - Wired into `NudgeButton.kt`, `QuickNudgeRow.kt`, and `DashboardScreen.kt` double-tap cheer and milestone closure payoffs, replacing blunt OS long-press rumbles with an intimate physical touchpoint.
+4. **Luminescent Track Glow & Optical Depth (`ENG-04`)**:
+   - In `ActivityRing.kt`: Replaced flat dark gray tracks (`DarkGray.copy(alpha = 0.3f)`) with a self-illuminated ambient track glow (`gradientEnd.copy(alpha = 0.12f)`), diffused outer halo stroke (`alpha = 0.04f`), and dynamic cap occlusion drop shadows rendered at $(\cos \theta, \sin \theta)$.
+5. **Automated & Live Device Verification**:
+   - Added `designEngineering_springPhysics_and_heartbeatHaptics()` in `NavigationComposeUiTest.kt`.
+   - Unit tests (`testDebugUnitTest`) and compile tests (`compileDebugAndroidTestKotlin`) passed 100%.
+   - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS, capturing verified screenshot artifacts.
+
+---
+
 ## Verification & Build Status
 
 ```bash

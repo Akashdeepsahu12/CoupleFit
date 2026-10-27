@@ -1,8 +1,7 @@
 package com.couplefit.ui.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,7 +19,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.cos
+import kotlin.math.sin
 
+/**
+ * Activity Ring component with Emil Kowalski Design Engineering craft (ENG-02, ENG-04, ANM-01):
+ * - Fluid physics spring retargeting (dampingRatio = 0.78f, stiffness = 120f)
+ * - Zero snap eliminated: continuous uninterrupted momentum on updates and refresh
+ * - Luminescent track glow (12% tint of gradientEnd) replacing flat dark gray
+ * - Dynamic optical depth: ambient cap drop shadow and subtle track aura on OLED black
+ */
 @Composable
 fun ActivityRing(
     progress: Float, // 0.0 to 1.0 (or more if overflowing)
@@ -28,38 +36,32 @@ fun ActivityRing(
     gradientEnd: Color,
     modifier: Modifier = Modifier,
     thickness: Dp = 16.dp,
-    trackColor: Color = Color.DarkGray.copy(alpha = 0.3f),
+    trackColor: Color = Color.Unspecified,
     animationDuration: Int = 1200,
     animTrigger: Any? = null,
     reduceMotion: Boolean = false
 ) {
-    // Smooth ease-out animation for ring progress
-    val animatedProgress = remember { Animatable(progress) } // Start at progress by default
+    val resolvedTrackColor = if (trackColor != Color.Unspecified) {
+        trackColor
+    } else {
+        gradientEnd.copy(alpha = 0.12f)
+    }
+
+    // Smooth physics spring animation for ring progress
+    val animatedProgress = remember { Animatable(0f) }
 
     LaunchedEffect(progress, animTrigger, reduceMotion) {
         if (reduceMotion) {
             animatedProgress.snapTo(progress)
         } else {
-            if (animTrigger != null) {
-                // Full dramatic entrance (e.g. initial load or explicit refresh)
-                animatedProgress.snapTo(0f)
-                animatedProgress.animateTo(
-                    targetValue = progress,
-                    animationSpec = tween(
-                        durationMillis = animationDuration,
-                        easing = FastOutSlowInEasing
-                    )
+            // Fluid physics spring retargeting from current position without jarring zero snap (ENG-02, ANM-01)
+            animatedProgress.animateTo(
+                targetValue = progress,
+                animationSpec = spring(
+                    dampingRatio = 0.78f, // Subtle liquid momentum settling
+                    stiffness = 120f // Fluid, unhurried Apple Fitness-grade sweep
                 )
-            } else {
-                // Partial smooth update (e.g. background tick)
-                animatedProgress.animateTo(
-                    targetValue = progress,
-                    animationSpec = tween(
-                        durationMillis = 300,
-                        easing = FastOutSlowInEasing
-                    )
-                )
-            }
+            )
         }
     }
 
@@ -71,18 +73,38 @@ fun ActivityRing(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val ringRadius = size.minDimension / 2
             val ringThickness = thickness.toPx()
-            
-            // Draw background track
+
+            // 1. Ambient outer aura for the track (ENG-04)
             drawCircle(
-                color = trackColor,
+                color = gradientEnd.copy(alpha = 0.04f),
+                radius = ringRadius,
+                center = center,
+                style = Stroke(width = ringThickness + 4.dp.toPx())
+            )
+
+            // 2. Luminescent background track
+            drawCircle(
+                color = resolvedTrackColor,
                 radius = ringRadius,
                 center = center,
                 style = Stroke(width = ringThickness)
             )
 
-            // Draw progress arc
+            // 3. Progress arc with optical depth cap shadow (ENG-04)
             val sweepAngle = 360f * animatedProgress.value
             if (sweepAngle > 0) {
+                // Soft ambient drop shadow under the leading cap when progress is noticeable
+                if (sweepAngle > 15f) {
+                    val angleRad = Math.toRadians((sweepAngle - 90.0)).toFloat()
+                    val capX = center.x + ringRadius * cos(angleRad)
+                    val capY = center.y + ringRadius * sin(angleRad)
+                    drawCircle(
+                        color = Color.Black.copy(alpha = 0.35f),
+                        radius = ringThickness / 2 + 1.dp.toPx(),
+                        center = Offset(capX, capY + 1.dp.toPx())
+                    )
+                }
+
                 drawArc(
                     brush = Brush.linearGradient(
                         colors = listOf(gradientStart, gradientEnd),
@@ -103,4 +125,3 @@ fun ActivityRing(
         }
     }
 }
-

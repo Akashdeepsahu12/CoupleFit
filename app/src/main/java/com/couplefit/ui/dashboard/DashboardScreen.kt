@@ -1454,6 +1454,7 @@ fun SideBySideActivityCard(
     onSendCheer: (String) -> Unit = {},
     onPingPartner: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     var showDiagnosticDialog by remember { mutableStateOf(false) }
     var cheerCooldownUntil by remember { mutableLongStateOf(0L) }
@@ -1465,14 +1466,14 @@ fun SideBySideActivityCard(
     LaunchedEffect(healthData.stepsProgress) {
         if (healthData.stepsProgress >= 1f && !userClosureCelebrated) {
             userClosureCelebrated = true
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            CoupleFitHaptics.performHeartbeat(context, haptic)
         }
     }
 
     LaunchedEffect(healthData.partnerStepsProgress) {
         if (healthData.partnerStepsProgress >= 1f && !partnerClosureCelebrated) {
             partnerClosureCelebrated = true
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            CoupleFitHaptics.performHeartbeat(context, haptic)
         }
     }
 
@@ -1598,7 +1599,7 @@ fun SideBySideActivityCard(
                                             cheerCooldownUntil = now + 3000L // 3s cooldown limiter
                                             cheerTriggerCount++
                                             showCheerCelebration = true
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            CoupleFitHaptics.performHeartbeat(context, haptic)
                                             onSendCheer("Cheered your steps! 🔥❤️")
                                         }
                                     }
@@ -1650,7 +1651,7 @@ fun SideBySideActivityCard(
                                     cheerCooldownUntil = now + 3000L // 3s cooldown limiter
                                     cheerTriggerCount++
                                     showCheerCelebration = true
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    CoupleFitHaptics.performHeartbeat(context, haptic)
                                     onSendCheer("Cheered your steps! 🔥❤️")
                                 }
                             }

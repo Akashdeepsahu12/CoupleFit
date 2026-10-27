@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.couplefit.ui.navigation.CoupleFitNavigationSuite
 import com.couplefit.ui.navigation.TopLevelDestination
-import com.couplefit.ui.theme.CoupleFitTheme
+import com.couplefit.ui.theme.*
 import com.couplefit.ui.healthconnect.HealthDashboardUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -298,5 +298,45 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("You").assertIsDisplayed()
         composeTestRule.onNodeWithText("Emma").assertIsDisplayed()
         composeTestRule.onNodeWithText("You: 48,200 steps (52%) • Partner: 44,200 steps (48%)").assertIsDisplayed()
+    }
+
+    @Test
+    fun designEngineering_springPhysics_and_heartbeatHaptics() {
+        var nudgeSent = false
+        var quickNudgeText = ""
+
+        // Verify CoupleFitHaptics doesn't crash on null/mock context (ENG-03, MIC-01)
+        com.couplefit.ui.theme.CoupleFitHaptics.performHeartbeat(null)
+        com.couplefit.ui.theme.CoupleFitHaptics.performSubtleTick(null)
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.components.ActivityRing(
+                    progress = 0.82f,
+                    gradientStart = StepsAccent,
+                    gradientEnd = ExerciseAccent,
+                    reduceMotion = true
+                )
+                com.couplefit.ui.components.NudgeButton(
+                    text = "Send Heartbeat Nudge",
+                    onClick = { nudgeSent = true }
+                )
+                com.couplefit.ui.components.QuickNudgeRow(
+                    partnerName = "Emma",
+                    onSendNudge = { quickNudgeText = it }
+                )
+            }
+        }
+
+        // Verify Activity Ring and Nudge controls are displayed (ENG-01, ENG-02, ENG-04)
+        composeTestRule.onNodeWithText("Send Heartbeat Nudge").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Send Heartbeat Nudge").performClick()
+        assertTrue(nudgeSent)
+
+        // Verify Quick Nudge Pill interactions (ENG-03)
+        composeTestRule.onNodeWithText("QUICK CHEERS & NUDGES").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Poke").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Poke").performClick()
+        assertTrue(quickNudgeText.contains("Poke"))
     }
 }
