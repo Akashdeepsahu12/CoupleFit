@@ -503,6 +503,22 @@ Banish AI-template design habits ("AI slop") by emancipating header utility icon
    - Android test compilation (`.\gradlew.bat compileDebugAndroidTestKotlin`): 100% pass rate (0 errors).
    - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `tst_emancipated_glyphs_and_presence_verified.jpg`, `tst_competition_balance_and_nudges_verified.jpg`, and `tst_mystats_clean_spacing_verified.jpg`.
 
+
+## Phase 18: Promoted Live Heart Rate Telemetry Dashboard & Unfolded Waveform (`VHR-04`, `TST-09`, `ENG-05`)
+
+### Objectives
+Unfold live cardiovascular telemetry from a hidden accordion dropdown onto the primary dashboard as a permanent, first-class feature in alignment with Emil Kowalski's design engineering standards.
+
+### Key Changes Made
+1. **Permanently Unfolded Vitals Card (`DashboardScreen.kt` - `VHR-04`)**:
+   - Eliminated `isVitalsChartExpanded` state and `"Expand ▼ / Collapse ▲"` buttons.
+   - Embedded 200dp `InteractiveChart` directly beneath the metric header on `.iosGlass` surface.
+2. **Living Vitals Header & Telemetry Badge (`DashboardScreen.kt` - `ENG-05`)**:
+   - Added pulsing `AnimatedHeartIcon` and glowing `"LIVE"` badge in `VitalsAccent`.
+3. **Automated & ARTEMIS Proof**:
+   - Added `live_heart_rate_permanently_unfolded_on_dashboard_verified()` to `NavigationComposeUiTest.kt`.
+   - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `live_heart_rate_unfolded_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

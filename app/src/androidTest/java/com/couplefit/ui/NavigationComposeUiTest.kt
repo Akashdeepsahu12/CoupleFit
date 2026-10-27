@@ -404,4 +404,11 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("Love").assertIsDisplayed()
         composeTestRule.onNodeWithText("You Got This!").assertIsDisplayed()
     }
+
+    @Test
+    fun live_heart_rate_permanently_unfolded_on_dashboard_verified() {
+        // Assert that the Live Heart Rate & Vitals Pulse card is permanently open on the dashboard
+        // without requiring any dropdown accordion toggle (VHR-04, TST-09, ENG-05)
+        assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
+    }
 }

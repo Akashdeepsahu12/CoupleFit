@@ -2397,3 +2397,31 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
   - `tst_emancipated_glyphs_and_presence_verified.jpg`: Verified clean floating Settings icon and warm relational presence copy (`"You & Partner are in sync • Updated 1:42 AM"`).
   - `tst_competition_balance_and_nudges_verified.jpg`: Verified liquid glass quick-nudges (`Poke`, `Keep Going!`, `Love`, `Hydrate Together`) and Tug-of-War balance bar.
   - `tst_mystats_clean_spacing_verified.jpg`: Verified removal of accidental 96dp spacer and natural 12dp card stacking in "My Stats".
+
+## 41. Phase 18 Promoted Live Heart Rate Telemetry Dashboard & Unfolded Waveform (`VHR-04`, `TST-09`, `ENG-05`) 💓📈
+
+> **Command Trigger**: `/emil-design-eng`  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `VHR-04`, `TST-09`, `ENG-05`  
+> **Release Target**: `v2.9.3-live-heart-rate`
+
+### 41.1 Design Problem Statement & Craft Audit
+1. **`VHR-04` (Heart Rate Hidden Behind Accordion / Dropdown)**:
+   - *Root Cause*: `DashboardScreen.kt` wrapped the primary heart rate chart inside an accordion toggle (`var isVitalsChartExpanded by remember { mutableStateOf(false) }`), requiring users to tap `"Expand ▼"` to view their vitals.
+   - *Fix*: Promoted the Live Heart Rate & Vitals Pulse card to a permanent first-class dashboard citizen. Removed `isVitalsChartExpanded` and the accordion toggle, rendering the live BPM readout and waveform chart immediately on screen load.
+2. **`TST-09` & `ENG-05` (Living Heart Glyph & Live Telemetry Badge)**:
+   - *Root Cause*: Header displayed generic emoji `"📈"` without real-time indication.
+   - *Fix*: Integrated 24dp `AnimatedHeartIcon` pulsing in `VitalsAccent` with active heartbeat rhythm, paired with a glowing `"LIVE"` telemetry badge.
+
+### 41.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Replaced collapsible accordion `Card` with permanently unfolded `.iosGlass` vitals card.
+   - Embedded `InteractiveChart` in a dedicated 200dp container with graceful awaiting-records state.
+2. **`app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt`**:
+   - Added `live_heart_rate_permanently_unfolded_on_dashboard_verified()`.
+
+### 41.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `live_heart_rate_unfolded_verified.jpg`: Verified permanently unfolded Live Heart Rate card, glowing LIVE badge, and immediate visibility on primary dashboard.

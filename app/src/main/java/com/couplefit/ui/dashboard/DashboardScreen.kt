@@ -771,32 +771,34 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                            // InteractiveChart Section with Progressive Disclosure (WF-01)
-                            var isVitalsChartExpanded by remember { mutableStateOf(false) }
-
+                            // Permanent Live Heart Rate & Vitals Waveform Card (VHR-04, TST-09, ENG-05)
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow))
                                     .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                                 border = null
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
+                                    // Header with Pulsing Heart Glyph & Live Metric Readout
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { isVitalsChartExpanded = !isVitalsChartExpanded }
-                                            .padding(AppSpacing.md),
+                                            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
-                                            Text("📈", fontSize = 18.sp)
+                                            AnimatedHeartIcon(
+                                                modifier = Modifier.size(24.dp),
+                                                tint = VitalsAccent,
+                                                isPulsing = healthData.averageHeartRate > 0,
+                                                reduceMotion = reduceMotion
+                                            )
                                             Column {
                                                 Text(
                                                     text = "VITALS PULSE",
@@ -808,53 +810,83 @@ fun DashboardScreen(
                                                 val avgBpm = if (healthData.averageHeartRate > 0) "${healthData.averageHeartRate} BPM Avg" else "Listening for pulse"
                                                 Text(
                                                     text = "Live Heart Rate • $avgBpm",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    fontWeight = FontWeight.SemiBold,
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
                                         }
-                                        Text(
-                                            text = if (isVitalsChartExpanded) "Collapse ▲" else "Expand ▼",
-                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = VitalsAccent
-                                        )
+
+                                        // Subtle live telemetry badge
+                                        Surface(
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = VitalsAccent.copy(alpha = 0.15f),
+                                            border = BorderStroke(1.dp, VitalsAccent.copy(alpha = 0.35f))
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(6.dp)
+                                                        .clip(CircleShape)
+                                                        .background(VitalsAccent)
+                                                )
+                                                Text(
+                                                    text = "LIVE",
+                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                                    color = VitalsAccent,
+                                                    letterSpacing = 0.5.sp
+                                                )
+                                            }
+                                        }
                                     }
 
-                                    if (isVitalsChartExpanded) {
-                                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(220.dp)
-                                                .padding(AppSpacing.md)
-                                        ) {
-                                            val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
-                                                healthData.heartRatePoints
-                                            } else if (healthData.averageHeartRate > 0) {
-                                                listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
-                                            } else {
-                                                emptyList()
-                                            }
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
 
-                                            if (chartPoints.isNotEmpty()) {
-                                                InteractiveChart(
-                                                    data = chartPoints,
-                                                    lineColor = VitalsAccent,
-                                                    metricTitle = "Heart Rate Pulse (BPM)",
-                                                    reduceMotion = reduceMotion,
-                                                    syncTrigger = if (isExplicitRefresh) syncTrigger else 0,
-                                                    modifier = Modifier.fillMaxSize()
-                                                )
-                                            } else {
-                                                Box(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
+                                    // Permanent Unfolded Waveform Chart Container
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(200.dp)
+                                            .padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
+                                    ) {
+                                        val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
+                                            healthData.heartRatePoints
+                                        } else if (healthData.averageHeartRate > 0) {
+                                            listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
+                                        } else {
+                                            emptyList()
+                                        }
+
+                                        if (chartPoints.isNotEmpty()) {
+                                            InteractiveChart(
+                                                data = chartPoints,
+                                                lineColor = VitalsAccent,
+                                                metricTitle = "Heart Rate Pulse (BPM)",
+                                                reduceMotion = reduceMotion,
+                                                syncTrigger = if (isExplicitRefresh) syncTrigger else 0,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        } else {
+                                            Box(
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                     Text(
-                                                        text = "Sync Health Connect to view interactive charts",
-                                                        style = MaterialTheme.typography.bodyMedium,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        text = "Awaiting Heart Rate Records",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        color = MaterialTheme.colorScheme.onSurface
+                                                    )
+                                                    Spacer(modifier = Modifier.height(4.dp))
+                                                    Text(
+                                                        text = "Sync Health Connect to display live cardiovascular telemetry",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
                                                     )
                                                 }
                                             }
