@@ -775,16 +775,13 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                            // Redesigned Liqui Design & Antislop-UI Heart Rate Card (Phase 20)
+                            // Harmonized Live Heart Rate & Vitals Waveform Card (Phase 22 / DSN-05)
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = AppSpacing.xs)
-                                    .liquiGlass(
-                                        shape = RoundedCornerShape(LiquiTokens.CardRadius),
-                                        frost = 0.35f
-                                    ),
-                                shape = RoundedCornerShape(LiquiTokens.CardRadius),
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
+                                shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                                 border = null
                             ) {
@@ -793,7 +790,7 @@ fun DashboardScreen(
                                         .fillMaxWidth()
                                         .padding(AppSpacing.md)
                                 ) {
-                                    // 1. Antislop-UI Clean Header (Real Title without Duplicate Eyebrow Pills)
+                                    // 1. Unified Dashboard Category Header (DSN-05)
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -802,44 +799,44 @@ fun DashboardScreen(
                                         Row(
                                             modifier = Modifier.weight(1f, fill = false),
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
                                             AnimatedHeartIcon(
-                                                modifier = Modifier.size(22.dp),
+                                                modifier = Modifier.size(16.dp),
                                                 tint = VitalsAccent,
                                                 isPulsing = healthData.averageHeartRate > 0,
                                                 reduceMotion = reduceMotion
                                             )
                                             Text(
-                                                text = "Heart Rate",
-                                                style = MaterialTheme.typography.titleMedium,
+                                                text = "LIVE HEART RATE",
+                                                style = MaterialTheme.typography.labelSmall,
                                                 fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onSurface,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                letterSpacing = 0.5.sp,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                         }
 
-                                        // Honest Telemetry Tag (No endless-pulsing studio dots)
+                                        // Status Pill matching Activity Gauges and Standings
                                         Surface(
-                                            shape = RoundedCornerShape(8.dp),
-                                            color = if (healthData.averageHeartRate > 0) VitalsAccent.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                                             border = BorderStroke(
                                                 1.dp,
-                                                if (healthData.averageHeartRate > 0) VitalsAccent.copy(alpha = 0.35f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                                                if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.4f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                                             )
                                         ) {
                                             Text(
-                                                text = if (healthData.averageHeartRate > 0) "Live Telemetry" else "Health Connect",
+                                                text = if (healthData.averageHeartRate > 0) "🟢 Live Telemetry" else "⚪ Health Connect",
                                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                                                color = if (healthData.averageHeartRate > 0) VitalsAccent else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                color = if (healthData.averageHeartRate > 0) SystemGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                                                 maxLines = 1,
                                                 softWrap = false
                                             )
                                         }
                                     }
-
                                     Spacer(modifier = Modifier.height(AppSpacing.xs))
 
                                     // 2. Hero Metric Readout & Context Row

@@ -34,13 +34,12 @@ fun ActiveChallengePreviewCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = AppSpacing.md)
-            .padding(bottom = AppSpacing.md)
-            .iosGlass(shape = RoundedCornerShape(16.dp))
+            .padding(vertical = AppSpacing.xs)
+            .iosGlass(shape = MaterialTheme.shapes.large)
             .semantics {
                 contentDescription = "Active challenge preview card"
             },
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent
         ),

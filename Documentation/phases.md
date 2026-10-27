@@ -573,6 +573,28 @@ enderEffect blur from Modifier.liquiGlass().
    - .\gradlew.bat compileDebugAndroidTestKotlin: BUILD SUCCESSFUL (0 errors).
    - Verified on live Android emulator (emulator-5554) via ARTEMIS: captured heart_rate_crisp_verified.jpg.
 
+## Phase 22: Dashboard UI Design System Harmonization & Heart Rate Convergence (`DSN-05`, `LAY-02`)
+
+### Objectives
+Harmonize the Live Heart Rate card and surrounding dashboard cards with CoupleFit's Liquid Frosted Glass design system (`iosGlass`), eliminating geometric, material, typographic, and margin discrepancies to achieve 100% aesthetic coherence across the dashboard.
+
+### Key Changes Made
+1. **Material & Geometry Harmonization (`DSN-05`)**:
+   - Replaced `.liquiGlass()` with `Modifier.iosGlass(shape = MaterialTheme.shapes.large)` on the Heart Rate card.
+   - Standardized card corner radius to 16dp (`MaterialTheme.shapes.large`), matching `Standings Card`, `ActiveChallengePreviewCard`, and `SideBySideActivityCard`.
+   - Replaced dark indigo/navy blue tinting with the app's native translucent slate glass (`0xCC141720`), vertical gradient specular sheen, and diamond-cut specular rim border (`BorderSpecularRim`).
+2. **Standardized Typographic Eyebrow & Status Pill**:
+   - Upgraded card header to uppercase tracked category style: `LIVE HEART RATE` (`labelSmall`, bold, `0.5.sp` letter spacing) with companion 16dp `AnimatedHeartIcon` and 12dp telemetry status pill (`🟢 Live Telemetry` / `⚪ Health Connect`).
+3. **Ambient ECG Waveform Stage Polish (`LiveHeartRateEmptyWaveform.kt`)**:
+   - Removed nested dark cutout box; fluid P-Q-R-S-T cardiogram trace and traveling glowing pulse bead draw directly on the card's native frosted glass.
+   - Restyled "Sync Health Connect ↻" as a sleek frosted glass pill button matching `QuickNudgeRow`.
+4. **Width & Margin Realignment (`LAY-02`)**:
+   - Fixed duplicate horizontal padding on `ActiveChallengePreviewCard.kt`, achieving 100% unified card margins (`[37, ...][962, ...]`).
+5. **Deterministic & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% green bar).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - Live Android verification on `emulator-5554`: captured `dashboard_ui_harmonized_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

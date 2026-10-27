@@ -210,3 +210,17 @@ graph TD
   - Eliminates card-wide `graphicsLayer { renderEffect = ... }` container blur.
   - Retains 4-layer optical model (directional shadow, squircle clip, deep tint base + gradient wash, directional specular rim).
   - Preserves 100% native raster clarity and typography sharpness.
+
+
+### Phase 22: Dashboard UI Design System Harmonization & Heart Rate Convergence
+- **Node**: `PLAN_PHASE_22_UI_HARMONIZATION.md`
+  - Defines `DSN-05` (glass material, 16dp geometry, typographic hierarchy harmonization) and `LAY-02` (width margin alignment).
+  - Links: `DashboardScreen.kt`, `LiveHeartRateEmptyWaveform.kt`, `ActiveChallengePreviewCard.kt`, `GlassTokens.kt`.
+- **Node**: `DashboardScreen.kt`
+  - Applies `Modifier.iosGlass(shape = MaterialTheme.shapes.large)` to Heart Rate card.
+  - Standardizes category header to `LIVE HEART RATE` with `AnimatedHeartIcon` and 12dp status pill.
+- **Node**: `LiveHeartRateEmptyWaveform.kt`
+  - Draws ECG cardiogram rhythm and traveling pulse bead directly on frosted slate glass.
+  - Replaces solid button with frosted glass pill button matching `QuickNudgeRow`.
+- **Node**: `ActiveChallengePreviewCard.kt`
+  - Eliminates duplicate horizontal padding, unifying card margins across the dashboard.

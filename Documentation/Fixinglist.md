@@ -2536,3 +2536,43 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `heart_rate_crisp_verified.jpg`: Visually confirmed 100% razor-sharp typography for `"Heart Rate"`, `"-- BPM"`, `"Awaiting Heart Rate Stream"`, `"Wear your watch or sync Health Connect to display telemetry"`, and `"Sync Health Connect ↻"`, with multi-layered specular liquid glass depth.
+
+
+## 45. Phase 22: Dashboard UI Design System Harmonization & Heart Rate Convergence (`DSN-05`, `LAY-02`) 🎨✨
+
+> **Command Trigger**: User Feedback Audit ("it doesn't match with the ui")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `DSN-05`, `LAY-02`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.7-dashboard-ui-harmonization`
+
+### 45.1 Design & Defect Diagnosis
+1. **`DSN-05` (Glassmorphic Material & Typography Discordance on Heart Rate Card)**:
+   - *Symptom*: User reported that the Heart Rate card did not match the rest of the CoupleFit dashboard UI.
+   - *Root Cause Analysis*:
+     - **Material Mismatch**: Surrounding cards (`Standings Card`, `ActiveChallengePreviewCard`, `SideBySideActivityCard`, `StreakTracker`) use `Modifier.iosGlass()` with the app-wide translucent slate base (`0xCC141720`), vertical gradient specular sheen, and 1.dp diamond-cut specular rim border (`BorderSpecularRim`). The Heart Rate card was using custom `.liquiGlass()` with dark indigo/navy blue tint tokens (`#303246` / `#121420`), making it appear as a discordant purple rectangle.
+     - **Corner Radius Mismatch**: The rest of the app adheres to `MaterialTheme.shapes.large` (16dp rounded corners), whereas the Heart Rate card was using `LiquiTokens.CardRadius` (22dp squircle), making it visibly bulbous and out-of-sync.
+     - **Header Architecture Mismatch**: Every dashboard card uses the standardized uppercase tracked category eyebrow (`style = labelSmall, fontWeight = Bold, letterSpacing = 0.5.sp`) with a 16dp icon on the left and a 12dp status pill on the right (`🟢 Live Telemetry` / `⚪ Health Connect`). The Heart Rate card was using mixed-case `Text("Heart Rate", style = titleMedium)`, breaking visual scanning rhythm.
+     - **Nested Dark Cutout Box**: `LiveHeartRateEmptyWaveform` had an inner `Box` with `LiquiTokens.DarkTintDeep` background and a solid high-contrast button, creating an unintegrated "cutout widget" appearance.
+2. **`LAY-02` (Double Horizontal Padding on Active Challenge Preview Card)**:
+   - *Symptom*: `ActiveChallengePreviewCard` was noticeably narrower than adjacent cards.
+   - *Root Cause*: The parent `HorizontalPager` already provided `contentPadding = PaddingValues(horizontal = AppSpacing.md)`. `ActiveChallengePreviewCard` duplicated this by specifying `.padding(horizontal = AppSpacing.md)` on its container `Card`, reducing its width by an extra 32dp.
+   - *Fix*: Standardized `ActiveChallengePreviewCard` to `.padding(vertical = AppSpacing.xs)` and `shape = MaterialTheme.shapes.large`, restoring 100% unified width alignment (`[37, ...][962, ...]`).
+
+### 45.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Replaced `.liquiGlass()` with `.iosGlass(shape = MaterialTheme.shapes.large)`.
+   - Standardized category header to `LIVE HEART RATE` in `labelSmall` bold with 0.5.sp letter spacing, `AnimatedHeartIcon(16.dp)`, and 12dp status pill (`🟢 Live Telemetry` / `⚪ Health Connect`).
+2. **`app/src/main/java/com/couplefit/ui/components/LiveHeartRateEmptyWaveform.kt`**:
+   - Eliminated nested dark box; draws ECG baseline and traveling glowing pulse bead (`phase * w`) directly on the card's native frosted glass surface.
+   - Styled "Sync Health Connect ↻" as a sleek frosted glass pill button matching `QuickNudgeRow`.
+3. **`app/src/main/java/com/couplefit/ui/challenge/ActiveChallengePreviewCard.kt`**:
+   - Removed duplicate horizontal padding, unifying card margins and 16dp corner radius.
+4. **`Documentation/PLAN_PHASE_22_UI_HARMONIZATION.md`**:
+   - Full specification and verification report.
+
+### 45.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `dashboard_ui_harmonized_verified.jpg`: Visually confirmed 100% architectural and visual harmony across `TODAY'S COMPETITION`, `ACTIVE CHALLENGE`, and `LIVE HEART RATE`, featuring identical 16dp corner geometry, slate-black liquid frosted glass translucency, unified width alignment, and crisp typography.
