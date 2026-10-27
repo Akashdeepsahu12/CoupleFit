@@ -1,7 +1,13 @@
 package com.couplefit.ui.components
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,11 +30,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Activity Ring component with Emil Kowalski Design Engineering craft (ENG-02, ENG-04, ANM-01):
+ * Activity Ring component with Emil Kowalski Design Engineering craft (ENG-02, ENG-04, ANM-01, VIS-05, TST-03):
  * - Fluid physics spring retargeting (dampingRatio = 0.78f, stiffness = 120f)
  * - Zero snap eliminated: continuous uninterrupted momentum on updates and refresh
  * - Luminescent track glow (12% tint of gradientEnd) replacing flat dark gray
  * - Dynamic optical depth: ambient cap drop shadow and subtle track aura on OLED black
+ * - 0-step breathing ring pulse dot at 12 o'clock cap denoting live sensor connection
  */
 @Composable
 fun ActivityRing(
@@ -65,6 +73,22 @@ fun ActivityRing(
         }
     }
 
+    // 0-step breathing pulse animation (VIS-05 / TST-03 / FEL-01)
+    val breathingAlpha = if (reduceMotion) {
+        0.65f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "RingBreathingPulse")
+        infiniteTransition.animateFloat(
+            initialValue = 0.35f,
+            targetValue = 0.85f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "BreathingPulseAlpha"
+        ).value
+    }
+
     Box(
         modifier = modifier
             .aspectRatio(1f)
@@ -90,7 +114,25 @@ fun ActivityRing(
                 style = Stroke(width = ringThickness)
             )
 
-            // 3. Progress arc with optical depth cap shadow (ENG-04)
+            // 3. 0-step breathing pulse dot at 12 o'clock position (VIS-05, TST-03)
+            if (animatedProgress.value <= 0.005f) {
+                val dotRadius = ringThickness / 2
+                val dotCenter = Offset(center.x, center.y - ringRadius)
+                // Outer breathing aura
+                drawCircle(
+                    color = gradientStart.copy(alpha = breathingAlpha * 0.35f),
+                    radius = dotRadius * 1.5f,
+                    center = dotCenter
+                )
+                // Core luminescent indicator dot
+                drawCircle(
+                    color = gradientStart.copy(alpha = breathingAlpha),
+                    radius = dotRadius * 0.85f,
+                    center = dotCenter
+                )
+            }
+
+            // 4. Progress arc with optical depth cap shadow (ENG-04)
             val sweepAngle = 360f * animatedProgress.value
             if (sweepAngle > 0) {
                 // Soft ambient drop shadow under the leading cap when progress is noticeable

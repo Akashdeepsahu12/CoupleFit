@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.couplefit.ui.theme.*
 
 enum class TelemetryPerspective(val label: String, val icon: String) {
@@ -204,12 +206,14 @@ fun HealthTrendsScreen(
 
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .iosGlass(shape = MaterialTheme.shapes.large),
                         shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
+                            containerColor = Color.Transparent
                         ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        border = null
                     ) {
                         Column(
                             modifier = Modifier.padding(AppSpacing.md),
@@ -234,12 +238,14 @@ fun HealthTrendsScreen(
 
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .iosGlass(shape = MaterialTheme.shapes.large),
                         shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                            containerColor = Color.Transparent
                         ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                        border = null
                     ) {
                         Column(
                             modifier = Modifier.padding(AppSpacing.md),
@@ -270,12 +276,14 @@ fun HealthTrendsScreen(
 @Composable
 private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = MaterialTheme.shapes.large),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.Transparent
         ),
-        border = BorderStroke(1.dp, directionalRimBrush())
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -366,12 +374,17 @@ private fun SoloTelemetryCard(
     accentColor: androidx.compose.ui.graphics.Color
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(
+                shape = MaterialTheme.shapes.large,
+                borderBrush = Brush.verticalGradient(listOf(accentColor.copy(alpha = 0.5f), accentColor.copy(alpha = 0.15f)))
+            ),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.Transparent
         ),
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.35f))
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),

@@ -683,10 +683,11 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = AppSpacing.xs),
+                                    .padding(vertical = AppSpacing.xs)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                border = BorderStroke(1.dp, directionalRimBrush())
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                border = null
                             ) {
                                 Column(modifier = Modifier.padding(AppSpacing.md)) {
                                     Row(
@@ -738,10 +739,11 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
+                                    .animateContentSize(animationSpec = spring(stiffness = Spring.StiffnessMediumLow))
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                border = BorderStroke(1.dp, directionalRimBrush())
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                border = null
                             ) {
                                 Column(modifier = Modifier.fillMaxWidth()) {
                                     Row(
@@ -893,15 +895,13 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(260.dp),
+                                    .height(260.dp)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = Color.Transparent
                                 ),
-                                border = BorderStroke(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.outline
-                                )
+                                border = null
                             ) {
                                 val myChartData = if (healthData.heartRatePoints.isNotEmpty()) {
                                     healthData.heartRatePoints
@@ -969,15 +969,13 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(260.dp),
+                                    .height(260.dp)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = Color.Transparent
                                 ),
-                                border = BorderStroke(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.outline
-                                )
+                                border = null
                             ) {
                                 val o2ChartData = healthData.oxygenSaturationPoints
 
@@ -1064,12 +1062,13 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = AppSpacing.xs),
+                                    .padding(vertical = AppSpacing.xs)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = Color.Transparent
                                 ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                border = null
                             ) {
                                 Column(modifier = Modifier.padding(AppSpacing.md)) {
                                     Row(
@@ -1147,12 +1146,13 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(140.dp),
+                                    .height(140.dp)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = Color.Transparent
                                 ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                border = null
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -1203,12 +1203,13 @@ fun DashboardScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(140.dp),
+                                    .height(140.dp)
+                                    .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = Color.Transparent
                                 ),
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                                border = null
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -1354,6 +1355,7 @@ fun StatCard(
                 this.alpha = alpha * enterAlpha.value
                 translationY = enterOffsetY.value
             }
+            .iosGlass(shape = MaterialTheme.shapes.large)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = { 
@@ -1370,12 +1372,9 @@ fun StatCard(
             },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.Transparent
         ),
-        border = BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outline
-        )
+        border = null
     ) {
         Box {
             Column(
@@ -1483,13 +1482,18 @@ fun SideBySideActivityCard(
         else (System.currentTimeMillis() - ts) > 15 * 60 * 1000L // Stale if older than 15 mins
     }
 
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, directionalRimBrush())
+    AuroraTelemetryMesh(
+        modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(AppSpacing.md)) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .iosGlass(shape = MaterialTheme.shapes.large),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+            border = null
+        ) {
+            Column(modifier = Modifier.padding(AppSpacing.md)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -1660,6 +1664,7 @@ fun SideBySideActivityCard(
             }
         }
     }
+    }
 
     // Telemetry Diagnostic Dialog (FLOW-03)
     if (showDiagnosticDialog) {
@@ -1690,6 +1695,12 @@ fun TelemetryDiagnosticDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.iosGlass(
+            shape = RoundedCornerShape(28.dp),
+            tintColor = GlassPrimitives.SolidSlateModal,
+            blurRadius = GlassPrimitives.BlurModal
+        ),
+        containerColor = Color.Transparent,
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -1764,10 +1775,12 @@ fun PartnerOfflineCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .iosGlass(shape = MaterialTheme.shapes.large),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(modifier = Modifier.padding(AppSpacing.md)) {
             Row(

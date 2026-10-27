@@ -415,6 +415,38 @@ Elevate CoupleFit from functional correctness to tactile craft excellence. Calib
 
 ---
 
+
+---
+
+## Phase 15: Liquid Glassmorphism & Floating Navigation Design System (`GLS-01` to `GLS-06`, `APL-01`, `APL-03`, `VIS-05`, `TST-03`)
+
+### Objectives
+Transform CoupleFit's visual foundation from flat, opaque `#1C1C1E` dark slabs into an Apple-grade **Liquid Glass Design System** adhering strictly to `/ui-ux-pro-max-skill:design-system`. Introduce the three-layer token architecture (`GlassTokens.kt`), reusable glass modifiers (`Modifier.iosGlass()`), the detached Floating Glass Navigation Dock, ambient aurora telemetry lighting, and glassmorphic modals with backward-compatible hardware blur.
+
+### Key Changes Made
+1. **Three-Layer Design System Token Architecture (`GlassTokens.kt` - `GLS-06`, `GLS-01`)**:
+   - `GlassPrimitives`: Explicit hex opacities (`0x14FFFFFF` 8% card surface, `0x1AFFFFFF` 10% dock, `0x29FFFFFF` 16% modal, `0x38FFFFFF` 22% specular rim), blur radii (`20.dp` card, `28.dp` dock, `32.dp` modal), dock floating metrics (`16.dp` elevation, `32.dp` pill radius), and solid slate fallbacks (`#141720`, `#181B26`, `#202433`).
+   - `GlassSemantics`: Purpose-driven semantic tokens including `SurfaceCardBg`, `SurfaceDockBg`, `SurfaceModalBg`, `borderSpecularRim()`, `AmbientGlowUserCyan`, and `AmbientGlowPartnerCoral`.
+   - `GlassComponentTokens`: Pre-configured corner shapes (`CardCornerShape = 20.dp`, `DockCornerShape = 32.dp`, `ModalCornerShape = 28.dp`).
+   - Reusable modifiers: `Modifier.iosGlass()`, `Modifier.appleGlass()`, `Modifier.glassDock()`, and `Modifier.glassModal()`.
+2. **Floating Glass Navigation Dock (`CoupleFitNavigationSuite.kt` - `GLS-02`, `APL-03`)**:
+   - Detached floating bottom navigation dock (`68dp` height, `16dp` elevation, `32dp` continuous pill shape) positioned above the gesture navigation bar with `navigationBarsPadding()`.
+   - Frosted blur backdrop (`28dp` RenderEffect blur on API 31+) with glowing M3 Cyan active indicator capsules.
+   - Preserves glass navigation rail on expanded viewports (tablets/foldables).
+3. **Ambient Aurora Telemetry Mesh (`DashboardScreen.kt` - `GLS-03`)**:
+   - Implemented `AuroraTelemetryMesh` in `GlassTokens.kt` and wrapped `SideBySideActivityCard`: dual-radial diffused glows (Electric Cyan for user, Vibrant Coral for partner, 60dp blur, 8% alpha).
+   - Glassmorphic card styling applied across `StatCard`, `SideBySideActivityCard`, `PartnerOfflineCard`, and health metric cards.
+4. **Glass Modals & Sheets (`ChallengeComponents.kt` & `DashboardScreen.kt` - `GLS-04`)**:
+   - `StartChallengeDialog` modal bottom sheet styled with `GlassPrimitives.SolidSlateModal`, `scrimColor = GlassPrimitives.TintDarkScrim75`, and `Modifier.glassModal()`.
+   - `TelemetryDiagnosticDialog` styled with 28dp glassmorphic dialog card.
+5. **0-Step Breathing Ring Pulse (`ActivityRing.kt` - `VIS-05`, `TST-03`)**:
+   - When `animatedProgress.value <= 0.005f`, a subtle luminescent breathing dot animates between 35% and 85% opacity at 12 o'clock, signaling live sensor readiness. Respects `reduceMotion` (falls back to static 65% opacity).
+6. **Automated & Live Device Verification**:
+   - Added `glassmorphism_tokens_and_floatingDock_renderProperly()` in `NavigationComposeUiTest.kt`.
+   - Unit tests (`testDebugUnitTest`) passed 100% (32 actionable tasks, 0 failures).
+   - Compile tests (`compileDebugAndroidTestKotlin`) passed 100% in 5s.
+   - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS: captured `gls_aurora_dashboard_verified.jpg`, `gls_trends_glass_verified.jpg`, `gls_modal_sheet_verified.jpg`, and `gls_mystats_breathing_ring_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

@@ -50,10 +50,12 @@ fun SideBySideChallengeCard(
     )
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header Row: Title & Status Badge
@@ -229,8 +231,12 @@ fun StartChallengeDialog(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         dragHandle = { BottomSheetDefaults.DragHandle() },
-        containerColor = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth()
+        containerColor = GlassPrimitives.SolidSlateModal,
+        scrimColor = GlassPrimitives.TintDarkScrim75,
+        shape = GlassComponentTokens.ModalCornerShape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .glassModal()
     ) {
         Column(
             modifier = Modifier

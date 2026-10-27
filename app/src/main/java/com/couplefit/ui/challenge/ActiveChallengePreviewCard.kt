@@ -17,6 +17,8 @@ import com.couplefit.data.local.CoupleChallengeEntity
 import com.couplefit.ui.theme.AppSpacing
 import com.couplefit.ui.theme.SystemGreen
 import com.couplefit.ui.theme.SystemRed
+import com.couplefit.ui.theme.iosGlass
+import androidx.compose.ui.graphics.Color
 
 /**
  * Compact Active Challenge Preview Card for Today Dashboard.
@@ -34,13 +36,15 @@ fun ActiveChallengePreviewCard(
             .fillMaxWidth()
             .padding(horizontal = AppSpacing.md)
             .padding(bottom = AppSpacing.md)
+            .iosGlass(shape = RoundedCornerShape(16.dp))
             .semantics {
                 contentDescription = "Active challenge preview card"
             },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+            containerColor = Color.Transparent
+        ),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),

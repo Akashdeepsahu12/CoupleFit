@@ -339,4 +339,38 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("Poke").performClick()
         assertTrue(quickNudgeText.contains("Poke"))
     }
+
+    @Test
+    fun glassmorphism_tokens_and_floatingDock_renderProperly() {
+        // Verify 3-tier Glass Tokens (GLS-01, GLS-06)
+        assertEquals(20.dp, GlassPrimitives.BlurCard)
+        assertEquals(28.dp, GlassPrimitives.BlurDock)
+        assertEquals(32.dp, GlassPrimitives.BlurModal)
+        assertEquals(16.dp, GlassPrimitives.ElevationDock)
+        assertEquals(GlassPrimitives.TintWhite10, GlassSemantics.SurfaceDockBg)
+        assertEquals(GlassPrimitives.TintWhite08, GlassSemantics.SurfaceCardBg)
+
+        val compactSizeClass = WindowSizeClass.calculateFromSize(DpSize(360.dp, 800.dp))
+        var currentTab by mutableStateOf(TopLevelDestination.TODAY)
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                AuroraTelemetryMesh {
+                    CoupleFitNavigationSuite(
+                        windowSizeClass = compactSizeClass,
+                        selectedDestination = currentTab,
+                        onDestinationSelected = { currentTab = it }
+                    ) {
+                        Text("Active Screen: ${currentTab.label}")
+                    }
+                }
+            }
+        }
+
+        // Verify Floating Glass Dock renders items (GLS-02, GLS-03)
+        composeTestRule.onNodeWithContentDescription("Today Operational Dashboard")
+            .assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Challenges, Duels and Leaderboards")
+            .assertIsDisplayed()
+    }
 }

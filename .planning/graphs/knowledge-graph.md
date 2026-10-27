@@ -22,7 +22,9 @@ graph TD
         RN26["RELEASE_NOTES_v2.6.0.md"]:::doc
         RN27["RELEASE_NOTES_v2.7.0.md"]:::doc
         RN28["RELEASE_NOTES_v2.8.0.md"]:::doc
+        RN29["RELEASE_NOTES_v2.9.0.md"]:::doc
         P14P["PLAN_PHASE_14_DESIGN_ENGINEERING_ENG01_TO_ENG04.md"]:::doc
+        P15P["PLAN_PHASE_15_GLASSMORPHISM_GLS01_TO_GLS06.md"]:::doc
         ENGD["emil_design_eng_eng01_to_eng04_analysis.md"]:::doc
         GLSD["design_system_glassmorphism_gls01_gls02_analysis.md"]:::doc
         P9P["PLAN_PHASE_09_FRONTEND_DESIGN_DSN01_TO_DSN03.md"]:::doc
@@ -64,6 +66,8 @@ graph TD
         CFH["CoupleFitHaptics.kt<br/>(Heartbeat Tick 12ms/80ms/18ms)"]:::arch
         GLST["GlassTokens.kt<br/>(Primitive -> Semantic -> Component)"]:::arch
         MODG["Modifier.iosGlass()<br/>(20dp Blur, 8% White Tint, Specular Rim)"]:::ui
+        ATM["AuroraTelemetryMesh<br/>(Dual Radial Cyan/Coral Mesh GLS-03)"]:::ui
+        ARBP["0-Step Breathing Ring Pulse<br/>(VIS-05 / TST-03)"]:::ui
         TDD["TelemetryDiagnosticDialog<br/>(Room SSOT Cache, Ping Partner)"]:::ui
     end
 
