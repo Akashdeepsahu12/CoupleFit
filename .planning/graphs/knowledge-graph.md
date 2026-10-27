@@ -186,3 +186,10 @@ graph TD
 | `RELEASE_NOTES_v2.9.2.md` | Release / Ops | Version 2.9.2 release notes: Frontend design taste, emancipated glyphs, human presence copy, and dynamic balance bar | Release Deployment | Production Stakeholders |
 | `PLAN_PHASE_18_LIVE_HEART_RATE_DASHBOARD_SURFACE.md` | Plan / Roadmap | Milestone plan for permanently unfolded live heart rate telemetry and waveform on dashboard | `/gsd-plan-phase` | `DashboardScreen.kt`, `InteractiveChart.kt` |
 | `RELEASE_NOTES_v2.9.3.md` | Release / Ops | Version 2.9.3 release notes: Promoted live heart rate telemetry dashboard, permanent waveform, and Emil Kowalski craft | Release Deployment | Production Stakeholders |
+
+### Phase 19: Live Heart Rate Layout Architecture Polish & Ambient Waveform
+- **Node**: `PLAN_PHASE_19_LIVE_HEART_RATE_LAYOUT_POLISH.md`
+  - Defines `VHR-05`, `DSN-04`, `ENG-06`.
+  - Links: `DashboardScreen.kt`, `InteractiveChart.kt`, `LiveHeartRateEmptyWaveform.kt`, `NavigationComposeUiTest.kt`.
+- **Node**: `LiveHeartRateEmptyWaveform.kt`
+  - Implements ambient ECG cardiogram rhythm canvas (`ENG-06`).

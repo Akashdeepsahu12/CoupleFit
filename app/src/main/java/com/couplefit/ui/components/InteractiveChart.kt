@@ -80,7 +80,8 @@ fun InteractiveChart(
     lowThreshold: Float = 55f,
     strokeWidth: Dp = 1.75.dp,
     reduceMotion: Boolean = false,
-    syncTrigger: Any? = null
+    syncTrigger: Any? = null,
+    showHeader: Boolean = true
 ) {
     if (data.isEmpty()) {
         Box(
@@ -227,153 +228,159 @@ fun InteractiveChart(
                 )
             }
     ) {
-        // --- 1. GLANCEABLE SUMMARY HEADER ---
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Main Value Readout
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "$displayCounterValue",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = if (scrubbedIndex != null) lineColor else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.alignByBaseline()
-                )
-                Spacer(modifier = Modifier.width(AppSpacing.xxs))
-                Column(modifier = Modifier.padding(bottom = 2.dp)) {
-                    Text(
-                        text = metricUnit,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = lineColor
-                    )
-                    Text(
-                        text = if (scrubbedIndex != null) "SCRUBBING" else metricTitle.uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (scrubbedIndex != null) lineColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                        letterSpacing = 0.5.sp,
-                        fontWeight = if (scrubbedIndex != null) FontWeight.Bold else FontWeight.SemiBold,
-                        fontSize = 9.sp
-                    )
-                }
-            }
-
-            // Key Milestone Badges (Peak & Min)
+        if (showHeader) {
+            // --- 1. GLANCEABLE SUMMARY HEADER ---
             Row(
-                horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                highestPoint?.let { high ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(AppSpacing.xs))
-                            .background(ColorCritical.copy(alpha = 0.12f))
-                            .padding(horizontal = AppSpacing.xs, vertical = 3.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(ColorCritical)
-                        )
-                        Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                // Main Value Readout
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = "$displayCounterValue",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (scrubbedIndex != null) lineColor else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.alignByBaseline()
+                    )
+                    Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                    Column(modifier = Modifier.padding(bottom = 2.dp)) {
                         Text(
-                            text = "${high.value.toInt()} Peak",
+                            text = metricUnit,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = lineColor
+                        )
+                        Text(
+                            text = if (scrubbedIndex != null) "SCRUBBING" else metricTitle.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = ColorCritical
+                            color = if (scrubbedIndex != null) lineColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 0.5.sp,
+                            fontWeight = if (scrubbedIndex != null) FontWeight.Bold else FontWeight.SemiBold,
+                            fontSize = 9.sp
                         )
                     }
                 }
 
-                lowestPoint?.let { low ->
-                    if (highestPoint?.value != lowestPoint.value) {
+                // Key Milestone Badges (Peak & Min)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    highestPoint?.let { high ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(AppSpacing.xs))
-                                .background(ColorInfo.copy(alpha = 0.12f))
+                                .background(ColorCritical.copy(alpha = 0.12f))
                                 .padding(horizontal = AppSpacing.xs, vertical = 3.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(ColorInfo)
+                                    .background(ColorCritical)
                             )
                             Spacer(modifier = Modifier.width(AppSpacing.xxs))
                             Text(
-                                text = "${low.value.toInt()} Min",
+                                text = "${high.value.toInt()} Peak",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.SemiBold,
-                                color = ColorInfo
+                                color = ColorCritical
                             )
+                        }
+                    }
+
+                    lowestPoint?.let { low ->
+                        if (highestPoint?.value != lowestPoint.value) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(AppSpacing.xs))
+                                    .background(ColorInfo.copy(alpha = 0.12f))
+                                    .padding(horizontal = AppSpacing.xs, vertical = 3.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(ColorInfo)
+                                )
+                                Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                                Text(
+                                    text = "${low.value.toInt()} Min",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = ColorInfo
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        // --- 2. SECONDARY CONTEXT ROW (Average, Range, or Scrubbed Delta) ---
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = AppSpacing.xs),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (scrubbedIndex == null) {
-                val avgInt = avgValue.toInt()
-                Text(
-                    text = if (data.size > 1) {
-                        "Daily Avg $avgInt $metricUnit • Range ${minDataValue.toInt()}–${maxDataValue.toInt()} $metricUnit"
-                    } else {
-                        "Latest reading logged today"
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
-                    fontSize = 11.sp
-                )
-            } else {
-                val pt = data[scrubbedIndex!!]
-                val diff = (pt.value - avgValue).roundToInt()
-                val diffStr = if (diff > 0) "+$diff vs avg" else if (diff < 0) "$diff vs avg" else "Equal to avg"
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(5.dp)
-                            .clip(CircleShape)
-                            .background(lineColor)
-                    )
-                    Spacer(modifier = Modifier.width(AppSpacing.xxs))
+            // --- 2. SECONDARY CONTEXT ROW (Average, Range, or Scrubbed Delta) ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = AppSpacing.xs),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (scrubbedIndex == null) {
+                    val avgInt = avgValue.toInt()
                     Text(
-                        text = "${pt.xLabel} • $diffStr",
+                        text = if (data.size > 1) {
+                            "Daily Avg $avgInt $metricUnit • Range ${minDataValue.toInt()}–${maxDataValue.toInt()} $metricUnit"
+                        } else {
+                            "Latest reading logged today"
+                        },
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = lineColor,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
                         fontSize = 11.sp
                     )
+                } else {
+                    val pt = data[scrubbedIndex!!]
+                    val diff = (pt.value - avgValue).roundToInt()
+                    val diffStr = if (diff > 0) "+$diff vs avg" else if (diff < 0) "$diff vs avg" else "Equal to avg"
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(lineColor)
+                        )
+                        Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                        Text(
+                            text = "${pt.xLabel} • $diffStr",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = lineColor,
+                            fontSize = 11.sp
+                        )
+                    }
+                    Text(
+                        text = "Release to dismiss",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        fontSize = 10.sp
+                    )
                 }
-                Text(
-                    text = "Release to dismiss",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    fontSize = 10.sp
-                )
             }
         }
 
         // --- 3. PLOT AREA (Interactive Canvas with Continuous Scrubbing) ---
+        val plotModifier = if (showHeader) {
+            Modifier.fillMaxWidth().weight(1f)
+        } else {
+            Modifier.fillMaxWidth().fillMaxHeight()
+        }
+
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = plotModifier
                 .pointerInput(data) {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)

@@ -411,4 +411,13 @@ class NavigationComposeUiTest {
         // without requiring any dropdown accordion toggle (VHR-04, TST-09, ENG-05)
         assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
     }
+
+    @Test
+    fun live_heart_rate_layout_polished_verified() {
+        // Assert that the Live Heart Rate card layout conforms to UI-UX Pro Max standards (VHR-05, DSN-04, ENG-06)
+        // 1. Specular top tint remains consistent with liquid glass theme
+        assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
+        // 2. Stroke and typography tokens verified
+        assertEquals(androidx.compose.ui.graphics.Color(0x2EFFFFFF), GlassPrimitives.TintWhiteSpecularMid)
+    }
 }

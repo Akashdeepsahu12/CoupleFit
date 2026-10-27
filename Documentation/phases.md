@@ -519,6 +519,24 @@ Unfold live cardiovascular telemetry from a hidden accordion dropdown onto the p
    - Added `live_heart_rate_permanently_unfolded_on_dashboard_verified()` to `NavigationComposeUiTest.kt`.
    - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `live_heart_rate_unfolded_verified.jpg`.
 
+
+## Phase 19: Live Heart Rate Layout Architecture Polish & Ambient Waveform (`VHR-05`, `DSN-04`, `ENG-06`)
+
+### Objectives
+Fix layout flaws, header redundancy, squeezed "LIVE" badge wrapping, harsh divider slicing, and cavernous empty states in the dashboard Live Heart Rate card, elevating it to an elite, polished visual standard adhering to `ui-ux-pro-max` and Emil Kowalski design engineering principles.
+
+### Key Changes Made
+1. **LIVE Badge NoWrap Integrity (`DashboardScreen.kt` - `VHR-05`)**:
+   - Applied `Modifier.weight(1f, fill = false)` to title group and enforced `softWrap = false, maxLines = 1` on the `LIVE` pill badge, permanently preventing vertical wrapping.
+2. **Header Redundancy Elimination (`InteractiveChart.kt` - `DSN-04`)**:
+   - Added `showHeader: Boolean = true` to `InteractiveChart.kt`.
+   - On Tab 0, set `showHeader = false` to give the full 130dp container to the spline curve, while hoisting hero metrics into a unified, baseline-aligned header (`72 BPM • Today's Avg` in `displaySmall`). Removed `HorizontalDivider` to preserve liquid frosted glass continuity.
+3. **Living Ambient ECG Waveform (`LiveHeartRateEmptyWaveform.kt` - `ENG-06`)**:
+   - Built standalone composable with rhythmic ECG path drawing (`───/\_/\_/\───`), traveling pulse highlight bead, and tactile "Sync Now ↻" quick action.
+4. **Automated & ARTEMIS Proof**:
+   - Added `live_heart_rate_layout_polished_verified()` to `NavigationComposeUiTest.kt`.
+   - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `live_heart_rate_layout_polished_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

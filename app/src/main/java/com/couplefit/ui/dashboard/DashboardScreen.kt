@@ -78,6 +78,8 @@ import com.couplefit.ui.components.AnimatedHeartIcon
 import com.couplefit.ui.components.AnimatedFootstepsIcon
 import com.couplefit.ui.components.AnimatedActivityIcon
 import com.couplefit.ui.components.NudgeButton
+import com.couplefit.ui.components.LiveHeartRateEmptyWaveform
+import androidx.compose.ui.text.style.TextOverflow
 import com.couplefit.ui.healthconnect.HealthConnectViewModel
 import com.couplefit.ui.healthconnect.HealthDashboardUiState
 import com.couplefit.ui.theme.*
@@ -771,62 +773,59 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(AppSpacing.sm))
 
-                            // Permanent Live Heart Rate & Vitals Waveform Card (VHR-04, TST-09, ENG-05)
+                            // Permanent Live Heart Rate & Vitals Waveform Card (VHR-04, VHR-05, DSN-04, ENG-06)
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(vertical = AppSpacing.xs)
                                     .iosGlass(shape = MaterialTheme.shapes.large),
                                 shape = MaterialTheme.shapes.large,
                                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                                 border = null
                             ) {
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    // Header with Pulsing Heart Glyph & Live Metric Readout
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(AppSpacing.md)
+                                ) {
+                                    // 1. Header Row (Icon + Category Title + Unwrapped LIVE Badge)
                                     Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
+                                        modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Row(
+                                            modifier = Modifier.weight(1f, fill = false),
                                             verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
                                             AnimatedHeartIcon(
-                                                modifier = Modifier.size(24.dp),
+                                                modifier = Modifier.size(20.dp),
                                                 tint = VitalsAccent,
                                                 isPulsing = healthData.averageHeartRate > 0,
                                                 reduceMotion = reduceMotion
                                             )
-                                            Column {
-                                                Text(
-                                                    text = "VITALS PULSE",
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    letterSpacing = 0.5.sp
-                                                )
-                                                val avgBpm = if (healthData.averageHeartRate > 0) "${healthData.averageHeartRate} BPM Avg" else "Listening for pulse"
-                                                Text(
-                                                    text = "Live Heart Rate • $avgBpm",
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                            }
+                                            Text(
+                                                text = "VITALS PULSE",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                letterSpacing = 0.5.sp,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
                                         }
 
-                                        // Subtle live telemetry badge
+                                        // High-Polish Unwrapped LIVE Telemetry Badge (Pro-Rules: NoWrap, No vertical squeeze)
                                         Surface(
                                             shape = RoundedCornerShape(12.dp),
-                                            color = VitalsAccent.copy(alpha = 0.15f),
+                                            color = VitalsAccent.copy(alpha = 0.12f),
                                             border = BorderStroke(1.dp, VitalsAccent.copy(alpha = 0.35f))
                                         ) {
                                             Row(
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                                 verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
                                             ) {
                                                 Box(
                                                     modifier = Modifier
@@ -838,58 +837,144 @@ fun DashboardScreen(
                                                     text = "LIVE",
                                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                                     color = VitalsAccent,
-                                                    letterSpacing = 0.5.sp
+                                                    letterSpacing = 0.6.sp,
+                                                    maxLines = 1,
+                                                    softWrap = false
                                                 )
                                             }
                                         }
                                     }
 
-                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                                    Spacer(modifier = Modifier.height(AppSpacing.xs))
 
-                                    // Permanent Unfolded Waveform Chart Container
+                                    // 2. Hero Metric Readout & Context Row
+                                    val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
+                                        healthData.heartRatePoints
+                                    } else if (healthData.averageHeartRate > 0) {
+                                        listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
+                                    } else {
+                                        emptyList()
+                                    }
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.Bottom
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.Bottom,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            if (healthData.averageHeartRate > 0) {
+                                                Text(
+                                                    text = "${healthData.averageHeartRate}",
+                                                    style = MaterialTheme.typography.displaySmall,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                                Text(
+                                                    text = "BPM",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = VitalsAccent,
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = "• Today's Avg",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                            } else {
+                                                Text(
+                                                    text = "--",
+                                                    style = MaterialTheme.typography.displaySmall,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                                Text(
+                                                    text = "BPM",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = VitalsAccent.copy(alpha = 0.5f),
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = "• Listening for pulse",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                                    modifier = Modifier.alignByBaseline()
+                                                )
+                                            }
+                                        }
+
+                                        // Peak / Min chips if data is present
+                                        if (chartPoints.size > 1) {
+                                            val peakVal = chartPoints.maxOf { it.value }.toInt()
+                                            val minVal = chartPoints.minOf { it.value }.toInt()
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Surface(
+                                                    shape = RoundedCornerShape(AppSpacing.xs),
+                                                    color = ColorCritical.copy(alpha = 0.12f)
+                                                ) {
+                                                    Text(
+                                                        text = "$peakVal Peak",
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        color = ColorCritical,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
+                                                if (peakVal != minVal) {
+                                                    Surface(
+                                                        shape = RoundedCornerShape(AppSpacing.xs),
+                                                        color = ColorInfo.copy(alpha = 0.12f)
+                                                    ) {
+                                                        Text(
+                                                            text = "$minVal Min",
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            fontWeight = FontWeight.SemiBold,
+                                                            color = ColorInfo,
+                                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(AppSpacing.sm))
+
+                                    // 3. Waveform / Chart Container (Seamless liquid glass, no harsh divider)
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(200.dp)
-                                            .padding(horizontal = AppSpacing.sm, vertical = AppSpacing.xs)
+                                            .height(130.dp)
                                     ) {
-                                        val chartPoints = if (healthData.heartRatePoints.isNotEmpty()) {
-                                            healthData.heartRatePoints
-                                        } else if (healthData.averageHeartRate > 0) {
-                                            listOf(ChartDataPoint("Today", healthData.averageHeartRate.toFloat()))
-                                        } else {
-                                            emptyList()
-                                        }
-
                                         if (chartPoints.isNotEmpty()) {
                                             InteractiveChart(
                                                 data = chartPoints,
                                                 lineColor = VitalsAccent,
-                                                metricTitle = "Heart Rate Pulse (BPM)",
+                                                metricTitle = "Heart Rate",
                                                 reduceMotion = reduceMotion,
                                                 syncTrigger = if (isExplicitRefresh) syncTrigger else 0,
+                                                showHeader = false,
                                                 modifier = Modifier.fillMaxSize()
                                             )
                                         } else {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text(
-                                                        text = "Awaiting Heart Rate Records",
-                                                        style = MaterialTheme.typography.titleMedium,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        color = MaterialTheme.colorScheme.onSurface
-                                                    )
-                                                    Spacer(modifier = Modifier.height(4.dp))
-                                                    Text(
-                                                        text = "Sync Health Connect to display live cardiovascular telemetry",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
-                                                    )
-                                                }
-                                            }
+                                            LiveHeartRateEmptyWaveform(
+                                                tint = VitalsAccent,
+                                                reduceMotion = reduceMotion,
+                                                onSyncClick = { healthConnectViewModel.checkStatusAndFetchData() },
+                                                modifier = Modifier.fillMaxSize()
+                                            )
                                         }
                                     }
                                 }

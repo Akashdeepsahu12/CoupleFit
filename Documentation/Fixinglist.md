@@ -2425,3 +2425,37 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `live_heart_rate_unfolded_verified.jpg`: Verified permanently unfolded Live Heart Rate card, glowing LIVE badge, and immediate visibility on primary dashboard.
+
+## 42. Phase 19 Live Heart Rate Layout Architecture Polish & Ambient Waveform (`VHR-05`, `DSN-04`, `ENG-06`) 💓✨
+
+> **Command Trigger**: `/ui-ux-pro-max-skill:ui-ux-pro-max`  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `VHR-05`, `DSN-04`, `ENG-06`  
+> **Release Target**: `v2.9.4-heart-rate-layout-polish`
+
+### 42.1 Design Problem Statement & Craft Audit
+1. **`VHR-05` (Squeezed "LIVE" Badge & Text Wrapping)**:
+   - *Root Cause*: In the card header row, `Text("Live Heart Rate • ...")` was unweighted, pushing the `LIVE` pill badge against the card boundary and crushing its width to 17px (`[889,468][906,532]`), causing `"L-I-V-E"` to wrap vertically character-by-character.
+   - *Fix*: Applied `weight(1f, fill = false)` to the title group, enforced `softWrap = false` and `maxLines = 1` on the `LIVE` badge pill with dedicated horizontal padding (10dp) and border, guaranteeing zero text wrapping across all device resolutions.
+2. **`DSN-04` (Header Redundancy & Harsh Divider Slicing)**:
+   - *Root Cause*: When data was loaded, the card displayed a custom header with `Live Heart Rate • 72 BPM Avg`, sliced by a stark `HorizontalDivider`, followed immediately by `InteractiveChart` displaying another duplicate header (`72 BPM`, `HEART RATE PULSE (BPM)`, `Daily Avg ...`).
+   - *Fix*: Added `showHeader: Boolean = true` to `InteractiveChart.kt`. In `DashboardScreen.kt`, invoked `InteractiveChart(..., showHeader = false)` and unified all metric, peak/min, and status readouts into a single authoritative hero header (`72 BPM • Today's Avg` in `displaySmall`). Removed `HorizontalDivider` to preserve liquid frosted glass continuity.
+3. **`ENG-06` (Cavernous Empty State ➔ Living Ambient ECG Canvas)**:
+   - *Root Cause*: When awaiting data or in zero-BPM state, the container rendered a stark, empty gray rectangle with two plain sentences, feeling disconnected and broken.
+   - *Fix*: Created `LiveHeartRateEmptyWaveform.kt` featuring an ambient ECG cardiogram rhythm canvas (`───/\_/\_/\───`) in `VitalsAccent`, an animated traveling scanning bead, reassuring typography (`Awaiting Heart Rate Records`), and an interactive "Sync Now ↻" quick-action trigger.
+
+### 42.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt`**:
+   - Added `showHeader: Boolean = true` parameter; cleanly isolates the plot area (`Canvas`) when `showHeader = false`.
+2. **`app/src/main/java/com/couplefit/ui/components/LiveHeartRateEmptyWaveform.kt`**:
+   - Built standalone composable with rhythmic ECG path drawing, traveling pulse highlight bead, and tactile "Sync Now" button.
+3. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Integrated unified card header, baseline-aligned hero BPM display, unwrapped `LIVE` pill badge, and 130dp waveform container.
+4. **`app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt`**:
+   - Added `live_heart_rate_layout_polished_verified()` validating specular glints and token integrity.
+
+### 42.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `live_heart_rate_layout_polished_verified.jpg`: Verified horizontal, unwrapped `[ ● LIVE ]` pill (bounds: [840,525][901,538]), authoritative `-- BPM • Listening for pulse` hero readout, seamless unbroken frosted glass, and living ECG waveform canvas with "Sync Now ↻" button.
