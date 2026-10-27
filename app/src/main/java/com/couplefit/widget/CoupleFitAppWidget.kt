@@ -9,6 +9,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.LinearProgressIndicator
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -36,14 +38,28 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * Jetpack Glance Home-Screen Widget showing user's rings and partner's rings.
+ * Jetpack Glance Home-Screen Widget showing user's rings and partner's rings (FLOW-01).
  *
  * CRITICAL ARCHITECTURAL CONTRACT:
- * Reads ONLY from Room database (HealthDao), maintaining strict offline-first SSOT.
- * Never makes direct network calls.
- * Updated via updateAll(context) after each write from sync workers.
+ * - Reads ONLY from Room database (HealthDao), maintaining strict offline-first SSOT.
+ * - Provides zero-tap Home Screen ambient accountability.
+ * - Features an interactive, one-tap "Poke 👋" action button running PokeActionCallback
+ *   without triggering app cold start.
  */
 class CoupleFitAppWidget : GlanceAppWidget() {
+
+    companion object {
+        @Volatile
+        private var lastPokeTimestamp: Long = 0L
+
+        fun markPoked() {
+            lastPokeTimestamp = System.currentTimeMillis()
+        }
+
+        fun isRecentlyPoked(): Boolean {
+            return (System.currentTimeMillis() - lastPokeTimestamp) < 4_000L // 4s confirmation window
+        }
+    }
 
     private fun widgetColor(color: androidx.compose.ui.graphics.Color): ColorProvider =
         ColorProvider(color)
@@ -79,6 +95,8 @@ class CoupleFitAppWidget : GlanceAppWidget() {
         val pActiveMins = partnerDaily?.activeMinutes ?: 0L
         val pCalories = partnerDaily?.calories ?: 0L
 
+        val recentlyPoked = isRecentlyPoked()
+
         provideContent {
             GlanceTheme {
                 val launchIntent = Intent(context, MainActivity::class.java).apply {
@@ -90,15 +108,14 @@ class CoupleFitAppWidget : GlanceAppWidget() {
                         .fillMaxSize()
                         .background(androidx.compose.ui.graphics.Color(0xFF141416))
                         .cornerRadius(20.dp)
-                        .padding(12.dp)
-                        .clickable(actionStartActivity(launchIntent)),
+                        .padding(12.dp),
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Column(
                         modifier = GlanceModifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Header
+                        // Header with Title and Interactive Poke Button (FLOW-01)
                         Row(
                             modifier = GlanceModifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
@@ -109,24 +126,40 @@ class CoupleFitAppWidget : GlanceAppWidget() {
                                     color = widgetColor(androidx.compose.ui.graphics.Color(0xFF8E8E93)),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
-                                )
+                                ),
+                                modifier = GlanceModifier.clickable(actionStartActivity(launchIntent))
                             )
                             Spacer(modifier = GlanceModifier.defaultWeight())
-                            Text(
-                                text = "TODAY",
-                                style = TextStyle(
-                                    color = widgetColor(androidx.compose.ui.graphics.Color(0xFFFF2D55)),
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
+                            
+                            // Interactive Zero-Tap Poke Action Pill (FLOW-01)
+                            Box(
+                                modifier = GlanceModifier
+                                    .background(
+                                        if (recentlyPoked) widgetColor(androidx.compose.ui.graphics.Color(0xFFFF2D55).copy(alpha = 0.35f))
+                                        else widgetColor(androidx.compose.ui.graphics.Color(0xFF2C2C2E))
+                                    )
+                                    .cornerRadius(12.dp)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .clickable(actionRunCallback<PokeActionCallback>())
+                            ) {
+                                Text(
+                                    text = if (recentlyPoked) "Poked! 💖" else "Poke 👋",
+                                    style = TextStyle(
+                                        color = if (recentlyPoked) widgetColor(androidx.compose.ui.graphics.Color(0xFFFF375F))
+                                                else widgetColor(androidx.compose.ui.graphics.Color(0xFF00E5FF)),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 )
-                            )
+                            }
                         }
 
                         Spacer(modifier = GlanceModifier.height(8.dp))
 
-                        // Side-by-Side Activity Rings / Stats
+                        // Side-by-Side Activity Gauges & Telemetry Cards (FLOW-01)
                         Row(
-                            modifier = GlanceModifier.fillMaxWidth(),
+                            modifier = GlanceModifier.fillMaxWidth()
+                                .clickable(actionStartActivity(launchIntent)),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             // Column 1: You
@@ -159,6 +192,14 @@ class CoupleFitAppWidget : GlanceAppWidget() {
                                         color = widgetColor(androidx.compose.ui.graphics.Color(0xFFAAAAAA)),
                                         fontSize = 10.sp
                                     )
+                                )
+                                Spacer(modifier = GlanceModifier.height(4.dp))
+                                // Bilateral Mini-Gauge (FLOW-01)
+                                LinearProgressIndicator(
+                                    progress = (mySteps.toFloat() / 10000f).coerceIn(0f, 1f),
+                                    modifier = GlanceModifier.fillMaxWidth().height(4.dp),
+                                    color = widgetColor(androidx.compose.ui.graphics.Color(0xFF00E5FF)),
+                                    backgroundColor = widgetColor(androidx.compose.ui.graphics.Color(0xFF2C2C2E))
                                 )
                                 Spacer(modifier = GlanceModifier.height(4.dp))
                                 Row {
@@ -214,6 +255,14 @@ class CoupleFitAppWidget : GlanceAppWidget() {
                                         color = widgetColor(androidx.compose.ui.graphics.Color(0xFFAAAAAA)),
                                         fontSize = 10.sp
                                     )
+                                )
+                                Spacer(modifier = GlanceModifier.height(4.dp))
+                                // Bilateral Mini-Gauge (FLOW-01)
+                                LinearProgressIndicator(
+                                    progress = (pSteps.toFloat() / 10000f).coerceIn(0f, 1f),
+                                    modifier = GlanceModifier.fillMaxWidth().height(4.dp),
+                                    color = widgetColor(androidx.compose.ui.graphics.Color(0xFFFF375F)),
+                                    backgroundColor = widgetColor(androidx.compose.ui.graphics.Color(0xFF2C2C2E))
                                 )
                                 Spacer(modifier = GlanceModifier.height(4.dp))
                                 Row {

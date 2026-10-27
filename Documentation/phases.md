@@ -305,6 +305,29 @@ Upgrade all local sub-navigation components to Material 3 connected segmented bu
 
 ---
 
+## Phase 11: User Flow Innovations (`FLOW-01`, `FLOW-02`, `FLOW-03`)
+
+### Objectives
+Maximize high-velocity interpersonal engagement loops and telemetry resilience through a zero-tap glanceable widget with inline poke execution, intimate direct-manipulation cheer gestures on activity rings, and transparent offline/stale sync diagnostics.
+
+### Key Changes Made
+1. **Zero-Tap Glance Widget with Inline Poke (`FLOW-01`)**:
+   - Upgraded `CoupleFitAppWidget.kt` with bilateral mini-gauges (`LinearProgressIndicator` for You and Partner) and an interactive "Poke 👋" pill button.
+   - Built `PokeActionCallback.kt` invoking `partnerRepository` to dispatch nudges without cold-starting `MainActivity`.
+   - Wired `partnerRepository()` to `WidgetEntryPoint.kt`.
+2. **Direct Manipulation Ring Cheer Micro-Interaction (`FLOW-02`)**:
+   - In `SideBySideActivityCard` (`DashboardScreen.kt`), implemented double-tap detection on Partner's motion gauge (`pointerInput` + `detectTapGestures(onDoubleTap = ...)`) and clickable hint text.
+   - Dispatches tactile haptic pulse (`LongPress`), animated floating heart particle burst (`❤️🔥`), and `healthConnectViewModel.sendNudgeToPartner(...)` with a 3-second debounce cooldown.
+3. **Offline / Stale Telemetry Transparency & Recovery (`FLOW-03`)**:
+   - Evaluated partner telemetry timestamp (>15 mins delta or awaiting sync).
+   - Rendered interactive status pill: `[🟡 Awaiting sync • Cached ℹ️]` vs `[🟢 Live ⚡]`.
+   - Clicking pill opens `TelemetryDiagnosticDialog` with partner sync health, Room SSOT explanation, and "Ping Partner Device 📡" action.
+4. **Automated & Live Verification**:
+   - Added instrumented test in `NavigationComposeUiTest.kt` asserting status pill click, diagnostic dialog opening, ping button trigger, double-tap hint cheer dispatch, and Glance widget poke callback state.
+   - Verified on live Android device (`emulator-5554`) via ARTEMIS.
+
+---
+
 ## Verification & Build Status
 
 ```bash

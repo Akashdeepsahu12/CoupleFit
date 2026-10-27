@@ -49,9 +49,9 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **LOC-NAV-02** | Local Navigation | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | `ChallengesScreen.kt` | Active duels and historical trophies were mixed into a single vertical list without sectional sub-filtering. | Cluttered view and lack of dedicated milestone celebration space. | Implemented `[Active Duels] | [Trophies & Vault]` segmented sub-tabs in `ChallengesScreen.kt`. | 🟢 Resolved |
 | **NAV-04** | Navigation Pattern Audit | `/designer-skills:navigation-patterns` | 💡 **Suggestion / Optimization** | Local Navigation | Local sub-views (e.g. `[D] [W] [M] [Y]` time filters) lack tactile haptic feedback and smooth animated indicator pill transitions. | Reduces perceived app polish and micro-interaction fluidity during frequent view switching. | Upgraded to M3 `SingleChoiceSegmentedButtonRow`, connected borders, `FontWeight.Bold`, and `TextHandleMove` haptics across Trends, Challenges, and Adaptive screens. | 🟢 Resolved |
 | **NAV-05** | Navigation Pattern Architecture | `/designer-skills:navigation-patterns` | 💡 **Design Decision / Principle** | `DashboardScreen.kt`, `HealthTrendsScreen.kt` | Architectural decision on "Side-by-side partner tracking tabs" on Today Dashboard: Segregating `[You]` vs `[Partner]` behind tabs creates high interaction friction, destroys shared synchrony UX, and causes double-tab hierarchy clutter. | Breaks instantaneous 0-tap comparison; separates partner vitals from quick-action nudges (94% card sort cohesion). | Preserved 0-tap bilateral telemetry on `Today`. Implemented dedicated `TelemetryPerspective` segmented button row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` for solo deep-dive filtering. | 🟢 Resolved |
-| **FLOW-01** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Innovation / Feature** | Jetpack Glance Widget | Zero-tap Home Screen accountability: Users currently must unlock phone and open app to view partner telemetry or send nudges. | Missed opportunity for high-velocity daily engagement loops (increases touchpoints from 2x to 12x/day). | Implement 4x2 interactive Glance widget with bilateral mini-rings and a one-tap direct "Poke" button. | 💡 Open |
-| **FLOW-02** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Micro-Interaction** | `DashboardScreen.kt` (Dual Rings) | Nudge button discoverability: Reaction chips sit below rings and require scrolling on smaller viewports. | Users miss intuitive direct manipulation affordances. | Implement "Double-Tap Partner's Ring to Cheer": double-tapping partner's outer ring emits confetti/heart burst and fires immediate haptic nudge. | 💡 Open |
-| **FLOW-03** | User Flow Resilience | `/designer-skills:user-flow-diagram` | 💡 **UX Transparency** | `Today` Telemetry Banner | Offline/Stale telemetry transparency: When partner is offline or watch is disconnected, vitals appear static without explanation. | User confusion regarding whether partner is inactive vs. device offline. | Add subtle status pill above rings: `[🟡 Partner synced 42m ago • Showing cached vitals]` when delta > 15 minutes. | 💡 Open |
+| **FLOW-01** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Innovation / Feature** | Jetpack Glance Widget | Zero-tap Home Screen accountability: Users currently must unlock phone and open app to view partner telemetry or send nudges. | Missed opportunity for high-velocity daily engagement loops (increases touchpoints from 2x to 12x/day). | Upgraded `CoupleFitAppWidget.kt` with bilateral mini-gauges (`LinearProgressIndicator` for You and Partner) and inline interactive "Poke 👋" action button backed by zero-cold-start `PokeActionCallback`. | 🟢 Resolved |
+| **FLOW-02** | User Flow Innovation | `/designer-skills:user-flow-diagram` | 💡 **UX Micro-Interaction** | `DashboardScreen.kt` (Dual Rings) | Nudge button discoverability: Reaction chips sit below rings and require scrolling on smaller viewports. | Users miss intuitive direct manipulation affordances. | Implemented direct manipulation on Partner motion gauge via `detectTapGestures(onDoubleTap = ...)` and hint click affordance: tactile haptic feedback, animated "❤️🔥" particle overlay, and 3-second debounce cooldown. | 🟢 Resolved |
+| **FLOW-03** | User Flow Resilience | `/designer-skills:user-flow-diagram` | 💡 **UX Transparency** | `Today` Telemetry Banner | Offline/Stale telemetry transparency: When partner is offline or watch is disconnected, vitals appear static without explanation. | User confusion regarding whether partner is inactive vs. device offline. | Implemented interactive status pill above activity gauges (`🟡 Awaiting sync • Cached ℹ️` vs `🟢 Live ⚡`) opening `TelemetryDiagnosticDialog` with high-priority "Ping Partner Device 📡" trigger. | 🟢 Resolved |
 | **WF-01** | Wireframe Priority & Ergonomics | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | `DashboardScreen.kt` | Viewport fold overflow: Placing rings, nudges, expanded Bézier curves, and duels on mobile creates an 850dp scroll height, pushing nudges and telemetry offscreen on smaller devices (<600dp). | High interaction cost; requires scrolling to perform primary daily actions. | Implement progressive disclosure for Live Biometrics: render a compact 56dp summary card that expands into the full Bézier stream on tap. | 🔵 Open |
 | **WF-02** | Wireframe Content Consistency | `/designer-skills:wireframe-spec` | 🔵 **Correction Needed** | All Screens | Inconsistent metric triad: Today shows Steps and Calories, while Health Trends shows Steps without immediate Active Minutes. | Cognitive friction and disjointed telemetry tracking across screens. | Standardize the primary metric triad across all 4 screens: Steps, Active Minutes, and Caloric Burn. | 🔵 Open |
 | **WF-03** | Wireframe Status Synchronization | `/designer-skills:wireframe-spec` | 💡 **UX Transparency** | Top App Bar | Header shows static `"🟢 Partner Online"` even when device connectivity drops or sync stalls. | Misleading network state representation. | Wire `ConnectivityObserver` directly to the status chip to show `"🟡 Offline Mode (Cached vitals)"` when disconnected. | 💡 Open |
@@ -1986,20 +1986,51 @@ Phase 6C resolved the remaining local sub-navigation ergonomics (`NAV-04`) and s
   - Tapped `Partner 💖` segment: Verified "PARTNER'S TELEMETRY (Week)" with partner stats (44,200 steps, 88% of goal, 252 active mins, 2,180 kcal). Captured screenshot: `nav04_nav05_trends_partner_screen.png`.
   - Tapped `Both 👥` segment: Verified return to "STEPS & ACTIVITY COMPARISON (Week • Both Partners)" with synchrony index (94%) and joint steps (92,400).
   - Tapped `Today` tab: Verified 0-tap bilateral telemetry preserved without tab segregation. Concentric rings, partner telemetry card, and quick nudges rendered simultaneously.
+---
 
+## 34. Phase 7: User Flow Innovations Resolution (`FLOW-01`, `FLOW-02`, `FLOW-03`) 🚀✨
 
+### 34.1 Overview & Architectural Objectives
+Phase 7 tackled critical user flow friction and high-velocity engagement loops, delivering zero-friction home screen glanceability, intimate direct-manipulation cheers, and transparent sync diagnostics:
+1. **`FLOW-01` (Zero-Tap Home Screen Glance Widget & Quick Poke)**:
+   - Upgraded [`CoupleFitAppWidget.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/CoupleFitAppWidget.kt) with bilateral mini-gauges (`LinearProgressIndicator` for user and partner) and an inline interactive "Poke 👋" action button.
+   - Built [`PokeActionCallback.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/PokeActionCallback.kt) executing nudges via `partnerRepository` without launching `MainActivity` (zero cold start).
+   - Augmented [`WidgetEntryPoint.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/WidgetEntryPoint.kt) with `partnerRepository()` access.
+2. **`FLOW-02` (Double-Tap Ring to Cheer Micro-Interaction)**:
+   - In [`SideBySideActivityCard`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt), added direct manipulation gesture detection on partner's motion gauge via `pointerInput(Unit) { detectTapGestures(onDoubleTap = ...) }` and clickable hint text.
+   - Triggers tactile haptic feedback (`HapticFeedbackType.LongPress`), displays an animated floating heart/confetti particle overlay ("❤️🔥"), dispatches `healthConnectViewModel.sendNudgeToPartner(...)`, and throttles rapid taps with a 3-second debounce cooldown.
+3. **`FLOW-03` (Offline / Stale Telemetry Transparency & Recovery)**:
+   - Added partner telemetry staleness detection (>15 minutes delta or awaiting sync).
+   - Rendered an interactive status pill above activity gauges: `[🟡 Partner synced Xm ago • Cached ℹ️]` vs `[🟢 Partner synced Xm ago • Live ⚡]`.
+   - Clicking status pill opens [`TelemetryDiagnosticDialog`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt) detailing partner sync health, explaining offline Room SSOT caching, and providing an immediate "Ping Partner Device 📡" action button with visual feedback.
 
+### 34.2 Code Modifications & Files Touched
+- [`WidgetEntryPoint.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/WidgetEntryPoint.kt):
+  - Added `fun partnerRepository(): PartnerRepository` to `@EntryPoint`.
+- [`PokeActionCallback.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/PokeActionCallback.kt):
+  - Created new `ActionCallback` handling inline widget poke clicks without launching `MainActivity`, sending nudge via `partnerRepository`, and updating widget instances.
+- [`CoupleFitAppWidget.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/CoupleFitAppWidget.kt):
+  - Added `markPoked()` and `isRecentlyPoked()` companion state with 4s confirmation window.
+  - Added inline interactive "Poke 👋" / "Poked! 💖" pill button with `actionRunCallback<PokeActionCallback>()`.
+  - Added bilateral `LinearProgressIndicator` mini-gauges for You (Cyan) and Partner (Pink) step goals.
+- [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt):
+  - Updated `SideBySideActivityCard` callsite with `onSendCheer` and `onPingPartner`.
+  - Implemented `FLOW-02`: Partner ring double-tap gesture via `pointerInput` + `detectTapGestures(onDoubleTap = ...)`, hint clickable affordance, tactile haptic pulse, animated "❤️🔥" particle overlay, and "Double-tap ring to cheer 💖" hint.
+  - Implemented `FLOW-03`: Partner staleness check (>15 mins), interactive status pill (`🟡 Cached ℹ️` / `🟢 Live ⚡`), and `TelemetryDiagnosticDialog` with "Ping Partner Device 📡".
+- [`NavigationComposeUiTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt):
+  - Added `sideBySideActivityCard_statusPill_and_diagnosticDialog_and_cheer()` asserting stale status pill, diagnostic dialog opening, ping button trigger, double-tap hint cheer dispatch, and Glance widget poke callback state.
 
-
-
-
-
-
-
-
-
-
-
-
+### 34.3 Test Coverage & Deterministic Verification
+- **Automated Compilations & Tests**:
+  - `.\gradlew.bat compileDebugKotlin`: **BUILD SUCCESSFUL** (0 errors).
+  - `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+  - `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate).
+  - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - Verified `🟡 Awaiting sync • Cached ℹ️` status pill rendered above Activity Gauges. Captured screenshot: `flow01_02_03_today_screen.jpg`.
+  - Tapped status pill on live device: Verified `TelemetryDiagnosticDialog` rendered with title `🟡 Partner Sync Diagnostics`, Room SSOT cache explanation, and `Ping Partner Device 📡` button. Captured screenshot: `flow03_telemetry_diagnostic_dialog.jpg`.
+  - Tapped `Ping Partner Device 📡`: Verified high-priority ping dispatched and green confirmation banner `✓ High-priority sync ping sent to Partner!` displayed. Captured screenshot: `flow03_ping_partner_confirmed.jpg`.
+  - Tapped `Close`: Verified smooth dismissal and return to Today dashboard.
+  - Tapped `Double-tap ring to cheer 💖`: Verified cheer micro-interaction trigger and 3-second debounce cooldown.
 
 

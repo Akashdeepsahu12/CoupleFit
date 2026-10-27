@@ -12,6 +12,7 @@ import com.couplefit.ui.navigation.CoupleFitNavigationSuite
 import com.couplefit.ui.navigation.TopLevelDestination
 import com.couplefit.ui.theme.CoupleFitTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -183,5 +184,53 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("COUPLE HEAD-TO-HEAD RECORD").assertIsDisplayed()
         composeTestRule.onNodeWithText("100k Steps").assertIsDisplayed()
         composeTestRule.onNodeWithText("PAST DUEL ARCHIVE").assertIsDisplayed()
+    }
+
+    @Test
+    fun sideBySideActivityCard_statusPill_and_diagnosticDialog_and_cheer() {
+        var cheerSent = false
+        var pingSent = false
+
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.dashboard.SideBySideActivityCard(
+                    healthData = com.couplefit.ui.healthconnect.HealthDashboardUiState(
+                        partnerName = "Partner",
+                        partnerSteps = 4200L,
+                        partnerLastUpdated = System.currentTimeMillis() - 42 * 60 * 1000L, // 42m ago (stale)
+                        partnerLastUpdatedLabel = "42m ago"
+                    ),
+                    reduceMotion = true,
+                    onSendCheer = { cheerSent = true },
+                    onPingPartner = { pingSent = true }
+                )
+            }
+        }
+
+        // Verify Activity Gauges title and Stale Status Pill (FLOW-03)
+        composeTestRule.onNodeWithText("ACTIVITY GAUGES").assertIsDisplayed()
+        composeTestRule.onNodeWithText("🟡 42m ago • Cached ℹ️").assertIsDisplayed()
+
+        // Tap Status Pill to open TelemetryDiagnosticDialog
+        composeTestRule.onNodeWithText("🟡 42m ago • Cached ℹ️").performClick()
+        composeTestRule.onNodeWithText("🟡 Partner Sync Diagnostics").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ping Partner Device 📡").assertIsDisplayed()
+
+        // Tap Ping Partner button
+        composeTestRule.onNodeWithText("Ping Partner Device 📡").performClick()
+        assertTrue(pingSent)
+        composeTestRule.onNodeWithText("✓ High-priority sync ping sent to Partner!").assertIsDisplayed()
+
+        // Dismiss dialog
+        composeTestRule.onNodeWithText("Close").performClick()
+
+        // Verify Double-tap prompt hint (FLOW-02) and trigger cheer
+        composeTestRule.onNodeWithText("Double-tap ring to cheer 💖").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Double-tap ring to cheer 💖").performClick()
+        assertTrue(cheerSent)
+
+        // Verify Glance Widget poke state (FLOW-01)
+        com.couplefit.widget.CoupleFitAppWidget.markPoked()
+        assertTrue(com.couplefit.widget.CoupleFitAppWidget.isRecentlyPoked())
     }
 }

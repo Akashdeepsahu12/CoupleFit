@@ -619,10 +619,16 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(bottom = AppSpacing.xs)
                             )
 
-                            // Dual Activity Motion Gauges (Motion Arc Gauges for You and Partner)
+                            // Dual Activity Motion Gauges with Double-Tap Cheer & Telemetry Status Pill (FLOW-02, FLOW-03)
                             SideBySideActivityCard(
                                 healthData = healthData,
-                                reduceMotion = reduceMotion
+                                reduceMotion = reduceMotion,
+                                onSendCheer = { cheerMessage ->
+                                    healthConnectViewModel.sendNudgeToPartner(cheerMessage)
+                                },
+                                onPingPartner = {
+                                    healthConnectViewModel.sendNudgeToPartner("Ping! Please sync your activity 📡")
+                                }
                             )
 
                             Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -1380,8 +1386,22 @@ fun StatCard(
 fun SideBySideActivityCard(
     healthData: HealthDashboardUiState,
     reduceMotion: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSendCheer: (String) -> Unit = {},
+    onPingPartner: () -> Unit = {}
 ) {
+    val haptic = LocalHapticFeedback.current
+    var showDiagnosticDialog by remember { mutableStateOf(false) }
+    var cheerCooldownUntil by remember { mutableLongStateOf(0L) }
+    var cheerTriggerCount by remember { mutableIntStateOf(0) }
+    var showCheerCelebration by remember { mutableStateOf(false) }
+
+    val isStale = remember(healthData.partnerLastUpdated) {
+        val ts = healthData.partnerLastUpdated
+        if (ts == null || ts == 0L) true
+        else (System.currentTimeMillis() - ts) > 15 * 60 * 1000L // Stale if older than 15 mins
+    }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -1400,15 +1420,26 @@ fun SideBySideActivityCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                // Interactive Telemetry Status Pill (FLOW-03)
                 Surface(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        showDiagnosticDialog = true
+                    },
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                    color = if (isStale) SystemOrange.copy(alpha = 0.18f) else SystemGreen.copy(alpha = 0.15f),
+                    border = BorderStroke(
+                        1.dp,
+                        if (isStale) SystemOrange.copy(alpha = 0.45f) else SystemGreen.copy(alpha = 0.4f)
+                    )
                 ) {
                     Text(
-                        text = healthData.partnerLastUpdatedLabel,
+                        text = if (isStale) "🟡 ${healthData.partnerLastUpdatedLabel} • Cached ℹ️"
+                               else "🟢 ${healthData.partnerLastUpdatedLabel} • Live ⚡",
                         style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isStale) SystemOrange else SystemGreen
                     )
                 }
             }
@@ -1455,7 +1486,7 @@ fun SideBySideActivityCard(
                         .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
                 )
 
-                // Partner Column
+                // Partner Column with Double-Tap Cheer Micro-Interaction (FLOW-02)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
@@ -1467,24 +1498,174 @@ fun SideBySideActivityCard(
                         color = MotionPartnerStart
                     )
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    MotionArcProgressGauge(
-                        progress = healthData.partnerStepsProgress,
-                        currentValue = healthData.partnerSteps,
-                        compact = true,
-                        gradientColors = listOf(MotionPartnerStart, MotionPartnerMid, MotionPartnerEnd),
-                        glowColor = MotionPartnerGlow,
-                        reduceMotion = reduceMotion
-                    )
+
+                    // Direct manipulation double-tap target on partner ring
+                    Box(
+                        modifier = Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        val now = System.currentTimeMillis()
+                                        if (now > cheerCooldownUntil) {
+                                            cheerCooldownUntil = now + 3000L // 3s cooldown limiter
+                                            cheerTriggerCount++
+                                            showCheerCelebration = true
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            onSendCheer("Cheered your steps! 🔥❤️")
+                                        }
+                                    }
+                                )
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MotionArcProgressGauge(
+                            progress = healthData.partnerStepsProgress,
+                            currentValue = healthData.partnerSteps,
+                            compact = true,
+                            gradientColors = listOf(MotionPartnerStart, MotionPartnerMid, MotionPartnerEnd),
+                            glowColor = MotionPartnerGlow,
+                            reduceMotion = reduceMotion
+                        )
+
+                        // Floating Heart / Confetti Particle Overlay (FLOW-02)
+                        if (showCheerCelebration) {
+                            LaunchedEffect(cheerTriggerCount) {
+                                delay(1800L)
+                                showCheerCelebration = false
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(SystemRed.copy(alpha = 0.3f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "❤️🔥",
+                                    fontSize = 28.sp
+                                )
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
                     Text(
                         text = "${healthData.partnerActiveMinutes}m • ${healthData.partnerCaloriesBurned} kcal",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Text(
+                        text = "Double-tap ring to cheer 💖",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                            .clickable {
+                                val now = System.currentTimeMillis()
+                                if (now > cheerCooldownUntil) {
+                                    cheerCooldownUntil = now + 3000L // 3s cooldown limiter
+                                    cheerTriggerCount++
+                                    showCheerCelebration = true
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onSendCheer("Cheered your steps! 🔥❤️")
+                                }
+                            }
+                    )
                 }
             }
         }
     }
+
+    // Telemetry Diagnostic Dialog (FLOW-03)
+    if (showDiagnosticDialog) {
+        TelemetryDiagnosticDialog(
+            partnerName = healthData.partnerName,
+            lastUpdatedLabel = healthData.partnerLastUpdatedLabel,
+            isStale = isStale,
+            onDismiss = { showDiagnosticDialog = false },
+            onPingPartner = onPingPartner
+        )
+    }
+}
+
+/**
+ * Telemetry Diagnostic Dialog providing transparent insight into partner sync status
+ * and an immediate, high-priority "Ping Partner Device 📡" action (FLOW-03).
+ */
+@Composable
+fun TelemetryDiagnosticDialog(
+    partnerName: String,
+    lastUpdatedLabel: String,
+    isStale: Boolean,
+    onDismiss: () -> Unit,
+    onPingPartner: () -> Unit
+) {
+    var pingSent by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = if (isStale) "🟡 Partner Sync Diagnostics" else "🟢 Partner Telemetry Live",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = if (isStale)
+                        "$partnerName's device has not synced recently ($lastUpdatedLabel). You are viewing cached offline Room SSOT records."
+                    else
+                        "$partnerName's telemetry is currently in live synchronization with Health Connect and Firestore.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "• Room SSOT cache remains available offline\n• Tap Ping to send high-priority sync wake-up to $partnerName",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (pingSent) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = SystemGreen.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, SystemGreen.copy(alpha = 0.4f)),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "✓ High-priority sync ping sent to $partnerName!",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = SystemGreen,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            FilledTonalButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onPingPartner()
+                    pingSent = true
+                }
+            ) {
+                Text("Ping Partner Device 📡", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
 
 @Composable

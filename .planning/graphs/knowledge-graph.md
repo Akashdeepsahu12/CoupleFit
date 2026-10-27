@@ -18,6 +18,10 @@ graph TD
         P6P["PLAN_PHASE_06_NAVIGATION_POLISH.md"]:::doc
         RN23["RELEASE_NOTES_v2.3.0.md"]:::doc
         RN24["RELEASE_NOTES_v2.4.0.md"]:::doc
+        RN25["RELEASE_NOTES_v2.5.0.md"]:::doc
+        P7P["PLAN_PHASE_07_USER_FLOWS_FLOW01_02_03.md"]:::doc
+        UFD["user_flow_diagram_flow01_flow02_flow03_analysis.md"]:::doc
+        UFR["user_flow_innovations_resolution.md"]:::doc
         NAVAUD["navigation_patterns_appwide_audit.md"]:::doc
         AG["AGENTS.md"]:::doc
     end
@@ -43,6 +47,14 @@ graph TD
         HUB2["HealthSyncHubContent<br/>(Health Connect & Metric Sharing)"]:::ui
         HUB3["ExperienceHubContent<br/>(Dark Mode, Motion, Units)"]:::ui
         HUB4["PrivacyHubContent<br/>(Biometrics, Transparency, Export)"]:::ui
+        SBAC["SideBySideActivityCard<br/>(Double-Tap Ring Cheer, Status Pill)"]:::ui
+        TDD["TelemetryDiagnosticDialog<br/>(Room SSOT Cache, Ping Partner)"]:::ui
+    end
+
+    subgraph WidgetLayer["Widget & Quick Action Layer"]
+        CFAW["CoupleFitAppWidget.kt<br/>(Bilateral Mini-Gauges, Poke Action)"]:::arch
+        PAC["PokeActionCallback.kt<br/>(Zero-Cold-Start Nudge Invocation)"]:::arch
+        WEP["WidgetEntryPoint.kt<br/>(PartnerRepository DI)"]:::arch
     end
 
     subgraph DataLayer["Data & Repositories"]
@@ -105,4 +117,8 @@ graph TD
 | `TelemetryPerspective` | Navigation / Domain | Segmented perspective enum (`COMBINED`, `YOU`, `PARTNER`) | `HealthTrendsScreen.kt` | `HealthTrendsScreen.kt`, `NavigationComposeUiTest.kt` |
 | `CoupleHubScreen` | UI (Tab 4) | Relationship anchor, streaks, anniversaries, privacy shortcut | `AppSpacing`, `SettingsScreen` | `MainActivity.kt` |
 | `ChallengeSubTab` | Navigation | Segmented sub-navigation enum (`ACTIVE_DUELS`, `TROPHIES`) | `ChallengesScreen.kt` | `ChallengesScreen.kt`, `NavigationComposeUiTest.kt` |
+| `CoupleFitAppWidget` | Widget | Jetpack Glance widget with bilateral mini-gauges & inline poke action | `GlanceModifier`, `PokeActionCallback` | Android Home Screen |
+| `PokeActionCallback` | Widget / Action | Zero-cold-start background nudge action callback | `PartnerRepository`, `WidgetEntryPoint` | `CoupleFitAppWidget` |
+| `SideBySideActivityCard` | UI (Dashboard) | Dual activity motion gauges, double-tap cheer gesture, stale telemetry pill | `MotionArcProgressGauge`, `HealthDashboardUiState` | `DashboardScreen.kt`, `NavigationComposeUiTest.kt` |
+| `TelemetryDiagnosticDialog` | UI (Dialog) | Transparent partner sync health, Room SSOT cache info, high-priority ping action | `AlertDialog`, `HealthConnectViewModel` | `SideBySideActivityCard`, `DashboardScreen.kt` |
 | `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs, perspective | AndroidX Compose Test Rule | CI / Local Verification |
