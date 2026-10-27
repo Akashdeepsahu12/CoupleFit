@@ -474,6 +474,35 @@ Eliminate flat dark-slate murkiness by upgrading the glassmorphic visual languag
    - Android test compilation (`.\gradlew.bat compileDebugAndroidTestKotlin`): 100% pass rate (0 errors).
    - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `gls_redesign_dashboard_verified.jpg` and `gls_redesign_trends_verified.jpg`.
 
+
+## Phase 17: Frontend Design Taste, Emancipated Floating Glyphs & Warm Human Presence (`TST-04` to `TST-08`)
+
+### Objectives
+Banish AI-template design habits ("AI slop") by emancipating header utility icons from circular gray saucers into clean floating glyphs, transforming robotic database strings into warm relational couple presence, adding dynamic contextual quick-nudges, eliminating accidental 96dp mid-page spacers in dashboard tabs, and introducing a playful Tug-of-War step balance bar.
+
+### Key Changes Made
+1. **Emancipated Floating Utility Glyphs (`DashboardScreen.kt` - `TST-04`)**:
+   - Removed opaque circular gray background (`CircleShape`, `surfaceVariant`) from the Settings icon.
+   - Preserved accessible 44x44dp touch target with `semantics { contentDescription = "Open Settings" }` and 24dp animated icon.
+2. **Warm Human Partner Presence (`DashboardScreen.kt` - `TST-05`)**:
+   - Replaced robotic server terminal strings with living relational presence copy:
+     - `"You & $partnerName are in sync • Updated ${time}"`
+     - `"Syncing couple pulse with Health Connect..."`
+     - `"Pull down to refresh your couple pulse"`
+3. **Contextual Frosted Quick-Nudges (`QuickNudgeRow.kt` - `TST-06`)**:
+   - Upgraded nudge pills to `.iosGlass(shape = RoundedCornerShape(20.dp))` with specular glints.
+   - Introduced live step-aware contextual cheers: `"🏃 Catching Up!"` when trailing, `"⚡ You Got This!"` when leading, and `"✨ In Sync!"` when tied.
+4. **Dashboard Layout Mid-Page Spacer Clean-up (`DashboardScreen.kt` - `TST-07`)**:
+   - Removed accidental 96dp spacers before vitals sections in "My Stats" and "Partner's Stats" tabs.
+   - Restored natural 12dp card stacking rhythm while preserving the single 96dp clearance spacer at the container bottom.
+5. **Playful Step Tug-of-War Balance Bar (`DashboardScreen.kt` - `TST-08`)**:
+   - Added animated dual-color split progress bar in "Today's Competition" cards, dynamically showing user steps (Electric Cyan) versus partner steps (Vibrant Coral).
+6. **Automated & ARTEMIS Proof**:
+   - Added `frontend_taste_and_human_presence_verified()` to `NavigationComposeUiTest.kt`.
+   - Unit tests (`.\gradlew.bat testDebugUnitTest`): 100% pass rate (32 actionable tasks, 0 failures).
+   - Android test compilation (`.\gradlew.bat compileDebugAndroidTestKotlin`): 100% pass rate (0 errors).
+   - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `tst_emancipated_glyphs_and_presence_verified.jpg`, `tst_competition_balance_and_nudges_verified.jpg`, and `tst_mystats_clean_spacing_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

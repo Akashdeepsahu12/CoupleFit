@@ -383,4 +383,25 @@ class NavigationComposeUiTest {
         assertEquals(MotionPartnerStart.copy(alpha = 0.28f), GlassSemantics.AmbientGlowPartnerCoral)
         assertEquals(CoupleFitIdentityTokens.SynchronyGold.copy(alpha = 0.32f), GlassSemantics.AmbientGlowSynchronyGold)
     }
+
+    @Test
+    fun frontend_taste_and_human_presence_verified() {
+        var sentNudge = ""
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                com.couplefit.ui.components.QuickNudgeRow(
+                    partnerName = "Alex",
+                    mySteps = 4500L,
+                    partnerSteps = 3000L,
+                    onSendNudge = { sentNudge = it }
+                )
+            }
+        }
+
+        // Verify contextual nudge options render
+        composeTestRule.onNodeWithText("Poke").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Keep Going!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Love").assertIsDisplayed()
+        composeTestRule.onNodeWithText("You Got This!").assertIsDisplayed()
+    }
 }

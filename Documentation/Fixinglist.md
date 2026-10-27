@@ -109,8 +109,11 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **PLC-03** | Platform Conventions (M3) | `/designer-skills:platform-conventions` | 🔵 **Correction Needed** | `ChallengeComponents.kt` | Centered floating `Dialog` used for complex task workflows (`StartChallengeDialog`) on mobile screens (<600dp). | Violates thumb ergonomics; forces awkward reach into the upper third of mobile displays. | Transition `StartChallengeDialog` to an M3 `ModalBottomSheet` with drag handle on compact mobile screens. | 🔵 Open |
 | **PLC-04** | Platform Conventions (Tactile) | `/designer-skills:platform-conventions` | 🔵 **Correction Needed** | `BounceClick.kt` | Suppressing Material 3 Ripple: `BounceClick.kt` explicitly sets `indication = null` and labels itself `iosClickable`. | Violates native Android tactile feedback conventions; feels like an uncalibrated webview or iOS transplant. | Implement `nativeClickable`: combines mechanical spring scale (`0.975f`) with native M3 bounded ripple (`ripple(bounded = true)`). | 🔵 Open |
 | **PLC-05** | Platform Conventions (Privacy) | `/designer-skills:platform-conventions` | 🔴 **Policy Violation** | `AndroidManifest.xml` | Health Connect over-permissioning: Manifest declares `WRITE_STEPS`, `WRITE_TOTAL_CALORIES_BURNED`, and `WRITE_EXERCISE` for a read-only telemetry companion. | Violates Google Play Principle of Least Privilege; causes `Phase6PrivacyAndReadinessTest` to fail (`TEST-01`). | Remove all `WRITE_*` permission declarations from `AndroidManifest.xml` and `HealthConnectManager.kt`. | 🟢 Resolved |
-| **TST-04** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 💡 **Visual De-Slop** | App-Wide Card Headers | Icons trapped in circular boxes: Many headers enclose vector glyphs in generic tinted circles (`Box(size = 36.dp, clip = CircleShape, background = surfaceVariant)`). | Pervasive AI-template tell; creates visual clutter and unnecessary visual framing. | Emancipate icons: let vector glyphs breathe directly on card surfaces or align them to typographic baselines with purposeful color and weight. | 💡 Open |
-| **TST-05** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 🔵 **Correction Needed** | Card Borders & Depth | Flat 1px borders violate physical directional lighting: Cards use flat uniform `BorderStroke(1.dp, outline)` on all 4 sides. | Flat borders look like cardboard cutouts; lack physical depth and modern glassmorphic polish. | Implement `Modifier.specularRimBorder()` with a vertical linear gradient: 22% white top specular rim descending to 3% ambient shadow. | 🔵 Open |
+| **TST-04** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 💡 **Visual De-Slop** | App-Wide Card Headers | Icons trapped in circular boxes: Many headers enclose vector glyphs in generic tinted circles (`Box(size = 36.dp, clip = CircleShape, background = surfaceVariant)`). | Pervasive AI-template tell; creates visual clutter and unnecessary visual framing. | Emancipate glyphs: removed circular gray background from Settings icon, enlarged to 44x44dp accessible target, let icons breathe cleanly. | 🟢 Resolved |
+| **TST-05** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 🔵 **Correction Needed** | System Copy & Presence | Robotic server terminal strings: "Synced at 10:45 AM", "Awaiting partner sync • Offline ready" break emotional intimacy. | Robotic AI copy sounds like a database console rather than two loving partners. | Humanized presence copy: "You & Partner are in sync • Updated 10:45 AM", "Waiting for Partner to open CoupleFit". | 🟢 Resolved |
+| **TST-06** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 💡 **Contextual Micro-Action** | Quick Nudge Row | Static emoji buttons ("Poke", "Keep Going!") never adapt to live workout context. | Generic static buttons feel disconnected from real-time relationship dynamics. | Upgraded `QuickNudgeRow` with dynamic step-relative cheers ("Catching Up!", "You Got This!", "In Sync!") and liquid glass pills. | 🟢 Resolved |
+| **TST-07** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 🔴 **Layout Bug** | Dashboard Tabs 1 & 2 | Misplaced 96dp spacer inserted mid-page before vitals sections in "My Stats" and "Partner's Stats" tabs. | Creates an unintended 96dp visual gap in the middle of the scrollable content. | Removed accidental mid-page spacers; preserved natural 12dp rhythm while keeping dock clearance spacer at container bottom. | 🟢 Resolved |
+| **TST-08** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 💡 **Visual Engagement** | Competition Standings | Plain text "You're leading by X steps!" lacks visual excitement and playful couple rivalry. | Flat text misses the opportunity for dynamic visual storytelling. | Added dynamic dual-color Tug-of-War balance bar (Electric Cyan user ratio vs Vibrant Coral partner ratio). | 🟢 Resolved |
 | **FIG-01** | Law of Figure-Ground | `/designer-skills:law-of-figure-ground` | 🔴 **Depth Failure** | `ChallengeComponents.kt` (`StartChallengeDialog`) | Modal-to-Surface Figure-Ground Collapse: Floating dialogs and resting dashboard cards share the exact same `#1C1C1E` container color with an inadequate scrim. | Modals visually merge into background cards; users struggle to distinguish foreground action from background context. | Elevate dialog surface to `SurfaceModalDark` (`#282C37`) and implement a 75% dark scrim + 20dp backdrop blur to force background into true "Ground". | 🔴 Open |
 | **FIG-02** | Law of Figure-Ground | `/designer-skills:law-of-figure-ground` | 🔵 **Correction Needed** | `DashboardScreen.kt` (Filter Chips) | Weak Figure emergence on active tabs: Selected segmented view relies on a faint 15% alpha wash (`SystemRed @ 15%`), producing a muddy `#3F1F24` brown. | Active tab fails to visually pop as the primary foreground subject; requires effort to scan active state. | Enforce high-contrast solid active pill containers (`MaterialTheme.colorScheme.primaryContainer`) with bold contrasting label text. | 🔵 Open |
 | **FIG-03** | Law of Figure-Ground | `/designer-skills:law-of-figure-ground` | 🔵 **Correction Needed** | `ActivityRing.kt` & `SideBySideActivityCard` | Concentric Ring Primacy Competition: User (Cyan) and Partner (Coral) concentric rings touch directly with no spatial relief gutter. | Rubin-vase perceptual instability; attention rapidly flips between inner and outer rings without a clear primary subject. | Add a 4dp transparent relief gutter between rings and dim inactive partner telemetry (`alpha = 0.55f`) when user inspects their own ring. | 🔵 Open |
@@ -2350,3 +2353,47 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `gls_redesign_dashboard_verified.jpg`: Verified specular top rim glint, ambient cyan/coral aurora backplate bloom behind dials, high-contrast floating dock, and untruncated single-line FilterChips (`Side-by-Side`, `My Stats`, `Partner's Stats`).
   - `gls_redesign_trends_verified.jpg`: Verified frosted glass bilateral trends cards, medication list, and 96dp scroll clearance allowing sensor diagnostics card to float completely above the dock.
+
+## 40. Phase 17 Frontend Design Taste, Emancipated Floating Glyphs & Warm Human Presence (`TST-04` to `TST-08`) 🎨✨
+
+> **Command Trigger**: `/taste-skill:design-taste-frontend`  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `TST-04`, `TST-05`, `TST-06`, `TST-07`, `TST-08`  
+> **Release Target**: `v2.9.2-frontend-taste`
+
+### 40.1 Design Problem Statement & Craft Audit
+1. **`TST-04` (Icons Trapped in Circular Boxes / AI Badge Syndrome)**:
+   - *Root Cause*: Settings gear button in `DashboardScreen.kt` was enclosed in an opaque circular gray saucer (`Box(size = 36.dp, clip = CircleShape, background = surfaceVariant)`).
+   - *Fix*: Emancipated the glyph! Removed the circular gray background, setting `Modifier.size(44.dp)` with `semantics { contentDescription = "Open Settings" }` and 24dp animated icon for WCAG 2.2 AA compliance and ultra-clean floating aesthetic.
+2. **`TST-05` (Robotic "Database Terminal" Presence Copy)**:
+   - *Root Cause*: Sync and partner statuses displayed cold IT strings like `"Synced at 10:45 AM"` and `"Awaiting partner sync • Offline ready"`.
+   - *Fix*: Replaced with warm, relational presence copy: `"You & $partnerName are in sync • Updated ${time}"`, `"Syncing your couple pulse with Health Connect..."`, and `"Pull down to refresh your couple pulse"`.
+3. **`TST-06` (Contextual Quick-Nudges with Liquid Glass)**:
+   - *Root Cause*: `QuickNudgeRow.kt` used static buttons in muddy gray `surfaceVariant.copy(alpha = 0.6f)`.
+   - *Fix*: Upgraded nudge pills to `.iosGlass(shape = RoundedCornerShape(20.dp))` and added dynamic context-aware cheers: `"🏃 Catching Up!"` when trailing, `"⚡ You Got This!"` when leading, and `"✨ In Sync!"` when tied.
+4. **`TST-07` (Misplaced 96dp Mid-Page Spacer Bug in Tabs 1 & 2)**:
+   - *Root Cause*: `DashboardScreen.kt` lines 875 and 1127 contained an accidental `Spacer(modifier = Modifier.height(96.dp))` right before the vitals section.
+   - *Fix*: Removed both orphan mid-page spacers, replacing them with rhythmic `Spacer(modifier = Modifier.height(AppSpacing.md))` while retaining the single 96dp bottom spacer at line 1272 for floating dock clearance.
+5. **`TST-08` (Playful Step Tug-of-War Balance Bar)**:
+   - *Root Cause*: "Today's Competition" card only displayed static text without visual weight.
+   - *Fix*: Built a dual-color split progress bar showing the live proportion of user steps (Electric Cyan) versus partner steps (Vibrant Coral).
+
+### 40.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Emancipated Settings icon from gray circular saucer.
+   - Humanized sync presence string.
+   - Removed misplaced 96dp spacers at line 875 and 1127.
+   - Added dual-color Tug-of-War balance bar to Tab 0 and Tab 2 competition cards.
+2. **`app/src/main/java/com/couplefit/ui/components/QuickNudgeRow.kt`**:
+   - Upgraded pill background to `.iosGlass(RoundedCornerShape(20.dp))`.
+   - Added dynamic step-aware couple cheers based on `mySteps` and `partnerSteps`.
+3. **`app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt`**:
+   - Added `frontend_taste_and_human_presence_verified()` testing contextual quick-nudges and presence rendering.
+
+### 40.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `tst_emancipated_glyphs_and_presence_verified.jpg`: Verified clean floating Settings icon and warm relational presence copy (`"You & Partner are in sync • Updated 1:42 AM"`).
+  - `tst_competition_balance_and_nudges_verified.jpg`: Verified liquid glass quick-nudges (`Poke`, `Keep Going!`, `Love`, `Hydrate Together`) and Tug-of-War balance bar.
+  - `tst_mystats_clean_spacing_verified.jpg`: Verified removal of accidental 96dp spacer and natural 12dp card stacking in "My Stats".

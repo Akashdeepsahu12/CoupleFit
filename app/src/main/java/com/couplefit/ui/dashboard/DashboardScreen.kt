@@ -39,6 +39,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -243,16 +245,15 @@ fun DashboardScreen(
                         maxLines = 1
                     )
 
-                    // Settings Gear Icon
+                    // Settings Gear Icon (Emancipated Floating Glyph - TST-04)
                     IconButton(
                         onClick = onOpenSettings,
                         modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .size(44.dp)
+                            .semantics { contentDescription = "Open Settings" }
                     ) {
                         AnimatedSettingsIcon(
-                            modifier = Modifier.size(20.dp),
+                            modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurface,
                             isSpinning = isExplicitRefresh,
                             reduceMotion = reduceMotion
@@ -429,17 +430,18 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val pName = healthData.partnerName.ifBlank { "Partner" }
                 val syncText = if (healthData.isSyncing) {
-                    "Syncing with Health Connect..."
+                    "Syncing couple pulse with Health Connect..."
                 } else healthData.lastSyncedAt?.let {
                     val fmt = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withZone(ZoneId.systemDefault())
-                    "Synced at ${fmt.format(it)}"
-                } ?: "Pull down to sync"
+                    "You & $pName are in sync • Updated ${fmt.format(it)}"
+                } ?: "Pull down to refresh your couple pulse"
 
                 Text(
                     text = syncText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
                 )
             }
 
@@ -677,9 +679,11 @@ fun DashboardScreen(
 
                             Spacer(modifier = Modifier.height(AppSpacing.xs))
 
-                            // Quick-Action Nudges elevated directly into the Thumb Zone under rings (WF-01 / WF-07)
+                            // Quick-Action Nudges elevated directly into the Thumb Zone under rings (WF-01, TST-06)
                             QuickNudgeRow(
                                 partnerName = healthData.partnerName,
+                                mySteps = healthData.steps,
+                                partnerSteps = healthData.partnerSteps,
                                 onSendNudge = { nudgeMessage ->
                                     healthConnectViewModel.sendNudgeToPartner(nudgeMessage)
                                 }
@@ -729,6 +733,32 @@ fun DashboardScreen(
                                         fontWeight = FontWeight.Bold,
                                         color = if (stepDiff >= 0) SystemGreen else SystemRed
                                     )
+                                    val totalSteps = (healthData.steps + healthData.partnerSteps).coerceAtLeast(1L).toFloat()
+                                    val userRatio = (healthData.steps.toFloat() / totalSteps).coerceIn(0.05f, 0.95f)
+                                    Spacer(modifier = Modifier.height(AppSpacing.xs))
+                                    // Playful Tug-of-War Balance Bar (TST-08)
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(3.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                                    ) {
+                                        Row(modifier = Modifier.fillMaxSize()) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxHeight()
+                                                    .weight(userRatio)
+                                                    .background(CoupleFitIdentityTokens.UserPrimary)
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxHeight()
+                                                    .weight(1f - userRatio)
+                                                    .background(CoupleFitIdentityTokens.PartnerPrimary)
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -871,8 +901,7 @@ fun DashboardScreen(
                                     .wrapContentHeight()
                             )
 
-                            // Dock scroll clearance (GLS-10, APL-03)
-            Spacer(modifier = Modifier.height(96.dp))
+                            Spacer(modifier = Modifier.height(AppSpacing.md))
 
                             // Heart Rate Section
                             Column(modifier = Modifier.padding(bottom = AppSpacing.xs)) {
@@ -1111,6 +1140,32 @@ fun DashboardScreen(
                                         fontWeight = FontWeight.Bold,
                                         color = if (stepDiff >= 0) SystemGreen else SystemRed
                                     )
+                                    val totalSteps = (healthData.steps + healthData.partnerSteps).coerceAtLeast(1L).toFloat()
+                                    val userRatio = (healthData.steps.toFloat() / totalSteps).coerceIn(0.05f, 0.95f)
+                                    Spacer(modifier = Modifier.height(AppSpacing.xs))
+                                    // Playful Tug-of-War Balance Bar (TST-08)
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(6.dp)
+                                            .clip(RoundedCornerShape(3.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                                    ) {
+                                        Row(modifier = Modifier.fillMaxSize()) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxHeight()
+                                                    .weight(userRatio)
+                                                    .background(CoupleFitIdentityTokens.UserPrimary)
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxHeight()
+                                                    .weight(1f - userRatio)
+                                                    .background(CoupleFitIdentityTokens.PartnerPrimary)
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -1123,8 +1178,7 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
 
-                            // Dock scroll clearance (GLS-10, APL-03)
-            Spacer(modifier = Modifier.height(96.dp))
+                            Spacer(modifier = Modifier.height(AppSpacing.md))
 
                             Column(modifier = Modifier.padding(bottom = AppSpacing.xs)) {
                                 Text(

@@ -24,7 +24,9 @@ graph TD
         RN28["RELEASE_NOTES_v2.8.0.md"]:::doc
         RN29["RELEASE_NOTES_v2.9.0.md"]:::doc
         RN291["RELEASE_NOTES_v2.9.1.md"]:::doc
+        RN292["RELEASE_NOTES_v2.9.2.md"]:::doc
         P16P["PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md"]:::doc
+        P17P["PLAN_PHASE_17_FRONTEND_TASTE_AND_HUMAN_PRESENCE.md"]:::doc
         P14P["PLAN_PHASE_14_DESIGN_ENGINEERING_ENG01_TO_ENG04.md"]:::doc
         P15P["PLAN_PHASE_15_GLASSMORPHISM_GLS01_TO_GLS06.md"]:::doc
         ENGD["emil_design_eng_eng01_to_eng04_analysis.md"]:::doc
@@ -145,6 +147,9 @@ graph TD
     P16P -->|Dual-Layer Frosted Glass & Layout Resilience| DS
     P16P -->|96dp Scroll Clearance & Specular Rims| HTS
     RN291 -->|Documents Release v2.9.1| P16P
+    P17P -->|Emancipated Glyphs & Warm Presence| DS
+    P17P -->|Contextual Frosted Quick Nudges| QNR
+    RN292 -->|Documents Release v2.9.2| P17P
 ```
 
 ## Entity Cross-Reference Table
@@ -173,3 +178,5 @@ graph TD
 | `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs, perspective | AndroidX Compose Test Rule | CI / Local Verification |
 | `PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md` | Plan / Roadmap | Milestone plan for dual-layer liquid glass, 28% aurora backlighting, Day-1 decoupling, and dock contrast | `/gsd-plan-phase` | `DashboardScreen.kt`, `GlassTokens.kt`, `HealthTrendsScreen.kt` |
 | `RELEASE_NOTES_v2.9.1.md` | Release / Ops | Version 2.9.1 release notes: Dual-layer specular frosted glass, decoupled Day-1 layout, and unselected dock contrast | Release Deployment | Production Stakeholders |
+| `PLAN_PHASE_17_FRONTEND_TASTE_AND_HUMAN_PRESENCE.md` | Plan / Roadmap | Milestone plan for emancipated floating glyphs, relational presence, contextual quick-nudges, and tug-of-war balance bar | `/gsd-plan-phase` | `DashboardScreen.kt`, `QuickNudgeRow.kt` |
+| `RELEASE_NOTES_v2.9.2.md` | Release / Ops | Version 2.9.2 release notes: Frontend design taste, emancipated glyphs, human presence copy, and dynamic balance bar | Release Deployment | Production Stakeholders |
