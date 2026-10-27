@@ -23,6 +23,8 @@ graph TD
         RN27["RELEASE_NOTES_v2.7.0.md"]:::doc
         RN28["RELEASE_NOTES_v2.8.0.md"]:::doc
         RN29["RELEASE_NOTES_v2.9.0.md"]:::doc
+        RN291["RELEASE_NOTES_v2.9.1.md"]:::doc
+        P16P["PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md"]:::doc
         P14P["PLAN_PHASE_14_DESIGN_ENGINEERING_ENG01_TO_ENG04.md"]:::doc
         P15P["PLAN_PHASE_15_GLASSMORPHISM_GLS01_TO_GLS06.md"]:::doc
         ENGD["emil_design_eng_eng01_to_eng04_analysis.md"]:::doc
@@ -140,6 +142,9 @@ graph TD
     RN27 -->|Documents Release v2.7.0| P9P
     FDD -->|Bilateral Progress| HTS
     FDD -->|Confetti & Rim Lighting| DS
+    P16P -->|Dual-Layer Frosted Glass & Layout Resilience| DS
+    P16P -->|96dp Scroll Clearance & Specular Rims| HTS
+    RN291 -->|Documents Release v2.9.1| P16P
 ```
 
 ## Entity Cross-Reference Table
@@ -166,3 +171,5 @@ graph TD
 | `SideBySideActivityCard` | UI (Dashboard) | Dual activity motion gauges, double-tap cheer gesture, stale telemetry pill | `MotionArcProgressGauge`, `HealthDashboardUiState` | `DashboardScreen.kt`, `NavigationComposeUiTest.kt` |
 | `TelemetryDiagnosticDialog` | UI (Dialog) | Transparent partner sync health, Room SSOT cache info, high-priority ping action | `AlertDialog`, `HealthConnectViewModel` | `SideBySideActivityCard`, `DashboardScreen.kt` |
 | `NavigationComposeUiTest` | Test | Instrumented UI tests for multi-modal tabs, sub-headers, sub-tabs, perspective | AndroidX Compose Test Rule | CI / Local Verification |
+| `PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md` | Plan / Roadmap | Milestone plan for dual-layer liquid glass, 28% aurora backlighting, Day-1 decoupling, and dock contrast | `/gsd-plan-phase` | `DashboardScreen.kt`, `GlassTokens.kt`, `HealthTrendsScreen.kt` |
+| `RELEASE_NOTES_v2.9.1.md` | Release / Ops | Version 2.9.1 release notes: Dual-layer specular frosted glass, decoupled Day-1 layout, and unselected dock contrast | Release Deployment | Production Stakeholders |

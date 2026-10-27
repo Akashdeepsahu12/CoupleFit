@@ -373,4 +373,14 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithContentDescription("Challenges, Duels and Leaderboards")
             .assertIsDisplayed()
     }
+
+    @Test
+    fun glassmorphism_redesign_specularRim_and_ambientGlow_verified() {
+        // Verify enhanced specular stop and ambient glow values (GLS-08, GLS-09)
+        assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
+        assertEquals(androidx.compose.ui.graphics.Color(0x22FFFFFF), GlassPrimitives.TintWhiteSpecularMid)
+        assertEquals(MotionCyanStart.copy(alpha = 0.28f), GlassSemantics.AmbientGlowUserCyan)
+        assertEquals(MotionPartnerStart.copy(alpha = 0.28f), GlassSemantics.AmbientGlowPartnerCoral)
+        assertEquals(CoupleFitIdentityTokens.SynchronyGold.copy(alpha = 0.32f), GlassSemantics.AmbientGlowSynchronyGold)
+    }
 }

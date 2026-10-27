@@ -447,6 +447,33 @@ Transform CoupleFit's visual foundation from flat, opaque `#1C1C1E` dark slabs i
    - Compile tests (`compileDebugAndroidTestKotlin`) passed 100% in 5s.
    - Verified on live Android emulator (`emulator-5554`, Pixel 10 Pro) via ARTEMIS: captured `gls_aurora_dashboard_verified.jpg`, `gls_trends_glass_verified.jpg`, `gls_modal_sheet_verified.jpg`, and `gls_mystats_breathing_ring_verified.jpg`.
 
+
+## Phase 16: Glassmorphism Redesign, Ambient Aurora Illumination & Day-1 Layout Polish (`GLS-07` to `GLS-10`, `LAY-01`, `FLT-01`)
+
+### Objectives
+Eliminate flat dark-slate murkiness by upgrading the glassmorphic visual language to Apple VisionOS-grade specular surface gradients, boosting ambient aurora telemetry back-illumination, elevating the floating navigation dock with high contrast, and fixing the severe Day-1 onboarding card layout collapse.
+
+### Key Changes Made
+1. **Day-1 Layout Collapse Resolution (`DashboardScreen.kt` - `GLS-07`, `LAY-01`)**:
+   - Decoupled the sync status `Row` from the Day-1 onboarding card (`if (healthData.steps == 0L) Card(...)`).
+   - Promoted the Day-1 card to a standalone full-width glass component directly in the main `Column`, completely eliminating the squeezed ~120px vertical column of letters.
+2. **Specular Surface Gradients & Diamond-Cut Rim Lighting (`GlassTokens.kt` - `GLS-08`, `VIS-07`)**:
+   - Replaced flat `Color(0x14FFFFFF)` (8% flat white) with dual-layer rendering: deep translucent midnight slate base (`0x38121622`) plus a 3-stop vertical specular surface gradient (`CardSurfaceBrush`: 14% white top glint -> 6.5% white body -> 2.4% shadow base).
+   - Upgraded `BorderSpecularRim` to a 3-stop diamond-cut rim brush (`0.0f` -> `0x5EFFFFFF` 37% glint, `0.20f` -> `0x22FFFFFF` 13% sheen, `1.0f` -> `0x0AFFFFFF` 4% ambient).
+3. **Luminous Ambient Aurora Telemetry Illumination (`GlassTokens.kt` - `GLS-09`, `VIS-08`)**:
+   - Boosted radial gradient glow alphas from 8% to 28% (`0.28f` core -> `0.12f` halo -> `Transparent`) covering `width * 0.52f` behind the activity gauges, casting vivid electric cyan and coral blooms through the frosted glass.
+4. **Floating Glass Dock High-Contrast Polish & Scroll Clearance (`CoupleFitNavigationSuite.kt`, `DashboardScreen.kt`, `HealthTrendsScreen.kt` - `GLS-10`, `NAV-06`)**:
+   - Applied dense dark-frosted glass gradient (`0xD91E2433` -> `0xEE12151F`) with specular rim border to floating dock.
+   - Boosted active indicator pill to `0.22f` alpha and styled unselected icons/labels with high-contrast `#8E95A5` (WCAG AA 5.2:1).
+   - Added 96dp bottom scroll clearance across Dashboard and Trends screens, ensuring all cards scroll freely above the floating dock.
+5. **FilterChip Responsiveness on Compact Screens (`DashboardScreen.kt` - `FLT-01`, `TYP-04`)**:
+   - Added `.horizontalScroll(rememberScrollState())` to the filter row and single-line ellipsis handling, preventing "Partner's Stats" from truncating on 360dp devices.
+6. **Automated & ARTEMIS Proof**:
+   - Added `glassmorphism_redesign_specularRim_and_ambientGlow_verified()` to `NavigationComposeUiTest.kt`.
+   - Unit tests (`.\gradlew.bat testDebugUnitTest`): 100% pass rate (32 actionable tasks, 0 failures).
+   - Android test compilation (`.\gradlew.bat compileDebugAndroidTestKotlin`): 100% pass rate (0 errors).
+   - Verified on live Android emulator (`emulator-5554`) via ARTEMIS: captured `gls_redesign_dashboard_verified.jpg` and `gls_redesign_trends_verified.jpg`.
+
 ## Verification & Build Status
 
 ```bash

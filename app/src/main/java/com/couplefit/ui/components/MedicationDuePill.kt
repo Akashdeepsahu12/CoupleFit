@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.AppSpacing
 import com.couplefit.ui.theme.SystemGreen
+import com.couplefit.ui.theme.iosGlass
 import kotlinx.coroutines.delay
 
 /**
@@ -54,6 +55,7 @@ fun MedicationDuePill(
                 .fillMaxWidth()
                 .padding(horizontal = AppSpacing.md)
                 .padding(bottom = AppSpacing.sm)
+                .iosGlass(shape = RoundedCornerShape(16.dp))
                 .semantics {
                     contentDescription = if (isLogged) {
                         "$medicationName dose logged successfully"
@@ -63,16 +65,9 @@ fun MedicationDuePill(
                 },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isLogged) {
-                    SystemGreen.copy(alpha = 0.15f)
-                } else {
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-                }
+                containerColor = if (isLogged) SystemGreen.copy(alpha = 0.15f) else Color.Transparent
             ),
-            border = BorderStroke(
-                1.dp,
-                if (isLogged) SystemGreen.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-            )
+            border = if (isLogged) BorderStroke(1.dp, SystemGreen.copy(alpha = 0.5f)) else null
         ) {
             Row(
                 modifier = Modifier

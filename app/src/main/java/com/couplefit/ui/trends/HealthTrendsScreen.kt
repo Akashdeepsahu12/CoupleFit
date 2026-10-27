@@ -268,6 +268,11 @@ fun HealthTrendsScreen(
                         }
                     }
                 }
+
+                // Dock scroll clearance (GLS-10, APL-03)
+                item {
+                    Spacer(modifier = Modifier.height(96.dp))
+                }
             }
         }
     }

@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -419,7 +420,7 @@ fun DashboardScreen(
                 }
             }
 
-            // Sync status and quick test helper
+            // Sync status
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -440,49 +441,51 @@ fun DashboardScreen(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
+            }
 
-                if (healthData.steps == 0L) {
-                    Card(
+            // Warm Day-1 Onboarding / Cold-Start Guidance Card (WF-06, GLS-07, LAY-01)
+            if (healthData.steps == 0L) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = AppSpacing.md)
+                        .padding(bottom = AppSpacing.sm)
+                        .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
+                    shape = RoundedCornerShape(AppSpacing.md),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
+                ) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = AppSpacing.md)
-                            .padding(bottom = AppSpacing.xs),
-                        shape = RoundedCornerShape(AppSpacing.md),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f))
+                            .padding(horizontal = AppSpacing.md, vertical = AppSpacing.sm),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = AppSpacing.sm, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("🌱", fontSize = 16.sp)
-                                Column {
-                                    Text(
-                                        text = "A fresh day together!",
-                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = "Take your first morning steps with your partner.",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                            Text("🌱", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "A fresh day together!",
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Take your first morning steps with your partner.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
-                            TextButton(
-                                onClick = { healthConnectViewModel.writeMockData(1000L) },
-                                shape = RoundedCornerShape(AppSpacing.sm)
-                            ) {
-                                Text("+1k Test Steps", style = MaterialTheme.typography.labelSmall)
-                            }
+                        }
+                        TextButton(
+                            onClick = { healthConnectViewModel.writeMockData(1000L) },
+                            shape = RoundedCornerShape(AppSpacing.sm)
+                        ) {
+                            Text("+1k Test Steps", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -498,8 +501,10 @@ fun DashboardScreen(
                     .padding(bottom = AppSpacing.md)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // Tab 0: Side-by-Side
                     FilterChip(
@@ -565,7 +570,10 @@ fun DashboardScreen(
                                 pagerState.animateScrollToPage(2)
                             }
                         },
-                        label = { Text("${healthData.partnerName}'s Stats") },
+                        label = {
+                            val pName = healthData.partnerName.ifBlank { "Partner" }
+                            Text("${pName}'s Stats", maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                        },
                         leadingIcon = {
                             AnimatedHeartIcon(
                                 modifier = Modifier.size(16.dp),
@@ -863,7 +871,8 @@ fun DashboardScreen(
                                     .wrapContentHeight()
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.lg))
+                            // Dock scroll clearance (GLS-10, APL-03)
+            Spacer(modifier = Modifier.height(96.dp))
 
                             // Heart Rate Section
                             Column(modifier = Modifier.padding(bottom = AppSpacing.xs)) {
@@ -1114,7 +1123,8 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
 
-                            Spacer(modifier = Modifier.height(AppSpacing.lg))
+                            // Dock scroll clearance (GLS-10, APL-03)
+            Spacer(modifier = Modifier.height(96.dp))
 
                             Column(modifier = Modifier.padding(bottom = AppSpacing.xs)) {
                                 Text(
@@ -1258,7 +1268,8 @@ fun DashboardScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(AppSpacing.lg))
+            // Dock scroll clearance (GLS-10, APL-03)
+            Spacer(modifier = Modifier.height(96.dp))
         }
         
         PullRefreshIndicator(

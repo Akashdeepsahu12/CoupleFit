@@ -59,9 +59,9 @@ fun CoupleFitNavigationSuite(
                         val navItemColors = NavigationBarItemDefaults.colors(
                             selectedIconColor = CoupleFitIdentityTokens.UserPrimary,
                             selectedTextColor = CoupleFitIdentityTokens.UserPrimary,
-                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                            indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.16f)
+                            unselectedIconColor = Color(0xFF8E95A5),
+                            unselectedTextColor = Color(0xFF8E95A5),
+                            indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
                         )
                         Row(
                             modifier = Modifier
@@ -113,9 +113,9 @@ fun CoupleFitNavigationSuite(
                 val railItemColors = NavigationRailItemDefaults.colors(
                     selectedIconColor = CoupleFitIdentityTokens.UserPrimary,
                     selectedTextColor = CoupleFitIdentityTokens.UserPrimary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                    indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.16f)
+                    unselectedIconColor = Color(0xFF8E95A5),
+                    unselectedTextColor = Color(0xFF8E95A5),
+                    indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
                 )
                 NavigationRail(
                     modifier = Modifier

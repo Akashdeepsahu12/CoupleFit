@@ -2288,3 +2288,65 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `gls_trends_glass_verified.jpg`: Verified glassmorphic bilateral trends card, solo telemetry cards, and specular rim borders.
 - `gls_modal_sheet_verified.jpg`: Verified elevated glass modal bottom sheet for launching challenges with 75% dark scrim.
 - `gls_mystats_breathing_ring_verified.jpg`: Verified ActivityRing breathing pulse dot and fluid physics retargeting.
+
+
+---
+
+## 39. Phase 16: Glassmorphism Redesign, Ambient Aurora Illumination & Day-1 Layout Polish (`GLS-07` to `GLS-10`, `LAY-01`, `FLT-01`) 💎✨
+
+> **Command Trigger**: User Bug & Aesthetic Report ("take a look in to the screen and the glassmorphism doest look good. please check")  
+> **Associated Defect Logs**: `GLS-07`, `GLS-08`, `GLS-09`, `GLS-10`, `LAY-01`, `FLT-01`  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_16_GLASSMORPHISM_REDESIGN_AND_LAYOUT_POLISH.md)  
+> **Target Release**: `v2.9.1-glassmorphism-polish`
+
+### 39.1 Executive Defect Analysis & Root Causes
+1. **`GLS-07` / `LAY-01` (Severe Day-1 Layout Collapse)**:
+   - *Root Cause*: In `DashboardScreen.kt`, the Day-1 onboarding card (`if (healthData.steps == 0L) Card(...)`) was nested inside `Row(modifier = Modifier.fillMaxWidth()..., horizontalArrangement = Arrangement.SpaceBetween)`. Inside an unconstrained Row without weight, `fillMaxWidth()` squeezed the card into a ~120px right column where text broke letter-by-letter (`A 
+ f 
+ r 
+ e 
+ s 
+ h 
+ d 
+ a 
+ y...`), destroying the layout.
+   - *Fix*: Decoupled sync status `Row` from the Day-1 card. Day-1 card was promoted to a full-width glass component directly in the parent `Column`.
+2. **`GLS-08` / `VIS-07` (Flat Muddy Slate vs. Liquid Glass Depth)**:
+   - *Root Cause*: `iosGlass()` applied a flat solid color `Color(0x14FFFFFF)` (8% flat white) over pitch black `#000000`, producing flat dark grey `#141414` with zero specular sheen, no refraction, and no physical presence.
+   - *Fix*: Re-engineered `iosGlass()` and `GlassTokens.kt` with dual-layer surface rendering: deep translucent midnight slate base (`0x38121622`) overlaid with a luminous 3-stop specular surface gradient (`GlassSemantics.CardSurfaceBrush`), plus a razor-sharp diamond-cut specular rim border (`BorderSpecularRim`: 37% white top glint fading to 4% bottom).
+3. **`GLS-09` / `VIS-08` (Smothered Aurora Telemetry Backlight)**:
+   - *Root Cause*: `AmbientGlowUserCyan` and `AmbientGlowPartnerCoral` were capped at 8% (`0.08f`) opacity, making the backlight behind cards virtually invisible on OLED screens.
+   - *Fix*: Boosted radial gradient glow alphas to `0.28f` with 2-tier diffusion plumes (`0.28f` core -> `0.12f` halo -> `Transparent`) covering `width * 0.52f`.
+4. **`GLS-10` / `NAV-06` (Floating Dock Contrast & Elevation)**:
+   - *Root Cause*: Floating dock used flat semi-transparent dark container without frosted gradient base, weak unselected icon contrast (`0.75f` opacity over dark gray), and standard bottom scroll clearance causing last items to get hidden under the dock.
+   - *Fix*: Elevated floating dock with dense dark-frosted glass gradient (`0xD91E2433` -> `0xEE12151F`), specular top rim, glowing electric cyan active indicator pill (`0.22f` alpha), high-contrast off-slate icons (`#8E95A5`), and added 96dp bottom scroll clearance across Dashboard and Trends screens.
+5. **`FLT-01` / `TYP-04` (FilterChip Truncation on Compact Viewports)**:
+   - *Root Cause*: 3 chips ("Side-by-Side", "My Stats", "Partner's Stats") exceeded 360dp width in a static Row, truncating the partner chip to "Partner's St...".
+   - *Fix*: Added `.horizontalScroll(rememberScrollState())` to the filter row and single-line ellipsis handling.
+
+### 39.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/theme/GlassTokens.kt`**:
+   - Added `TintWhiteSpecularTop`, `TintWhiteSpecularMid`, `TintWhiteSurfaceGlint`, `TranslucentSlateBase`, `TranslucentDockTop`, `TranslucentDockBottom`.
+   - Defined `CardSurfaceBrush`, `DockSurfaceBrush`, and upgraded `BorderSpecularRim`.
+   - Upgraded `Modifier.iosGlass()`, `Modifier.appleGlass()`, and `Modifier.glassDock()`.
+   - Enhanced `AuroraTelemetryMesh` with luminous 3-tier radial glow canvas brushes.
+2. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Extracted Day-1 onboarding card from sync `Row` to standalone full-width glass card.
+   - Added `.horizontalScroll(rememberScrollState())` to tab chips.
+   - Added `Spacer(modifier = Modifier.height(96.dp))` for floating dock scroll clearance.
+3. **`app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt`**:
+   - Added 96dp bottom spacer for floating dock clearance in `LazyColumn`.
+4. **`app/src/main/java/com/couplefit/ui/components/MedicationDuePill.kt`**:
+   - Applied `.iosGlass(shape = RoundedCornerShape(16.dp))` with specular gradient and transparent container.
+5. **`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`**:
+   - Upgraded dock active capsule to `CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)` and unselected items to `#8E95A5`.
+6. **`app/src/androidTest/java/com/couplefit/ui/NavigationComposeUiTest.kt`**:
+   - Added `glassmorphism_redesign_specularRim_and_ambientGlow_verified()` instrumented test.
+
+### 39.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% pass rate, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `gls_redesign_dashboard_verified.jpg`: Verified specular top rim glint, ambient cyan/coral aurora backplate bloom behind dials, high-contrast floating dock, and untruncated single-line FilterChips (`Side-by-Side`, `My Stats`, `Partner's Stats`).
+  - `gls_redesign_trends_verified.jpg`: Verified frosted glass bilateral trends cards, medication list, and 96dp scroll clearance allowing sensor diagnostics card to float completely above the dock.
