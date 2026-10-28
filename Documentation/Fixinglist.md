@@ -2616,3 +2616,43 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `heart_rate_graph_restored_verified.jpg`: Visually confirmed interactive spline graph, smooth cubic Bézier curve, luminous gradient area fill, Y-axis reference gridlines and values, time markers, and responsive haptic scrubbing.
+
+
+## 47. Phase 24: Ambient Liquid Video Background Integration (`BGV-01`) 🌌🌿
+
+> **Command Trigger**: User Request ("can you apply D:\Couple_fit\CoupleFit\green.mp4 to the app background?")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `BGV-01`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.9-ambient-video-background`
+
+### 47.1 Design & Defect Diagnosis
+1. **`BGV-01` (Atmospheric Ambient Motion Video Background Integration Behind Frosted Glass Hierarchy)**:
+   - *Symptom*: App canvas relied on static dark gradients (`#07080A`), missing the ethereal living depth of dynamic ambient liquid motion behind the frosted glass cards and floating dock.
+   - *Asset Analysis*:
+     - File: `D:\Couple_fit\CoupleFit\green.mp4`
+     - Video Specs: H.264 (avc1), 270x480 resolution (9:16 vertical aspect ratio), 6.00s seamless loop, 30.00 fps, 4490 kbps, audio-free ambient grain/aurora motion.
+   - *Architectural Root Cause & Compose Solution*:
+     - Standard Android `SurfaceView` punches a hole through the window surface, which prevents Jetpack Compose from layering translucent frosted glass (`Modifier.iosGlass()`, `Modifier.glassDock()`) on top of it.
+     - Solution: Developed `AmbientVideoBackground.kt` using native `TextureView` wrapped in Compose `AndroidView`. `TextureView` participates directly in the Compose view hierarchy and graphics layer, enabling optical diffusion and refraction through translucent cards.
+     - Implemented dynamic 2D scaling matrix with pivot `(viewWidth/2, viewHeight/2)` for true `CenterCrop` aspect filling on arbitrary device screen resolutions (e.g. 1280x2856 on Pixel 10 Pro) without distortion or letterboxing.
+     - Attached `LifecycleEventObserver` to automatically pause playback on `Lifecycle.Event.ON_PAUSE` / `ON_STOP` and resume on `ON_RESUME`, ensuring zero background CPU/battery draw.
+     - Enforced accessibility compliance with `reduceMotion: Boolean`: when active, video playback is halted or bypassed to respect vestibular comfort.
+
+### 47.2 Code & Architecture Deliverables
+1. **`app/src/main/res/raw/green.mp4`**:
+   - Packaged the optimized 6.00s H.264 ambient liquid loop directly into Android resources (`R.raw.green`).
+2. **`app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt`**:
+   - Implemented `AmbientVideoBackground` composable with `TextureView`, silent looped `MediaPlayer`, aspect-ratio center-crop scaling matrix, and lifecycle observer.
+3. **`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`**:
+   - Wrapped top-level scaffold container in a root `Box`, positioning `AmbientVideoBackground` as the bottom-most visual layer behind the navigation shell and content.
+4. **`app/src/main/java/com/couplefit/MainActivity.kt`**:
+   - Propagated `reduceMotion = effectiveReduceMotion` to `CoupleFitNavigationSuite`.
+5. **`Documentation/PLAN_PHASE_24_AMBIENT_VIDEO_BACKGROUND.md`**:
+   - Full phase milestone plan with acceptance criteria, task dependencies, and test bars.
+
+### 47.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `ambient_video_background_verified.jpg`: Visually confirmed emerald aurora video background continuously playing behind frosted glass cards, perfect center-crop fill without aspect distortion, crisp high-contrast typography, and zero occlusion of UI elements or dock navigation.

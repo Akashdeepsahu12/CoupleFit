@@ -236,3 +236,18 @@ graph TD
   - Expands stage height to 145dp, preserving reference gridlines, time axis, luminous gradient fill, and touch scrubbing.
 - **Node**: `RELEASE_NOTES_v2.9.8.md`
   - Documents release v2.9.8, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+
+### Phase 24: Ambient Liquid Video Background Integration
+- **Node**: `PLAN_PHASE_24_AMBIENT_VIDEO_BACKGROUND.md`
+  - Defines `BGV-01` (atmospheric motion video background behind Jetpack Compose hierarchy).
+  - Links: `AmbientVideoBackground.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `R.raw.green`, `RELEASE_NOTES_v2.9.9.md`.
+- **Node**: `AmbientVideoBackground.kt`
+  - Encapsulates native Android `TextureView` via `AndroidView` for Compose layer blending under `Modifier.iosGlass()` without hole punching.
+  - Implements dynamic 2D center-crop matrix `(viewWidth/2, viewHeight/2)` for distortion-free aspect filling.
+  - Lifecycle-aware auto-pause/resume (`ON_PAUSE` / `ON_RESUME`) for zero battery drain.
+  - Respects user accessibility `reduceMotion` preferences.
+- **Node**: `CoupleFitNavigationSuite.kt`
+  - Integrates `AmbientVideoBackground` as the foundational background layer beneath navigation scaffold and all screens.
+- **Node**: `RELEASE_NOTES_v2.9.9.md`
+  - Documents release v2.9.9, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.

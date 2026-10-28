@@ -620,6 +620,32 @@ Restore the interactive cubic Bézier spline chart (`InteractiveChart`) inside t
 
 ---
 
+## Phase 24: Ambient Liquid Video Background Integration (BGV-01)
+
+### Objectives
+Integrate an atmospheric, hardware-accelerated ambient video background (green.mp4) behind the entire Jetpack Compose visual hierarchy, delivering living liquid aurora depth beneath translucent frosted glass cards and the floating navigation dock with full lifecycle and motion-reduction awareness.
+
+### Key Changes Made
+1. **Asset Optimization & Android Resource Packaging (R.raw.green)**:
+   - Packaged the 6.00s H.264 vertical video (green.mp4, 270x480 @ 30fps, 4490kbps silent loop) into pp/src/main/res/raw/green.mp4.
+2. **Native TextureView Rendering Architecture (AmbientVideoBackground.kt)**:
+   - Replaced hole-punching SurfaceView with TextureView embedded via AndroidView, enabling seamless blending beneath Compose frosted glass layers (Modifier.iosGlass(), Modifier.glassDock()).
+   - Implemented dynamic 2D scaling matrix with pivot (viewWidth/2, viewHeight/2) for distortion-free CenterCrop aspect filling across diverse screen dimensions.
+3. **Lifecycle & Battery Conservation**:
+   - Integrated LifecycleEventObserver to automatically pause MediaPlayer playback when activity transitions to ON_PAUSE / ON_STOP and resume on ON_RESUME, eliminating background battery and CPU consumption.
+4. **Accessibility Compliance (
+educeMotion)**:
+   - Wired 
+educeMotion accessibility toggle from system / user preferences to halt animation and fall back to solid obsidian canvas.
+5. **Top-Level Navigation Shell Integration (CoupleFitNavigationSuite.kt)**:
+   - Embedded AmbientVideoBackground as the foundational background layer behind Scaffold and content.
+6. **Deterministic & ARTEMIS Verification**:
+   - .\gradlew.bat testDebugUnitTest: BUILD SUCCESSFUL (100% pass rate).
+   - .\gradlew.bat compileDebugAndroidTestKotlin: BUILD SUCCESSFUL (0 errors).
+   - Live Android verification on emulator-5554: captured mbient_video_background_verified.jpg confirming living emerald aurora motion, zero aspect distortion, and crisp high-contrast readability.
+
+---
+
 ## Verification & Build Status
 
 ```bash

@@ -212,7 +212,8 @@ class MainActivity : ComponentActivity() {
                                         CoupleFitNavigationSuite(
                                             windowSizeClass = windowSizeClass,
                                             selectedDestination = currentTab,
-                                            onDestinationSelected = { currentTab = it }
+                                            onDestinationSelected = { currentTab = it },
+                                            reduceMotion = effectiveReduceMotion
                                         ) { innerPadding ->
                                             Box(modifier = Modifier.padding(innerPadding)) {
                                                 AnimatedContent(
