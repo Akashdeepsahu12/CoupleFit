@@ -275,3 +275,19 @@ graph TD
 - **Node**: `RELEASE_NOTES_v2.9.11.md`
   - Documents release v2.9.11, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
 
+
+
+### Phase 27: Dynamic Ambient Video Background Shuffle & Extensible Registry
+- **Node**: `PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md`
+  - Defines `BGV-04` (dynamic ambient video background shuffle across app opens and extensible registry architecture).
+  - Links: `AmbientVideoRegistry.kt`, `AmbientVideoBackground.kt`, `CoupleFitNavigationSuite.kt`, `MainActivity.kt`, `R.raw.blue`, `R.raw.green1`, `AmbientVideoRegistryTest.kt`, `RELEASE_NOTES_v2.9.12.md`.
+- **Node**: `AmbientVideoRegistry.kt`
+  - Extensible registry decoupling video assets from UI composables.
+  - Active shuffle pool `[green1, blue]` with one-line extensibility for future assets.
+  - Non-repeating random selection algorithm ensuring variety on consecutive launches.
+- **Node**: `R.raw.blue`
+  - Transcoded 1080x2400 portrait stream with 90° clockwise rotation and Lanczos interpolation (8.15MB, 30fps, faststart moov atom).
+- **Node**: `MainActivity.kt`
+  - SharedPreferences-backed cold-start shuffle with session-stable `rememberSaveable`.
+- **Node**: `RELEASE_NOTES_v2.9.12.md`
+  - Documents release v2.9.12, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.

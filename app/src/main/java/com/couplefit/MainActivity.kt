@@ -19,6 +19,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.couplefit.ui.components.AmbientVideoRegistry
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.couplefit.data.model.AuthFlowStep
@@ -76,6 +78,17 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(prefs.getBoolean("reduce_motion", false))
             }
             val effectiveReduceMotion = isSystemAnimationDisabled || userReduceMotion
+
+            // Ambient video background shuffle across app opens (BGV-04)
+            val currentAmbientBgId = rememberSaveable {
+                val lastBgId = prefs.getString("last_ambient_bg_id", null)
+                val selected = AmbientVideoRegistry.selectShuffledBackground(lastSelectedId = lastBgId)
+                prefs.edit().putString("last_ambient_bg_id", selected.id).apply()
+                selected.id
+            }
+            val currentAmbientBgAsset = remember(currentAmbientBgId) {
+                AmbientVideoRegistry.getById(currentAmbientBgId)
+            }
 
             var isSettingsOpen by remember { mutableStateOf(false) }
             var currentTab by remember { mutableStateOf(TopLevelDestination.TODAY) }
@@ -213,7 +226,8 @@ class MainActivity : ComponentActivity() {
                                             windowSizeClass = windowSizeClass,
                                             selectedDestination = currentTab,
                                             onDestinationSelected = { currentTab = it },
-                                            reduceMotion = effectiveReduceMotion
+                                            reduceMotion = effectiveReduceMotion,
+                                            ambientVideoResId = currentAmbientBgAsset.resId
                                         ) { innerPadding ->
                                             Box(modifier = Modifier.padding(innerPadding)) {
                                                 AnimatedContent(

@@ -2724,3 +2724,50 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `ambient_video_green1_verified.jpg`: Visually confirmed crystal-clear native portrait `green1.mp4` liquid background playing smoothly behind frosted glass cards and floating dock, razor-sharp typography, and zero aspect distortion.
 
+
+
+## 50. Phase 27: Dynamic Ambient Video Background Shuffle & Extensible Registry (`BGV-04`) 🌌🔀
+
+> **Command Trigger**: User Request ("i have another background blue.mp4 app that too I want when ever i open my app i suffles the background between then, ill make more backgroung and add it till then use this two.")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `BGV-04`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.12-ambient-video-shuffle`
+
+### 50.1 Design & Defect Diagnosis
+1. **`BGV-04` (Dynamic Ambient Video Background Shuffle Across App Launches & Extensible Registry Architecture)**:
+   - *Symptom*: Ambient background was hardcoded to a single resource (`green1.mp4`). Adding new background videos required modifying UI composable declarations. Additionally, user provided a new asset `blue.mp4` and requested automatic shuffling between available backgrounds on app launch, designed to seamlessly accept future additions.
+   - *Asset Analysis & Transcoding Pipeline (`blue.mp4`)*:
+     - Input File: `D:\Couple_fit\CoupleFit\blue.mp4`
+     - Video Specs: H.264 (avc1), 1920x1080 (16:9 Landscape), 30.47s duration (1652 frames @ 54.23 fps), 93.7 MB, audio-free, fluid oceanic sapphire motion.
+     - Transcoding: Rotated 90° clockwise (`transpose=1`) and scaled via Lanczos spatial filtering to `1080x2400` (`scale=1080:2400:flags=lanczos`). Clockwise rotation strategically orients dark obsidian/deep navy zones at the top for header text legibility and luminous sapphire fluid ribbons across the bottom behind activity dials and the floating glass dock.
+     - Encoding: `libx264` High Profile (`crf 20`, 30 fps, `pix_fmt yuv420p`, `-movflags +faststart`) generating `app/src/main/res/raw/blue.mp4` (8.15 MB, 91% size reduction, moov atom at offset 0).
+   - *Extensible Registry Architecture (`AmbientVideoRegistry.kt`)*:
+     - Modeled `AmbientVideoAsset(id, resId, displayName, description, dominantAccent)`.
+     - Created catalog (`allAssets`) and configurable active shuffle pool (`activeShufflePool = listOf(GREEN1, BLUE)`).
+     - Adding future backgrounds is a one-line registration in `activeShufflePool`.
+   - *Non-Repeating Shuffle Mechanism*:
+     - On app cold-start / creation in `MainActivity.kt`, reads `last_ambient_bg_id` from SharedPreferences.
+     - `AmbientVideoRegistry.selectShuffledBackground(lastSelectedId)` selects randomly from the pool while excluding `lastSelectedId` (when `pool.size > 1`), guaranteeing variety across launches without repeating the same background twice consecutively.
+     - Persisted across configuration changes and tabs within the session via `rememberSaveable { ... }`, avoiding jarring video reload on navigation.
+
+### 50.2 Code & Architecture Deliverables
+1. **`app/src/main/res/raw/blue.mp4`**:
+   - Packaged the 1080x2400 30fps faststart sapphire video asset (8.15 MB, H.264 High Profile).
+2. **`app/src/main/java/com/couplefit/ui/components/AmbientVideoRegistry.kt`**:
+   - Built the extensible registry, asset data contracts, catalog, active pool, and non-repeating shuffle selection algorithm.
+3. **`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`**:
+   - Parameterized `ambientVideoResId: Int = AmbientVideoRegistry.defaultAsset.resId` to decouple navigation shell from hardcoded resources.
+4. **`app/src/main/java/com/couplefit/MainActivity.kt`**:
+   - Integrated session-persisted shuffle state with SharedPreferences persistence across launches.
+5. **`app/src/test/java/com/couplefit/ui/AmbientVideoRegistryTest.kt`**:
+   - Comprehensive unit tests verifying pool contents, ID lookup with fallbacks, non-repeating shuffle alternation, empty/single-item pool resilience, and deterministic random seeding.
+6. **`Documentation/PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md`**:
+   - Complete phase milestone plan with acceptance criteria, task dependencies, and test bars.
+
+### 50.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `ambient_video_blue_verified.jpg`: Verified sapphire blue liquid background actively rendering behind frosted glass cards.
+  - Confirmed non-repeating shuffle alternation via ADB shared preferences (`last_ambient_bg_id`: `blue` -> `green1` -> `blue`).

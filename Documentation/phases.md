@@ -690,6 +690,33 @@ educeMotion accessibility fallback.
 
 ---
 
+## Phase 27: Dynamic Ambient Video Background Shuffle & Extensible Registry (`BGV-04`)
+
+### Objectives
+Introduce dynamic ambient background shuffling across app opens, packaging the newly provided `blue.mp4` asset alongside `green1.mp4`, and creating an extensible registry (`AmbientVideoRegistry.kt`) designed to cleanly absorb future background additions with zero architectural rework.
+
+### Key Changes Made
+1. **Asset Analysis & Transcoding Pipeline (`blue.mp4`)**:
+   - Evaluated `D:\Couple_fit\CoupleFit\blue.mp4`: H.264 (avc1), 1920x1080 (16:9 Landscape), 30.47s duration (1652 frames @ 54.23 fps), 93.7 MB, audio-free, oceanic sapphire fluid ribbons.
+   - Transcoded via FFmpeg with 90° clockwise rotation (`transpose=1`) and Lanczos spatial interpolation to native portrait `1080x2400` at 30 fps, with High Profile H.264 (`crf 20`) and faststart container flags (`-movflags +faststart`).
+   - Clockwise rotation strategically situates dark obsidian/navy regions at the top of the mobile viewport (under status bar, date, and headers) and vibrant sapphire fluid plumes across the bottom (behind activity gauges and floating glass dock).
+   - Generated `app/src/main/res/raw/blue.mp4` (8.15 MB, 91% size reduction, moov atom at byte offset 0).
+2. **Extensible Registry Architecture (`AmbientVideoRegistry.kt`)**:
+   - Created type-safe `AmbientVideoAsset` model and central catalog `AmbientVideoRegistry`.
+   - Defined `activeShufflePool = listOf(GREEN1, BLUE)` per user specifications ("till then use this two").
+   - Implemented non-repeating shuffle selection algorithm (`selectShuffledBackground`) that alternates randomly across launches while preventing consecutive repeats.
+3. **App Open Shuffle Integration (`MainActivity.kt` & `CoupleFitNavigationSuite.kt`)**:
+   - On cold start in `MainActivity.kt`, retrieves `last_ambient_bg_id` from SharedPreferences, selects next background, and saves choice.
+   - Persists selection for current session using `rememberSaveable { ... }`, preventing mid-session background swaps when navigating between tabs.
+   - Parameterized `CoupleFitNavigationSuite(..., ambientVideoResId = ...)` to decouple navigation from hardcoded assets.
+4. **Automated & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% pass rate, including `AmbientVideoRegistryTest`).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - `.\gradlew.bat installDebug`: BUILD SUCCESSFUL (Installed on `emulator-5554`).
+   - Live Android verification on `emulator-5554`: confirmed live sapphire rendering (`ambient_video_blue_verified.jpg`) and verified non-repeating alternation (`blue` -> `green1` -> `blue`) in shared preferences.
+
+---
+
 ## Verification & Build Status
 
 ```bash

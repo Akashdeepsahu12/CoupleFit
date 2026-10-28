@@ -26,6 +26,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`README.md`**](README.md) | System Architecture Spec | **System Architecture** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
 | [**`techstackreview.md`**](techstackreview.md) | Engineering Architecture Audit | **Technical Specs & Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
 | [**`phases.md`**](phases.md) | Project Planning | **Roadmap & Milestones** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
+- [**PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md**](PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md): Phase 27 Dynamic Ambient Video Background Shuffle & Extensible Registry (BGV-04).
+- [**RELEASE_NOTES_v2.9.12.md**](RELEASE_NOTES_v2.9.12.md): Release notes for v2.9.12 Dynamic Ambient Video Background Shuffle.
 - [**PLAN_PHASE_26_AMBIENT_VIDEO_GREEN1.md**](PLAN_PHASE_26_AMBIENT_VIDEO_GREEN1.md): Phase 26 Ambient Video Background Switch to green1.mp4 (BGV-03).
 - [**RELEASE_NOTES_v2.9.11.md**](RELEASE_NOTES_v2.9.11.md): Release notes for v2.9.11 Ambient Video Background Switch to green1.mp4.
 - [**PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md**](PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md): Phase 25 Full Resolution Portrait Ambient Video Integration (BGV-02).

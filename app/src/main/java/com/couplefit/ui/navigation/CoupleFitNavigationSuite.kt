@@ -1,5 +1,6 @@
 package com.couplefit.ui.navigation
 
+import androidx.annotation.RawRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -14,15 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.couplefit.R
 import com.couplefit.ui.components.AmbientVideoBackground
+import com.couplefit.ui.components.AmbientVideoRegistry
 import com.couplefit.ui.theme.*
 
 /**
  * Adaptive Material 3 Navigation Container with Floating Glass Navigation Dock (GLS-02, APL-03)
- * and Ambient Living Aurora Video Background (BGV-01).
+ * and Ambient Living Aurora Video Background (BGV-01, BGV-04).
  *
  * Implements persistent 4-tab navigation adhering to `card-sort-analysis.md` §7.1,
  * multi-modal active state indication (NAV-01 & NAV-03), and Liquid Glass architecture:
- * - Living Ambient Video Background: Hardware-accelerated, seamless looping emerald aurora motion (`green.mp4`)
+ * - Living Ambient Video Background: Hardware-accelerated, dynamic shuffle video motion (`green1.mp4`, `blue.mp4`)
  *   with CenterCrop scaling, automatic lifecycle pause/resume, and reduceMotion awareness.
  * - Compact screens (<600dp): Floating Glass Navigation Dock (16dp elevated pill, 32dp corners, 28dp frosted blur)
  * - Medium/Expanded screens (≥600dp): Frosted Glass NavigationRail
@@ -35,16 +37,17 @@ fun CoupleFitNavigationSuite(
     onDestinationSelected: (TopLevelDestination) -> Unit,
     modifier: Modifier = Modifier,
     reduceMotion: Boolean = false,
+    @RawRes ambientVideoResId: Int = AmbientVideoRegistry.defaultAsset.resId,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val haptic = LocalHapticFeedback.current
 
     Box(modifier = modifier.fillMaxSize()) {
-        // 1. Living Ambient Aurora Video Background (BGV-03: green1.mp4)
+        // 1. Living Ambient Aurora Video Background (BGV-04: dynamic shuffle R.raw.green1 / R.raw.blue)
         AmbientVideoBackground(
             modifier = Modifier.fillMaxSize(),
-            videoResId = R.raw.green1,
+            videoResId = ambientVideoResId,
             reduceMotion = reduceMotion
         )
 
