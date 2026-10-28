@@ -2656,3 +2656,33 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `ambient_video_background_verified.jpg`: Visually confirmed emerald aurora video background continuously playing behind frosted glass cards, perfect center-crop fill without aspect distortion, crisp high-contrast typography, and zero occlusion of UI elements or dock navigation.
+
+
+## 48. Phase 25: Full Resolution Portrait Ambient Video Integration (`BGV-02`) 🌌📱
+
+> **Command Trigger**: User Request ("make sure to use it in portrait i want the full resolution. ask me question if you have any.")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `BGV-02`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.10-full-res-portrait-ambient-video`
+
+### 48.1 Design & Defect Diagnosis
+1. **`BGV-02` (Upgrade Ambient Video Pipeline from Low-Res Preview to QHD+ 1440x2560 9:16 Portrait)**:
+   - *Symptom*: Earlier implementation packaged a downscaled 270×480 preview asset. On flagship high-DPI displays (such as Pixel 10 Pro at 1280×2856), the low-res video was stretched >5x, causing blurry compression artifacts. Additionally, the 4K master asset (`D:\Couple_fit\CoupleFit\green.mp4`, 3840×2160) was formatted in 16:9 landscape, which if center-cropped unrotated would discard ~75% of the horizontal visual field.
+   - *Architectural Root Cause & Video Pipeline Solution*:
+     - Transcoded the 4K master (`3840x2160 @ 42.7fps`, 39.9MB) using FFmpeg with high-grade Lanczos spatial interpolation and 90° counter-clockwise rotation (`transpose=2,scale=1440:2560:flags=lanczos`).
+     - Rotated framing strategically positions the dark obsidian atmospheric region at the top (underneath status bar, time, and headers) while the radiant emerald liquid aurora flows across the middle right and down through the Activity Comparison Gauges and behind the bottom floating glass dock.
+     - Encoded via `libx264` High Profile (`crf 18`, `pix_fmt yuv420p`, `-movflags +faststart`) delivering pristine visual fidelity at 3.26MB, optimizing instant Android `MediaPlayer` streaming with zero cold-start delay.
+     - Preserved mathematical center-crop matrix transformation in `AmbientVideoBackground.kt`, dynamic lifecycle pausing, and `reduceMotion` accessibility compliance.
+
+### 48.2 Code & Architecture Deliverables
+1. **`app/src/main/res/raw/green.mp4`**:
+   - Replaced preview asset with full-resolution QHD+ Portrait (`1440×2560`, 9:16 aspect ratio, H.264 High Profile, audio-free, 3.26MB).
+2. **`Documentation/PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md`**:
+   - Full phase milestone plan with acceptance criteria, task dependencies, and test bars.
+
+### 48.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `ambient_video_qhd_portrait_verified.jpg`: Visually confirmed crystal-clear QHD+ portrait liquid aurora background, razor-sharp typography over dark obsidian header zone, smooth refraction through frosted glass cards, and zero aspect distortion or letterboxing.

@@ -26,6 +26,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`README.md`**](README.md) | System Architecture Spec | **System Architecture** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
 | [**`techstackreview.md`**](techstackreview.md) | Engineering Architecture Audit | **Technical Specs & Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
 | [**`phases.md`**](phases.md) | Project Planning | **Roadmap & Milestones** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
+- [**PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md**](PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md): Phase 25 Full Resolution Portrait Ambient Video Integration (BGV-02).
+- [**RELEASE_NOTES_v2.9.10.md**](RELEASE_NOTES_v2.9.10.md): Release notes for v2.9.10 Full Resolution Portrait Ambient Video.
 - [**PLAN_PHASE_24_AMBIENT_VIDEO_BACKGROUND.md**](PLAN_PHASE_24_AMBIENT_VIDEO_BACKGROUND.md): Phase 24 Ambient Liquid Video Background Integration (BGV-01).
 - [**RELEASE_NOTES_v2.9.9.md**](RELEASE_NOTES_v2.9.9.md): Release notes for v2.9.9 Ambient Video Background.
 - [**PLAN_PHASE_23_INTERACTIVE_GRAPH_RESTORED.md**](PLAN_PHASE_23_INTERACTIVE_GRAPH_RESTORED.md): Phase 23 Interactive Heart Rate Graph Restoration (GRP-01).

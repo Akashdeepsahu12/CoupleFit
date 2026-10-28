@@ -251,3 +251,13 @@ graph TD
   - Integrates `AmbientVideoBackground` as the foundational background layer beneath navigation scaffold and all screens.
 - **Node**: `RELEASE_NOTES_v2.9.9.md`
   - Documents release v2.9.9, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+
+### Phase 25: Full Resolution Portrait Ambient Video Integration
+- **Node**: `PLAN_PHASE_25_FULL_RESOLUTION_PORTRAIT_VIDEO.md`
+  - Defines `BGV-02` (upgrading ambient video pipeline from 270x480 preview to 1440x2560 QHD+ 9:16 portrait).
+  - Links: `AmbientVideoBackground.kt`, `CoupleFitNavigationSuite.kt`, `R.raw.green`, `RELEASE_NOTES_v2.9.10.md`.
+- **Node**: `R.raw.green`
+  - Upgraded video asset to 1440×2560 QHD+ Portrait (3.26MB, H.264 High Profile, Lanczos interpolation, faststart moov atom).
+- **Node**: `RELEASE_NOTES_v2.9.10.md`
+  - Documents release v2.9.10, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.

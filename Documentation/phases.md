@@ -646,6 +646,27 @@ educeMotion accessibility toggle from system / user preferences to halt animatio
 
 ---
 
+## Phase 25: Full Resolution Portrait Ambient Video Integration (`BGV-02`)
+
+### Objectives
+Upgrade the ambient video background pipeline to full-resolution QHD+ Portrait (1440×2560 9:16 aspect ratio), derived from the 4K master (`green.mp4`, 3840×2160) with 90° rotation, Lanczos spatial interpolation, and H.264 High Profile encoding, ensuring pristine visual clarity and zero letterboxing across flagship mobile displays.
+
+### Key Changes Made
+1. **Master 4K Video Transcoding to QHD+ Portrait (`BGV-02`)**:
+   - Transcoded master 4K asset (`3840x2160 @ 42.7fps`, 39.9MB) using FFmpeg with 90° counter-clockwise rotation and Lanczos interpolation: `transpose=2,scale=1440:2560:flags=lanczos`.
+   - Rotated framing strategically situates the dark obsidian atmospheric field at the top of the viewport (protecting text contrast for date, time, and headers) while the vivid emerald liquid aurora flows across the middle right and down through Activity Comparison Gauges and the floating glass dock.
+   - Encoded via `libx264` High Profile (`crf 18`, `pix_fmt yuv420p`, `-movflags +faststart`) delivering an ultra-crisp 1440×2560 stream at 3.26MB, optimizing instant Android `MediaPlayer` streaming with zero cold-start delay.
+2. **Resource Packaging in `app/src/main/res/raw/green.mp4`**:
+   - Replaced legacy 270×480 preview asset with full-resolution 1440×2560 QHD+ asset.
+3. **Compose Transformation Matrix Verification**:
+   - Confirmed `AmbientVideoBackground.kt` mathematical center-crop matrix adapts dynamically to the 9:16 portrait stream with zero aspect stretching, letterboxing, or distortion on Pixel 10 Pro (1280×2856).
+4. **Deterministic & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% pass rate).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - Live Android verification on `emulator-5554`: captured `ambient_video_qhd_portrait_verified.jpg` confirming razor-sharp organic liquid detail, clean dark header contrast, and fluid glass refraction.
+
+---
+
 ## Verification & Build Status
 
 ```bash
