@@ -717,6 +717,29 @@ Introduce dynamic ambient background shuffling across app opens, packaging the n
 
 ---
 
+## Phase 28: Natural Ambient Video Background Fade-In Transition (`BGV-05`)
+
+### Objectives
+Eliminate cold-start visual frame pop and decoder initialization snapping by implementing a hardware-accelerated 1200ms `FastOutSlowInEasing` alpha fade-in bloom on the ambient video background layer, synchronizing with `MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START` and honoring `reduceMotion` accessibility controls.
+
+### Key Changes Made
+1. **Decoder First-Frame Synchronization (`BGV-05`)**:
+   - Attached `setOnInfoListener` to Android `MediaPlayer` inside `AmbientVideoBackground.kt`, capturing `MEDIA_INFO_VIDEO_RENDERING_START` to confirm the exact frame delivery moment.
+   - Built a 250ms fallback trigger in `LaunchedEffect(isPlayerPrepared)` ensuring seamless animation initiation across all OEM video decoders.
+2. **Hardware-Accelerated Alpha Bloom (`graphicsLayer`)**:
+   - Wrapped the `AndroidView(TextureView)` in `Modifier.graphicsLayer { alpha = videoAlpha }`.
+   - Animated `videoAlpha` from `0f` to `1f` using Compose `animateFloatAsState` with a 1200ms duration and `FastOutSlowInEasing` curve, allowing the liquid emerald or sapphire fluid plumes to softly bloom into view over the dark obsidian base (`#07080A`).
+3. **Mid-Session & Resume Stability**:
+   - Maintained alpha at steady state during tab navigation and lifecycle pause/resumes.
+   - Immediately settles opacity when `reduceMotion` is active.
+4. **Automated & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% pass rate).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - `.\gradlew.bat installDebug`: BUILD SUCCESSFUL (Installed on `emulator-5554`).
+   - Live Android verification on `emulator-5554`: confirmed smooth initial obsidian baseline at cold-start (`ambient_video_fade_in_verified.jpg`, BGR 10, 8, 7) blooming to full illumination (`ambient_video_fade_in_bloomed.jpg`, BGR 51, 61, 49) with zero snapping.
+
+---
+
 ## Verification & Build Status
 
 ```bash

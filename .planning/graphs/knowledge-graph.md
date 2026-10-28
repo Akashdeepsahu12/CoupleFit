@@ -291,3 +291,16 @@ graph TD
   - SharedPreferences-backed cold-start shuffle with session-stable `rememberSaveable`.
 - **Node**: `RELEASE_NOTES_v2.9.12.md`
   - Documents release v2.9.12, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+
+### Phase 28: Natural Ambient Video Background Fade-In Transition
+- **Node**: `PLAN_PHASE_28_AMBIENT_VIDEO_FADE_IN.md`
+  - Defines `BGV-05` (natural ambient video background fade-in transition eliminating cold-start visual snap).
+  - Links: `AmbientVideoBackground.kt`, `RELEASE_NOTES_v2.9.13.md`.
+- **Node**: `AmbientVideoBackground.kt`
+  - Decoder first-frame readiness detection via `MEDIA_INFO_VIDEO_RENDERING_START`.
+  - 1200ms `FastOutSlowInEasing` alpha fade-in bloom over `#07080A` obsidian canvas.
+  - Hardware-accelerated `Modifier.graphicsLayer { alpha = videoAlpha }`.
+  - Respects `reduceMotion` accessibility toggle.
+- **Node**: `RELEASE_NOTES_v2.9.13.md`
+  - Documents release v2.9.13, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.

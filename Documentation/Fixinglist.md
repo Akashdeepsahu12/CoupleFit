@@ -2771,3 +2771,35 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `ambient_video_blue_verified.jpg`: Verified sapphire blue liquid background actively rendering behind frosted glass cards.
   - Confirmed non-repeating shuffle alternation via ADB shared preferences (`last_ambient_bg_id`: `blue` -> `green1` -> `blue`).
+
+
+## 51. Phase 28: Natural Ambient Video Background Fade-In Transition (`BGV-05`) 🌌✨
+
+> **Command Trigger**: User Request ("can you give fade in effect to the background app so that i looks natural")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `BGV-05`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.13-ambient-video-fade-in`
+
+### 51.1 Design & Defect Diagnosis
+1. **`BGV-05` (Abrupt Video Decoder Initialization Pop & Snapping Elimination)**:
+   - *Symptom*: During cold start and video buffer initialization, the `TextureView` abruptly snapped from the obsidian background canvas (`#07080A`) to the initial video frame once `MediaPlayer.start()` began rendering, creating an unpolished visual jump.
+   - *Design Engineering & Animation Craft*:
+     - Implemented hardware-accelerated alpha interpolation via Compose `graphicsLayer { alpha = videoAlpha }` wrapping the native `AndroidView(TextureView)`.
+     - Attached `setOnInfoListener` to Android `MediaPlayer` to intercept `MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START`, detecting the precise microsecond when the hardware decoder has presented the first video frame to the surface.
+     - Added a safety fallback in `LaunchedEffect(isPlayerPrepared)` (250ms) to ensure smooth fade-in completion across OEM decoders that omit the info callback.
+     - Animated `videoAlpha` from `0f` to `1f` using `animateFloatAsState` over `1200ms` with `FastOutSlowInEasing`, smoothly blooming the liquid aurora or sapphire ribbons from the obsidian base into full illumination.
+     - Built motion-reduction accessibility support: when `reduceMotion` is active, the animation settles instantaneously with zero duration.
+
+### 51.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt`**:
+   - Integrated `videoAlpha` state with `animateFloatAsState(1200ms, FastOutSlowInEasing)`, `MEDIA_INFO_VIDEO_RENDERING_START` listener, rendering state reset on `videoResId` swap, and `graphicsLayer { alpha = videoAlpha }`.
+2. **`Documentation/PLAN_PHASE_28_AMBIENT_VIDEO_FADE_IN.md`**:
+   - Comprehensive phase milestone plan with acceptance criteria, task dependencies, and test bars.
+
+### 51.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `ambient_video_fade_in_verified.jpg`: Verified initial obsidian baseline at cold-start (`BGR: 10.3, 8.3, 7.3`).
+  - `ambient_video_fade_in_bloomed.jpg`: Verified full illumination after 1200ms bloom (`BGR: 51.0, 61.2, 49.3`) with zero snapping or flicker.

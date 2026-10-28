@@ -9,6 +9,9 @@ import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import androidx.annotation.RawRes
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,32 +19,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.couplefit.R
+import kotlinx.coroutines.delay
 
 private const val TAG = "AmbientVideoBg"
 
 /**
- * Ambient Video Background Composable (BGV-01).
+ * Ambient Video Background Composable (BGV-01, BGV-04, BGV-05).
  *
  * Implements hardware-accelerated, seamless looping video background using Android's native
- * [TextureView] and [MediaPlayer].
+ * [TextureView] and [MediaPlayer] with natural cinematic fade-in transition.
  *
  * Craft & Impeccable Principles:
  * 1. Seamless Alpha & Frosted Glass Layering: Unlike SurfaceView which punches holes through the window buffer,
  *    TextureView behaves as a full Compose graphics layer, allowing frosted glass cards (`Modifier.iosGlass()`)
  *    and the floating glass dock (`Modifier.glassDock()`) to organically diffuse and refract the video.
- * 2. CenterCrop Aspect-Fill Matrix: Mathematically transforms video frame coordinates to fill any phone or tablet
+ * 2. Natural Cinematic Fade-In Bloom (BGV-05): Upon decoder first-frame readiness (`MEDIA_INFO_VIDEO_RENDERING_START`),
+ *    the video layer blooms smoothly from the dark obsidian base (`#07080A`) to full opacity over 1200ms using
+ *    [FastOutSlowInEasing], eliminating cold-start frame snapping and flickering.
+ * 3. CenterCrop Aspect-Fill Matrix: Mathematically transforms video frame coordinates to fill any phone or tablet
  *    viewport without letterboxing, pillarboxing, or aspect-ratio distortion.
- * 3. Lifecycle-Aware Energy Preservation: Listens to [Lifecycle.Event.ON_PAUSE] and [Lifecycle.Event.ON_STOP]
+ * 4. Lifecycle-Aware Energy Preservation: Listens to [Lifecycle.Event.ON_PAUSE] and [Lifecycle.Event.ON_STOP]
  *    to automatically pause playback when the user switches apps or locks the phone, consuming 0% CPU/battery.
- * 4. Accessibility (`reduceMotion`): Pauses video playback on the first frame if the user has requested reduced motion.
- * 5. Audio Zeroing: Strictly mutes audio (`setVolume(0f, 0f)`) to serve purely as ambient visual atmosphere.
- * 6. Cinematic Obsidian Veil: Overlays a dual-stage gradient scrim (`#07080A`) ensuring 100% WCAG AA contrast for text.
+ * 5. Accessibility (`reduceMotion`): Immediately settles opacity and pauses video playback if the user has requested reduced motion.
+ * 6. Audio Zeroing: Strictly mutes audio (`setVolume(0f, 0f)`) to serve purely as ambient visual atmosphere.
+ * 7. Cinematic Obsidian Veil: Overlays a dual-stage gradient scrim (`#07080A`) ensuring 100% WCAG AA contrast for text.
  */
 @Composable
 fun AmbientVideoBackground(
@@ -62,6 +70,32 @@ fun AmbientVideoBackground(
     // Reference to active MediaPlayer for lifecycle management
     var mediaPlayerRef by remember { mutableStateOf<MediaPlayer?>(null) }
     var isPlayerPrepared by remember { mutableStateOf(false) }
+    var isVideoRendering by remember { mutableStateOf(false) }
+
+    // Natural Fade-In Animation (BGV-05)
+    // Smoothly blooms the video layer from obsidian black into full illumination
+    val videoAlpha by animateFloatAsState(
+        targetValue = if (isVideoRendering) 1f else 0f,
+        animationSpec = if (reduceMotion) {
+            tween(durationMillis = 0)
+        } else {
+            tween(durationMillis = 1200, easing = FastOutSlowInEasing)
+        },
+        label = "ambientVideoFadeIn"
+    )
+
+    // Reset rendering trigger on video change
+    LaunchedEffect(videoResId) {
+        isVideoRendering = false
+    }
+
+    // Safety fallback: ensure fade-in completes even if OEM decoder omits MEDIA_INFO_VIDEO_RENDERING_START
+    LaunchedEffect(isPlayerPrepared) {
+        if (isPlayerPrepared && !isVideoRendering) {
+            delay(250)
+            isVideoRendering = true
+        }
+    }
 
     // Lifecycle observer for battery/CPU preservation
     DisposableEffect(lifecycleOwner, mediaPlayerRef) {
@@ -117,7 +151,9 @@ fun AmbientVideoBackground(
             .background(Color(0xFF07080A)) // Fallback dark obsidian base
     ) {
         AndroidView(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { alpha = videoAlpha },
             factory = { ctx ->
                 TextureView(ctx).apply {
                     val tv = this
@@ -143,6 +179,13 @@ fun AmbientVideoBackground(
                                         }
                                     }
                                     
+                                    setOnInfoListener { _, what, _ ->
+                                        if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                                            isVideoRendering = true
+                                        }
+                                        false
+                                    }
+
                                     setOnVideoSizeChangedListener { _, vWidth, vHeight ->
                                         adjustAspectRatio(tv, vWidth, vHeight, tv.width, tv.height)
                                     }
@@ -182,6 +225,7 @@ fun AmbientVideoBackground(
                             player = null
                             mediaPlayerRef = null
                             isPlayerPrepared = false
+                            isVideoRendering = false
                             surface?.release()
                             surface = null
                             return true
