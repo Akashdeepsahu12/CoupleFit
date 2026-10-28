@@ -667,6 +667,29 @@ Upgrade the ambient video background pipeline to full-resolution QHD+ Portrait (
 
 ---
 
+## Phase 26: Ambient Video Background Switch to green1.mp4 (BGV-03)
+
+### Objectives
+Switch the ambient video background to the newly provided green1.mp4 asset. Process and transcode the native 9:20 portrait video (864x1920, 20.02s seamless liquid gradient motion) to an exact 1.25x integer scaled resolution of 1080x2400 with Lanczos spatial interpolation and H.264 High Profile encoding, updating the Compose navigation shell and component defaults while preserving battery-efficient lifecycle pausing and accessibility motion controls.
+
+### Key Changes Made
+1. **Asset Analysis & Transcoding Pipeline (BGV-03)**:
+   - Evaluated D:\Couple_fit\CoupleFit\green1.mp4: H.264 (avc1), 864x1920 native vertical portrait (9:20 aspect ratio), 20.02s duration (600 frames @ 29.97 fps), 19.6 MB, audio-free, organic emerald liquid gradient movement.
+   - Transcoded with FFmpeg using Lanczos spatial interpolation (scale=1080:2400:flags=lanczos), libx264 High Profile (crf 19, pix_fmt yuv420p), and -movflags +faststart to place the moov atom at the start of the container.
+   - Generated pp/src/main/res/raw/green1.mp4 (7.48 MB, 1080x2400, 30fps) for instant hardware-accelerated streaming without buffering.
+2. **Component & Navigation Layer Updates**:
+   - In pp/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt: Updated default @RawRes videoResId: Int = R.raw.green1.
+   - In pp/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt: Passed ideoResId = R.raw.green1 explicitly into AmbientVideoBackground.
+   - Preserved TextureView graphics layer blending beneath Modifier.iosGlass() frosted glass cards, dynamic center-crop scaling matrix, lifecycle pause/resume observer, and 
+educeMotion accessibility fallback.
+3. **Deterministic & ARTEMIS Verification**:
+   - .\gradlew.bat testDebugUnitTest: BUILD SUCCESSFUL (100% pass rate).
+   - .\gradlew.bat compileDebugAndroidTestKotlin: BUILD SUCCESSFUL (0 errors).
+   - .\gradlew.bat installDebug: BUILD SUCCESSFUL (Installed on emulator-5554).
+   - Live Android verification on emulator-5554: captured mbient_video_green1_verified.jpg confirming smooth, high-fidelity liquid emerald background motion behind all cards and the floating glass dock.
+
+---
+
 ## Verification & Build Status
 
 ```bash

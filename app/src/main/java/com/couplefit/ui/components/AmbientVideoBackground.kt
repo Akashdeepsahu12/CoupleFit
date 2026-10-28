@@ -46,7 +46,7 @@ private const val TAG = "AmbientVideoBg"
 @Composable
 fun AmbientVideoBackground(
     modifier: Modifier = Modifier,
-    @RawRes videoResId: Int = R.raw.green,
+    @RawRes videoResId: Int = R.raw.green1,
     reduceMotion: Boolean = false,
     scrimBrush: Brush = Brush.verticalGradient(
         colors = listOf(

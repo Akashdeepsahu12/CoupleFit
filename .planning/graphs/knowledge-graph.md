@@ -261,3 +261,17 @@ graph TD
   - Upgraded video asset to 1440×2560 QHD+ Portrait (3.26MB, H.264 High Profile, Lanczos interpolation, faststart moov atom).
 - **Node**: `RELEASE_NOTES_v2.9.10.md`
   - Documents release v2.9.10, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+
+### Phase 26: Ambient Video Background Switch to `green1.mp4`
+- **Node**: `PLAN_PHASE_26_AMBIENT_VIDEO_GREEN1.md`
+  - Defines `BGV-03` (switching ambient background video to native 9:20 portrait `green1.mp4`).
+  - Links: `AmbientVideoBackground.kt`, `CoupleFitNavigationSuite.kt`, `R.raw.green1`, `RELEASE_NOTES_v2.9.11.md`.
+- **Node**: `R.raw.green1`
+  - Native 9:20 portrait video transcoded to 1080x2400 via Lanczos interpolation (7.48MB, 30fps, H.264 High Profile, faststart moov atom).
+- **Node**: `AmbientVideoBackground.kt`
+  - Updated default video resource parameter `@RawRes videoResId: Int = R.raw.green1`.
+  - Preserves TextureView blending, dynamic center-crop scaling matrix, lifecycle pause/resume observer, and `reduceMotion` accessibility toggle.
+- **Node**: `RELEASE_NOTES_v2.9.11.md`
+  - Documents release v2.9.11, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+

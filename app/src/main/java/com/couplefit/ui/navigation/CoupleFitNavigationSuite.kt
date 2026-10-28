@@ -41,10 +41,10 @@ fun CoupleFitNavigationSuite(
     val haptic = LocalHapticFeedback.current
 
     Box(modifier = modifier.fillMaxSize()) {
-        // 1. Living Ambient Aurora Video Background (BGV-01)
+        // 1. Living Ambient Aurora Video Background (BGV-03: green1.mp4)
         AmbientVideoBackground(
             modifier = Modifier.fillMaxSize(),
-            videoResId = R.raw.green,
+            videoResId = R.raw.green1,
             reduceMotion = reduceMotion
         )
 

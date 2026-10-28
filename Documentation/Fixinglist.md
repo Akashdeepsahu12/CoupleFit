@@ -2686,3 +2686,41 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `ambient_video_qhd_portrait_verified.jpg`: Visually confirmed crystal-clear QHD+ portrait liquid aurora background, razor-sharp typography over dark obsidian header zone, smooth refraction through frosted glass cards, and zero aspect distortion or letterboxing.
+
+
+## 49. Phase 26: Ambient Video Background Switch to `green1.mp4` (`BGV-03`) 🌿📱
+
+> **Command Trigger**: User Request ("can you use green1.mp4")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `BGV-03`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.11-ambient-video-green1`
+
+### 49.1 Design & Defect Diagnosis
+1. **`BGV-03` (Ambient Motion Switch to Native 9:20 Portrait `green1.mp4` with Lanczos Integer Scaling)**:
+   - *Symptom*: User requested switching ambient background video to newly supplied asset `D:\Couple_fit\CoupleFit\green1.mp4`.
+   - *Asset Analysis*:
+     - File: `D:\Couple_fit\CoupleFit\green1.mp4`
+     - Video Specs: H.264 (avc1), 864x1920 native vertical portrait (9:20 aspect ratio), 20.02s duration (600 frames @ 29.97 fps), 19.6 MB, audio-free, organic emerald liquid gradient movement with deep obsidian shadow regions.
+   - *Architectural Root Cause & Compose Solution*:
+     - The input asset has a native 9:20 vertical portrait aspect ratio (`864x1920`), perfectly matching modern mobile phone screen geometries (e.g. 20:9 / 19.5:9 display panels such as Pixel 10 Pro at 1280x2856).
+     - Scaled using FFmpeg with high-grade Lanczos spatial interpolation to an exact 1.25x integer resolution (`1080x2400`), encoded via `libx264` (`crf 19`, `pix_fmt yuv420p`, `-movflags +faststart`) to produce `app/src/main/res/raw/green1.mp4` (7.48 MB, faststart moov atom at byte offset 0).
+     - Updated default `@RawRes videoResId: Int = R.raw.green1` in `AmbientVideoBackground.kt` and wired `R.raw.green1` explicitly in `CoupleFitNavigationSuite.kt`.
+     - Preserved mathematical center-crop matrix transformation, dynamic lifecycle pausing on background, and `reduceMotion` accessibility toggle.
+
+### 49.2 Code & Architecture Deliverables
+1. **`app/src/main/res/raw/green1.mp4`**:
+   - Packaged the optimized 20.02s 1080x2400 H.264 ambient liquid loop directly into Android resources (`R.raw.green1`).
+2. **`app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt`**:
+   - Updated default resource parameter `@RawRes videoResId: Int = R.raw.green1`.
+3. **`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`**:
+   - Passed `videoResId = R.raw.green1` into `AmbientVideoBackground`.
+4. **`Documentation/PLAN_PHASE_26_AMBIENT_VIDEO_GREEN1.md`**:
+   - Full phase milestone plan with acceptance criteria, task dependencies, and test bars.
+
+### 49.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `ambient_video_green1_verified.jpg`: Visually confirmed crystal-clear native portrait `green1.mp4` liquid background playing smoothly behind frosted glass cards and floating dock, razor-sharp typography, and zero aspect distortion.
+
