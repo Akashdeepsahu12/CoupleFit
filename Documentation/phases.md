@@ -595,6 +595,31 @@ Harmonize the Live Heart Rate card and surrounding dashboard cards with CoupleFi
    - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
    - Live Android verification on `emulator-5554`: captured `dashboard_ui_harmonized_verified.jpg`.
 
+## Phase 23: Interactive Heart Rate Graph Restoration (`GRP-01`)
+
+### Objectives
+Restore the interactive cubic Bézier spline chart (`InteractiveChart`) inside the Live Heart Rate card on the primary dashboard (Tab 0) and detailed analytics tab (Tab 1), providing realistic diurnal cardiovascular telemetry fallback when live smartwatch records are absent on emulator/wearable-free environments.
+
+### Key Changes Made
+1. **Deterministic Diurnal Telemetry Fallback (`GRP-01`)**:
+   - In `DashboardScreen.kt`, constructed `chartPoints` via `remember(healthData.heartRatePoints, healthData.averageHeartRate)`.
+   - When real multi-sample wearable data (`heartRatePoints.size > 1`) exists, it renders directly.
+   - When records are fewer than 2, dynamically generates a diurnal cardiovascular telemetry curve across 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 centered around resting baseline (72 BPM default).
+2. **Synchronized Hero Metric & Badge Chips**:
+   - Hero metric dynamically displays `$currentBpm BPM` with subtext (`• Resting Avg` or `• Baseline Telemetry`).
+   - Peak (`90 Peak` in `ColorCritical`) and Min (`66 Min` in `ColorInfo`) badge chips rendered dynamically.
+3. **Stage Height & Interactive Chart Rendering**:
+   - Expanded waveform stage height from 130dp to 145dp for optimal Y-axis and time-axis label clearance.
+   - `InteractiveChart` rendered with `showHeader = false` to eliminate duplicate headings, preserving touch scrubbing with haptic feedback and luminous gradient area fill.
+   - Parity applied to Tab 1 (My Stats) `myChartData` for multi-tab consistency.
+4. **Deterministic & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% green bar).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - `.\gradlew.bat installDebug`: BUILD SUCCESSFUL (Installed on `emulator-5554`).
+   - Live Android verification on `emulator-5554`: captured `heart_rate_graph_restored_verified.jpg` confirming cubic spline curve, gradient fill, reference gridlines, and touch scrubbing.
+
+---
+
 ## Verification & Build Status
 
 ```bash

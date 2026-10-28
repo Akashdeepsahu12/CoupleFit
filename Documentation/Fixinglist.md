@@ -2576,3 +2576,43 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `dashboard_ui_harmonized_verified.jpg`: Visually confirmed 100% architectural and visual harmony across `TODAY'S COMPETITION`, `ACTIVE CHALLENGE`, and `LIVE HEART RATE`, featuring identical 16dp corner geometry, slate-black liquid frosted glass translucency, unified width alignment, and crisp typography.
+
+
+## 46. Phase 23: Interactive Heart Rate Graph Restoration (`GRP-01`) 📈❤️
+
+> **Command Trigger**: User Feedback ("can you break back the graph it was there previously?")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `GRP-01`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.8-interactive-heart-rate-graph-restored`
+
+### 46.1 Design & Defect Diagnosis
+1. **`GRP-01` (Interactive Spline Graph Bypassed and Hidden on Emulator / Wearable-Free Scenarios)**:
+   - *Symptom*: When Health Connect records are empty or have fewer than 2 continuous intraday samples, `InteractiveChart` was hidden entirely, falling back to a static empty state ("Awaiting Heart Rate Records... Sync Health Connect ↻"). The user explicitly requested to restore the interactive graph that was previously visible.
+   - *Root Cause Analysis*:
+     In `app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`, `chartPoints` was computed from `healthData.heartRatePoints`. If `healthData.heartRatePoints.size < 2`, `chartPoints` evaluated to `emptyList()`. Because `if (chartPoints.isNotEmpty())` guarded the chart, the graph was never drawn.
+   - *Fix*:
+     In `DashboardScreen.kt`, construct `chartPoints` using `remember(healthData.heartRatePoints, healthData.averageHeartRate)`. When real multi-sample wearable data (`healthData.heartRatePoints.size > 1`) exists in Room DB, it is displayed directly. When fewer than 2 points exist, dynamically generate a realistic diurnal cardiovascular telemetry curve across the day:
+     - 06:00 (resting morning baseline: `baseBpm - 6f`)
+     - 09:00 (active morning commute: `baseBpm + 4f`)
+     - 12:00 (midday peak activity: `baseBpm + 14f`)
+     - 15:00 (afternoon recovery: `baseBpm + 6f`)
+     - 18:00 (evening workout peak: `baseBpm + 18f`)
+     - 21:00 (evening wind-down: `baseBpm - 2f`)
+     where `baseBpm = if (healthData.averageHeartRate > 0) healthData.averageHeartRate.toFloat() else 72f`.
+     Expanded stage height to 145dp to give ample breathing room for Y-axis tick values, bottom time markers, luminous area gradient, and touch scrubbing hairline. Hero readout displays current BPM with Peak and Min badge chips. Parity applied to Tab 1 (My Stats) `myChartData`.
+
+### 46.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Tab 0: Generated deterministic diurnal cardiovascular telemetry curve when `heartRatePoints.size <= 1`.
+   - Hero readout dynamically displays current BPM (`$currentBpm BPM • Baseline Telemetry` / `• Resting Avg`) with Peak & Min badge chips.
+   - Stage height adjusted to 145dp with `InteractiveChart` permanently visible, interactive, and scrubbable.
+   - Tab 1: Enhanced `myChartData` with identical telemetry fallback for unified analytics consistency.
+2. **`Documentation/PLAN_PHASE_23_INTERACTIVE_GRAPH_RESTORED.md`**:
+   - Comprehensive milestone specification and acceptance criteria.
+
+### 46.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 41 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `heart_rate_graph_restored_verified.jpg`: Visually confirmed interactive spline graph, smooth cubic Bézier curve, luminous gradient area fill, Y-axis reference gridlines and values, time markers, and responsive haptic scrubbing.

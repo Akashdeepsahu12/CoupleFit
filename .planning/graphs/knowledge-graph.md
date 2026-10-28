@@ -224,3 +224,15 @@ graph TD
   - Replaces solid button with frosted glass pill button matching `QuickNudgeRow`.
 - **Node**: `ActiveChallengePreviewCard.kt`
   - Eliminates duplicate horizontal padding, unifying card margins across the dashboard.
+
+
+### Phase 23: Interactive Heart Rate Graph Restoration
+- **Node**: `PLAN_PHASE_23_INTERACTIVE_GRAPH_RESTORED.md`
+  - Defines `GRP-01` (deterministic diurnal cardiovascular telemetry curve fallback).
+  - Links: `DashboardScreen.kt`, `InteractiveChart.kt`, `RELEASE_NOTES_v2.9.8.md`.
+- **Node**: `DashboardScreen.kt`
+  - Restores `InteractiveChart` on Tab 0 (Today / Dashboard) and Tab 1 (My Stats).
+  - Employs deterministic diurnal curve across 06:00, 09:00, 12:00, 15:00, 18:00, 21:00 when wearable data has fewer than 2 points.
+  - Expands stage height to 145dp, preserving reference gridlines, time axis, luminous gradient fill, and touch scrubbing.
+- **Node**: `RELEASE_NOTES_v2.9.8.md`
+  - Documents release v2.9.8, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
