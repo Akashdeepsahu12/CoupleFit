@@ -388,3 +388,14 @@ graph TD
   - `ANM-14`: `CoupleHubScreen.kt` -> Implements interactive partner avatar touch trigger with anatomical dual-pulse heartbeat haptics (`Lub-Dub`), heart scale pump, and expanding radiant luminous aura waves.
   - `TEST-34`: `TactileMotionArchitectureTest.kt` -> Automated unit test suite verifying modifier creation, token integrity, and perspective enums (33/33 unit tests green).
 - **Verification Evidence**: [`Documentation/phase34_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase34_verification_report.md)
+
+### Phase 35: Floating Hover Dock Architecture & Black Strip Elimination (DCK-01) 🟢 Resolved
+- **Domain**: Frontend Design Taste & Optical Translucency (`/taste-skill:design-taste-frontend`, `/ui-ux-pro-max-skill:design-system`)
+- **Milestone Tag**: `v2.9.20-floating-hover-dock-dck01`
+- **Nodes & Edges**:
+  - `DCK-01`: Floating Hover Dock & Black Strip Elimination
+  - `CoupleFitNavigationSuite.kt` -> Replaced `Scaffold(bottomBar = ...)` with root `Box(Modifier.fillMaxSize())`, rendering screen content full bleed (`PaddingValues(bottom = 96.dp)`) with floating glass dock overlay anchored at `Alignment.BottomCenter` with `navigationBarsPadding()`.
+  - `GlassTokens.kt` -> Recalibrated optical translucency: `TranslucentDockTop` from 91% to 40% (`0x66182030`), `TranslucentDockBottom` from 96% to 53% (`0x880E131E`), preserving top specular rim and 8dp elevation shadow.
+  - `MainActivity.kt` -> Enabled edge-to-edge transparent system bars for both status and navigation bars (`Color.TRANSPARENT`), removed inner padding constraint for true edge-to-edge rendering.
+  - `Fixinglist.md` -> Section 58 & Master Defect Table entry `DCK-01`
+  - `Documentation/phase35_verification_report.md` -> Full live device screenshot evidence and test logs

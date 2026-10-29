@@ -94,6 +94,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **ANM-12** | Sync Refresh Orbital Wave Pulse | `/designer-skills:micro-interaction-spec` | 💡 **Glanceable Status** | `DashboardScreen.kt` | Pull-to-refresh and background telemetry sync displays standard spinner or static text without ambient kinetic feedback. | Missed opportunity for organic vitality. | Implemented `OrbitalSyncPulse`: rotating cyan/amber orbital particle ring with expanding radar ripple during active telemetry sync. | 🟢 Resolved |
 | **ANM-13** | Medication Swipe-To-Complete Gesture | `/designer-skills:interfaces-that-feel` | 💡 **Tactile Delight** | `MedicationDuePill.kt` | Medication logging uses simple tap button. Lacks interactive gesture-driven completion with haptic release. | Feels routine; lacks friction-reducing celebratory affordance. | Implemented `AnimatedContent` transition with celebratory scale punch, heartbeat haptic confirmation, and spring ejection dismiss. | 🟢 Resolved |
 | **ANM-14** | Couple Avatar Touch-Heartbeat Ripple | `/designer-skills:brand` | 💡 **Relational Intimacy** | `CoupleHubScreen.kt` | Tapping or holding partner avatar produces no kinetic response or remote connection feedback. | Relational interface feels inanimate. | Implemented interactive partner avatar with dual-pulse anatomical heartbeat haptics, heart scale pump, and expanding luminous aura waves. | 🟢 Resolved |
+| **DCK-01** | Floating Hover Dock & Black Strip Elimination | `/taste-skill:design-taste-frontend` | 🛸 **Visual Elegance** | Navigation Dock & Main Container | Navigation dock sat inside non-overlapping Scaffold partition creating a dead black strip; dock was near-opaque (91-96%) rather than floating over full-bleed content. | Bottom bar looked severed on an opaque black strip; broke immersive ambient video and tactile depth. | Converted Scaffold to full-bleed Box overlay, calibrated glass translucency (40%-53%), transparent edge-to-edge system bars, and 96dp bottom clearance scroll. | 🟢 Resolved |
 | **MSR-07** | Readable Measure & Dashboard Cards | `/designer-skills:readable-measure` | 💡 **Ergonomic Polish** | `DashboardScreen.kt` | Card subtitle sprawl: Medication reminders and daily goal prompts span full width on tablets, causing subtitles to stretch out to **90–125 CPL**. | Disconnect between card width and short helper strings. | Anchor card width in responsive grid cells (`minSize = 340.dp`) or apply `readableMeasure()` container. | 🟢 Resolved |
 | **SPC-01** | Spacing Token Discipline | `/designer-skills:spacing-system` | 🔴 **Design System Drift** | App-Wide UI Composables | Arbitrary hardcoded spacing: Over **240 instances** bypass `AppSpacing` using ad-hoc inline values (`20.dp`, `28.dp`, `6.dp`, `14.dp`, `52.dp`). | Breaks layout rhythm, causes visual inconsistency, and shatters design-token governance. | Refactor all hardcoded dp values to use strict `AppSpacing` tokens (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`). | 🟢 Resolved |
 | **SPC-02** | Spacing Scale Coverage | `/designer-skills:spacing-system` | 🔵 **Correction Needed** | `Spacing.kt` | Truncated scale capped at `32.dp`. Missing hero separators (`48.dp`), tablet dividers (`64.dp`), and viewport boundaries (`96.dp`). | Forces developers to write inline dp values for major hero sections and tablet breakpoints. | Expand `AppSpacing` to include `none (0dp)`, `xxl (48dp)`, `xxxl (64dp)`, and `xxxxl (96dp)`. | 🟢 Resolved |
@@ -242,7 +243,7 @@ This section documents every command used across all audits, test suites, and di
 | `/designer-skills:frontend-design` | Visual Identity & Color Roles | Established dual-partner signature identity colors (Electric Cyan vs. Vibrant Coral) and 3 shotgun design concepts | §8 | `DSN-01` to `DSN-03` |
 | `/emilkowalski-skills:emil-design-eng` | Design Engineering & Fluidity | Tuned bounce spring physics (`dampingRatio = 0.82f`), fluid ring retargeting, and heartbeat haptics | §9 | `ENG-01` to `ENG-04` |
 | `/ui-ux-pro-max-skill:design-system` | Design System & Translucency | Specified `Modifier.iosGlass()`, 20dp backdrop blur, 1px top rim lighting, and floating glass dock | §10 | `GLS-01`, `GLS-02` |
-| `/taste-skill:design-taste-frontend` | Anti-AI-Slop Frontend QA | Audited counter stability (`tnum`), directional lighting, and physical empty states | §11 & §21 | `TST-01` to `TST-05` |
+| `/taste-skill:design-taste-frontend` | Anti-AI-Slop Frontend QA & Dock Hover Architecture | Audited counter stability (`tnum`), floating hover glass dock, black strip elimination, directional lighting | §11, §21 & §58 | `TST-01` to `TST-05`, `DCK-01` |
 | `/designer-skills:color-system` | Color Palette & Contrast | Evaluated WCAG 2.2 AA ratios (4.5:1), dual-user identity tokens, and multi-modal color-blind glyphs | §12 | `CLR-01` to `CLR-03` |
 | `/designer-skills:typography-scale` | Typographic Hierarchy | Audited type scale, eliminated size duplication, and specified `HeroMetricDisplay` (`52.sp`) | §13 | `TYP-01` to `TYP-03` |
 | `/designer-skills:readable-measure` | Reading Cadence (45–75 CPL) | Evaluated line lengths across tablets and defined `Modifier.readableMeasure(600.dp)` | §14 | `MSR-01`, `MSR-02` |
@@ -3231,4 +3232,63 @@ Every animation and tactile micro-interaction implemented in Phase 34 was audite
 | **`ANM-13`** | `MedicationDuePill.kt` | Animated dose logging celebration & ejection | [`anm13_dose_logged_celebration.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/anm13_dose_logged_celebration.jpg) | 🟢 Verified |
 | **`ANM-14`** | `CoupleHubScreen.kt` | Partner avatar heartbeat haptics & ripple aura | [`anm14_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/anm14_couple_hub_verified.jpg), [`anm14_heartbeat_ripple_active.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/anm14_heartbeat_ripple_active.jpg) | 🟢 Verified |
 | **Test Suite** | `TactileMotionArchitectureTest.kt` | Automated Gradle unit test run (33/33 green) | [`testDebugUnitTest`](file:///D:/Couple_fit/CoupleFit/app/build/reports/tests/testDebugUnitTest/index.html) | 🟢 Verified |
+| **Compiler** | `compileDebugAndroidTestKotlin` | Full Kotlin compile bar | 0 errors, 100% build green | 🟢 Verified |
+
+---
+
+## 58. Phase 35: Floating Hover Dock Architecture & Black Strip Elimination (DCK-01) 🛸✨
+
+> **Command Trigger**: `/taste-skill:design-taste-frontend`  
+> **Associated Defect Logs**: `DCK-01`  
+> **Status**: 🟢 **RESOLVED & SHIPPED** in Phase 35 (`v2.9.20-floating-hover-dock-dck01`)  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_35_FLOATING_HOVER_DOCK.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_35_FLOATING_HOVER_DOCK.md)  
+> **Release Verification Report**: [`Documentation/phase35_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase35_verification_report.md)
+
+---
+
+### 58.1 Defect Diagnosis & Root Cause Analysis
+
+1. **Scaffold Layout Partitioning Dead Strip**:
+   - Material 3 `Scaffold(bottomBar = { ... })` allocates a dedicated non-overlapping lower partition for the navigation bar, measuring screen content strictly above its top coordinate.
+   - Consequently, when rendered in `MainActivity.kt` with `Box(modifier = Modifier.padding(innerPadding))`, the content container was clipped an additional ~132dp, double-padding the screen and abruptly cutting off cards and ambient video above the navigation dock.
+   - The area behind and around the bottom dock sat empty as a dead black void / strip.
+
+2. **Opaque Dock Glass Calibration**:
+   - In `GlassTokens.kt`, `TranslucentDockTop` was configured at 91% opacity (`0xE8141923`) and `TranslucentDockBottom` at 96% opacity (`0xF50D1118`).
+   - This heavy opacity caused the navigation pill to appear as an opaque black bar rather than an optical floating glass capsule, breaking the Apple Liquid Glass design language.
+
+3. **Window Insets Scrim Occlusion**:
+   - Default navigation bar system bars were adding an opaque black scrim at the physical display boundary.
+
+---
+
+### 58.2 Architecture & Implementation Details
+
+1. **Full-Bleed Overlay Architecture ([`CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt))**:
+   - Eliminated the non-overlapping `Scaffold(bottomBar = ...)` structure in favor of a root `Box(modifier = Modifier.fillMaxSize())`.
+   - The screen content renders full bleed (`content(PaddingValues(bottom = 96.dp))`), extending seamlessly from the status bar down through the navigation gesture pill.
+   - The navigation dock is hoisted as an independent floating overlay anchored at `Alignment.BottomCenter` with `Modifier.padding(horizontal = 20.dp, vertical = 10.dp).navigationBarsPadding()`.
+   - Content and ambient video glide smoothly underneath the dock as the user scrolls, while the 96dp bottom padding ensures the last interactive element scrolls completely above the dock when reaching the list bottom.
+
+2. **Optical Translucency Recalibration ([`GlassTokens.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/theme/GlassTokens.kt))**:
+   - `TranslucentDockTop`: recalibrated from 91% to 40% opacity (`Color(0x66182030)`).
+   - `TranslucentDockBottom`: recalibrated from 96% to 53% opacity (`Color(0x880E131E)`).
+   - Preserved directional top specular rim highlight (`Color(0x55FFFFFF)`) and ambient drop shadow (`elevation = 8.dp`), achieving genuine floating optical glass aesthetics.
+
+3. **Edge-to-Edge System Navigation ([`MainActivity.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/MainActivity.kt))**:
+   - Replaced default system bar scrims with transparent styles: `enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT), navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))`.
+   - Removed `Modifier.padding(innerPadding)` from the root content box, allowing full-bleed edge-to-edge rendering across all display viewports.
+
+---
+
+### 58.3 Deterministic Verification & Evidence Matrix
+
+| Defect ID | Component / File | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`DCK-01`** | `CoupleFitNavigationSuite.kt` | Live device inspection of Today Pulse tab with content scrolling behind dock | [`dck01_floating_hover_dock_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_floating_hover_dock_verified.jpg) | 🟢 Verified |
+| **`DCK-01`** | `MainActivity.kt` | Live scroll test confirming full-bleed content gliding under translucent dock | [`dck01_scrolled_content_hover_dock.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_scrolled_content_hover_dock.jpg) | 🟢 Verified |
+| **`DCK-01`** | `GlassTokens.kt` | Challenges tab live verification with Century Duel card visible behind dock | [`dck01_challenges_tab_hover_dock.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_challenges_tab_hover_dock.jpg) | 🟢 Verified |
+| **`DCK-01`** | `HealthTrendsScreen.kt` | Health & Trends tab live verification with sensor card extending edge-to-edge | [`dck01_trends_tab_hover_dock.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_trends_tab_hover_dock.jpg) | 🟢 Verified |
+| **`DCK-01`** | `CoupleHubScreen.kt` | Couple Hub tab live verification with full-bleed ambient backdrop | [`dck01_couple_hub_tab_hover_dock.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_couple_hub_tab_hover_dock.jpg) | 🟢 Verified |
+| **Test Suite** | Unit Regression Tests | Automated Gradle test runner (33/33 tests green) | [`testDebugUnitTest`](file:///D:/Couple_fit/CoupleFit/app/build/reports/tests/testDebugUnitTest/index.html) | 🟢 Verified |
 | **Compiler** | `compileDebugAndroidTestKotlin` | Full Kotlin compile bar | 0 errors, 100% build green | 🟢 Verified |

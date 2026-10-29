@@ -52,7 +52,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = androidx.activity.SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = androidx.activity.SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
         handleDeepLink(intent)
 
         val prefs = getSharedPreferences("couplefit_prefs", Context.MODE_PRIVATE)
@@ -237,8 +246,8 @@ class MainActivity : ComponentActivity() {
                                             onDestinationSelected = { currentTab = it },
                                             reduceMotion = effectiveReduceMotion,
                                             ambientVideoResId = currentAmbientBgAsset.resId
-                                        ) { innerPadding ->
-                                            Box(modifier = Modifier.padding(innerPadding)) {
+                                        ) { _ ->
+                                            Box(modifier = Modifier.fillMaxSize()) {
                                                 AnimatedContent(
                                                     targetState = currentTab,
                                                     transitionSpec = {

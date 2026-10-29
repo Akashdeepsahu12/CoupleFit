@@ -45,8 +45,8 @@ object GlassPrimitives {
 
     // Atmospheric Frosted Bases (GLS-08, GLS-10)
     val TranslucentSlateBase = Color(0x38121622)   // Deep translucent midnight slate base
-    val TranslucentDockTop = Color(0xE81C2333)     // 91% opacity frosted dark navy slate
-    val TranslucentDockBottom = Color(0xF410131C)  // 96% opacity frosted dark slate
+    val TranslucentDockTop = Color(0x66182030)     // 40% translucent frosted slate (DCK-01)
+    val TranslucentDockBottom = Color(0x880E131E)  // 53% translucent deep midnight glass (DCK-01)
 
     // Fallback Solid Colors for Android < 12 (API 29-30)
     val SolidSlateCard = Color(0xFF141720)
