@@ -840,3 +840,21 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   5. Softened weekday streak indicator border on "Fri" to `0.5.dp` (`0.35f` alpha).
   6. Replaced `.systemBarsPadding()` with `.statusBarsPadding()` on the dashboard root column to eliminate double padding gaps.
 - **Release Tag**: `v2.9.22-debox-clean-ui-box01`
+
+## Phase 38: Couple Intimacy Profile, AGSL Refraction Liquid Glass Dock & Expanded Telemetry (CPX-01) 💎💍
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md)
+- **Verification Report**: [`Documentation/phase38_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase38_verification_report.md)
+- **Status**: Completed & Verified on Device (`emulator-5554` & `SM-S921B`)
+- **Key Deliverables**:
+  1. Cached couple session in `SharedPreferences` to eliminate the split-second cold start `InvitePartnerScreen` flash.
+  2. Gated `MedicationDuePill` with `isWithinDoseWindow(scheduledTime, 60)` circular time check so it only surfaces within $[-1h, +1h]$ of the dose time.
+  3. Contained `AuroraTelemetryMesh` inside the Activity Gauges card with `Box.clipToBounds()` and softened glow brush opacity to `0.12f`.
+  4. Made the entire Active Challenges card interactive with spring feedback (`.duelCardPress`) and interactive format cards.
+  5. Removed `"Double-tap ring to cheer 💖"` text to restore vertical baseline symmetry between User and Partner gauge columns.
+  6. Connected user and partner names dynamically to Google Auth and DataStore profile flows.
+  7. Redesigned Couple Hub with interactive couple dossier: Days Paired counter ("💍 Paired for 540 Days"), Birthdays, Relationship description, and interactive editing modal.
+  8. Completely de-boxed Challenges and Settings screens using `iosGlass` with 0.5dp specular highlights.
+  9. Implemented AGSL runtime shader refraction lens (`LiquidGlassEngine.kt`) with chromatic dispersion RGB splits (`1.08 / 1.00 / 0.92`) and 32dp frosted blur on Android 13+.
+  10. Added tactile haptics across navigation tabs, settings switches, duel format cards, and filter chips.
+  11. Requested `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` and declared 10 Health Connect read permissions (`ActiveCaloriesBurned`, `Distance`, `Exercise`, `Power`, `Speed`, `Steps`, `TotalCaloriesBurned`, `Sleep`, `HeartRate`, `OxygenSaturation`).
+- **Release Tag**: `v2.9.23-couple-intimacy-refraction-cpx01`

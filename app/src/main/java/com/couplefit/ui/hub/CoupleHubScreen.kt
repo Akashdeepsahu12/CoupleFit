@@ -6,7 +6,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -32,22 +35,31 @@ import kotlinx.coroutines.launch
 
 /**
  * Couple Hub Screen (Tab 4).
- * Designed according to `card-sort-analysis.md` §7.2 (Wireframe 4).
- *
- * Enhanced with ANM-14: Interactive couple avatar touch-heartbeat haptic ripple,
- * dual-pulse anatomical heartbeat rhythm, and expanding radiant aura.
+ * Enriched with full personal & partner profile dossiers (CPX-07):
+ * - User name, Partner name
+ * - Total days paired counter
+ * - Birthdays and Relationship status
+ * - Interactive heart ripple haptics (ANM-14)
+ * - Harmonized 4-layer Apple Liquid Glass styling (CPX-08)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CoupleHubScreen(
     modifier: Modifier = Modifier,
     onNavigateToPrivacySettings: () -> Unit = {},
-    networkViewModel: NetworkViewModel = hiltViewModel()
+    networkViewModel: NetworkViewModel = hiltViewModel(),
+    hubViewModel: CoupleHubViewModel = hiltViewModel()
 ) {
     val isConnected by networkViewModel.isConnected.collectAsState()
+    val uiState by hubViewModel.uiState.collectAsState()
+
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
+
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editType by remember { mutableStateOf("") }
+    var editCurrentValue by remember { mutableStateOf("") }
 
     // ANM-14: Heartbeat pulse scale & ripple animation states
     val heartScale = remember { Animatable(1f) }
@@ -58,11 +70,8 @@ fun CoupleHubScreen(
         CoupleFitHaptics.performHeartbeat(context, haptic)
         heartbeatBannerVisible = true
         coroutineScope.launch {
-            // Dual anatomical heartbeat pump: "Lub-Dub"
-            // Lub (Systolic)
             heartScale.animateTo(1.24f, tween(90, easing = FastOutSlowInEasing))
             heartScale.animateTo(1.06f, tween(60, easing = LinearEasing))
-            // Dub (Ventricular)
             heartScale.animateTo(1.32f, tween(110, easing = FastOutSlowInEasing))
             heartScale.animateTo(1.0f, spring(dampingRatio = 0.68f, stiffness = Spring.StiffnessMedium))
         }
@@ -101,129 +110,272 @@ fun CoupleHubScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = AppSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.md),
+            contentPadding = PaddingValues(bottom = 96.dp)
         ) {
-            item {
-                Text(
-                    text = "PARTNER PROFILE & STATUS",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = AppSpacing.sm)
-                )
-            }
-
+            // 1. Couple Milestone & Relationship Banner
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = AppSpacing.sm)
+                        .iosGlass(shape = MaterialTheme.shapes.large),
                     shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
                 ) {
                     Column(
                         modifier = Modifier.padding(AppSpacing.md),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(AppSpacing.md)
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            // ANM-14: Interactive Partner Avatar with Heartbeat Ripple Aura
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .size(76.dp)
-                                    .semantics(mergeDescendants = true) {
-                                        contentDescription = "Partner profile avatar. Tap to send live heartbeat ripple."
-                                        onClick(label = "Send heartbeat to Partner") {
-                                            triggerHeartbeat()
-                                            true
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Interactive Couple Avatar with Heartbeat Ripple Aura
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .size(72.dp)
+                                        .semantics(mergeDescendants = true) {
+                                            contentDescription = "Partner profile avatar. Tap to send live heartbeat ripple."
+                                            onClick(label = "Send heartbeat to Partner") {
+                                                triggerHeartbeat()
+                                                true
+                                            }
+                                        }
+                                ) {
+                                    if (rippleProgress.value > 0f && rippleProgress.value < 1f) {
+                                        val r = rippleProgress.value
+                                        Canvas(modifier = Modifier.fillMaxSize()) {
+                                            val maxRadius = size.minDimension / 2f
+                                            drawCircle(
+                                                color = CoupleFitIdentityTokens.PartnerPrimary.copy(alpha = (1f - r) * 0.75f),
+                                                radius = maxRadius * (0.65f + r * 0.35f),
+                                                style = Stroke(width = (3.5f * (1f - r)).dp.toPx())
+                                            )
+                                            if (r > 0.15f) {
+                                                val r2 = (r - 0.15f) / 0.85f
+                                                drawCircle(
+                                                    color = CoupleFitIdentityTokens.UserPrimary.copy(alpha = (1f - r2) * 0.55f),
+                                                    radius = maxRadius * (0.55f + r2 * 0.40f),
+                                                    style = Stroke(width = (2.5f * (1f - r2)).dp.toPx())
+                                                )
+                                            }
                                         }
                                     }
-                            ) {
-                                // Concentric glowing ripple aura waves
-                                if (rippleProgress.value > 0f && rippleProgress.value < 1f) {
-                                    val r = rippleProgress.value
-                                    Canvas(modifier = Modifier.fillMaxSize()) {
-                                        val maxRadius = size.minDimension / 2f
-                                        // Outer Wave (Partner Coral / Rose Glow)
-                                        drawCircle(
-                                            color = CoupleFitIdentityTokens.PartnerPrimary.copy(alpha = (1f - r) * 0.75f),
-                                            radius = maxRadius * (0.65f + r * 0.35f),
-                                            style = Stroke(width = (3.5f * (1f - r)).dp.toPx())
-                                        )
-                                        // Inner Wave (User Cyan Glow)
-                                        if (r > 0.15f) {
-                                            val r2 = (r - 0.15f) / 0.85f
-                                            drawCircle(
-                                                color = CoupleFitIdentityTokens.UserPrimary.copy(alpha = (1f - r2) * 0.55f),
-                                                radius = maxRadius * (0.55f + r2 * 0.40f),
-                                                style = Stroke(width = (2.5f * (1f - r2)).dp.toPx())
+
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier
+                                            .size(54.dp)
+                                            .clip(CircleShape)
+                                            .graphicsLayer {
+                                                scaleX = heartScale.value
+                                                scaleY = heartScale.value
+                                            }
+                                            .iosClickable(pressedScale = 0.94f) {
+                                                triggerHeartbeat()
+                                            }
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "❤️",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontSize = 24.sp
                                             )
                                         }
                                     }
                                 }
 
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(CircleShape)
-                                        .graphicsLayer {
-                                            scaleX = heartScale.value
-                                            scaleY = heartScale.value
-                                        }
-                                        .iosClickable(pressedScale = 0.94f) {
-                                            triggerHeartbeat()
-                                        }
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text(
-                                            text = "❤️",
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontSize = 24.sp
-                                        )
-                                    }
-                                }
-                            }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Alex & Partner",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                                )
-                                Text(
-                                    text = "Paired for 540 Days",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                val statusText = if (isConnected) "🟢 Partner Online • Live ⚡" else "🟡 Offline Mode • Cached Profile"
-                                Text(
-                                    text = statusText,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                                )
-
-                                // Heartbeat confirmation toast
-                                AnimatedVisibility(
-                                    visible = heartbeatBannerVisible,
-                                    enter = fadeIn(tween(180)) + expandVertically(tween(180)),
-                                    exit = fadeOut(tween(220)) + shrinkVertically(tween(220))
-                                ) {
+                                Column {
                                     Text(
-                                        text = "❤️ Heartbeat sent to Partner!",
-                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = CoupleFitIdentityTokens.PartnerPrimary,
-                                        modifier = Modifier.padding(top = 2.dp)
+                                        text = "${uiState.userName} & ${uiState.partnerName}",
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                                    )
+                                    Text(
+                                        text = "💍 Paired for ${uiState.totalDaysPaired} Days",
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    val statusText = if (isConnected) "🟢 In Sync • Live Presence ⚡" else "🟡 Cached Profile"
+                                    Text(
+                                        text = statusText,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (isConnected) SystemGreen else SystemOrange
                                     )
                                 }
                             }
+
+                            IconButton(
+                                onClick = {
+                                    editType = "RELATION"
+                                    editCurrentValue = uiState.relationshipType
+                                    showEditDialog = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit Relationship Info",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+
+                        // Relationship quote pill
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "💬 ${uiState.relationshipType}",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        // Heartbeat feedback toast
+                        AnimatedVisibility(
+                            visible = heartbeatBannerVisible,
+                            enter = fadeIn(tween(180)) + expandVertically(tween(180)),
+                            exit = fadeOut(tween(220)) + shrinkVertically(tween(220))
+                        ) {
+                            Text(
+                                text = "❤️ Live heartbeat sent to ${uiState.partnerName}!",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = CoupleFitIdentityTokens.PartnerPrimary,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
                         }
                     }
                 }
             }
 
+            // 2. MY DETAILS CARD (CPX-07: User Profile Dossier)
+            item {
+                Text(
+                    text = "MY PROFILE & DETAILS",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MotionCyanStart
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .iosGlass(shape = MaterialTheme.shapes.large),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
+                ) {
+                    Column(
+                        modifier = Modifier.padding(AppSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        ProfileDetailRow(
+                            label = "Name",
+                            value = uiState.userName,
+                            icon = "👤",
+                            onEdit = {
+                                editType = "USER_NAME"
+                                editCurrentValue = uiState.userName
+                                showEditDialog = true
+                            }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        ProfileDetailRow(
+                            label = "Birthday",
+                            value = uiState.userBirthday,
+                            icon = "🎂",
+                            onEdit = {
+                                editType = "USER_BDAY"
+                                editCurrentValue = uiState.userBirthday
+                                showEditDialog = true
+                            }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        ProfileDetailRow(
+                            label = "Fitness Identity",
+                            value = "Electric Cyan / Lead Runner",
+                            icon = "⚡",
+                            onEdit = null
+                        )
+                    }
+                }
+            }
+
+            // 3. PARTNER'S DETAILS CARD (CPX-07: Partner Profile Dossier)
+            item {
+                Text(
+                    text = "CONNECTED PARTNER DOSSIER",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MotionPartnerStart
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .iosGlass(shape = MaterialTheme.shapes.large),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
+                ) {
+                    Column(
+                        modifier = Modifier.padding(AppSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        ProfileDetailRow(
+                            label = "Partner Name",
+                            value = uiState.partnerName,
+                            icon = "💖",
+                            onEdit = {
+                                editType = "PARTNER_NAME"
+                                editCurrentValue = uiState.partnerName
+                                showEditDialog = true
+                            }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        ProfileDetailRow(
+                            label = "Birthday",
+                            value = uiState.partnerBirthday,
+                            icon = "🎂",
+                            onEdit = {
+                                editType = "PARTNER_BDAY"
+                                editCurrentValue = uiState.partnerBirthday
+                                showEditDialog = true
+                            }
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        ProfileDetailRow(
+                            label = "Connected Days",
+                            value = "${uiState.totalDaysPaired} Days in CoupleFit",
+                            icon = "📅",
+                            onEdit = null
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+                        ProfileDetailRow(
+                            label = "Fitness Identity",
+                            value = "Vibrant Coral / Sprint Champion",
+                            icon = "🔥",
+                            onEdit = null
+                        )
+                    }
+                }
+            }
+
+            // 4. SHARED STREAKS & MEMORIES
             item {
                 Text(
                     text = "SHARED STREAKS & MEMORIES",
@@ -234,11 +386,12 @@ fun CoupleHubScreen(
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .iosGlass(shape = MaterialTheme.shapes.large),
                     shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
                 ) {
                     Column(
                         modifier = Modifier.padding(AppSpacing.md),
@@ -249,7 +402,7 @@ fun CoupleHubScreen(
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                         )
                         Text(
-                            text = "🎉 12 Days till 1-Year Fitness Anniversary",
+                            text = "🎉 ${365 - (uiState.totalDaysPaired % 365)} Days until Next Fitness Anniversary",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -257,6 +410,7 @@ fun CoupleHubScreen(
                 }
             }
 
+            // 5. PRIVACY & SHARING RULES
             item {
                 Text(
                     text = "PARTNER VISIBILITY & SHARING RULES",
@@ -267,11 +421,12 @@ fun CoupleHubScreen(
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .iosGlass(shape = MaterialTheme.shapes.large),
                     shape = MaterialTheme.shapes.large,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
                 ) {
                     Column(
                         modifier = Modifier.padding(AppSpacing.md),
@@ -285,16 +440,16 @@ fun CoupleHubScreen(
                             Text("Steps & Activity Rings", style = MaterialTheme.typography.bodyMedium)
                             Text("Visible", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Live Heart Rate & Vitals", style = MaterialTheme.typography.bodyMedium)
-                            Text("Hidden", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+                            Text("Visible", style = MaterialTheme.typography.labelMedium, color = SystemGreen)
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -305,7 +460,10 @@ fun CoupleHubScreen(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         OutlinedButton(
-                            onClick = onNavigateToPrivacySettings,
+                            onClick = {
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                onNavigateToPrivacySettings()
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.Lock, contentDescription = "Manage Privacy", modifier = Modifier.size(16.dp))
@@ -314,6 +472,104 @@ fun CoupleHubScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Edit Detail Dialog
+    if (showEditDialog) {
+        var inputValue by remember { mutableStateOf(editCurrentValue) }
+        val dialogTitle = when (editType) {
+            "USER_NAME" -> "Edit My Name"
+            "PARTNER_NAME" -> "Edit Partner's Name"
+            "USER_BDAY" -> "Edit My Birthday"
+            "PARTNER_BDAY" -> "Edit Partner's Birthday"
+            "RELATION" -> "Edit Relationship Description"
+            else -> "Edit Profile Info"
+        }
+
+        AlertDialog(
+            onDismissRequest = { showEditDialog = false },
+            title = { Text(dialogTitle, fontWeight = FontWeight.Bold) },
+            text = {
+                OutlinedTextField(
+                    value = inputValue,
+                    onValueChange = { inputValue = it },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        when (editType) {
+                            "USER_NAME" -> hubViewModel.updateUserName(inputValue)
+                            "PARTNER_NAME" -> hubViewModel.updatePartnerName(inputValue)
+                            "USER_BDAY" -> hubViewModel.updateUserBirthday(inputValue)
+                            "PARTNER_BDAY" -> hubViewModel.updatePartnerBirthday(inputValue)
+                            "RELATION" -> hubViewModel.updateRelationshipType(inputValue)
+                        }
+                        showEditDialog = false
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ProfileDetailRow(
+    label: String,
+    value: String,
+    icon: String,
+    onEdit: (() -> Unit)? = null
+) {
+    val haptic = LocalHapticFeedback.current
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = icon, fontSize = 16.sp)
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold)
+                )
+            }
+        }
+
+        if (onEdit != null) {
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                    onEdit()
+                },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit $label",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(15.dp)
+                )
             }
         }
     }

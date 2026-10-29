@@ -1,6 +1,7 @@
 package com.couplefit.ui.challenge
 
 import com.couplefit.ui.theme.duelCardPress
+import com.couplefit.ui.theme.iosGlass
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
@@ -307,12 +308,13 @@ private fun ActiveDuelsSection(
                     .fillMaxWidth()
                     .duelCardPress(onClickLabel = "Start ${format.title}") {
                         onStartFormat(format.type, format.goal)
-                    },
+                    }
+                    .iosGlass(shape = RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    containerColor = Color.Transparent
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                border = null
             ) {
                 Row(
                     modifier = Modifier
@@ -414,12 +416,13 @@ private fun TrophiesVaultSection(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .duelCardPress(onClickLabel = "View Couple Head-to-Head Record"),
+                    .duelCardPress(onClickLabel = "View Couple Head-to-Head Record")
+                    .iosGlass(shape = RoundedCornerShape(20.dp)),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                    containerColor = Color.Transparent
                 ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+                border = null
             ) {
                 Column(
                     modifier = Modifier.padding(AppSpacing.md),

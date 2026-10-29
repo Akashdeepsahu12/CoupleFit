@@ -15,6 +15,7 @@ class HealthDashboardUiStateTest {
         val state = HealthDashboardUiState()
 
         // User defaults
+        assertEquals("You", state.userName)
         assertEquals(0L, state.steps)
         assertEquals(10000L, state.stepsGoal)
         assertEquals(0f, state.stepsProgress, 0.001f)

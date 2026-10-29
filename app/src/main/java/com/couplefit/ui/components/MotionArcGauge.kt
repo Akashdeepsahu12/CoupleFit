@@ -166,11 +166,11 @@ fun MotionArcProgressGauge(
                 )
 
                 if (currentSweep > 0.1f) {
-                    // 2. Ambient Glow Pass (thicker, translucent diffuse stroke)
+                    // 2. Ambient Glow Pass (gentle, translucent diffuse stroke kept close to the arc - CPX-03)
                     val glowBrush = Brush.sweepGradient(
                         colors = listOf(
-                            glowColor.copy(alpha = 0.35f * pulseAlpha),
-                            gradientColors.last().copy(alpha = 0.25f * pulseAlpha)
+                            glowColor.copy(alpha = 0.12f * pulseAlpha),
+                            gradientColors.last().copy(alpha = 0.08f * pulseAlpha)
                         ),
                         center = centerOffset
                     )
@@ -180,7 +180,7 @@ fun MotionArcProgressGauge(
                         sweepAngle = currentSweep,
                         useCenter = false,
                         style = Stroke(
-                            width = strokePx + with(density) { if (compact) 6.dp.toPx() else 12.dp.toPx() },
+                            width = strokePx + with(density) { if (compact) 3.dp.toPx() else 6.dp.toPx() },
                             cap = StrokeCap.Round
                         ),
                         size = arcSize,

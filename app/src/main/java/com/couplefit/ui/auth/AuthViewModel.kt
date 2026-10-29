@@ -37,14 +37,24 @@ class AuthViewModel @Inject constructor(
     private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AuthUiState())
+    private val initialSession = authManager.getCurrentSession()
+    private val _uiState = MutableStateFlow(
+        AuthUiState(
+            userSession = initialSession,
+            currentStep = when {
+                initialSession == null -> AuthFlowStep.SignIn
+                initialSession.isLinked && initialSession.partnerId != null && initialSession.coupleId != null -> AuthFlowStep.Dashboard
+                else -> AuthFlowStep.InvitePartner
+            }
+        )
+    )
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     val userSession: StateFlow<UserSession?> = authManager.observeUserSession()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = authManager.getCurrentSession()
+            initialValue = initialSession
         )
 
     init {

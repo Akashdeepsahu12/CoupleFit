@@ -8,6 +8,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`videolagfix.md`**](videolagfix.md) | `/gsd-plan-phase` | **Performance & Video Optimization** | Phase 39 milestone plan: Ambient video lag elimination, Media3 ExoPlayer migration, zero-gap looping, and raw asset transcoding (`VID-01`). |
 | [**`liquideffect.md`**](liquideffect.md) | User Request & Spec | **Design System & Blueprint** | Implementation blueprint for real-time frosted liquid glass bottom navigation bar using Chris Banes Haze library (`LIQ-01`). |
 | [**`PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md`**](PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 36 milestone plan: Real-time liquid glass bottom navigation bar & Settings Experience Hub toggle (`LIQ-01`). |
 | [**`phase36_verification_report.md`**](phase36_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 36 verification report: Deterministic test results (unit tests & compose tests) and live hardware verification on Samsung Galaxy S24 (`LIQ-01`). |
@@ -158,3 +159,6 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 - [`PLAN_PHASE_31_TYPOGRAPHY_SCALE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_31_TYPOGRAPHY_SCALE.md): Milestone plan for typography scale hierarchy (TYP-02).
 - [`RELEASE_NOTES_v2.9.16.md`](file:///D:/Couple_fit/CoupleFit/Documentation/RELEASE_NOTES_v2.9.16.md): Release notes for v2.9.16 Typography Scale.
+
+- [`PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md): Milestone plan for Couple Intimacy Profile, AGSL Refraction Liquid Glass Dock & Expanded Telemetry (CPX-01).
+- [`phase38_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase38_verification_report.md): Verification report for Phase 38 (CPX-01).

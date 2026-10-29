@@ -67,6 +67,14 @@ class CoupleFitPreferencesDataStore @Inject constructor(
 
         // Tracks whether LinkedConfirmationScreen was already completed/seen
         val KEY_LINKED_CONFIRMATION_SHOWN = booleanPreferencesKey("linked_confirmation_shown")
+
+        // Couple Profile & Intimacy Details (CPX-06, CPX-07)
+        val KEY_USER_NAME = stringPreferencesKey("user_display_name")
+        val KEY_PARTNER_NAME = stringPreferencesKey("partner_display_name")
+        val KEY_PAIRED_DATE_TIMESTAMP = longPreferencesKey("paired_date_timestamp")
+        val KEY_USER_BIRTHDAY = stringPreferencesKey("user_birthday")
+        val KEY_PARTNER_BIRTHDAY = stringPreferencesKey("partner_birthday")
+        val KEY_RELATIONSHIP_TYPE = stringPreferencesKey("relationship_type")
     }
 
     val isLinkedConfirmationShown: Flow<Boolean> = context.coupleFitDataStore.data.map { preferences ->
@@ -244,5 +252,47 @@ class CoupleFitPreferencesDataStore @Inject constructor(
         } catch (e: Exception) {
             Timber.w(e, "Failed to mirror fcmToken to users/$uid")
         }
+    }
+
+    // Couple Details & Profile Management (CPX-06, CPX-07)
+    val userNameFlow: Flow<String?> = context.coupleFitDataStore.data.map { it[KEY_USER_NAME] }
+    val partnerNameFlow: Flow<String?> = context.coupleFitDataStore.data.map { it[KEY_PARTNER_NAME] }
+    val pairedDateTimestampFlow: Flow<Long> = context.coupleFitDataStore.data.map {
+        it[KEY_PAIRED_DATE_TIMESTAMP] ?: (System.currentTimeMillis() - 540L * 86_400_000L) // Default 540 days
+    }
+    val userBirthdayFlow: Flow<String> = context.coupleFitDataStore.data.map {
+        it[KEY_USER_BIRTHDAY] ?: "June 14"
+    }
+    val partnerBirthdayFlow: Flow<String> = context.coupleFitDataStore.data.map {
+        it[KEY_PARTNER_BIRTHDAY] ?: "September 28"
+    }
+    val relationshipTypeFlow: Flow<String> = context.coupleFitDataStore.data.map {
+        it[KEY_RELATIONSHIP_TYPE] ?: "Fitness Partners & Life Comrades ❤️"
+    }
+
+    suspend fun getUserName(): String? = userNameFlow.first()
+    suspend fun saveUserName(name: String) {
+        context.coupleFitDataStore.edit { it[KEY_USER_NAME] = name }
+    }
+
+    suspend fun getPartnerName(): String? = partnerNameFlow.first()
+    suspend fun savePartnerName(name: String) {
+        context.coupleFitDataStore.edit { it[KEY_PARTNER_NAME] = name }
+    }
+
+    suspend fun savePairedDateTimestamp(timestamp: Long) {
+        context.coupleFitDataStore.edit { it[KEY_PAIRED_DATE_TIMESTAMP] = timestamp }
+    }
+
+    suspend fun saveUserBirthday(bday: String) {
+        context.coupleFitDataStore.edit { it[KEY_USER_BIRTHDAY] = bday }
+    }
+
+    suspend fun savePartnerBirthday(bday: String) {
+        context.coupleFitDataStore.edit { it[KEY_PARTNER_BIRTHDAY] = bday }
+    }
+
+    suspend fun saveRelationshipType(type: String) {
+        context.coupleFitDataStore.edit { it[KEY_RELATIONSHIP_TYPE] = type }
     }
 }

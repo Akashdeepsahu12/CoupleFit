@@ -241,6 +241,7 @@ class FirebaseAuthManager @Inject constructor(
      */
     fun observeUserSession(): Flow<UserSession?> = callbackFlow {
         var firestoreListener: com.google.firebase.firestore.ListenerRegistration? = null
+        val sessionPrefs = context.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE)
 
         val authListener = FirebaseAuth.AuthStateListener { auth ->
             val firebaseUser = auth.currentUser
@@ -250,19 +251,25 @@ class FirebaseAuthManager @Inject constructor(
             if (firebaseUser == null) {
                 trySend(null)
             } else {
-                // Immediately emit base session from FirebaseUser so UI never hangs waiting for network
+                // Immediately emit base session pre-populated with locally cached couple linking state
+                // to eliminate split-second routing flashes (CPX-01).
+                val cachedCoupleId = sessionPrefs.getString("cached_couple_id", null)
+                val cachedPartnerId = sessionPrefs.getString("cached_partner_id", null)
+                val cachedDisplayName = sessionPrefs.getString("cached_display_name", null)
+                val effectiveDisplayName = (firebaseUser.displayName ?: cachedDisplayName).orEmpty()
+
                 trySend(
                     UserSession(
                         uid = firebaseUser.uid,
-                        displayName = firebaseUser.displayName ?: "",
+                        displayName = effectiveDisplayName,
                         email = firebaseUser.email ?: "",
                         photoUrl = firebaseUser.photoUrl?.toString(),
-                        coupleId = null,
-                        partnerId = null
+                        coupleId = cachedCoupleId,
+                        partnerId = cachedPartnerId
                     )
                 )
 
-                // Then attach snapshot listener to get live coupleId and partnerId
+                // Then attach snapshot listener to get live coupleId and partnerId from Firestore
                 firestoreListener = firestore.collection("users").document(firebaseUser.uid)
                     .addSnapshotListener { snapshot, error ->
                         if (error != null) {
@@ -272,10 +279,22 @@ class FirebaseAuthManager @Inject constructor(
                         if (snapshot != null) {
                             val coupleId = snapshot.getString("coupleId")
                             val partnerId = snapshot.getString("partnerId")
+                            val displayName = snapshot.getString("displayName") ?: firebaseUser.displayName ?: ""
+                            val partnerName = snapshot.getString("partnerName")
+
+                            // Persist latest state into local cache
+                            sessionPrefs.edit().apply {
+                                putString("cached_couple_id", coupleId)
+                                putString("cached_partner_id", partnerId)
+                                putString("cached_display_name", displayName)
+                                putString("cached_partner_name", partnerName)
+                                apply()
+                            }
+
                             trySend(
                                 UserSession(
                                     uid = firebaseUser.uid,
-                                    displayName = snapshot.getString("displayName") ?: firebaseUser.displayName ?: "",
+                                    displayName = displayName,
                                     email = snapshot.getString("email") ?: firebaseUser.email ?: "",
                                     photoUrl = snapshot.getString("photoUrl") ?: firebaseUser.photoUrl?.toString(),
                                     coupleId = coupleId,
@@ -296,18 +315,23 @@ class FirebaseAuthManager @Inject constructor(
 
     fun getCurrentSession(): UserSession? {
         val firebaseUser = firebaseAuth.currentUser ?: return null
+        val sessionPrefs = context.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE)
         return UserSession(
             uid = firebaseUser.uid,
-            displayName = firebaseUser.displayName ?: "",
+            displayName = firebaseUser.displayName ?: sessionPrefs.getString("cached_display_name", "") ?: "",
             email = firebaseUser.email ?: "",
-            photoUrl = firebaseUser.photoUrl?.toString()
+            photoUrl = firebaseUser.photoUrl?.toString(),
+            coupleId = sessionPrefs.getString("cached_couple_id", null),
+            partnerId = sessionPrefs.getString("cached_partner_id", null)
         )
     }
 
     fun signOut() {
         try {
+            val sessionPrefs = context.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE)
+            sessionPrefs.edit().clear().apply()
             firebaseAuth.signOut()
-            Timber.d("User signed out")
+            Timber.d("User signed out and session cache cleared")
         } catch (e: Exception) {
             Timber.e(e, "Error signing out")
         }

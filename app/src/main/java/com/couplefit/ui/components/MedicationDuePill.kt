@@ -32,6 +32,37 @@ import com.couplefit.ui.theme.readableMeasure
 import kotlinx.coroutines.delay
 
 /**
+ * Checks whether the current system time is within [windowMinutes] before or after [scheduledTime].
+ * Example: "08:00 AM" with windowMinutes = 60 matches 07:00 AM to 09:00 AM (CPX-02).
+ */
+fun isWithinDoseWindow(
+    scheduledTime: String = "08:00 AM",
+    windowMinutes: Int = 60
+): Boolean {
+    return try {
+        val parts = scheduledTime.trim().split(" ", ":").filter { it.isNotBlank() }
+        if (parts.size >= 3) {
+            var hour = parts[0].toInt()
+            val minute = parts[1].toInt()
+            val amPm = parts[2].uppercase()
+            if (amPm == "PM" && hour < 12) hour += 12
+            if (amPm == "AM" && hour == 12) hour = 0
+            val scheduledMinuteOfDay = hour * 60 + minute
+
+            val now = java.util.Calendar.getInstance()
+            val currentMinuteOfDay = now.get(java.util.Calendar.HOUR_OF_DAY) * 60 + now.get(java.util.Calendar.MINUTE)
+            val diff = kotlin.math.abs(currentMinuteOfDay - scheduledMinuteOfDay)
+            val circularDiff = minOf(diff, 1440 - diff)
+            circularDiff <= windowMinutes
+        } else {
+            true
+        }
+    } catch (e: Exception) {
+        true
+    }
+}
+
+/**
  * Contextual "Medication Due" banner/pill for the Today Dashboard.
  *
  * Implements the design contract specified in `card-sort-analysis.md` §6.3 (Tree Test TS-04)
@@ -39,6 +70,7 @@ import kotlinx.coroutines.delay
  *
  * Enhanced with ANM-13: Tactile completion physics, AnimatedContent transitions,
  * anatomical heartbeat haptic feedback (CoupleFitHaptics.performHeartbeat), and spring ejection.
+ * Gated with CPX-02 to render only within 1 hour before and 1 hour after scheduled dose time.
  */
 @Composable
 fun MedicationDuePill(
@@ -46,13 +78,17 @@ fun MedicationDuePill(
     medicationName: String = "Vitamin D3",
     scheduledTime: String = "08:00 AM",
     isVisible: Boolean = true,
+    enforceTimeWindow: Boolean = true,
     onLogDose: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     var isLogged by remember { mutableStateOf(false) }
-    var pillVisible by remember(isVisible) { mutableStateOf(isVisible) }
+    val inWindow = remember(scheduledTime, enforceTimeWindow) {
+        !enforceTimeWindow || isWithinDoseWindow(scheduledTime, 60)
+    }
+    var pillVisible by remember(isVisible, inWindow) { mutableStateOf(isVisible && inWindow) }
 
     val containerAlpha by animateFloatAsState(
         targetValue = if (isLogged) 0.18f else 0.0f,

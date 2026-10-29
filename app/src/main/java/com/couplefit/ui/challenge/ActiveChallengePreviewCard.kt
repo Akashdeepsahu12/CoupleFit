@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -17,12 +18,14 @@ import com.couplefit.data.local.CoupleChallengeEntity
 import com.couplefit.ui.theme.AppSpacing
 import com.couplefit.ui.theme.SystemGreen
 import com.couplefit.ui.theme.SystemRed
+import com.couplefit.ui.theme.duelCardPress
 import com.couplefit.ui.theme.iosGlass
 import androidx.compose.ui.graphics.Color
 
 /**
  * Compact Active Challenge Preview Card for Today Dashboard.
  * Implements Wireframe 1 specification from `card-sort-analysis.md` §7.2 (CSA-04).
+ * Enhanced with responsive duelCardPress physics and direct duel initiation (CPX-04).
  */
 @Composable
 fun ActiveChallengePreviewCard(
@@ -31,13 +34,19 @@ fun ActiveChallengePreviewCard(
     modifier: Modifier = Modifier,
     onViewAllChallenges: () -> Unit = {}
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = AppSpacing.xs)
+            .duelCardPress(onClickLabel = "Open Challenges and Duels") {
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                onViewAllChallenges()
+            }
             .iosGlass(shape = MaterialTheme.shapes.large)
             .semantics {
-                contentDescription = "Active challenge preview card"
+                contentDescription = "Active challenge preview card. Tap to open challenges."
             },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
@@ -66,7 +75,10 @@ fun ActiveChallengePreviewCard(
                 }
 
                 TextButton(
-                    onClick = onViewAllChallenges,
+                    onClick = {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        onViewAllChallenges()
+                    },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -115,11 +127,19 @@ fun ActiveChallengePreviewCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
-                    text = "Challenge $partnerName to a 24h step race!",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                FilledTonalButton(
+                    onClick = {
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        onViewAllChallenges()
+                    },
+                    modifier = Modifier.padding(top = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "⚡ Challenge $partnerName to a 24h step race!",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
         }
     }

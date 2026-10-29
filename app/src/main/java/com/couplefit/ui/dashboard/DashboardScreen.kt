@@ -201,6 +201,7 @@ fun DashboardScreen(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
     val pullRefreshState = rememberPullRefreshState(
         refreshing = healthData.isSyncing,
         onRefresh = {
@@ -286,11 +287,16 @@ fun DashboardScreen(
             }
 
             // Contextual "Medication Due" Pill (CSA-03 / Tree Test TS-04)
+            // Gated strictly to +/- 1 hour around scheduled dose time (CPX-02)
             var isMedicationDismissed by remember { mutableStateOf(false) }
-            if (!isMedicationDismissed) {
+            val isWithinMedicationWindow = remember {
+                com.couplefit.ui.components.isWithinDoseWindow("08:00 AM", 60)
+            }
+            if (!isMedicationDismissed && isWithinMedicationWindow) {
                 MedicationDuePill(
                     medicationName = "Vitamin D3",
                     scheduledTime = "08:00 AM",
+                    enforceTimeWindow = true,
                     onLogDose = {
                         // In production, persists to medication log
                     },
@@ -529,6 +535,7 @@ fun DashboardScreen(
                     FilterChip(
                         selected = pagerState.currentPage == 0,
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(0)
                             }
@@ -552,6 +559,7 @@ fun DashboardScreen(
                     FilterChip(
                         selected = pagerState.currentPage == 1,
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(1)
                             }
@@ -575,6 +583,7 @@ fun DashboardScreen(
                     FilterChip(
                         selected = pagerState.currentPage == 2,
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(2)
                             }
@@ -1657,17 +1666,29 @@ fun SideBySideActivityCard(
         else (System.currentTimeMillis() - ts) > 15 * 60 * 1000L // Stale if older than 15 mins
     }
 
-    AuroraTelemetryMesh(
-        modifier = modifier.fillMaxWidth()
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+            .iosGlass(shape = MaterialTheme.shapes.large),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
-        Card(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .iosGlass(shape = MaterialTheme.shapes.large),
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            border = null
+                .clip(MaterialTheme.shapes.large)
         ) {
+            // Contained subtle aurora mesh strictly within Activity Gauges box boundary (CPX-03)
+            AuroraTelemetryMesh(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(MaterialTheme.shapes.large),
+                userGlowColor = MotionGlowCyan.copy(alpha = 0.05f),
+                partnerGlowColor = CoupleFitIdentityTokens.PartnerGlow.copy(alpha = 0.05f)
+            )
+
             Column(modifier = Modifier.padding(AppSpacing.md)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1719,13 +1740,13 @@ fun SideBySideActivityCard(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // User Column
+                // User Column (Dynamic User Name - CPX-06)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "You",
+                        text = if (healthData.userName.isNotBlank() && healthData.userName != "You") healthData.userName else "You",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MotionCyanStart
@@ -1762,13 +1783,13 @@ fun SideBySideActivityCard(
                         .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
                 )
 
-                // Partner Column with Double-Tap Cheer Micro-Interaction (FLOW-02, DSN-02)
+                // Partner Column (Dynamic Partner Name - CPX-06, Symmetrical Baseline Alignment - CPX-05)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = healthData.partnerName,
+                        text = if (healthData.partnerName.isNotBlank()) healthData.partnerName else "Partner",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MotionPartnerStart
@@ -1825,23 +1846,6 @@ fun SideBySideActivityCard(
                         text = "⏱️ ${healthData.partnerActiveMinutes}m  •  🔥 ${healthData.partnerCaloriesBurned} kcal",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "Double-tap ring to cheer 💖",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .clickable {
-                                val now = System.currentTimeMillis()
-                                if (now > cheerCooldownUntil) {
-                                    cheerCooldownUntil = now + 3000L // 3s cooldown limiter
-                                    cheerTriggerCount++
-                                    showCheerCelebration = true
-                                    CoupleFitHaptics.performHeartbeat(context, haptic)
-                                    onSendCheer("Cheered your steps! 🔥❤️")
-                                }
-                            }
                     )
                 }
             }

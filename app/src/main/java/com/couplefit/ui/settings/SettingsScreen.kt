@@ -27,6 +27,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import android.os.PowerManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -536,9 +539,13 @@ internal fun SettingsHubBar(
     ) {
         SettingsHub.values().forEach { hub ->
             val isSelected = activeHub == hub
+            val haptic = LocalHapticFeedback.current
             FilterChip(
                 selected = isSelected,
-                onClick = { onHubSelected(hub) },
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onHubSelected(hub)
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = hub.icon,
@@ -575,10 +582,12 @@ internal fun PartnershipHubContent(
     onSignOutClicked: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -624,10 +633,12 @@ internal fun PartnershipHubContent(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -688,7 +699,7 @@ internal fun PartnershipHubContent(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f))
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -734,11 +745,20 @@ internal fun HealthSyncHubContent(
     onToggleHr: (Boolean) -> Unit,
     onToggleSpo2: (Boolean) -> Unit
 ) {
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val powerManager = remember { context.getSystemService(android.content.Context.POWER_SERVICE) as? PowerManager }
+    var isIgnoringBattery by remember {
+        mutableStateOf(powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false)
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -782,20 +802,70 @@ internal fun HealthSyncHubContent(
             }
 
             OutlinedButton(
-                onClick = onManagePermissions,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onManagePermissions()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Manage Health Permissions")
+                Text("Manage Health Permissions (10 Metrics)")
+            }
+
+            Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Background Running & Sync",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        if (isIgnoringBattery) "Unrestricted background sync active" else "Allow background telemetry sync when app is closed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        try {
+                            val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                data = Uri.parse("package:${context.packageName}")
+                            }
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            try {
+                                val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                context.startActivity(intent)
+                            } catch (_: Exception) {}
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isIgnoringBattery) SystemGreen.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = if (isIgnoringBattery) SystemGreen else MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (isIgnoringBattery) "Granted ✓" else "Request", fontSize = 12.sp)
+                }
             }
         }
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -841,10 +911,12 @@ internal fun HealthSyncHubContent(
 
     // Granular Metric Sharing (DataStore-backed!)
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -911,10 +983,12 @@ internal fun ExperienceHubContent(
     onToggleUseMetric: (Boolean) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -955,10 +1029,12 @@ internal fun ExperienceHubContent(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -998,10 +1074,12 @@ internal fun ExperienceHubContent(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -1032,10 +1110,12 @@ internal fun PrivacyHubContent(
     onDeleteAccountClicked: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .iosGlass(shape = RoundedCornerShape(AppSpacing.md)),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        border = null
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -1070,7 +1150,7 @@ internal fun PrivacyHubContent(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
+        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.4f))
     ) {
         Column(
             modifier = Modifier.padding(AppSpacing.md),
@@ -1174,10 +1254,12 @@ fun SettingsSwitchRow(
 ) {
     var switchOrigin by remember { mutableStateOf(Offset.Zero) }
 
+    val haptic = LocalHapticFeedback.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = enabled) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 if (onCheckedChangeWithOrigin != null) {
                     onCheckedChangeWithOrigin(!checked, switchOrigin)
                 } else {

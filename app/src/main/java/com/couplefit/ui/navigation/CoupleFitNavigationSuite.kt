@@ -7,6 +7,7 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import com.couplefit.ui.glass.liquidRefractionLens
 
 import androidx.annotation.RawRes
 import androidx.compose.animation.animateColorAsState
@@ -114,12 +115,17 @@ fun CoupleFitNavigationSuite(
                         Modifier
                             .hazeEffect(
                                 state = hazeState,
-                                style = HazeMaterials.ultraThin()
+                                style = HazeMaterials.regular()
+                            )
+                            .liquidRefractionLens(
+                                shape = pillShape,
+                                refractionHeight = 22.dp,
+                                refractionAmount = 14.dp
                             )
                             .clip(pillShape)
                             .border(
                                 width = 0.5.dp,
-                                color = Color.White.copy(alpha = 0.10f),
+                                color = Color.White.copy(alpha = 0.12f),
                                 shape = pillShape
                             )
                     } else {

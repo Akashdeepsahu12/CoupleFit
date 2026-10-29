@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -45,6 +46,8 @@ data class HealthDashboardUiState(
     val hasAllPermissions: Boolean = false,
     val lastSyncedAt: Instant? = null,
     val hasTodayData: Boolean = false,
+    // Connected Couple Profile Names (CPX-06)
+    val userName: String = "You",
     // Partner Health Telemetry (Single Source of Truth: Room partnerDaily table)
     val partnerId: String = "partner_1",
     val partnerName: String = "Partner",
@@ -97,6 +100,23 @@ class HealthConnectViewModel @Inject constructor(
     init {
         checkStatusAndFetchData()
         startObservingLocalDb()
+        observeProfileNames()
+    }
+
+    private fun observeProfileNames() {
+        viewModelScope.launch {
+            combine(
+                preferencesDataStore.userNameFlow,
+                preferencesDataStore.partnerNameFlow
+            ) { user, partner ->
+                Pair(user?.ifBlank { "You" } ?: "You", partner?.ifBlank { "Partner" } ?: "Partner")
+            }.collect { (user, partner) ->
+                _dashboardState.value = _dashboardState.value.copy(
+                    userName = user,
+                    partnerName = partner
+                )
+            }
+        }
     }
 
     private fun formatLastUpdated(timestamp: Long?): String {

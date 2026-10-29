@@ -436,3 +436,23 @@ graph TD
   - `MotionArcGauge.kt` -> Softened today streak indicator border on "Fri" from `1.5.dp` (`0.8f` alpha) to `0.5.dp` (`0.35f` alpha).
   - `Fixinglist.md` -> Section 61 & Master Defect Table entry `BOX-01`
   - `Documentation/phase37_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
+
+
+### Phase 38: Couple Intimacy Profile, AGSL Refraction Liquid Glass Dock & Expanded Telemetry (CPX-01) 🟢 Resolved
+- **Domain**: Couple Intimacy Telemetry, AGSL Shaders & Permission Hardening (`/taste-skill:design-taste-frontend`, `/android-clean-architecture`, `/security-and-hardening`)
+- **Milestone Tag**: `v2.9.23-couple-intimacy-refraction-cpx01`
+- **Nodes & Edges**:
+  - `CPX-01`: Couple Intimacy Profile, AGSL Refraction Liquid Glass Dock & Expanded Telemetry
+  - `FirebaseAuthManager.kt` & `AuthViewModel.kt` -> Implements SharedPreferences session caching (`couplefit_session_cache`) for `cached_couple_id`, `cached_partner_id`, and display names; `AuthViewModel` initializes directly to `AuthFlowStep.Dashboard` if linked, eliminating cold-start invite partner flash.
+  - `MedicationDuePill.kt` & `DashboardScreen.kt` -> Implements `isWithinDoseWindow(scheduledTime, 60)` with circular time math to contextually display `MedicationDuePill` only within $[-60m, +60m]$ of scheduled time.
+  - `MotionArcGauge.kt` & `DashboardScreen.kt` -> Relocated `AuroraTelemetryMesh` inside the Card container bounded by `Box.clipToBounds()` and dropped alpha to 0.05f; softened radial glow brush opacity to `0.12f` and glow stroke to `3.dp`.
+  - `ActiveChallengePreviewCard.kt` -> Wrapped card in `.duelCardPress` spring physics with interactive "⚡ Challenge Partner to a 24h step race!" CTA navigating to Challenges.
+  - `DashboardScreen.kt` -> Removed `"Double-tap ring to cheer 💖"` text, restoring identical column heights and 100% baseline symmetry between User and Partner gauges.
+  - `CoupleFitPreferencesDataStore.kt` & `HealthConnectViewModel.kt` -> Bound dynamic `userName` and `partnerName` into `HealthDashboardUiState` for live presence and cheering chips.
+  - `CoupleHubScreen.kt` & `CoupleHubViewModel.kt` -> Architected full Couple Dossier: Days Paired counter ("💍 Paired for 540 Days"), Birthdays, Relationship description, partner avatar heartbeat ripple, and interactive editing bottom sheet dialog.
+  - `ChallengesScreen.kt` & `SettingsScreen.kt` -> Replaced all lingering 1dp card borders with `iosGlass` (0.5dp specular highlights and transparent containers).
+  - `LiquidGlassEngine.kt` & `CoupleFitNavigationSuite.kt` -> Implemented `REFRACTION_WITH_DISPERSION_AGSL` runtime shader on Android 13+ with chromatic RGB split factors (`1.08 / 1.00 / 0.92`), 32dp frosted blur (`HazeMaterials.regular()`), and specular highlights.
+  - `LocalHapticFeedback` -> Applied tactile haptics across navigation dock pills, settings switches, hub tabs, duel format cards, and filter chips.
+  - `AndroidManifest.xml` & `HealthConnectManager.kt` -> Declared `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` and 10 Health Connect read permissions (`StepsRecord`, `HeartRateRecord`, `TotalCaloriesBurnedRecord`, `ActiveCaloriesBurnedRecord`, `DistanceRecord`, `ExerciseSessionRecord`, `PowerRecord`, `SpeedRecord`, `SleepSessionRecord`, `OxygenSaturationRecord`) with strictly zero write permissions; added native battery optimization exemption request card in `SettingsScreen.kt`.
+  - `Fixinglist.md` -> Section 62 & Master Defect Table entry `CPX-01`
+  - `Documentation/phase38_verification_report.md` -> Full live device screenshot evidence and test logs on Pixel 10 Pro (`emulator-5554`) & Galaxy S24 (`SM-S921B`).
