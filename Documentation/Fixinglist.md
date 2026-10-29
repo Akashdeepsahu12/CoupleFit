@@ -158,6 +158,13 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **APL-01** | Apple Design Glassmorphism | `/emilkowalski-skills:apple-design` | 🔴 **Material Flattening** | Root Scaffolding & Cards | Flat opaque gray slabs (`#1C1C1E`) without real-time backdrop blur or optical depth. | Visuals feel dated and heavy compared to modern iOS/macOS Liquid Glass standards. | Implement `Modifier.appleGlass()`: 20dp RenderEffect backdrop blur, 8% white tint, 1px top specular rim highlight, and backward compatibility for Android <12. | 🔴 Open |
 | **APL-02** | Apple Design Physics | `/emilkowalski-skills:apple-design` | 🔵 **Correction Needed** | `BounceClick.kt` & Touch Targets | Response on release instead of pointer-down: Buttons wait for touch-up to trigger visual feedback, causing perceived input lag. | Destroys the illusion of direct physical contact; violates WWDC Fluid Interface principles. | Implemented asymmetric spring: immediate mechanical depression on `pointer-down` (`StiffnessHigh`, `damping = 1.0f`) with crisp settling on release. | 🟢 Resolved |
 | **APL-03** | Apple Design Navigation | `/emilkowalski-skills:apple-design` | 💡 **Glass Floating Dock** | Navigation Shell | Bottom navigation sits as an opaque rectangular bar flush with the bottom bezel. | Competes with scrollable content and wastes vertical viewport space. | Refactor into a **Floating Frosted Glass Dock**: 16dp floating elevation, 32dp pill shape, 24dp backdrop blur, and glowing M3 indicator capsules. | 💡 Open |
+| **ANM-05** | Dual Ring Celebration Cascade | `/motion:animation-principles` | 💡 **Animation Gap** | `DashboardScreen.kt` | When both partners close rings (100% daily goal), celebration only triggers locally on each ring with no synchronized couple celebration. | Missed opportunity for shared intimacy and emotional payoff. | Implement `CoupleRingClosureHarmonicBurst`: dual-ring golden luminescence bloom (`GoldRingGlow`) and couple banner (*"Couple Rings Closed Today! 💍✨"*). | 💡 Open |
+| **ANM-06** | Telemetry Chart Springs | `/motion:motion-system` | 💡 **Kinematic Polish** | `InteractiveChart.kt` | Diurnal telemetry chart scrubbing indicator snaps discretely without fluid spring interpolation. | Tactile roughness during scrubbing; lacks Apple WWDC fluid interface feel. | Apply `Animatable` spring kinematics (`damping 0.85f`, `stiffness 600f`) to scrub marker with haptic tick on hourly boundary traversal. | 💡 Open |
+| **ANM-07** | Flying Nudge Trajectory | `/designer-skills:micro-interaction-spec` | 💡 **Animation Gap** | `QuickNudgeRow.kt` & `DashboardScreen.kt` | Tapping a quick nudge shows an immediate local toast without physical trajectory connecting nudge pill to partner ring. | Disconnect between sender action and partner gauge; lacks delight. | Choreograph parabolic Bézier particle trajectory from nudge pill to partner gauge with elastic sympathetic ring ripple. | 💡 Open |
+| **ANM-08** | Trophy 3D Specular Reveal | `/designer-skills:micro-interaction-spec` | 💡 **Animation Polish** | `ChallengesScreen.kt` | Unlocking a trophy achievement renders as a static icon without visual celebration or medal flip. | Diminished dopamine payoff for completing 7-day and 14-day duels. | Implement Apple Watch-style 3D specular shine sweep across trophy medallion with confetti ribbon burst and 3D badge flip. | 💡 Open |
+| **TYP-05** | Telemetry Unit Alignment | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | App-Wide Metric Cards | Telemetry units ("BPM", "steps", "kcal", "%") sit flush on baseline with identical weight or inconsistent padding. | Visual crowding; slows down outdoor glancing speed. | Standardize `TelemetryReadout` pairing `HeroMetricDisplay` / `HeadlineLarge` numbers with optical baseline-aligned `LabelMedium` units (`onSurfaceVariant.copy(0.75f)`). | 💡 Open |
+| **GLS-11** | Hub & Trends Liqui Glass | `/emilkowalski-skills:apple-design` | 🔵 **Correction Needed** | `CoupleHubScreen.kt` & `HealthTrendsScreen.kt` | Couple Hub and Health Trends screens still use opaque surface cards instead of the 4-layer optical Liqui Glass model. | Visual dissonance across tabs; breaks the unified living aurora background and optical depth language. | Refactor container cards in `CoupleHubScreen` and `HealthTrendsScreen` to 4-layer Liqui Glass stack with specular rim highlights. | 🔵 Open |
+| **REL-01** | Living Partner Presence Halo | `/designer-skills:interfaces-that-feel` | 💡 **Emotional Presence** | `CoupleHubScreen.kt` & `DashboardScreen.kt` | Online partner status displays as a static text string ("🟢 Partner Online") without emotional vitality. | Feels like an IT server status ping rather than an intimate connection to a living romantic partner. | Implement `LivingPresenceIndicator` with an animated 3-second breathing radial glow halo behind avatar and status pill. | 💡 Open |
 
 ---
 
@@ -204,10 +211,6 @@ Run these commands in your terminal one by one to verify compilation, test logic
 ```
 
 ---
-
-| **ANM-05** | Dual Ring Celebration | `/motion:animation-principles` | 💡 **Animation Gap** | `DashboardScreen.kt` | When both partners close rings (100% daily goal), celebration only triggers locally on each ring with no synchronized couple celebration. | Missed opportunity for shared intimacy and emotional payoff. | Implement `CoupleRingClosureHarmonicBurst`: dual-ring golden luminescence bloom (`GoldRingGlow`) and couple banner (*"Couple Rings Closed Today! 💍✨"*). | 💡 Open |
-| **ANM-06** | Telemetry Chart Springs | `/motion:motion-system` | 💡 **Kinematic Polish** | `InteractiveChart.kt` | Diurnal telemetry chart scrubbing indicator snaps discretely without fluid spring interpolation. | Tactile roughness during scrubbing; lacks Apple WWDC fluid interface feel. | Apply `Animatable` spring kinematics (`damping 0.85f`, `stiffness 600f`) to scrub marker with haptic tick on hourly boundary traversal. | 💡 Open |
-| **TYP-05** | Glanceable Telemetry Readout | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | Metric Cards | Telemetry units ("BPM", "steps", "kcal") sit flush on baseline with identical weight or inconsistent padding. | Visual crowding; slows down outdoor glancing speed. | Standardize `TelemetryReadout` pairing `HeroMetricDisplay` / `HeadlineLarge` numbers with optical baseline-aligned `LabelMedium` units (`onSurfaceVariant.copy(0.75f)`). | 💡 Open |
 
 ## 4. Master Command Registry & Execution History 💻⚡
 
@@ -2933,3 +2936,61 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
 - **Live Device ARTEMIS Verification (`emulator-5554`, Pixel 10 Pro API 36)**:
   - `typ02_verified_hierarchy.jpg`: Verified clear typographic hierarchy between section headings and card titles.
+
+## 55. Future Roadmap & Sensory Polish Backlog: Newly Identified UX, Motion & Relational Gaps (`ANM-05` to `ANM-08`, `TYP-05`, `GLS-11`, `REL-01`) 🎨✨
+
+> **Associated Skills**: `/motion:animation-principles`, `/motion:motion-system`, `/designer-skills:micro-interaction-spec`, `/designer-skills:typography-scale`, `/designer-skills:interfaces-that-feel`, `/emilkowalski-skills:apple-design`  
+> **Status**: 📋 Cataloged in Backlog for Upcoming Milestones  
+
+---
+
+### 55.1 Deep Architectural Breakdown of Newly Cataloged Opportunities
+
+#### 1. `ANM-05`: Dual Ring Closure Celebration Cascade & Couple Luminescence Surge
+- **Target Files**: `app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`, `ActivityRing.kt`
+- **Defect & Gap**: Ring closure currently triggers independently for each user (`ConfettiParticleExplosion`). When *both* partners achieve 100% daily steps ("Couple Ring Closure"), there is zero synchronized couple celebration, golden harmonic bloom, or mutual celebratory payoff.
+- **Proposed Architecture**:
+  - Implement `CoupleRingClosureHarmonicBurst`:
+    - Dual-ring synchronized golden luminescence bloom (`GoldRingGlow` gradient: `#FFD700` to `#FFA500` with animated pulsing radius).
+    - Full-canvas dual confetti particle cascade (56 particles cascading from both ring centers across the viewport).
+    - Celebratory card banner with golden specular rim (*"Couple Rings Closed Today! 💍✨ Both 100% Milestone Achieved"*).
+    - Multi-stage ascending fanfare haptic crescendo (`CoupleFitHaptics.performCelebration()`).
+
+#### 2. `ANM-06`: Interactive Chart Scrub Popover Fluid Spring Dynamics & Haptics
+- **Target Files**: `app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt`
+- **Defect & Gap**: The diurnal telemetry chart scrub marker snaps discretely across hourly telemetry buckets without fluid Apple WWDC spring interpolation.
+- **Proposed Architecture**:
+  - Apply `Animatable` spring kinematics (`dampingRatio = 0.85f`, `stiffness = 600f`) to scrub indicator cursor position.
+  - Smoothly float the indicator callout between data nodes with crisp `performSubtleTick` haptic bumps on hourly boundary traversal.
+
+#### 3. `ANM-07`: Flying Nudge Particle Trajectory & Partner Ring Resonance
+- **Target Files**: `app/src/main/java/com/couplefit/ui/components/QuickNudgeRow.kt`, `DashboardScreen.kt`
+- **Defect & Gap**: Tapping a Quick Nudge ("Poke", "You Got This!", "Keep Going!") displays an immediate local toast without physical trajectory connecting the nudge pill to the partner ring.
+- **Proposed Architecture**:
+  - Choreograph an animated parabolic Bézier particle trajectory (sparkling heart/flame glyphs) flying from the tapped nudge pill upward into the partner gauge.
+  - Trigger an elastic sympathetic ring ripple (`scale = 1.05f`, `dampingRatio = 0.75f`, `stiffness = 450f`) on the partner gauge upon arrival.
+
+#### 4. `ANM-08`: Trophy Vault 3D Specular Unlock Reveal & Ribbon Burst
+- **Target Files**: `app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt` (`TrophiesVaultSection`)
+- **Defect & Gap**: Unlocking a trophy achievement renders as a static icon without visual celebration, medal flip, or tactile reward.
+- **Proposed Architecture**:
+  - Implement Apple Watch-style 3D specular shine sweep across the trophy medallion badge.
+  - Pair with celebratory confetti ribbon burst and interactive 3D Y-axis badge flip interaction upon tapping unlocked trophies.
+
+#### 5. `TYP-05`: Telemetry Micro-Unit Optical Baseline Alignment & Glanceability
+- **Target Files**: `DashboardScreen.kt`, `DashboardAdaptiveScreen.kt`, `HealthTrendsScreen.kt`
+- **Defect & Gap**: Telemetry unit readouts ("BPM", "steps", "kcal", "%") sit flush with numeric digits at the baseline with identical visual weight or inconsistent vertical padding.
+- **Proposed Architecture**:
+  - Standardize a dedicated `TelemetryReadout` component pairing `HeroMetricDisplay` / `HeadlineLarge` bold numerals with optical baseline-aligned `LabelMedium` units (`onSurfaceVariant.copy(alpha = 0.75f)`, vertical baseline shift `-2.dp`, letter spacing `0.2.sp`).
+
+#### 6. `GLS-11`: Couple Hub & Health Trends Liqui Glass Harmonization
+- **Target Files**: `app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt`, `app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt`
+- **Defect & Gap**: `CoupleHubScreen` and `HealthTrendsScreen` still render using opaque surface cards (`CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)`), breaking the unified living aurora background and optical depth language established in Phase 29.
+- **Proposed Architecture**:
+  - Refactor all container cards in `CoupleHubScreen` and `HealthTrendsScreen` to adopt the 4-layer Liqui Glass stack (`.iosGlass()`, `22dp` squircle, directional specular rim highlights, and Two-Material tactile action controls).
+
+#### 7. `REL-01`: Living Partner Presence Pulse & Breathing Radial Halo
+- **Target Files**: `app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt`, `DashboardScreen.kt`
+- **Defect & Gap**: Online partner status displays as a static text string ("🟢 Partner Online • Live ⚡") without visual vitality or relational warmth.
+- **Proposed Architecture**:
+  - Implement `LivingPresenceIndicator`: an animated 3-second breathing radial glow halo (`alpha` oscillating gently between `0.30f` and `0.85f`, radius `12dp` to `20dp`) behind the partner avatar and status pill, creating a calming sense of live shared presence.

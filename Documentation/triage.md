@@ -176,6 +176,13 @@ These items represent architectural, layout, or interaction blockers slated for 
 | **`MIC-04` / `DTV-03`** | Magnetic Node Snapping | Chart Scrubbing | Magnetic node capture radius (14dp) with velocity decay and sharp `EFFECT_TICK` haptic bump when dragging across hourly chart points. |
 | **`FEL-02`** | Rest Day Mode | Emotional UX | **[🛌 Rest Day Mode]**: allows freezing streaks with dignity while notifying partner with a warm card (*"[Partner] is resting today ☕"*). |
 | **`FDB-03`** | Ambient Partner Presence | Intimacy | Dynamic ambient badges: pulsing cyan workout glow, green live dot, and animated mini-heart ACK badge when partner is active. |
+| **`ANM-05`** | Dual Ring Celebration Cascade | Animation & Intimacy | Synchronized golden luminescence bloom (`GoldRingGlow`) and couple banner (*"Couple Rings Closed Today! 💍✨"*) when both partners close rings. |
+| **`ANM-06`** | Interactive Chart Scrub Springs | Motion & Kinematics | Fluid `Animatable` spring interpolation (`damping 0.85f`, `stiffness 600f`) and boundary haptic ticks during diurnal telemetry scrubbing. |
+| **`ANM-07`** | Flying Nudge Trajectory & Ripple | Micro-Interactions | Parabolic Bézier particle flight from tapped nudge pill to partner gauge with sympathetic elastic ring ripple (`scale = 1.05f`). |
+| **`ANM-08`** | Trophy 3D Specular Unlock Reveal | Gamification & Rewards | Apple Watch-style 3D specular shine sweep across trophy medallion with confetti ribbon burst and 3D badge flip in Challenges Vault. |
+| **`TYP-05`** | Glanceable Telemetry Readout | Typography | Standardized optical baseline alignment and opacity styling for telemetry unit readouts ("BPM", "steps", "kcal"). |
+| **`GLS-11`** | Hub & Trends Liqui Glass | Visual Design System | Refactor container cards in `CoupleHubScreen` and `HealthTrendsScreen` to 4-layer optical Liqui Glass stack over living video background. |
+| **`REL-01`** | Living Partner Presence Halo | Relational Presence | Animated 3-second breathing radial glow halo behind avatar and status pill conveying live shared presence. |
 
 ---
 

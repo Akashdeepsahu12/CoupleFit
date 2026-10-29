@@ -344,3 +344,14 @@ graph TD
   - `Type.kt` -> `titleLarge` (19sp, SemiBold)
   - `Fixinglist.md` -> Section 54
   - `Fixinglist.md` -> `ANM-05`, `ANM-06`, `TYP-05`
+
+### Newly Cataloged Sensory & Animation Backlog
+- **Nodes**:
+  - `ANM-05`: Dual Ring Closure Celebration Cascade (`DashboardScreen.kt`)
+  - `ANM-06`: Interactive Chart Scrub Spring Kinematics (`InteractiveChart.kt`)
+  - `ANM-07`: Flying Nudge Trajectory & Partner Ring Resonance (`QuickNudgeRow.kt`)
+  - `ANM-08`: Trophy 3D Specular Reveal & Badge Flip (`ChallengesScreen.kt`)
+  - `TYP-05`: Telemetry Micro-Unit Optical Baseline Alignment (`Theme.kt`)
+  - `GLS-11`: Hub & Trends 4-Layer Liqui Glass Harmonization (`CoupleHubScreen.kt`, `HealthTrendsScreen.kt`)
+  - `REL-01`: Living Partner Presence Breathing Halo (`CoupleHubScreen.kt`)
+- **Target Milestones**: Phase 32+ Animation & Relational Polish Waves
