@@ -9,6 +9,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
 | [**`Fixinglist.md`**](Fixinglist.md) | Multi-Command Central Audit | **Defect & Audit Catalog** | Master audit and defect tracking catalog logging all errors, gaps, corrections, and test results against architecture and research specs (`TEST-01` to `APL-03`). |
+| [**decision.md**](decision.md) | /agent-skills:documentation-and-adrs | **Architecture Decision Records (ADRs)** | Comprehensive records of all 10 core architectural decisions (ADR-001 to ADR-010) capturing context, constraints, rejected alternatives, and consequences. |
 | [**`triage.md`**](triage.md) | `/gsd-inbox` Defect Triage | **Triage & Backlog Inbox** | Centralized defect and backlog triage catalog logging all 14 resolved issues, P0/P1 blockers, and domain-categorized backlogs. |
 | [**`visual_hierarchy_architecture.md`**](visual_hierarchy_architecture.md) | `/designer-skills:visual-hierarchy` | **Visual Hierarchy & Scanning** | 4-tier visual hierarchy stack, Squint Test audit (6.8/10), de-carding hero rings, and 52sp HeroMetricDisplay (`VHR-01` to `VHR-03`). |
 | [**`interfaces_that_feel_emotional_design.md`**](interfaces_that_feel_emotional_design.md) | `/designer-skills:interfaces-that-feel` | **Emotional Resonance & Warmth** | Translating felt states into UI physics, living morning pulse, Rest Day compassion mode, and de-robotized human copy (`FEL-01` to `FEL-03`). |
