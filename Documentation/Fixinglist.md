@@ -88,6 +88,12 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **MSR-05** | Readable Measure & Master-Detail | `/designer-skills:readable-measure` | 🔴 **Layout Failure** | `DashboardAdaptiveScreen.kt` | Premature 40/60 split chokes Pane 1: On viewports between 600dp and 720dp, Pane 1 is crushed to ~260dp, forcing dashboard titles and competition text into **22–30 CPL**. | Severe reading disruption; words break line-by-line; destroys dashboard scanability. | Reserve two-pane split strictly for Expanded (≥840dp); use centered single-column layout on Medium (600–839dp). | 🟢 Resolved |
 | **MSR-06** | Readable Measure & Legal Disclosures | `/designer-skills:readable-measure` | 🔵 **Correction Needed** | `SettingsScreen.kt` (`showLicensesDialog`) | License notice sprawl: Open source legal notices (Apache 2.0 / MIT) stretch edge-to-edge on tablets, exceeding **150–180 CPL**. | Eye tracking fatigue; legal disclosures become illegible. | Constrain dialog container to `Modifier.widthIn(min = 340.dp, max = 580.dp)`. | 🟢 Resolved |
 | **BGV-06** | Global Ambient Video Cladding | `/designer-skills:brand` | 🌟 **Immersive Vision** | App-Wide Navigation & Screens | Ambient video was occluded on Challenges, Trends, Couple Hub, Settings, and Auth screens due to opaque Scaffold backgrounds. | Visual inconsistency; user only experienced video motion on Today dashboard. | Hoisted `AmbientVideoBackground` to MainActivity root and set Scaffold/TopAppBar `containerColor = Color.Transparent` across all screens. | 🟢 Resolved |
+| **ANM-09** | Dock Indicator Spring Morphing | `/motion:motion-system` | 💡 **Interaction Polish** | `CoupleFitNavigationSuite.kt` | Floating glass dock capsule indicator snaps between tabs or uses standard transition without fluid spring-interpolated elongation. | Lacks tactile Apple Liquid Glass fluidity during tab switching. | Implement spring-driven pill morph that elastically stretches toward navigation direction before settling. | 💡 Open |
+| **ANM-10** | Duel Card Tap Press Physics & 3D Tilt | `/motion:animation-principles` | 💡 **Tactile Polish** | `ChallengesScreen.kt` | Challenge and duel cards lack dynamic spring-based scaling (`graphicsLayer { scaleX; scaleY }`) or subtle 3D tilt response on finger press. | Cards feel static and unresponsive to touch. | Add dynamic spring-driven touch scale (`0.98x` on press, `1.0x` spring release) with subtle perspective tilt. | 💡 Open |
+| **ANM-11** | Trends Timeframe Switcher Fluid Glide | `/motion:motion-system` | 💡 **Visual Fluidity** | `HealthTrendsScreen.kt` | Timeframe picker (`Day`, `Week`, `Month`, `Year`) switches tabs abruptly without a shared morphing pill background that glides across segment options. | Disconnected tab state transition. | Implement animated sliding capsule background with bouncy spring spec (`dampingRatio = 0.75f, stiffness = 400f`). | 💡 Open |
+| **ANM-12** | Sync Refresh Orbital Wave Pulse | `/designer-skills:micro-interaction-spec` | 💡 **Glanceable Status** | `DashboardScreen.kt` | Pull-to-refresh and background telemetry sync displays standard spinner or static text without ambient kinetic feedback. | Missed opportunity for organic vitality. | Implement rotating cyan/amber orbital particle ring with expanding radar ripple during active telemetry sync. | 💡 Open |
+| **ANM-13** | Medication Swipe-To-Complete Gesture | `/designer-skills:interfaces-that-feel` | 💡 **Tactile Delight** | `MedicationDuePill.kt` | Medication logging uses simple tap button. Lacks interactive gesture-driven completion with haptic release. | Feels routine; lacks friction-reducing celebratory affordance. | Implement horizontal swipe-to-complete gesture with threshold haptic tick and spring ejection animation. | 💡 Open |
+| **ANM-14** | Couple Avatar Touch-Heartbeat Ripple | `/designer-skills:brand` | 💡 **Relational Intimacy** | `CoupleHubScreen.kt` | Tapping or holding partner avatar produces no kinetic response or remote connection feedback. | Relational interface feels inanimate. | Implement dual-pulse heartbeat haptic trigger accompanied by expanding concentric glowing aura upon avatar tap. | 💡 Open |
 | **MSR-07** | Readable Measure & Dashboard Cards | `/designer-skills:readable-measure` | 💡 **Ergonomic Polish** | `DashboardScreen.kt` | Card subtitle sprawl: Medication reminders and daily goal prompts span full width on tablets, causing subtitles to stretch out to **90–125 CPL**. | Disconnect between card width and short helper strings. | Anchor card width in responsive grid cells (`minSize = 340.dp`) or apply `readableMeasure()` container. | 🟢 Resolved |
 | **SPC-01** | Spacing Token Discipline | `/designer-skills:spacing-system` | 🔴 **Design System Drift** | App-Wide UI Composables | Arbitrary hardcoded spacing: Over **240 instances** bypass `AppSpacing` using ad-hoc inline values (`20.dp`, `28.dp`, `6.dp`, `14.dp`, `52.dp`). | Breaks layout rhythm, causes visual inconsistency, and shatters design-token governance. | Refactor all hardcoded dp values to use strict `AppSpacing` tokens (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`). | 🟢 Resolved |
 | **SPC-02** | Spacing Scale Coverage | `/designer-skills:spacing-system` | 🔵 **Correction Needed** | `Spacing.kt` | Truncated scale capped at `32.dp`. Missing hero separators (`48.dp`), tablet dividers (`64.dp`), and viewport boundaries (`96.dp`). | Forces developers to write inline dp values for major hero sections and tablet breakpoints. | Expand `AppSpacing` to include `none (0dp)`, `xxl (48dp)`, `xxxl (64dp)`, and `xxxxl (96dp)`. | 🟢 Resolved |
@@ -373,6 +379,12 @@ git grep "WRITE_" "app/src/main/AndroidManifest.xml"
 | **Run 11** | `.\gradlew.bat testDebugUnitTest` | 🟢 **BUILD SUCCESSFUL** | `6s` | Full test suite regression check: 100% tests passing (0 failures). |
 | **Run 12** | `testDebugUnitTest --tests "com.couplefit.BuildVerificationTest"` | 🟢 **PASSED** | `21s` | **Resolution of CSA-01**: Verified all 4 core type-safe destinations (`Today`, `Challenges`, `HealthTrends`, `CoupleHub`), `TopLevelDestination` metadata, and deprecated `Dashboard` alias. |
 | **Run 13** | `.\gradlew.bat testDebugUnitTest` | 🟢 **BUILD SUCCESSFUL** | `6s` | Full test suite regression check: 100% tests passing (0 failures). |
+| **Run 14** | `.\gradlew.bat testDebugUnitTest` | 🟢 **BUILD SUCCESSFUL** | `48s` | **Phase 29 Verification**: Apple Design & Liqui Design comprehensive UI/animation redesign verified (32 tests green). |
+| **Run 15** | `.\gradlew.bat testDebugUnitTest` | 🟢 **BUILD SUCCESSFUL** | `42s` | **Phase 30 Verification (CLR-03)**: Color-blind ergonomics multi-modal metric glyphs verified (👟, 🔥, ⏱️, ❤️, ▲, ▼, 🏆, ⚡, 🤝). |
+| **Run 16** | `.\gradlew.bat testDebugUnitTest` | 🟢 **BUILD SUCCESSFUL** | `44s` | **Phase 31 Verification (TYP-02)**: Typography scale hierarchy verified; size collision between headlineSmall (21sp) and titleLarge (19sp) eliminated. |
+| **Run 17** | `testDebugUnitTest --tests "com.couplefit.ui.ReadableMeasureArchitectureTest"` | 🟢 **PASSED** | `11s` | **Phase 32 Verification (MSR-01 to MSR-07)**: `Modifier.readableMeasure()` and `Modifier.dialogMeasure()` constraint contracts verified. |
+| **Run 18** | `.\gradlew.bat testDebugUnitTest` & `compileDebugAndroidTestKotlin` | 🟢 **BUILD SUCCESSFUL** | `43s` | **Phase 33 Verification (BGV-06)**: Global ambient video background across all screens verified; 100% green bar on all 32 unit tests and 31 UI test tasks. |
+
 
 ---
 
@@ -802,7 +814,9 @@ val CategoryPillLabel = TextStyle(
 ## 14. Readable Measure & Line-Length Architecture (45–75 CPL) 📖📏
 
 > **Command Trigger**: `/designer-skills:readable-measure`  
-> **Associated Defect Logs**: `MSR-01`, `MSR-02`, `MSR-03`, `MSR-04`, `MSR-05`, `MSR-06`, `MSR-07`
+> **Associated Defect Logs**: `MSR-01`, `MSR-02`, `MSR-03`, `MSR-04`, `MSR-05`, `MSR-06`, `MSR-07`  
+> **Status**: 🟢 **RESOLVED & SHIPPED** in Phase 32 (`v2.9.17-readable-measure-msr01`)  
+> **Verified Tests**: [`ReadableMeasureArchitectureTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/ReadableMeasureArchitectureTest.kt) (100% Green Bar), ARTEMIS screen captures on `emulator-5554` (Pixel 10 Pro)
 
 ---
 
@@ -3083,3 +3097,72 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - **Defect & Gap**: Online partner status displays as a static text string ("🟢 Partner Online • Live ⚡") without visual vitality or relational warmth.
 - **Proposed Architecture**:
   - Implement `LivingPresenceIndicator`: an animated 3-second breathing radial glow halo (`alpha` oscillating gently between `0.30f` and `0.85f`, radius `12dp` to `20dp`) behind the partner avatar and status pill, creating a calming sense of live shared presence.
+
+#### 7. `ANM-09`: Dock Indicator Fluid Spring Morphing (`CoupleFitNavigationSuite.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)
+- **Defect & Gap**: The bottom floating glass dock capsule indicator snaps between tabs or uses standard Compose crossfade.
+- **Proposed Architecture**: Implement spring-driven pill morph (`spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)`) that elastically stretches horizontally in the direction of navigation before snapping to the active tab.
+
+#### 8. `ANM-10`: Duel Card Tap Press Physics & 3D Tilt (`ChallengesScreen.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt)
+- **Defect & Gap**: Duel cards lack dynamic spring-based scaling (`scaleX`, `scaleY`) or subtle 3D tilt response on finger press.
+- **Proposed Architecture**: Attach interactive press gesture modifying `graphicsLayer { scaleX = animatedScale; scaleY = animatedScale }` with `0.98x` compression on press and fluid spring bounce on release.
+
+#### 9. `ANM-11`: Trends Timeframe Switcher Fluid Glide (`HealthTrendsScreen.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt)
+- **Defect & Gap**: The `Day / Week / Month / Year` segment switcher toggles abruptly without a shared morphing pill background.
+- **Proposed Architecture**: Implement an animated sliding capsule background with bouncy spring spec (`dampingRatio = 0.75f, stiffness = 400f`) that glides smoothly under the selected timeframe.
+
+#### 10. `ANM-12`: Sync Refresh Orbital Wave Pulse (`DashboardScreen.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+- **Defect & Gap**: Pull-to-refresh displays standard progress spinner without ambient kinetic feedback.
+- **Proposed Architecture**: Implement rotating cyan/amber orbital particle ring with expanding radar ripple during active telemetry sync.
+
+#### 11. `ANM-13`: Medication Swipe-To-Complete Gesture (`MedicationDuePill.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/components/MedicationDuePill.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/MedicationDuePill.kt)
+- **Defect & Gap**: Medication logging uses simple tap button without tactile completion feedback.
+- **Proposed Architecture**: Implement horizontal swipe-to-complete gesture with threshold haptic tick and spring ejection animation.
+
+#### 12. `ANM-14`: Couple Avatar Touch-Heartbeat Ripple (`CoupleHubScreen.kt`)
+- **Location**: [`app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+- **Defect & Gap**: Tapping or holding partner avatar produces no kinetic response or remote connection feedback.
+- **Proposed Architecture**: Implement dual-pulse heartbeat haptic trigger accompanied by expanding concentric glowing aura upon avatar tap.
+
+---
+
+## 56. Global Ambient Video Background Architecture (BGV-06) 🌌📱✨
+
+> **Command Trigger**: `/designer-skills:brand`, `/antislop-ui`  
+> **Associated Defect Logs**: `BGV-06`  
+> **Status**: 🟢 **RESOLVED & SHIPPED** in Phase 33 (`v2.9.18-global-ambient-video-bgv06`)  
+> **Release Artifact**: [`phase32_33_verification_report.md`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/phase32_33_verification_report.md)
+
+---
+
+### 56.1 The Cladding Problem & Architectural Resolution
+
+Prior to Phase 33, users experienced the living ambient video background exclusively on the Today dashboard. When navigating to Challenges & Duels, Health & Trends, Couple Hub, Settings, or Auth screens, the video disappeared or was completely obscured.
+
+#### Root Causes Diagnosed:
+1. **Container Scoping**: `AmbientVideoBackground` was instantiated only inside `CoupleFitNavigationSuite`. When navigating to `SettingsScreen` or Auth flows, the screen rendered outside the navigation suite over an opaque surface.
+2. **Opaque Scaffold Barriers**: Material 3 `Scaffold` components in `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, and `PrivacyTransparencyScreen.kt` defaulted to solid `MaterialTheme.colorScheme.background` (solid black in dark theme), creating an impenetrable light shield over the video.
+
+#### Target Architecture Delivered:
+1. **Persistent Root Video Hoisting**: Hoisted `AmbientVideoBackground` to the root layout in [`MainActivity.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/MainActivity.kt) directly inside `ThemeCircularRevealContainer`. A single hardware-accelerated ExoPlayer instance streams continuously across all 4 navigation tabs, sub-tabs, Settings, and Auth flows, eliminating surface destruction, audio clicks, and re-buffering latency.
+2. **Transparent Cladding & Optical Glass**:
+   - `Scaffold` and `TopAppBar` across `ChallengesScreen`, `HealthTrendsScreen`, `CoupleHubScreen`, `SettingsScreen`, and `PrivacyTransparencyScreen` set to `containerColor = Color.Transparent`.
+   - Cards and surfaces retain their frosted glass tokens (`iosGlass`, `liquiGlass`, or `alpha = 0.72f`), allowing the living ambient video (`green1.mp4`, `blue.mp4`) to shine through with full portrait resolution and depth.
+   - Refactored `CoupleFitNavigationSuite.kt` with `includeVideoBackground = false` default to prevent duplicate ExoPlayer decoders.
+
+---
+
+### 56.2 Live Device Verification Matrix (ARTEMIS Evidence on Pixel 10 Pro)
+
+| Screen / Viewport | Target File | Verification Metric | Status |
+| :--- | :--- | :--- | :--- |
+| **Today Dashboard** | `DashboardScreen.kt` | Ambient video continues playing behind telemetry gauges and pulse cards | 🟢 Verified |
+| **Challenges & Duels** | `ChallengesScreen.kt` | Emerald aurora glow radiates across top bar and behind frosted duel cards | 🟢 Verified |
+| **Health & Trends** | `HealthTrendsScreen.kt` | Ambient video shines behind weekly combined steps and medication trackers | 🟢 Verified |
+| **Couple Hub** | `CoupleHubScreen.kt` | Ambient video flows seamlessly under partner profile and shared streak cards | 🟢 Verified |
+| **Settings Screen** | `SettingsScreen.kt` | Ambient video visible behind segmented navigation bar and experience cards | 🟢 Verified |
+| **Auth Flows** | `SignInScreen.kt`, etc. | Solid background fills replaced with `Color.Transparent` overlays | 🟢 Verified |

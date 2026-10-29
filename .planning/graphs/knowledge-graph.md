@@ -375,3 +375,13 @@ graph TD
   - `CoupleFitNavigationSuite.kt` -> Delegates background rendering to root
   - Transparent Cladding -> `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, Auth screens
   - Status: Shipped in Phase 33 (`v2.9.18-global-ambient-video-bgv06`)
+
+### Sensory Polish & Animation Gaps (ANM-09 to ANM-14)
+- **Domain**: Animation & Micro-Interactions (`/motion:motion-system`, `/designer-skills:interfaces-that-feel`)
+- **Nodes**:
+  - `ANM-09`: Dock Indicator Spring Morphing (`CoupleFitNavigationSuite.kt`)
+  - `ANM-10`: Duel Card Tap Press Physics & 3D Tilt (`ChallengesScreen.kt`)
+  - `ANM-11`: Trends Timeframe Switcher Fluid Glide (`HealthTrendsScreen.kt`)
+  - `ANM-12`: Sync Refresh Orbital Wave Pulse (`DashboardScreen.kt`)
+  - `ANM-13`: Medication Swipe-To-Complete Gesture (`MedicationDuePill.kt`)
+  - `ANM-14`: Couple Avatar Touch-Heartbeat Ripple (`CoupleHubScreen.kt`)
