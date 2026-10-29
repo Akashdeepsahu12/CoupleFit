@@ -1,8 +1,12 @@
 package com.couplefit.ui.trends
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -12,14 +16,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.background
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.*
 
 enum class TelemetryPerspective(val label: String, val icon: String) {
@@ -31,15 +39,16 @@ enum class TelemetryPerspective(val label: String, val icon: String) {
 /**
  * Health & Trends Screen (Tab 3).
  * Designed according to `card-sort-analysis.md` §7.2 (Wireframe 3).
- * Upgraded with NAV-04 (tactile haptic feedback & animated segmented controls)
- * and NAV-05 (bilateral telemetry perspective filtering: Both, You, Partner).
+ * Upgraded with NAV-04 (tactile haptic feedback) and NAV-05 (bilateral telemetry perspective).
+ *
+ * Enhanced with ANM-11: Fluid Timeframe Switcher with spring-driven gliding capsule indicator
+ * (`dampingRatio = 0.75f, stiffness = 400f`) and smooth ratio interpolation in telemetry cards.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthTrendsScreen(
     modifier: Modifier = Modifier
 ) {
-    val haptic = LocalHapticFeedback.current
     var selectedTimeHorizon by remember { mutableStateOf("Week") }
     var selectedPerspective by remember { mutableStateOf(TelemetryPerspective.COMBINED) }
 
@@ -67,71 +76,41 @@ fun HealthTrendsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Local Sub-Navigation Sub-Header (LOC-NAV-01 & NAV-04): Animated M3 Segmented Button Timeframe Row
-            SingleChoiceSegmentedButtonRow(
+            // ANM-11: Fluid Spring-Driven Timeframe Switcher
+            FluidSegmentedSwitcher(
+                items = timeHorizons,
+                selectedItem = selectedTimeHorizon,
+                onItemSelected = { selectedTimeHorizon = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs)
-            ) {
-                timeHorizons.forEachIndexed { index, horizon ->
-                    val isSelected = selectedTimeHorizon == horizon
-                    SegmentedButton(
-                        selected = isSelected,
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            selectedTimeHorizon = horizon
-                        },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = timeHorizons.size),
-                        colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                            activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    ) {
-                        Text(
-                            text = horizon,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
-                }
+            ) { horizon, isSelected ->
+                Text(
+                    text = horizon,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    style = MaterialTheme.typography.labelMedium
+                )
             }
 
-            // NAV-05 Perspective Selector: Local Segmentation to Unclutter Historical Charts
-            SingleChoiceSegmentedButtonRow(
+            // NAV-05 & ANM-11: Fluid Perspective Switcher (Both, You, Partner)
+            FluidSegmentedSwitcher(
+                items = TelemetryPerspective.entries,
+                selectedItem = selectedPerspective,
+                onItemSelected = { selectedPerspective = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs)
-            ) {
-                TelemetryPerspective.entries.forEachIndexed { index, perspective ->
-                    val isSelected = selectedPerspective == perspective
-                    SegmentedButton(
-                        selected = isSelected,
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            selectedPerspective = perspective
-                        },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = TelemetryPerspective.entries.size),
-                        colors = SegmentedButtonDefaults.colors(
-                            activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Text(perspective.icon, fontSize = 13.sp)
-                            Text(
-                                text = perspective.label,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                    }
+            ) { perspective, isSelected ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(perspective.icon, fontSize = 13.sp)
+                    Text(
+                        text = perspective.label,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
             }
 
@@ -172,24 +151,76 @@ fun HealthTrendsScreen(
                             TelemetryPerspective.YOU -> {
                                 SoloTelemetryCard(
                                     ownerName = "You",
-                                    steps = "48,200",
-                                    goal = "50,000",
-                                    ratio = 0.96f,
+                                    timeHorizon = selectedTimeHorizon,
+                                    steps = when (selectedTimeHorizon) {
+                                        "Day" -> "8,450"
+                                        "Week" -> "48,200"
+                                        "Month" -> "198,400"
+                                        else -> "2,420,000"
+                                    },
+                                    goal = when (selectedTimeHorizon) {
+                                        "Day" -> "10,000"
+                                        "Week" -> "50,000"
+                                        "Month" -> "200,000"
+                                        else -> "2,500,000"
+                                    },
+                                    targetRatio = when (selectedTimeHorizon) {
+                                        "Day" -> 0.845f
+                                        "Week" -> 0.964f
+                                        "Month" -> 0.992f
+                                        else -> 0.968f
+                                    },
                                     dailyAvg = "6,885",
-                                    activeMins = "280",
-                                    calories = "2,450",
+                                    activeMins = when (selectedTimeHorizon) {
+                                        "Day" -> "45"
+                                        "Week" -> "280"
+                                        "Month" -> "1,120"
+                                        else -> "13,440"
+                                    },
+                                    calories = when (selectedTimeHorizon) {
+                                        "Day" -> "420"
+                                        "Week" -> "2,450"
+                                        "Month" -> "10,200"
+                                        else -> "122,500"
+                                    },
                                     accentColor = CoupleFitIdentityTokens.UserPrimary // Electric Cyan (DSN-01)
                                 )
                             }
                             TelemetryPerspective.PARTNER -> {
                                 SoloTelemetryCard(
                                     ownerName = "Partner",
-                                    steps = "44,200",
-                                    goal = "50,000",
-                                    ratio = 0.88f,
+                                    timeHorizon = selectedTimeHorizon,
+                                    steps = when (selectedTimeHorizon) {
+                                        "Day" -> "7,800"
+                                        "Week" -> "44,200"
+                                        "Month" -> "185,600"
+                                        else -> "2,280,000"
+                                    },
+                                    goal = when (selectedTimeHorizon) {
+                                        "Day" -> "10,000"
+                                        "Week" -> "50,000"
+                                        "Month" -> "200,000"
+                                        else -> "2,500,000"
+                                    },
+                                    targetRatio = when (selectedTimeHorizon) {
+                                        "Day" -> 0.780f
+                                        "Week" -> 0.884f
+                                        "Month" -> 0.928f
+                                        else -> 0.912f
+                                    },
                                     dailyAvg = "6,314",
-                                    activeMins = "252",
-                                    calories = "2,180",
+                                    activeMins = when (selectedTimeHorizon) {
+                                        "Day" -> "40"
+                                        "Week" -> "252"
+                                        "Month" -> "1,040"
+                                        else -> "12,200"
+                                    },
+                                    calories = when (selectedTimeHorizon) {
+                                        "Day" -> "380"
+                                        "Week" -> "2,180"
+                                        "Month" -> "9,100"
+                                        else -> "110,400"
+                                    },
                                     accentColor = CoupleFitIdentityTokens.PartnerPrimary // Vibrant Coral (DSN-01)
                                 )
                             }
@@ -279,8 +310,105 @@ fun HealthTrendsScreen(
     }
 }
 
+/**
+ * ANM-11: Fluid Spring-Driven Gliding Segmented Switcher.
+ * Replaces rigid segmented borders with an Apple-style gliding capsule pill
+ * with calibrated spring physics (`dampingRatio = 0.75f, stiffness = 400f`).
+ */
+@Composable
+fun <T> FluidSegmentedSwitcher(
+    items: List<T>,
+    selectedItem: T,
+    onItemSelected: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    itemContent: @Composable (item: T, isSelected: Boolean) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+    val selectedIndex = items.indexOf(selectedItem).coerceAtLeast(0)
+
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(44.dp)
+            .clip(RoundedCornerShape(22.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)),
+                RoundedCornerShape(22.dp)
+            )
+            .padding(3.dp)
+    ) {
+        val segmentWidth = maxWidth / items.size
+        val animatedIndicatorOffset by animateDpAsState(
+            targetValue = segmentWidth * selectedIndex,
+            animationSpec = spring(
+                dampingRatio = 0.75f,
+                stiffness = 400f
+            ),
+            label = "fluidSwitcherIndicatorOffset"
+        )
+
+        // Gliding indicator capsule
+        Box(
+            modifier = Modifier
+                .offset(x = animatedIndicatorOffset)
+                .width(segmentWidth)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(19.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .border(
+                    BorderStroke(0.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)),
+                    RoundedCornerShape(19.dp)
+                )
+        )
+
+        // Clickable interactive segments
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEachIndexed { index, item ->
+                val isSelected = index == selectedIndex
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            if (!isSelected) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onItemSelected(item)
+                            }
+                        }
+                        .semantics {
+                            role = Role.Tab
+                            selected = isSelected
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    itemContent(item, isSelected)
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
+    val targetRatio = when (selectedTimeHorizon) {
+        "Day" -> 0.81f
+        "Week" -> 0.92f
+        "Month" -> 0.96f
+        else -> 0.94f
+    }
+    val animatedRatio by animateFloatAsState(
+        targetValue = targetRatio,
+        animationSpec = spring(dampingRatio = 0.80f, stiffness = 450f),
+        label = "combinedRatioAnimation"
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,13 +433,18 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
-                    text = "92,400 / 100k",
+                    text = when (selectedTimeHorizon) {
+                        "Day" -> "16,250 / 20k"
+                        "Week" -> "92,400 / 100k"
+                        "Month" -> "384,000 / 400k"
+                        else -> "4,700,000 / 5M"
+                    },
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            // Bilateral Two-Tone Split Indicator (DSN-01)
+            // Bilateral Two-Tone Split Indicator (DSN-01) with smooth ratio spring
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -319,7 +452,7 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                Row(modifier = Modifier.fillMaxWidth(0.92f).fillMaxHeight()) {
+                Row(modifier = Modifier.fillMaxWidth(animatedRatio).fillMaxHeight()) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -371,14 +504,21 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
 @Composable
 private fun SoloTelemetryCard(
     ownerName: String,
+    timeHorizon: String,
     steps: String,
     goal: String,
-    ratio: Float,
+    targetRatio: Float,
     dailyAvg: String,
     activeMins: String,
     calories: String,
-    accentColor: androidx.compose.ui.graphics.Color
+    accentColor: Color
 ) {
+    val animatedRatio by animateFloatAsState(
+        targetValue = targetRatio,
+        animationSpec = spring(dampingRatio = 0.80f, stiffness = 450f),
+        label = "soloRatioAnimation"
+    )
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -402,7 +542,7 @@ private fun SoloTelemetryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "$ownerName's Total Steps",
+                    text = "$ownerName's $timeHorizon Steps",
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
@@ -413,7 +553,7 @@ private fun SoloTelemetryCard(
             }
 
             LinearProgressIndicator(
-                progress = { ratio },
+                progress = { animatedRatio },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
@@ -432,7 +572,7 @@ private fun SoloTelemetryCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${(ratio * 100).toInt()}% of Goal",
+                    text = "${(targetRatio * 100).toInt()}% of Goal",
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                     color = accentColor
                 )

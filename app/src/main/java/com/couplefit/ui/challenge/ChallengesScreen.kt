@@ -1,5 +1,7 @@
 package com.couplefit.ui.challenge
 
+import com.couplefit.ui.theme.duelCardPress
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -301,7 +303,11 @@ private fun ActiveDuelsSection(
 
         items(quickFormats) { format ->
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .duelCardPress(onClickLabel = "Start ${format.title}") {
+                        onStartFormat(format.type, format.goal)
+                    },
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -406,7 +412,9 @@ private fun TrophiesVaultSection(
         // Head-to-Head Record Hero Card
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .duelCardPress(onClickLabel = "View Couple Head-to-Head Record"),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
@@ -521,7 +529,9 @@ private fun TrophiesVaultSection(
         // Trophy Showcase Card
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .duelCardPress(onClickLabel = "View Trophy & Milestone Showcase"),
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
@@ -568,7 +578,9 @@ private fun TrophiesVaultSection(
 
         items(pastDuels) { duel ->
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .duelCardPress(onClickLabel = "View ${duel.title} record"),
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface

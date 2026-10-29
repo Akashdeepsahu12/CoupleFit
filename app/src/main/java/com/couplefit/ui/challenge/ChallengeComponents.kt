@@ -52,6 +52,7 @@ fun SideBySideChallengeCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
+            .duelCardPress(onClickLabel = "View $title details")
             .iosGlass(shape = RoundedCornerShape(20.dp)),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),

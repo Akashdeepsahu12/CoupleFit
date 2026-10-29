@@ -60,6 +60,15 @@ import androidx.compose.ui.unit.sp
 import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
 import com.couplefit.ui.components.ActivityRing
 import com.couplefit.ui.components.MotionArcProgressGauge
 import com.couplefit.ui.components.MotionPillChip
@@ -426,15 +435,17 @@ fun DashboardScreen(
                 }
             }
 
-            // Sync status
+            // Sync status with ANM-12 OrbitalSyncPulse kinetic feedback
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = AppSpacing.md)
                     .padding(bottom = AppSpacing.xs),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                OrbitalSyncPulse(isSyncing = healthData.isSyncing)
+
                 val pName = healthData.partnerName.ifBlank { "Partner" }
                 val syncText = if (healthData.isSyncing) {
                     "Syncing couple pulse with Health Connect..."
@@ -446,7 +457,8 @@ fun DashboardScreen(
                 Text(
                     text = syncText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    modifier = Modifier.weight(1f)
                 )
             }
 
@@ -2081,3 +2093,110 @@ fun MetricPill(
         )
     }
 }
+
+/**
+ * ANM-12: Living Kinetic Orbital Telemetry Sync Pulse.
+ * Renders rotating cyan/amber orbital particle ring with expanding radar ripples during active
+ * telemetry sync, settling into a calm breathing green pulse when synchronized.
+ */
+@Composable
+fun OrbitalSyncPulse(
+    isSyncing: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "orbitalSync")
+
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "orbitalRotation"
+    )
+
+    val rippleProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "orbitalRipple"
+    )
+
+    val idleBreath by infiniteTransition.animateFloat(
+        initialValue = 0.55f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "idleBreath"
+    )
+
+    Box(
+        modifier = modifier.size(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerOffset = Offset(size.width / 2f, size.height / 2f)
+            val baseRadius = 5.dp.toPx()
+
+            if (isSyncing) {
+                // Expanding radar pulse wave
+                val waveRadius = baseRadius + rippleProgress * 6.dp.toPx()
+                val waveAlpha = (1f - rippleProgress).coerceIn(0f, 1f) * 0.7f
+                drawCircle(
+                    color = CoupleFitIdentityTokens.UserPrimary.copy(alpha = waveAlpha),
+                    radius = waveRadius,
+                    center = centerOffset,
+                    style = Stroke(width = 1.5.dp.toPx())
+                )
+
+                // Central glowing nexus
+                drawCircle(
+                    color = CoupleFitIdentityTokens.SynchronyGold.copy(alpha = 0.9f),
+                    radius = 3.dp.toPx(),
+                    center = centerOffset
+                )
+
+                // Dual orbital particles: User Cyan (top) and Partner Coral (bottom)
+                val orbitRadius = 7.5.dp.toPx()
+                val rad = Math.toRadians(rotation.toDouble())
+                val cyanX = (centerOffset.x + orbitRadius * Math.cos(rad)).toFloat()
+                val cyanY = (centerOffset.y + orbitRadius * Math.sin(rad)).toFloat()
+                val coralX = (centerOffset.x - orbitRadius * Math.cos(rad)).toFloat()
+                val coralY = (centerOffset.y - orbitRadius * Math.sin(rad)).toFloat()
+
+                // Cyan user orbital particle
+                drawCircle(
+                    color = CoupleFitIdentityTokens.UserPrimary,
+                    radius = 2.2.dp.toPx(),
+                    center = Offset(cyanX, cyanY)
+                )
+
+                // Coral partner orbital particle
+                drawCircle(
+                    color = CoupleFitIdentityTokens.PartnerPrimary,
+                    radius = 2.2.dp.toPx(),
+                    center = Offset(coralX, coralY)
+                )
+            } else {
+                // Steady breathing green synchrony dot
+                drawCircle(
+                    color = SystemGreen.copy(alpha = idleBreath * 0.35f),
+                    radius = 5.5.dp.toPx(),
+                    center = centerOffset
+                )
+                drawCircle(
+                    color = SystemGreen.copy(alpha = idleBreath),
+                    radius = 3.2.dp.toPx(),
+                    center = centerOffset
+                )
+            }
+        }
+    }
+}
+

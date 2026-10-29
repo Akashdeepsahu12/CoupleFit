@@ -7,11 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 
 /**
@@ -132,6 +135,68 @@ fun Modifier.iosMomentumClickable(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
+            onClick = onClick
+        )
+}
+
+/**
+ * ANM-10: Dynamic Duel Card Tap Press Physics & 3D Perspective Tilt.
+ * Emil Kowalski tactile card interaction specifications:
+ * - Pointer-down: Subtle 2% compression (pressedScale = 0.98f) and slight -1.5° perspective tilt.
+ * - Release: Snappy momentum spring release (stiffness = 700f, dampingRatio = 0.78f).
+ * - Feedback: Performs subtle mechanical tick haptic on press.
+ */
+fun Modifier.duelCardPress(
+    interactionSource: MutableInteractionSource? = null,
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    pressedScale: Float = 0.98f,
+    tiltDegrees: Float = -1.5f,
+    onClick: () -> Unit = {}
+) = composed {
+    val actualInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isPressed by actualInteractionSource.collectIsPressedAsState()
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            CoupleFitHaptics.performSubtleTick(context, haptic)
+        }
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) pressedScale else 1f,
+        animationSpec = if (isPressed) {
+            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessHigh)
+        } else {
+            spring(dampingRatio = 0.78f, stiffness = 700f)
+        },
+        label = "duelCardScale"
+    )
+
+    val tilt by animateFloatAsState(
+        targetValue = if (isPressed) tiltDegrees else 0f,
+        animationSpec = if (isPressed) {
+            spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessHigh)
+        } else {
+            spring(dampingRatio = 0.78f, stiffness = 700f)
+        },
+        label = "duelCardTilt"
+    )
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            rotationX = tilt
+            cameraDistance = 16f * density
+        }
+        .clickable(
+            interactionSource = actualInteractionSource,
+            indication = null,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
             onClick = onClick
         )
 }
