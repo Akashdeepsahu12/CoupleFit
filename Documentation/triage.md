@@ -107,6 +107,10 @@ All resolved issues have been fully implemented, accompanied by automated regres
 
 ## 3. High-Priority Triage Backlog (P0 & P1) 🔴🟡
 
+| **`MSR-01`** | Readable Measure Sprawl | Typography / Tablet | Unconstrained line length (130–160 CPL) across tablet settings and privacy screens. Wrap in `Modifier.readableMeasure(640.dp)`. |
+| **`MSR-03`** | Linked Confirmation Measure | Typography / Onboarding | `LinkedConfirmationScreen.kt` lacks max-width bounds, ballooning to 112 CPL on tablets. Apply `widthIn(max = 480.dp)`. |
+| **`MSR-05`** | Master Pane 1 Choked Measure | Layout / Adaptive | Premature 40/60 split on 600–720dp viewports crushes Pane 1 to 260dp (22–30 CPL). Reserve two-pane strictly for ≥840dp. |
+
 These items represent architectural, layout, or interaction blockers slated for upcoming sprints:
 
 | ID | Priority | Category | Component | Failure Description & User Impact | Action Required |
@@ -128,6 +132,10 @@ These items represent architectural, layout, or interaction blockers slated for 
 ---
 
 ## 4. Medium-Priority Backlog (P2) 🔵
+
+| **`MSR-02`** | Dialog Choked Measure | Typography / Modals | Compact modal dialogs choke body text to 28–34 CPL. Standardize `Modifier.dialogMeasure(min = 320.dp, max = 500.dp)`. |
+| **`MSR-04`** | Telemetry Diagnostic Foldable Measure | Typography / Foldables | Tabletop flex mode crushes diagnostic dialog to 26–32 CPL. Enforce `minWidth = 320.dp`. |
+| **`MSR-06`** | License Notice Sprawl | Typography / Legal | Open source licenses dialog stretches to 150–180 CPL on tablets. Constrain to `widthIn(min = 340.dp, max = 580.dp)`. |
 
 | ID | Category | Component | Description & Target Solution |
 | :--- | :--- | :--- | :--- |
@@ -159,6 +167,8 @@ These items represent architectural, layout, or interaction blockers slated for 
 ---
 
 ## 5. Low-Priority Polish & Innovation Backlog (P3) 💡
+
+| **`MSR-07`** | Dashboard Card Subtitle Sprawl | Typography / Cards | Medication prompt and daily goal subtitles stretch to 90–125 CPL on tablets. Apply responsive card grid or `readableMeasure()`. |
 
 | ID | Feature / Innovation | Domain | Delivered Concept & Value Proposition |
 | :--- | :--- | :--- | :--- |

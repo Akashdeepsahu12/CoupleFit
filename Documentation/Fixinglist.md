@@ -83,6 +83,11 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **TYP-03** | Typographic Glanceability | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | `Type.kt` (`labelSmall`) | Category chips (e.g. `DAILY GOAL`, `SYNC STATUS`) use standard tracking (`0.5.sp`) on micro 11sp text. | Low readability and glanceability on outdoor mobile viewports. | Increased tracking on `Typography.labelSmall` to `0.8.sp` (`0.06em`) for enhanced outdoor sunlight readability. | 🟢 Resolved |
 | **MSR-01** | Readable Measure & Layout | `/designer-skills:readable-measure` | 🔴 **Ergonomic Failure** | All Tablet / Foldable Screens | Unconstrained line length: Over 120 composables use unrestricted `Modifier.fillMaxWidth()`. On tablets (≥600dp), paragraphs stretch to **130–160 characters per line**, causing severe return-sweep tracking failure. | Users lose their place jumping between lines; high cognitive reading fatigue. | Implement `Modifier.readableMeasure(max = 600.dp)` to constrain reading containers to 45–75 characters (~65ch). | 🔴 Open |
 | **MSR-02** | Readable Measure in Modals | `/designer-skills:readable-measure` | 🔵 **Correction Needed** | `StartChallengeDialog.kt` | Choked measure in dialogs: Narrow 220dp modal widths compress text descriptions into **28–34 characters per line**, causing choppy, fragmented reading. | Disrupts cadence; looks cramped and unpolished. | Expand minimum dialog content width to 320dp to restore lines to the 40–55 character target zone. | 🔵 Open |
+| **MSR-03** | Readable Measure & Onboarding | `/designer-skills:readable-measure` | 🔴 **Layout Failure** | `LinkedConfirmationScreen.kt` | Unconstrained confirmation text: `Column(modifier = Modifier.fillMaxWidth())` lacks max-width bounds. On tablets, confirmation text balloons to **112 CPL** in a single isolated horizontal string. | High visual fatigue; looks unanchored on tablets/foldables. | Apply `Modifier.widthIn(max = 480.dp)` or `Modifier.readableMeasure()` to root column. | 🔴 Open |
+| **MSR-04** | Readable Measure & Foldables | `/designer-skills:readable-measure` | 🟡 **Ergonomic Defect** | `TelemetryDiagnosticDialog` (`DashboardScreen.kt`) | Choked measure in foldables: When folded in tabletop/flex mode (width ~300dp), explanation text is compressed into a 210dp column, producing an uncomfortable **26–32 CPL**. | Jagged line breaks; disrupts reading rhythm. | Enforce `minWidth = 320.dp` on dialog container with responsive padding tokens. | 🟡 Open |
+| **MSR-05** | Readable Measure & Master-Detail | `/designer-skills:readable-measure` | 🔴 **Layout Failure** | `DashboardAdaptiveScreen.kt` | Premature 40/60 split chokes Pane 1: On viewports between 600dp and 720dp, Pane 1 is crushed to ~260dp, forcing dashboard titles and competition text into **22–30 CPL**. | Severe reading disruption; words break line-by-line; destroys dashboard scanability. | Reserve two-pane split strictly for Expanded (≥840dp); use centered single-column layout on Medium (600–839dp). | 🔴 Open |
+| **MSR-06** | Readable Measure & Legal Disclosures | `/designer-skills:readable-measure` | 🔵 **Correction Needed** | `SettingsScreen.kt` (`showLicensesDialog`) | License notice sprawl: Open source legal notices (Apache 2.0 / MIT) stretch edge-to-edge on tablets, exceeding **150–180 CPL**. | Eye tracking fatigue; legal disclosures become illegible. | Constrain dialog container to `Modifier.widthIn(min = 340.dp, max = 580.dp)`. | 🔵 Open |
+| **MSR-07** | Readable Measure & Dashboard Cards | `/designer-skills:readable-measure` | 💡 **Ergonomic Polish** | `DashboardScreen.kt` | Card subtitle sprawl: Medication reminders and daily goal prompts span full width on tablets, causing subtitles to stretch out to **90–125 CPL**. | Disconnect between card width and short helper strings. | Anchor card width in responsive grid cells (`minSize = 340.dp`) or apply `readableMeasure()` container. | 💡 Open |
 | **SPC-01** | Spacing Token Discipline | `/designer-skills:spacing-system` | 🔴 **Design System Drift** | App-Wide UI Composables | Arbitrary hardcoded spacing: Over **240 instances** bypass `AppSpacing` using ad-hoc inline values (`20.dp`, `28.dp`, `6.dp`, `14.dp`, `52.dp`). | Breaks layout rhythm, causes visual inconsistency, and shatters design-token governance. | Refactor all hardcoded dp values to use strict `AppSpacing` tokens (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`). | 🔴 Open |
 | **SPC-02** | Spacing Scale Coverage | `/designer-skills:spacing-system` | 🔵 **Correction Needed** | `Spacing.kt` | Truncated scale capped at `32.dp`. Missing hero separators (`48.dp`), tablet dividers (`64.dp`), and viewport boundaries (`96.dp`). | Forces developers to write inline dp values for major hero sections and tablet breakpoints. | Expand `AppSpacing` to include `none (0dp)`, `xxl (48dp)`, `xxxl (64dp)`, and `xxxxl (96dp)`. | 🔵 Open |
 | **SPC-03** | Gestalt Law of Proximity | `/designer-skills:spacing-system` | 💡 **Ergonomic Hierarchy** | `DashboardScreen.kt` | Uniform gaps between related and unrelated elements: The Dual Rings to Nudges has a `24dp` gap, and Nudges to Biometrics also has an identical `24dp` gap. | Visual ambiguity; fails to signal that nudges directly control partner ring interactions. | Tighten related spacing (Rings to Nudges $\rightarrow$ `12.dp`) and expand unrelated spacing (Nudges to Biometrics $\rightarrow$ `24.dp` or `32.dp`). | 💡 Open |
@@ -796,31 +801,114 @@ val CategoryPillLabel = TextStyle(
 ## 14. Readable Measure & Line-Length Architecture (45–75 CPL) 📖📏
 
 > **Command Trigger**: `/designer-skills:readable-measure`  
-> **Associated Defect Logs**: `MSR-01`, `MSR-02`
-
-
-### 14.1 Measure QA Scorecard (Score: 7.4 / 10)
-- **Mobile Phone Reading (<600dp)**: `9.0 / 10` — Natural viewport boundaries keep body text within the optimal 48–56 characters per line.
-- **Tablet & Foldable Reading (≥600dp)**: `4.5 / 10` — Unrestricted `fillMaxWidth()` causes line lengths to balloon to 130–160 cpl (`MSR-01`).
-- **Modal & Dialog Enclosures**: `6.5 / 10` — Compact dialog cards choke lines to 28–34 cpl, causing unnatural hyphenation (`MSR-02`).
+> **Associated Defect Logs**: `MSR-01`, `MSR-02`, `MSR-03`, `MSR-04`, `MSR-05`, `MSR-06`, `MSR-07`
 
 ---
 
-### 14.2 The `Modifier.readableMeasure()` Solution
+### 14.1 The Science of Saccadic Cadence & Readable Measure
+Typographic measure is the horizontal span of a single line of text. Reading comfort relies on two physiological visual mechanisms:
+1. **Saccadic Fixation & Foveal Anticipation**: Human eyes scan in discrete jumps (*saccades*) lasting 20–35ms, fixating on 7–9 characters at a time.
+2. **The Return-Sweep Trajectory**: When finishing a line on the right margin, the ocular muscles execute an unguided ballistic return sweep back to the left margin.
 
-```kotlin
-/**
- * Constrains the maximum width of reading containers to 45–75 characters (~600dp)
- * for optimal ergonomic legibility on tablets, foldables, and desktop viewports.
- */
-fun Modifier.readableMeasure(maxWidth: Dp = 600.dp): Modifier = this
-    .widthIn(max = maxWidth)
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       THE READABLE MEASURE SPECTRUM                          │
+│                                                                             │
+│   < 45 CPL (Choked)        45 – 75 CPL (The Target Zone)       > 75 CPL (Sprawl)    │
+│  ├─── 28–38 CPL ───┼────────── 65 CPL (Ideal) ──────────┼─── 130–160 CPL ───┤  │
+│  Hyper-frequent jumps,   Fluid, rhythmic saccadic cadence,   Tracking fatigue, line │
+│  choppy cadence, bad     relaxed foveal anticipation, clean  skipping, lost place   │
+│  hyphenation             return-sweep accuracy               on return sweep        │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 14.3 Implementation Guidance
-- **Guideline 1 (Tablet Descriptions & Settings)**: In `PrivacyTransparencyScreen.kt`, `SettingsScreen.kt`, and `HealthTrendsScreen.kt`, wrap multi-line text blocks in `Modifier.readableMeasure()` to lock line length to ~65 characters.
-- **Guideline 2 (Dialog Width Standardization)**: Enforce a minimum width of `320.dp` for `StartChallengeDialog` and `UnlinkPartnerDialog` to restore comfortable reading cadence (40–55 cpl).
-- **Guideline 3 (Dynamic Leading for Wide Viewports)**: When line length exceeds 60 characters on expanded foldables, scale line height from `20sp` to `24sp` (`1.45x`) to assist the eye during the return sweep.
+- **Below 45 Characters (Choked Measure)**: Forces ocular jumps every 2–3 words. Cadence is fragmented, line-breaks look jagged, and reading comprehension suffers.
+- **Above 75 Characters (Sprawling Measure)**: The ballistic return sweep travels excessive distances without peripheral anchors, frequently causing users to **double-read lines** or **skip lines entirely**.
+
+---
+
+### 14.2 Empirical CPL Mathematical Audit across App Screens
+
+| Key | Component & Location | Current Screen Width | Typography Scale | Current CPL | Target CPL | Severity |
+|:---|:---|:---|:---|:---|:---|:---:|
+| **`MSR-01`** | `PrivacyTransparencyScreen.kt`, `SettingsScreen.kt` | Tablet 1280dp | `15.sp` BodyMedium | **130–160 CPL** | 55–68 CPL | 🔴 Critical |
+| **`MSR-02`** | `StartChallengeDialog` (Compact Mobile) | Mobile 360dp | `15.sp` BodyMedium | **28–34 CPL** | 42–55 CPL | 🔵 Medium |
+| **`MSR-03`** | `LinkedConfirmationScreen.kt` | Tablet 1280dp | `15.sp` BodyMedium | **112–130 CPL** | 48–60 CPL | 🔴 High |
+| **`MSR-04`** | `TelemetryDiagnosticDialog` (Foldables) | Foldable Flex 300dp | `14.sp` BodySmall | **26–32 CPL** | 42–52 CPL | 🟡 Medium |
+| **`MSR-05`** | `DashboardAdaptiveScreen.kt` Pane 1 | Medium Viewport 600–720dp | `20.sp` / `15.sp` | **22–30 CPL** | 45–60 CPL | 🔴 Critical |
+| **`MSR-06`** | `SettingsScreen.kt` (Licenses Dialog) | Tablet 1280dp | `13.sp` BodySmall | **150–180 CPL** | 60–75 CPL | 🔵 Medium |
+| **`MSR-07`** | `DashboardScreen.kt` (Medication & Goals) | Tablet 1280dp | `13.sp` LabelSmall | **90–125 CPL** | 45–65 CPL | 💡 Polish |
+
+---
+
+### 14.3 Detailed Breakdown of Identified Defects
+
+#### 1. `MSR-01`: Tablet & Wide Viewport Line Sprawl
+- **Location**: [`app/src/main/java/com/couplefit/ui/settings/PrivacyTransparencyScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/PrivacyTransparencyScreen.kt), [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+- **Mathematical Reality**: Container width = 1280dp - 32dp = 1248dp. In 15sp text (glyph advance ~8.1dp), line length reaches 154 CPL (2.37x the 65ch ideal).
+- **Remediation**: Wrap root content in `Modifier.readableMeasure(maxWidth = 640.dp).align(Alignment.CenterHorizontally)`.
+
+#### 2. `MSR-02`: Modal & Dialog Choked Line Measure on Compact Screens
+- **Location**: [`app/src/main/java/com/couplefit/ui/challenge/ChallengeComponents.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeComponents.kt)
+- **Problem**: When nested in multi-layer dialog surfaces with 24dp padding, usable text column drops to 264dp, causing jagged 3-word line breaks (28–34 CPL).
+- **Remediation**: Convert dialogs to `ModalBottomSheet` or enforce `Modifier.dialogMeasure()` (`min = 320.dp, max = 500.dp`).
+
+#### 3. `MSR-03`: `LinkedConfirmationScreen.kt` Unconstrained Measure
+- **Location**: [`app/src/main/java/com/couplefit/ui/auth/LinkedConfirmationScreen.kt#L60-L99`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/LinkedConfirmationScreen.kt#L60-L99)
+- **Problem**: Unlike `SignInScreen` which applies `widthIn(max = 480.dp)`, `LinkedConfirmationScreen` uses `Modifier.fillMaxWidth()`. Body copy balloons to 112 CPL across tablet displays.
+- **Remediation**: Add `Modifier.widthIn(max = 480.dp)` to root Column.
+
+#### 4. `MSR-04`: `TelemetryDiagnosticDialog` Choked Measure on Foldables
+- **Location**: [`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt#L1870-L1930`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt#L1870-L1930)
+- **Problem**: When folded in tabletop/flex mode, explanation text is compressed into a 210dp column (26–32 CPL).
+- **Remediation**: Enforce `minWidth = 320.dp` on the dialog container.
+
+#### 5. `MSR-05`: `DashboardAdaptiveScreen.kt` Master Pane 1 Hyper-Choked Measure
+- **Location**: [`app/src/main/java/com/couplefit/ui/dashboard/DashboardAdaptiveScreen.kt#L65-L77`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardAdaptiveScreen.kt#L65-L77)
+- **Problem**: On 600–720dp viewports, splitting into 40%/60% panes crushes Pane 1 to ~260dp, compressing card titles into 22–30 CPL.
+- **Remediation**: In accordance with `GRD-01`, restrict two-pane split to Expanded viewports (>= 840dp).
+
+#### 6. `MSR-06`: Legal & Open Source Licenses Notice Sprawl
+- **Location**: [`app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt#L482-L505`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt#L482-L505)
+- **Problem**: Unconstrained scrollable legal notices stretch edge-to-edge on tablets (150–180 CPL).
+- **Remediation**: Wrap license content container in `Modifier.widthIn(min = 340.dp, max = 580.dp)`.
+
+#### 7. `MSR-07`: Medication Reminders & Daily Goal Card Inline Measure
+- **Location**: [`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt#L660-L705`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt#L660-L705)
+- **Problem**: Medication cards and daily goal prompts span full width on tablets (90–125 CPL).
+- **Remediation**: Wrap in adaptive grid cells (`minSize = 340.dp`) or apply `readableMeasure()` container.
+
+---
+
+### 14.4 The `Modifier.readableMeasure()` Architectural Specification
+
+```kotlin
+package com.couplefit.ui.theme
+
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+/**
+ * Constrains text reading containers to the optimal typographic measure of 45–75 CPL
+ * (~600dp–640dp) on tablets, foldables, and desktop/DeX displays.
+ *
+ * Adheres to `/designer-skills:readable-measure`:
+ * - Sustained body text & legal disclosures: 55–70 CPL (~600dp)
+ * - UI descriptions & setting cards: 45–65 CPL (~520dp)
+ * - Dialogs & modals: min 320dp, max 500dp (~45–55 CPL)
+ */
+fun Modifier.readableMeasure(
+    maxWidth: Dp = 620.dp,
+    minWidth: Dp = Dp.Unspecified
+): Modifier = this.widthIn(min = minWidth, max = maxWidth)
+
+fun Modifier.dialogMeasure(): Modifier = this.widthIn(
+    min = 320.dp,
+    max = 500.dp
+)
+```
 
 ---
 

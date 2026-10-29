@@ -355,3 +355,15 @@ graph TD
   - `GLS-11`: Hub & Trends 4-Layer Liqui Glass Harmonization (`CoupleHubScreen.kt`, `HealthTrendsScreen.kt`)
   - `REL-01`: Living Partner Presence Breathing Halo (`CoupleHubScreen.kt`)
 - **Target Milestones**: Phase 32+ Animation & Relational Polish Waves
+
+### Readable Measure Architecture (MSR-01 to MSR-07)
+- **Domain**: Typographic Cadence & Saccadic Ergonomics (`/designer-skills:readable-measure`)
+- **Nodes**:
+  - `MSR-01`: Tablet Line Sprawl (130–160 CPL) -> `PrivacyTransparencyScreen.kt`, `SettingsScreen.kt`
+  - `MSR-02`: Dialog Choked Measure (28–34 CPL) -> `StartChallengeDialog.kt`
+  - `MSR-03`: Confirmation Text Sprawl (112 CPL) -> `LinkedConfirmationScreen.kt`
+  - `MSR-04`: Diagnostic Foldable Measure (26–32 CPL) -> `DashboardScreen.kt`
+  - `MSR-05`: Master Pane Choked Measure (22–30 CPL) -> `DashboardAdaptiveScreen.kt`
+  - `MSR-06`: Legal Notice Sprawl (150–180 CPL) -> `SettingsScreen.kt`
+  - `MSR-07`: Card Subtitle Sprawl (90–125 CPL) -> `DashboardScreen.kt`
+  - `Modifier.readableMeasure()` -> `Spacing.kt` / `Measure.kt`
