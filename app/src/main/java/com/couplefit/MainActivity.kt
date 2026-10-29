@@ -87,6 +87,9 @@ class MainActivity : ComponentActivity() {
             var userReduceMotion by remember {
                 mutableStateOf(prefs.getBoolean("reduce_motion", false))
             }
+            var liquidGlassEnabled by remember {
+                mutableStateOf(prefs.getBoolean("liquid_glass_enabled", true))
+            }
             val effectiveReduceMotion = isSystemAnimationDisabled || userReduceMotion
 
             // Ambient video background shuffle across app opens (BGV-04)
@@ -237,6 +240,11 @@ class MainActivity : ComponentActivity() {
                                             onToggleReduceMotion = { newReduce ->
                                                 userReduceMotion = newReduce
                                                 prefs.edit().putBoolean("reduce_motion", newReduce).apply()
+                                            },
+                                            liquidGlassEnabled = liquidGlassEnabled,
+                                            onToggleLiquidGlass = { newLiquidGlass ->
+                                                liquidGlassEnabled = newLiquidGlass
+                                                prefs.edit().putBoolean("liquid_glass_enabled", newLiquidGlass).apply()
                                             }
                                         )
                                     } else {
@@ -245,7 +253,8 @@ class MainActivity : ComponentActivity() {
                                             selectedDestination = currentTab,
                                             onDestinationSelected = { currentTab = it },
                                             reduceMotion = effectiveReduceMotion,
-                                            ambientVideoResId = currentAmbientBgAsset.resId
+                                            ambientVideoResId = currentAmbientBgAsset.resId,
+                                            liquidGlassEnabled = liquidGlassEnabled
                                         ) { _ ->
                                             Box(modifier = Modifier.fillMaxSize()) {
                                                 AnimatedContent(

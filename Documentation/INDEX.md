@@ -8,6 +8,9 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`liquideffect.md`**](liquideffect.md) | User Request & Spec | **Design System & Blueprint** | Implementation blueprint for real-time frosted liquid glass bottom navigation bar using Chris Banes Haze library (`LIQ-01`). |
+| [**`PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md`**](PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 36 milestone plan: Real-time liquid glass bottom navigation bar & Settings Experience Hub toggle (`LIQ-01`). |
+| [**`phase36_verification_report.md`**](phase36_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 36 verification report: Deterministic test results (unit tests & compose tests) and live hardware verification on Samsung Galaxy S24 (`LIQ-01`). |
 | [**`Fixinglist.md`**](Fixinglist.md) | Multi-Command Central Audit | **Defect & Audit Catalog** | Master audit and defect tracking catalog logging all errors, gaps, corrections, and test results against architecture and research specs (`TEST-01` to `APL-03`). |
 | [**decision.md**](decision.md) | /agent-skills:documentation-and-adrs | **Architecture Decision Records (ADRs)** | Comprehensive records of all 10 core architectural decisions (ADR-001 to ADR-010) capturing context, constraints, rejected alternatives, and consequences. |
 | [**`triage.md`**](triage.md) | `/gsd-inbox` Defect Triage | **Triage & Backlog Inbox** | Centralized defect and backlog triage catalog logging all 14 resolved issues, P0/P1 blockers, and domain-categorized backlogs. |

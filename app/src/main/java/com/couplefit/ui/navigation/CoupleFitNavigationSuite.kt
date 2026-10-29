@@ -1,5 +1,13 @@
 package com.couplefit.ui.navigation
 
+import android.os.Build
+import androidx.compose.ui.draw.shadow
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
+
 import androidx.annotation.RawRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -13,6 +21,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +56,7 @@ import com.couplefit.ui.theme.*
  * - ANM-09: Fluid spring-morphing active tab capsule pill indicator with bouncy spring physics
  *   (`Spring.DampingRatioMediumBouncy`, stiffness = 420f) and elastic directional elongation.
  */
+@OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun CoupleFitNavigationSuite(
     windowSizeClass: WindowSizeClass,
@@ -56,12 +66,17 @@ fun CoupleFitNavigationSuite(
     reduceMotion: Boolean = false,
     @RawRes ambientVideoResId: Int = AmbientVideoRegistry.defaultAsset.resId,
     includeVideoBackground: Boolean = false,
+    liquidGlassEnabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val haptic = LocalHapticFeedback.current
     val destinations = TopLevelDestination.allDestinations
     val selectedIndex = destinations.indexOf(selectedDestination).coerceAtLeast(0)
+    val hazeState = remember { HazeState() }
+    val isLiquidGlassSupported = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.S }
+    val useLiquidGlass = liquidGlassEnabled && isLiquidGlassSupported
+    val pillShape = remember { RoundedCornerShape(percent = 50) }
 
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Living Ambient Aurora Video Background (BGV-04 / BGV-06: Hoisted to MainActivity root)
@@ -77,8 +92,12 @@ fun CoupleFitNavigationSuite(
         if (isCompact) {
             // Compact Viewport: Phones (<600dp) with True Floating Hover Glass Navigation Dock (DCK-01)
             Box(modifier = Modifier.fillMaxSize()) {
-                // Content renders full-bleed edge-to-edge under the floating dock
-                Box(modifier = Modifier.fillMaxSize()) {
+                // Content renders full-bleed edge-to-edge under the floating dock and serves as hazeSource
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .hazeSource(state = hazeState)
+                ) {
                     content(PaddingValues(bottom = 96.dp))
                 }
 
@@ -91,14 +110,35 @@ fun CoupleFitNavigationSuite(
                         .navigationBarsPadding(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Surface(
+                    val dockModifier = if (useLiquidGlass) {
+                        Modifier
+                            .hazeEffect(
+                                state = hazeState,
+                                style = HazeMaterials.ultraThin()
+                            )
+                            .clip(pillShape)
+                            .border(
+                                width = 0.5.dp,
+                                color = Color.White.copy(alpha = 0.18f),
+                                shape = pillShape
+                            )
+                    } else {
+                        Modifier
+                            .clip(pillShape)
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                            .border(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = pillShape
+                            )
+                    }
+
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(68.dp)
-                            .glassDock(),
-                        color = Color.Transparent,
-                        shape = GlassComponentTokens.DockCornerShape,
-                        shadowElevation = GlassPrimitives.ElevationDock
+                            .shadow(elevation = 12.dp, shape = pillShape, ambientColor = Color.Black.copy(alpha = 0.35f))
+                            .then(dockModifier)
                     ) {
                         BoxWithConstraints(
                             modifier = Modifier

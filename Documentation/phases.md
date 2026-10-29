@@ -803,3 +803,27 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
 - **Status**: Completed & Verified on Device (`emulator-5554`)
 - **Key Deliverables**: Eliminated size duplication between `headlineSmall` (`21.sp` Bold) and `titleLarge` (`19.sp` SemiBold). Logged `ANM-05`, `ANM-06`, `TYP-05`.
 - **Release Tag**: `v2.9.16-typography-scale-typ02`
+
+## Phase 34: Tactile Motion Polish & Kinetic Micro-Interactions (ANM-09..ANM-14) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_34_TACTILE_ANIMATIONS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_34_TACTILE_ANIMATIONS.md)
+- **Status**: Completed & Verified on Device (`emulator-5554`)
+- **Key Deliverables**: Spring-driven dock capsule morphing (`ANM-09`), duel card press physics (`0.98x` scale, `-1.5°` 3D tilt, `ANM-10`), `FluidSegmentedSwitcher` gliding indicator (`ANM-11`), `OrbitalSyncPulse` telemetry animation (`ANM-12`), `MedicationDuePill` gesture celebration (`ANM-13`), and partner avatar touch-heartbeat ripple (`Lub-Dub` 12ms/80ms/18ms haptic, `ANM-14`).
+- **Release Tag**: `v2.9.19-tactile-motion-anm09-14`
+
+## Phase 35: Floating Hover Dock Architecture & Black Strip Elimination (DCK-01) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_35_HOVER_DOCK_NAVIGATION_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_35_HOVER_DOCK_NAVIGATION_BAR.md)
+- **Status**: Completed & Verified on Device (`emulator-5554`)
+- **Key Deliverables**: Converted navigation dock to a full-bleed floating hover capsule with 16dp horizontal margin and 12dp elevation, eliminated bottom black strip, updated edge-to-edge system bar contrast, and ensured full content gliding underneath dock with 96dp bottom clearance scroll.
+- **Release Tag**: `v2.9.20-floating-hover-dock-dck01`
+
+## Phase 36: Real-Time Liquid Glass Bottom Navigation Bar & Settings Toggle (LIQ-01) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md)
+- **Governing Blueprint**: [`Documentation/liquideffect.md`](file:///D:/Couple_fit/CoupleFit/Documentation/liquideffect.md)
+- **Verification Report**: [`Documentation/phase36_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase36_verification_report.md)
+- **Status**: Completed & Verified on Live Hardware (Samsung Galaxy S24, `SM-S921B`)
+- **Key Deliverables**:
+  1. Integrated Chris Banes Haze 1.3.1 blur library (`dev.chrisbanes.haze:haze:1.3.1` and `dev.chrisbanes.haze:haze-materials:1.3.1`).
+  2. Applied shared `HazeState` across scrollable content (`.hazeSource()`) and the floating bottom navigation dock (`.hazeEffect(HazeMaterials.ultraThin())`).
+  3. Added DataStore persistence (`KEY_LIQUID_GLASS`) and dedicated Settings Experience Hub switch row placed directly below Reduce Motion.
+  4. Implemented graceful solid dark surface fallback (`containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)`) when toggled OFF or on Android < 12 (API 31).
+- **Release Tag**: `v2.9.21-liquid-glass-navbar-liq01`

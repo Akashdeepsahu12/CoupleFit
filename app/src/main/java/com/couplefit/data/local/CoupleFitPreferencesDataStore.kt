@@ -46,6 +46,7 @@ class CoupleFitPreferencesDataStore @Inject constructor(
     companion object {
         val KEY_DARK_THEME = booleanPreferencesKey("is_dark_theme")
         val KEY_REDUCE_MOTION = booleanPreferencesKey("reduce_motion")
+        val KEY_LIQUID_GLASS = booleanPreferencesKey("liquid_glass_enabled")
         val KEY_BIOMETRIC_LOCK = booleanPreferencesKey("biometric_lock")
 
         // Per-Metric Sharing Toggles (Phase 3)
@@ -96,6 +97,16 @@ class CoupleFitPreferencesDataStore @Inject constructor(
     suspend fun setReduceMotion(enabled: Boolean) {
         context.coupleFitDataStore.edit { preferences ->
             preferences[KEY_REDUCE_MOTION] = enabled
+        }
+    }
+
+    val isLiquidGlassEnabled: Flow<Boolean> = context.coupleFitDataStore.data.map { preferences ->
+        preferences[KEY_LIQUID_GLASS] ?: true
+    }
+
+    suspend fun setLiquidGlassEnabled(enabled: Boolean) {
+        context.coupleFitDataStore.edit { preferences ->
+            preferences[KEY_LIQUID_GLASS] = enabled
         }
     }
 

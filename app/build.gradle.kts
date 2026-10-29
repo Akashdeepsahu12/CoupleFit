@@ -119,6 +119,10 @@ dependencies {
     // Baseline Profiles & Performance
     implementation(libs.androidx.profileinstaller)
 
+    // Haze — real-time blur / frosted glass
+    implementation("dev.chrisbanes.haze:haze:1.3.1")
+    implementation("dev.chrisbanes.haze:haze-materials:1.3.1")
+
     // Credential Manager + Google Sign-In
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)

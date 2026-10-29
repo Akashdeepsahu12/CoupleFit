@@ -59,6 +59,8 @@ fun SettingsScreen(
     onToggleDarkThemeWithOrigin: ((Boolean, Offset) -> Unit)? = null,
     reduceMotion: Boolean = false,
     onToggleReduceMotion: (Boolean) -> Unit = {},
+    liquidGlassEnabled: Boolean = true,
+    onToggleLiquidGlass: (Boolean) -> Unit = {},
     healthConnectViewModel: HealthConnectViewModel = hiltViewModel(),
     authViewModel: com.couplefit.ui.auth.AuthViewModel = hiltViewModel()
 ) {
@@ -265,6 +267,11 @@ fun SettingsScreen(
                                     reduceMotion = reduceMotion,
                                     onToggleReduceMotion = {
                                         onToggleReduceMotion(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    liquidGlassEnabled = liquidGlassEnabled,
+                                    onToggleLiquidGlass = {
+                                        onToggleLiquidGlass(it)
                                         triggerAutoSaveNotice()
                                     },
                                     notifyCritical = notifyCritical,
@@ -890,6 +897,8 @@ internal fun ExperienceHubContent(
     onToggleDarkThemeWithOrigin: ((Boolean, Offset) -> Unit)?,
     reduceMotion: Boolean,
     onToggleReduceMotion: (Boolean) -> Unit,
+    liquidGlassEnabled: Boolean = true,
+    onToggleLiquidGlass: (Boolean) -> Unit = {},
     notifyCritical: Boolean,
     onToggleNotifyCritical: (Boolean) -> Unit,
     notifyNudges: Boolean,
@@ -929,6 +938,18 @@ internal fun ExperienceHubContent(
                 subtitle = "Disable intensive spring sweeps and continuous pulses",
                 checked = reduceMotion,
                 onCheckedChange = onToggleReduceMotion
+            )
+            val isLiquidGlassSupported = remember { android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S }
+            SettingsSwitchRow(
+                title = "Liquid Glass Navigation Bar",
+                subtitle = if (isLiquidGlassSupported) {
+                    "Frosted glass effect on the floating bottom navigation bar"
+                } else {
+                    "Requires Android 12 or later"
+                },
+                checked = liquidGlassEnabled,
+                onCheckedChange = { if (isLiquidGlassSupported) onToggleLiquidGlass(it) },
+                enabled = isLiquidGlassSupported
             )
         }
     }
@@ -1147,6 +1168,7 @@ fun SettingsSwitchRow(
     title: String,
     checked: Boolean,
     subtitle: String? = null,
+    enabled: Boolean = true,
     onCheckedChangeWithOrigin: ((Boolean, Offset) -> Unit)? = null,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -1155,7 +1177,7 @@ fun SettingsSwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
+            .clickable(enabled = enabled) {
                 if (onCheckedChangeWithOrigin != null) {
                     onCheckedChangeWithOrigin(!checked, switchOrigin)
                 } else {
@@ -1183,6 +1205,7 @@ fun SettingsSwitchRow(
         Spacer(modifier = Modifier.width(8.dp))
         Switch(
             checked = checked,
+            enabled = enabled,
             onCheckedChange = { newValue ->
                 if (onCheckedChangeWithOrigin != null) {
                     onCheckedChangeWithOrigin(newValue, switchOrigin)

@@ -410,3 +410,17 @@ graph TD
   - `KRP-05`: Orphaned & Conflicting Motion Helpers (`FloatingPathsBackground.kt`, `SmoothScrollPhysics.kt`) -> 264 lines of unused canvas animations and conflicting nested scroll physics.
   - `KRP-06`: Stepper Animation Inconsistency (`SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt`) -> 260 lines used in only 1 secondary card; unify with standard `AnimatedContent`.
   - `Fixinglist.md` -> Section 59 & Master Defect Table entries `KRP-01` to `KRP-06`
+
+
+### Phase 36: Real-Time Liquid Glass Bottom Navigation Bar & Settings Toggle (LIQ-01) 🟢 Resolved
+- **Domain**: Real-Time Shader Glassmorphism & User Preference Architecture (`/taste-skill:design-taste-frontend`, `/ui-ux-pro-max-skill:design-system`)
+- **Milestone Tag**: `v2.9.21-liquid-glass-navbar-liq01`
+- **Nodes & Edges**:
+  - `LIQ-01`: Real-Time Liquid Glass Bottom Navigation Bar & Experience Hub Toggle
+  - `dev.chrisbanes.haze:haze:1.3.1` & `haze-materials:1.3.1` -> Added to `app/build.gradle.kts` for AGSL / RenderEffect hardware-accelerated frosted glass blur.
+  - `CoupleFitNavigationSuite.kt` -> Instantiates `val hazeState = remember { HazeState() }`, attaches `.hazeSource(state = hazeState)` to the scrollable screen content host, and applies `.hazeEffect(state = hazeState, style = HazeMaterials.ultraThin())` + `RoundedCornerShape(percent = 50)` + `0.5.dp` translucent border (`Color.White.copy(alpha = 0.18f)`) to the floating navigation dock. Falls back to solid dark surface (`surface.copy(alpha = 0.95f)`) when disabled.
+  - `CoupleFitPreferencesDataStore.kt` -> Implements `KEY_LIQUID_GLASS`, `isLiquidGlassEnabled: Flow<Boolean>`, and `setLiquidGlassEnabled(enabled: Boolean)` for persistent state.
+  - `MainActivity.kt` -> Observes `liquidGlassEnabled`, wires bidirectional state to `SettingsScreen` and passes `liquidGlassEnabled` into `CoupleFitNavigationSuite`.
+  - `SettingsScreen.kt` -> Introduces `"Liquid Glass Navigation Bar"` switch row under `APPEARANCE & MOTION` in `ExperienceHubContent`, located directly below `"Reduce Motion"`.
+  - `Fixinglist.md` -> Section 60 & Master Defect Table entry `LIQ-01`
+  - `Documentation/phase36_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
