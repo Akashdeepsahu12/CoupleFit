@@ -19,6 +19,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -818,14 +819,19 @@ fun DashboardScreen(
                                             )
                                         }
 
-                                        // Status Pill matching Activity Gauges and Standings
-                                        Surface(
-                                            shape = RoundedCornerShape(12.dp),
-                                            color = if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                            border = BorderStroke(
-                                                1.dp,
-                                                if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.4f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-                                            )
+                                        // Status Pill matching Activity Gauges and Standings (Two-Material tactile badge)
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(
+                                                    color = if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                                    shape = RoundedCornerShape(12.dp)
+                                                )
+                                                .border(
+                                                    width = 1.dp,
+                                                    if (healthData.averageHeartRate > 0) SystemGreen.copy(alpha = 0.4f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                                                    RoundedCornerShape(12.dp)
+                                                )
                                         ) {
                                             Text(
                                                 text = if (healthData.averageHeartRate > 0) "🟢 Live Telemetry" else "⚪ Health Connect",
@@ -1677,18 +1683,26 @@ fun SideBySideActivityCard(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                // Interactive Telemetry Status Pill (FLOW-03)
-                Surface(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        showDiagnosticDialog = true
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (isStale) SystemOrange.copy(alpha = 0.18f) else SystemGreen.copy(alpha = 0.15f),
-                    border = BorderStroke(
-                        1.dp,
-                        if (isStale) SystemOrange.copy(alpha = 0.45f) else SystemGreen.copy(alpha = 0.4f)
-                    )
+                // Interactive Telemetry Status Pill (FLOW-03, Two-Material tactile control)
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            color = if (isStale) SystemOrange.copy(alpha = 0.18f) else SystemGreen.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            if (isStale) SystemOrange.copy(alpha = 0.45f) else SystemGreen.copy(alpha = 0.4f),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .iosClickable(
+                            onClickLabel = "View Telemetry Diagnostics",
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                showDiagnosticDialog = true
+                            }
+                        )
                 ) {
                     Text(
                         text = if (isStale) "🟡 ${healthData.partnerLastUpdatedLabel} • Cached ℹ️"

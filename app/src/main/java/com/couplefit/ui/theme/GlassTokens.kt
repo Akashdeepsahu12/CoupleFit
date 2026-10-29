@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,7 +60,7 @@ object GlassPrimitives {
 
     // Elevation & Geometry Primitives
     val ElevationDock: Dp = 16.dp
-    val RadiusCard: Dp = 20.dp
+    val RadiusCard: Dp = 22.dp
     val RadiusPill: Dp = 32.dp
     val RadiusModal: Dp = 28.dp
 }
@@ -142,6 +143,12 @@ fun Modifier.iosGlass(
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
     borderWidth: Dp = 1.dp
 ): Modifier = this
+    .shadow(
+        elevation = 8.dp,
+        shape = shape,
+        ambientColor = Color(0x66000005),
+        spotColor = Color(0x88000005)
+    )
     .clip(shape)
     .then(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -191,6 +198,12 @@ fun Modifier.glassDock(
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
     borderWidth: Dp = 1.dp
 ): Modifier = this
+    .shadow(
+        elevation = GlassPrimitives.ElevationDock,
+        shape = shape,
+        ambientColor = Color(0x77000008),
+        spotColor = Color(0x9900000C)
+    )
     .clip(shape)
     .then(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

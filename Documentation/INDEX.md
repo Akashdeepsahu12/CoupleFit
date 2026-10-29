@@ -26,6 +26,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`README.md`**](README.md) | System Architecture Spec | **System Architecture** | Comprehensive system guide covering dual activity rings, Health Connect integration, Room SSOT caching, Jetpack Glance widgets, and zero-trust Firebase architecture. |
 | [**`techstackreview.md`**](techstackreview.md) | Engineering Architecture Audit | **Technical Specs & Audit** | Deep evaluation of all dependencies, Clean Architecture layers, UI/UX design tokens, security boundaries, and production readiness checks. |
 | [**`phases.md`**](phases.md) | Project Planning | **Roadmap & Milestones** | Detailed breakdown of Phase 1 through Phase 6: data foundation, pairing flows, real-time sync, widgets, security hardening, and releases. |
+- [**PLAN_PHASE_29_APPLE_LIQUI_REDESIGN.md**](PLAN_PHASE_29_APPLE_LIQUI_REDESIGN.md): Phase 29 Apple Design & Liqui Design Comprehensive UI & Animation Redesign (`DSN-06`, `ANM-04`).
+- [**RELEASE_NOTES_v2.9.14.md**](RELEASE_NOTES_v2.9.14.md): Release notes for v2.9.14 Apple Design & Liqui Design Comprehensive UI & Animation Redesign.
 - [**PLAN_PHASE_28_AMBIENT_VIDEO_FADE_IN.md**](PLAN_PHASE_28_AMBIENT_VIDEO_FADE_IN.md): Phase 28 Natural Ambient Video Background Fade-In Transition (BGV-05).
 - [**RELEASE_NOTES_v2.9.13.md**](RELEASE_NOTES_v2.9.13.md): Release notes for v2.9.13 Natural Ambient Video Background Fade-In Transition.
 - [**PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md**](PLAN_PHASE_27_AMBIENT_VIDEO_SHUFFLE.md): Phase 27 Dynamic Ambient Video Background Shuffle & Extensible Registry (BGV-04).

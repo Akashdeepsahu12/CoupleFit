@@ -304,3 +304,26 @@ graph TD
   - Respects `reduceMotion` accessibility toggle.
 - **Node**: `RELEASE_NOTES_v2.9.13.md`
   - Documents release v2.9.13, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+
+### Phase 29: Apple Design & Liqui Design Comprehensive UI & Animation Redesign
+- **Node**: `PLAN_PHASE_29_APPLE_LIQUI_REDESIGN.md`
+  - Defines `DSN-06` (Liqui Design 4-layer optical liquid glass, squircle geometry, and Two-Material tactile control architecture) and `ANM-04` (Apple WWDC fluid interface spring dynamics and tactile latency elimination).
+  - Links: `LiquiGlassTokens.kt`, `GlassTokens.kt`, `BounceClick.kt`, `QuickNudgeRow.kt`, `ActivityRing.kt`, `DashboardScreen.kt`, `CoupleFitNavigationSuite.kt`, `RELEASE_NOTES_v2.9.14.md`.
+- **Node**: `LiquiGlassTokens.kt`
+  - Ported 4-layer optical model from `https://github.com/leefanv/liqui-design`.
+  - Ambient soft drop shadow elevation (`8dp` to `16dp`), superellipse continuous squircle (`22dp`), 2-stop tint legibility wash, directional diamond-cut specular bevel rim (`1.25dp`).
+  - Two-Material interactive tactile control modifier `Modifier.liquiTactilePill()` with high contrast (>7:1 ratio).
+- **Node**: `GlassTokens.kt`
+  - Enhanced `Modifier.iosGlass()` with `8dp` ambient elevation shadow, continuous squircle shape, and diamond-cut specular rim.
+  - Enhanced `Modifier.glassDock()` with `16dp` ambient elevation shadow and directional specular rim.
+  - Preserves zero child container blur for 100% razor-sharp typography.
+- **Node**: `BounceClick.kt`
+  - Calibrated `Modifier.iosClickable()` with instant pointer-down depression (`scale = 0.975f`, `alpha = 0.88f`, `damping 1.0f`, `stiffness 1000f`) and Apple critically damped return (`damping 1.0f`, `stiffness 800f`, response 0.35s).
+  - Added `Modifier.iosMomentumClickable()` for momentum-carrying playful actions (`damping 0.80f`, `stiffness 700f`, `scale = 0.95f`, `alpha = 0.85f`).
+- **Node**: `QuickNudgeRow.kt`
+  - Upgraded nudge pills to Two-Material tactile semi-solid material (`liquiTactilePill`) with `iosMomentumClickable` and dual-pulse heartbeat haptics.
+- **Node**: `ActivityRing.kt`
+  - Fluid physics spring retargeting (`dampingRatio = 0.85f`, `stiffness = 160f`) for unhurried Apple Fitness-grade momentum settling.
+- **Node**: `RELEASE_NOTES_v2.9.14.md`
+  - Documents release v2.9.14, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.

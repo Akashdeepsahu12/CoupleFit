@@ -46,8 +46,8 @@ fun Modifier.iosClickable(
             )
         } else {
             spring(
-                dampingRatio = 0.82f, // Near-critical damping: no cartoonish rubbery overshoot
-                stiffness = 750f // Snappy mechanical glass-click return
+                dampingRatio = Spring.DampingRatioNoBouncy, // 1.0f: Apple WWDC critically damped settle (no overshoot)
+                stiffness = 800f // Snappy mechanical glass-click return (response ≈ 0.35s)
             )
         },
         label = "iosScale"
@@ -71,6 +71,64 @@ fun Modifier.iosClickable(
         .clickable(
             interactionSource = actualInteractionSource,
             indication = null, // Disables the default Android Ripple!
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick
+        )
+}
+
+/**
+ * Apple Design Momentum Clickable modifier (WWDC Designing Fluid Interfaces).
+ * Calibrated with under-damped spring physics (dampingRatio = 0.80f, stiffness = 700f)
+ * for interactive actions that carry playful momentum (cheers, nudges, duels).
+ */
+fun Modifier.iosMomentumClickable(
+    interactionSource: MutableInteractionSource? = null,
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    pressedScale: Float = 0.95f,
+    pressedAlpha: Float = 0.85f,
+    onClick: () -> Unit
+) = composed {
+    val actualInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isPressed by actualInteractionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) pressedScale else 1f,
+        animationSpec = if (isPressed) {
+            spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessHigh
+            )
+        } else {
+            spring(
+                dampingRatio = 0.80f, // Momentum bounce on release
+                stiffness = 700f
+            )
+        },
+        label = "iosMomentumScale"
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (isPressed) pressedAlpha else 1f,
+        animationSpec = spring(
+            dampingRatio = 1f,
+            stiffness = 600f
+        ),
+        label = "iosMomentumAlpha"
+    )
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            this.alpha = alpha
+        }
+        .clickable(
+            interactionSource = actualInteractionSource,
+            indication = null,
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,

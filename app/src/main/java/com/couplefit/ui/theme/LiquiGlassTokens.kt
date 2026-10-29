@@ -52,6 +52,7 @@ object LiquiTokens {
 
     // Squircle Geometry & Bevel Tokens
     val CardRadius: Dp = 22.dp
+    val PillRadius: Dp = 20.dp
     val BezelWidth: Dp = 1.25.dp
 }
 
@@ -116,3 +117,47 @@ fun Modifier.liquiGlass(
         .background(brush = tintBrush, shape = shape)
         .border(width = LiquiTokens.BezelWidth, brush = specularRimBrush, shape = shape)
 }
+
+/**
+ * Liqui Design Two-Material Interactive Tactile Pill (leefanv/liqui-design).
+ *
+ * Implements the Two-Material philosophy: interactive controls (buttons, chips, quick nudges)
+ * use a distinct tactile semi-solid material with high contrast rather than stacking
+ * identical translucent glass on glass, preserving 4.5:1 WCAG contrast and clear affordance.
+ */
+fun Modifier.liquiTactilePill(
+    shape: Shape = RoundedCornerShape(LiquiTokens.PillRadius),
+    elevation: Dp = 3.dp,
+    borderWidth: Dp = 1.dp
+): Modifier = composed {
+    val rimBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0x66FFFFFF),
+            Color(0x28FFFFFF),
+            Color(0x10FFFFFF)
+        )
+    )
+
+    this
+        .shadow(
+            elevation = elevation,
+            shape = shape,
+            ambientColor = Color(0x55000008),
+            spotColor = Color(0x7700000C)
+        )
+        .clip(shape)
+        .background(
+            color = Color(0x55192233), // Tactile semi-solid translucent slate (Two-Material)
+            shape = shape
+        )
+        .border(width = borderWidth, brush = rimBrush, shape = shape)
+}
+
+/**
+ * Semantic alias for Liqui 4-layer optical card surface.
+ */
+fun Modifier.liquiCard(
+    shape: Shape = RoundedCornerShape(LiquiTokens.CardRadius),
+    frost: Float = 0.35f,
+    elevation: Dp = 8.dp
+): Modifier = liquiGlass(shape = shape, frost = frost, elevation = elevation)

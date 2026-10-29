@@ -753,3 +753,41 @@ Eliminate cold-start visual frame pop and decoder initialization snapping by imp
 ./gradlew assembleDebug      --> BUILD SUCCESSFUL
 ```
 
+
+
+## Phase 29: Apple Design & Liqui Design Comprehensive UI & Animation Redesign (`DSN-06`, `ANM-04`)
+
+### Objectives
+Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces, and motion physics by harmonizing:
+1. **Apple Design WWDC Fluid Interface Foundations**:
+   - Zero-latency tactile depression on pointer-down (`scale = 0.975f`, `alpha = 0.88f`, `stiffness = 1000f`, `dampingRatio = 1.0f`).
+   - Critically damped spring physics for UI transitions (`dampingRatio = 1.0f`, `stiffness = 800f`, `response ≈ 0.35s`), eliminating synthetic wobble.
+   - Under-damped momentum bounce (`dampingRatio = 0.80f`, `stiffness = 700f`) reserved strictly for momentum-carrying actions (cheers, nudges, duels).
+   - Interruptible fluid spring retargeting on `ActivityRing.kt` (`dampingRatio = 0.85f`, `stiffness = 160f`).
+2. **Liqui Design 4-Layer Optical Architecture (`leefanv/liqui-design`)**:
+   - Layer 1: Ambient soft shadow elevation (`8dp` on cards, `16dp` on floating dock) providing true optical depth above the living video background.
+   - Layer 2: Superellipse continuous squircle geometry (`22dp` card radius, `20dp` pill radius, `32dp` dock radius).
+   - Layer 3: Deep translucent obsidian substrate (`#2610131E`) + 2-stop optical tint legibility wash (`--lq-tint` to `--lq-tint-deep`) with zero child container blurring, keeping typography and data curves 100% razor-sharp.
+   - Layer 4: Directional diamond-cut specular bevel rim border (`1.25dp` vertical gradient: 50% white highlight at top descending to 12% shadow base at bottom).
+   - Two-Material Philosophy: Interactive controls (Quick Nudge pills, diagnostic chips, telemetry status pills) use distinct tactile semi-solid materials (`liquiTactilePill`) with high contrast (>7:1 ratio) rather than stacking translucent glass on glass.
+
+### Key Changes Made
+1. **Liqui Optical Tokens & Two-Material System (`LiquiGlassTokens.kt`)**:
+   - Implemented `liquiTactilePill` with solid-translucent slate base, directional specular rim, and ambient drop elevation.
+   - Added `CardRadius = 22.dp`, `PillRadius = 20.dp`, `BezelWidth = 1.25.dp`, and `liquiCard` alias.
+2. **Apple & Liqui Optical Card Glass (`GlassTokens.kt`)**:
+   - Upgraded `Modifier.iosGlass` with `8dp` ambient elevation shadow, continuous squircle shape, and diamond-cut specular rim.
+   - Upgraded `Modifier.glassDock` with `16dp` ambient elevation shadow and directional specular rim.
+3. **Apple WWDC Fluid Interface Physics (`BounceClick.kt`)**:
+   - Calibrated `iosClickable` with instant pointer-down depression and Apple critically damped return.
+   - Created `iosMomentumClickable` for momentum-driven tactile actions with playful bounce settling.
+4. **Interactive Controls Polish (`QuickNudgeRow.kt`, `DashboardScreen.kt`)**:
+   - Upgraded Quick Nudge pills with `liquiTactilePill` Two-Material tactile control and `iosMomentumClickable`.
+   - Upgraded Telemetry Status Pill and Heart Rate Status Pill with Two-Material tactile styling and `iosClickable`.
+5. **Activity Ring Kinematics (`ActivityRing.kt`)**:
+   - Calibrated spring sweep to `dampingRatio = 0.85f`, `stiffness = 160f` for fluid Apple Fitness momentum settling.
+6. **Automated & ARTEMIS Verification**:
+   - `.\gradlew.bat testDebugUnitTest`: BUILD SUCCESSFUL (100% pass rate).
+   - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
+   - `.\gradlew.bat installDebug`: BUILD SUCCESSFUL (Installed on `emulator-5554`).
+   - Live Android verification on `emulator-5554`: confirmed 4-layer optical liquid glass, tactile pills, and smooth cubic spline chart across `apple_liqui_redesign_verified.jpg`, `apple_liqui_redesign_nudges_verified.jpg`, and `apple_liqui_redesign_heart_rate_verified.jpg`.

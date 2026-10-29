@@ -2803,3 +2803,53 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
 - **Live Device ARTEMIS Verification (`emulator-5554`)**:
   - `ambient_video_fade_in_verified.jpg`: Verified initial obsidian baseline at cold-start (`BGR: 10.3, 8.3, 7.3`).
   - `ambient_video_fade_in_bloomed.jpg`: Verified full illumination after 1200ms bloom (`BGR: 51.0, 61.2, 49.3`) with zero snapping or flicker.
+
+
+## 52. Phase 29: Apple Design & Liqui Design Comprehensive UI & Animation Redesign (DSN-06, ANM-04)
+
+> **Command Trigger**: User Request ("/apple-design redesigm my ui and animation using this github repo https://github.com/leefanv/liqui-design and after everything is over ask me if i want to keep this changes or undo the changes and revert back where it is right now")  
+> **Associated Defect & Enhancement Logs in Fixinglist.md**: `DSN-06`, `ANM-04`  
+> **Target Device**: `emulator-5554` (Pixel 10 Pro, Android 17 API 36)  
+> **Release Target**: `v2.9.14-apple-liqui-redesign`  
+> **Rollback Anchor**: `v2.9.13-ambient-video-fade-in` (`0c5c9342a01e98c937fab97fe39e30097478e053`)
+
+### 52.1 Design & Defect Diagnosis
+1. **`DSN-06` (Liqui Design 4-Layer Optical Stack & Two-Material Philosophy)**:
+   - *Architecture*: Implemented the full optical model from `https://github.com/leefanv/liqui-design`:
+     1. Ambient soft drop shadow elevation (`8dp` on cards, `16dp` on floating dock) providing optical depth separation above the living video background.
+     2. Superellipse continuous squircle geometry (`22dp` radius).
+     3. 2-stop optical tint legibility gradient wash (`--lq-tint` to `--lq-tint-deep`) with zero child container blurring, keeping typography and data curves 100% razor-sharp.
+     4. Directional diamond-cut specular bevel rim border (`1.25dp` vertical gradient: 50% white highlight at top descending to 12% shadow base at bottom).
+   - *Two-Material Philosophy*: Interactive controls (Quick Nudge pills, diagnostic chips, telemetry status pills) use distinct tactile semi-solid materials (`liquiTactilePill`) rather than stacking identical glass on glass, preserving high contrast (>7:1 ratio) and clear tactile affordance.
+2. **`ANM-04` (Apple WWDC Fluid Interface Spring Dynamics & Tactile Latency Elimination)**:
+   - *Zero-Latency Tactile Depression*: `iosClickable` depresses instantly on pointer-down (`scale = 0.975f`, `alpha = 0.88f`, `dampingRatio = 1.0f`, `stiffness = 1000f`) with zero input lockout.
+   - *Critically Damped Release*: On touch release, settled with Apple critically damped physics (`dampingRatio = 1.0f`, `stiffness = 800f`, `response ≈ 0.35s`), eliminating unnatural rubbery oscillations.
+   - *Momentum Physics*: Created `iosMomentumClickable` (`dampingRatio = 0.80f`, `stiffness = 700f`, `scale = 0.95f`, `alpha = 0.85f`) for actions carrying playful momentum (cheers, nudges, duels).
+   - *Activity Ring Kinematics*: Tuned `ActivityRing.kt` spring retargeting to `dampingRatio = 0.85f`, `stiffness = 160f` for fluid Apple Fitness sweep.
+
+### 52.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/theme/LiquiGlassTokens.kt`**:
+   - Added `liquiTactilePill` (Two-Material philosophy), `CardRadius = 22.dp`, `PillRadius = 20.dp`, `BezelWidth = 1.25.dp`, and `liquiCard`.
+2. **`app/src/main/java/com/couplefit/ui/theme/GlassTokens.kt`**:
+   - Enhanced `iosGlass` with ambient elevation shadow (`8.dp`), continuous squircle shape, and diamond-cut specular rim.
+   - Enhanced `glassDock` with ambient elevation shadow (`16.dp`) and directional specular rim.
+3. **`app/src/main/java/com/couplefit/ui/theme/BounceClick.kt`**:
+   - Calibrated `iosClickable` with Apple WWDC critically damped return (`damping 1.0f`, `stiffness 800f`).
+   - Added `iosMomentumClickable` for momentum-driven tactile actions.
+4. **`app/src/main/java/com/couplefit/ui/components/QuickNudgeRow.kt`**:
+   - Replaced glass Surface with `liquiTactilePill` Two-Material tactile control and `iosMomentumClickable` spring interaction.
+5. **`app/src/main/java/com/couplefit/ui/components/ActivityRing.kt`**:
+   - Tuned fluid spring sweep kinematics (`dampingRatio = 0.85f`, `stiffness = 160f`).
+6. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - Upgraded Telemetry and Heart Rate status pills with Two-Material tactile styling and `iosClickable`.
+7. **`Documentation/PLAN_PHASE_29_APPLE_LIQUI_REDESIGN.md`**:
+   - Comprehensive milestone plan defining acceptance criteria, task dependencies, and revert strategy.
+
+### 52.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 32 actionable tasks).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors, 31 actionable tasks).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`)**:
+  - `apple_liqui_redesign_verified.jpg`: Verified dashboard top view with 4-layer Liqui optical glass cards, tactile status pill, and razor-sharp typography over living video background.
+  - `apple_liqui_redesign_nudges_verified.jpg`: Verified Quick Nudge row with high-contrast tactile pills and sapphire blue video shuffle.
+  - `apple_liqui_redesign_heart_rate_verified.jpg`: Verified Live Heart Rate Card with smooth cubic spline, peak indicator ring (90 BPM), baseline grid, and floating navigation dock.

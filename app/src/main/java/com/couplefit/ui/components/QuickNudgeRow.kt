@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.AppSpacing
 import com.couplefit.ui.theme.CoupleFitHaptics
+import com.couplefit.ui.theme.LiquiTokens
 import com.couplefit.ui.theme.iosGlass
+import com.couplefit.ui.theme.iosMomentumClickable
+import com.couplefit.ui.theme.liquiTactilePill
 
 /**
  * Quick-action Nudge Pill Row positioned in the Natural Thumb Zone directly below
@@ -76,18 +79,20 @@ fun QuickNudgeRow(
             horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs)
         ) {
             baseNudges.forEach { action ->
-                Surface(
-                    onClick = {
-                        // Dual-pulse heartbeat sensory haptic (ENG-03, MIC-01)
-                        CoupleFitHaptics.performHeartbeat(context, haptic)
-                        onSendNudge("${action.emoji} ${action.label}")
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    color = Color.Transparent,
+                Box(
                     modifier = Modifier
                         .height(44.dp)
-                        .iosGlass(shape = RoundedCornerShape(20.dp))
-                        .semantics { contentDescription = action.description }
+                        .liquiTactilePill(shape = RoundedCornerShape(20.dp))
+                        .iosMomentumClickable(
+                            onClickLabel = action.description,
+                            onClick = {
+                                // Dual-pulse heartbeat sensory haptic (ENG-03, MIC-01)
+                                CoupleFitHaptics.performHeartbeat(context, haptic)
+                                onSendNudge("${action.emoji} ${action.label}")
+                            }
+                        )
+                        .semantics { contentDescription = action.description },
+                    contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
@@ -98,7 +103,7 @@ fun QuickNudgeRow(
                         Text(
                             text = action.label,
                             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = LiquiTokens.DarkText
                         )
                     }
                 }

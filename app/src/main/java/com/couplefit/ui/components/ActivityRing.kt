@@ -31,7 +31,7 @@ import kotlin.math.sin
 
 /**
  * Activity Ring component with Emil Kowalski Design Engineering craft (ENG-02, ENG-04, ANM-01, VIS-05, TST-03):
- * - Fluid physics spring retargeting (dampingRatio = 0.78f, stiffness = 120f)
+ * - Fluid physics spring retargeting (dampingRatio = 0.85f, stiffness = 160f)
  * - Zero snap eliminated: continuous uninterrupted momentum on updates and refresh
  * - Luminescent track glow (12% tint of gradientEnd) replacing flat dark gray
  * - Dynamic optical depth: ambient cap drop shadow and subtle track aura on OLED black
@@ -66,8 +66,8 @@ fun ActivityRing(
             animatedProgress.animateTo(
                 targetValue = progress,
                 animationSpec = spring(
-                    dampingRatio = 0.78f, // Subtle liquid momentum settling
-                    stiffness = 120f // Fluid, unhurried Apple Fitness-grade sweep
+                    dampingRatio = 0.85f, // Apple Fitness liquid momentum settling (ANM-04)
+                    stiffness = 160f // Fluid Apple Fitness-grade sweep (response ≈ 0.4s)
                 )
             )
         }
