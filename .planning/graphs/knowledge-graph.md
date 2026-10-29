@@ -399,3 +399,14 @@ graph TD
   - `MainActivity.kt` -> Enabled edge-to-edge transparent system bars for both status and navigation bars (`Color.TRANSPARENT`), removed inner padding constraint for true edge-to-edge rendering.
   - `Fixinglist.md` -> Section 58 & Master Defect Table entry `DCK-01`
   - `Documentation/phase35_verification_report.md` -> Full live device screenshot evidence and test logs
+
+### Karpathy Codebase Review & De-Slop Architecture (KRP-01 to KRP-06) 📋 Cataloged
+- **Domain**: Simplicity First, Code Hygiene & Anti-Speculative Engineering (`/andrej-karpathy-skills:karpathy-guidelines`)
+- **Nodes & Edges**:
+  - `KRP-01`: Speculative Dead Samsung Health Subsystem (`com.couplefit.data.samsunghealth.*`, 5 files) -> Unused Dagger bindings in `RepositoryModule.kt`; 100% superseded by Health Connect. Target: Prune in Wave 36.
+  - `KRP-02`: God-Composable Bloat (`DashboardScreen.kt`, 2,202 lines) -> Extract sub-components (`SideBySideActivityCard`, `WeeklyStreakRow`, `StandingsCard`, dialogs) under `com.couplefit.ui.dashboard.components.*`.
+  - `KRP-03`: Unconditional Gesture Interception (`InteractiveChart.kt`, L384-421) -> `change.consume()` unconditionally consumes vertical drags; target: horizontal touch-slop gate.
+  - `KRP-04`: Bilateral Telemetry Deficit (`InteractiveChart.kt`) -> Add optional `partnerData: List<ChartDataPoint>?` with dashed Coral curve and translucent delta shading.
+  - `KRP-05`: Orphaned & Conflicting Motion Helpers (`FloatingPathsBackground.kt`, `SmoothScrollPhysics.kt`) -> 264 lines of unused canvas animations and conflicting nested scroll physics.
+  - `KRP-06`: Stepper Animation Inconsistency (`SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt`) -> 260 lines used in only 1 secondary card; unify with standard `AnimatedContent`.
+  - `Fixinglist.md` -> Section 59 & Master Defect Table entries `KRP-01` to `KRP-06`

@@ -95,6 +95,12 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **ANM-13** | Medication Swipe-To-Complete Gesture | `/designer-skills:interfaces-that-feel` | 💡 **Tactile Delight** | `MedicationDuePill.kt` | Medication logging uses simple tap button. Lacks interactive gesture-driven completion with haptic release. | Feels routine; lacks friction-reducing celebratory affordance. | Implemented `AnimatedContent` transition with celebratory scale punch, heartbeat haptic confirmation, and spring ejection dismiss. | 🟢 Resolved |
 | **ANM-14** | Couple Avatar Touch-Heartbeat Ripple | `/designer-skills:brand` | 💡 **Relational Intimacy** | `CoupleHubScreen.kt` | Tapping or holding partner avatar produces no kinetic response or remote connection feedback. | Relational interface feels inanimate. | Implemented interactive partner avatar with dual-pulse anatomical heartbeat haptics, heart scale pump, and expanding luminous aura waves. | 🟢 Resolved |
 | **DCK-01** | Floating Hover Dock & Black Strip Elimination | `/taste-skill:design-taste-frontend` | 🛸 **Visual Elegance** | Navigation Dock & Main Container | Navigation dock sat inside non-overlapping Scaffold partition creating a dead black strip; dock was near-opaque (91-96%) rather than floating over full-bleed content. | Bottom bar looked severed on an opaque black strip; broke immersive ambient video and tactile depth. | Converted Scaffold to full-bleed Box overlay, calibrated glass translucency (40%-53%), transparent edge-to-edge system bars, and 96dp bottom clearance scroll. | 🟢 Resolved |
+| **KRP-01** | Speculative Dead Subsystem: Samsung Health Architecture | `/andrej-karpathy-skills:karpathy-guidelines` | 🔴 **Speculative Complexity** | `com.couplefit.data.samsunghealth.*` | 5 entire files (~400 lines) of unused Samsung Health SDK classes and repository bindings never injected; 100% superseded by Health Connect. | Confuses engineers, expands build classpath, violates "Simplicity First" (no speculative abstractions). | Deprecate and safely prune Samsung Health subsystem; standardize 100% on Health Connect. | 📋 Cataloged |
+| **KRP-02** | God-Composable Bloat & Recomposition Pressure | `/andrej-karpathy-skills:karpathy-guidelines` | 🔴 **Architectural Debt** | `DashboardScreen.kt` | 2,202 lines in a single file bundling 3 full horizontal pages, modal dialogs, and duplicated card structures. | Any state change triggers massive recomposition tree evaluation; slows IDE indexing; violates Single Responsibility. | Decompose `DashboardScreen.kt` into focused sub-components (`SideBySideActivityCard`, `WeeklyStreakRow`, `StandingsCard`, dialogs) under `com.couplefit.ui.dashboard.components.*` (<400 lines). | 📋 Cataloged |
+| **KRP-03** | Unconditional Gesture Interception | `/andrej-karpathy-skills:karpathy-guidelines` | 🔴 **Interaction Fault** | `InteractiveChart.kt` (lines 384-421) | `pointerInput` consumes all pointer events unconditionally with `change.consume()`, without checking horizontal vs. vertical movement deltas. | Touching the chart freezes vertical page scrolling, producing erratic scroll stutters and layout freezing. | Implement horizontal-only touch slop gate (`detectHorizontalDragGestures` or `abs(dx) > abs(dy)`); leave vertical drags unconsumed for smooth page scroll. | 📋 Cataloged |
+| **KRP-04** | Bilateral Single-Series Telemetry Deficit | `/andrej-karpathy-skills:karpathy-guidelines` | 🔵 **Core Feature Gap** | `InteractiveChart.kt` | `InteractiveChart` only accepts single `data: List<ChartDataPoint>`, rendering only user data with zero partner visual comparison. | Fails the fundamental premise of a couple fitness companion; partners cannot see synchronous heart rate trends together. | Extend `InteractiveChart` with optional `partnerData: List<ChartDataPoint>?`; render overlaid dual splines (Cyan user + Coral dashed partner) with translucent delta shading. | 📋 Cataloged |
+| **KRP-05** | Orphaned & Conflicting Motion Helpers | `/andrej-karpathy-skills:karpathy-guidelines` | 🟡 **Dead Code** | `FloatingPathsBackground.kt`, `SmoothScrollPhysics.kt` | `FloatingPathsBackground` (145 lines) has zero callers; `SmoothScrollPhysics` (119 lines) applies layout offsets conflicting with Material `pullRefresh`. | Dead code weight; conflicting nested scroll physics cause visual wobble. | Safely prune orphaned canvas animation and streamline pull-to-refresh to native Material 3 standards. | 📋 Cataloged |
+| **KRP-06** | Stepper Animation Inconsistency & Speculative Reel | `/andrej-karpathy-skills:karpathy-guidelines` | 💡 **Code Simplification** | `SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt` | 260 lines of complex rolling digit strip and blurred graphics used in only one secondary partner card, while hero metrics use static text. | Inconsistent typography, speculative complexity for single-use code. | Unify metric animations using standard Compose `AnimatedContent` number transitions or promote `SpinningCounter` to primary hero counters cleanly. | 📋 Cataloged |
 | **MSR-07** | Readable Measure & Dashboard Cards | `/designer-skills:readable-measure` | 💡 **Ergonomic Polish** | `DashboardScreen.kt` | Card subtitle sprawl: Medication reminders and daily goal prompts span full width on tablets, causing subtitles to stretch out to **90–125 CPL**. | Disconnect between card width and short helper strings. | Anchor card width in responsive grid cells (`minSize = 340.dp`) or apply `readableMeasure()` container. | 🟢 Resolved |
 | **SPC-01** | Spacing Token Discipline | `/designer-skills:spacing-system` | 🔴 **Design System Drift** | App-Wide UI Composables | Arbitrary hardcoded spacing: Over **240 instances** bypass `AppSpacing` using ad-hoc inline values (`20.dp`, `28.dp`, `6.dp`, `14.dp`, `52.dp`). | Breaks layout rhythm, causes visual inconsistency, and shatters design-token governance. | Refactor all hardcoded dp values to use strict `AppSpacing` tokens (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`). | 🟢 Resolved |
 | **SPC-02** | Spacing Scale Coverage | `/designer-skills:spacing-system` | 🔵 **Correction Needed** | `Spacing.kt` | Truncated scale capped at `32.dp`. Missing hero separators (`48.dp`), tablet dividers (`64.dp`), and viewport boundaries (`96.dp`). | Forces developers to write inline dp values for major hero sections and tablet breakpoints. | Expand `AppSpacing` to include `none (0dp)`, `xxl (48dp)`, `xxxl (64dp)`, and `xxxxl (96dp)`. | 🟢 Resolved |
@@ -269,6 +275,7 @@ This section documents every command used across all audits, test suites, and di
 | `/designer-skills:interfaces-that-feel` | Emotional Resonance & Warmth | Audited cold database tone, living morning pulse, Rest Day compassion mode, and de-robotized human copy | [interfaces_that_feel_emotional_design.md](interfaces_that_feel_emotional_design.md) | `FEL-01` to `FEL-03` |
 | `/designer-skills:visual-hierarchy` | Visual Hierarchy & Eye Flow | Audited Squint Test failure, 4-tier visual pyramid, de-carding hero rings, and 52sp HeroMetricDisplay | [visual_hierarchy_architecture.md](visual_hierarchy_architecture.md) | `VHR-01` to `VHR-03` |
 | `/emilkowalski-skills:apple-design` | Apple Fluidity & Glassmorphism | Planned Android RenderEffect blur, directional specular rim borders, floating glass dock, and WWDC spring physics | §26 | `APL-01` to `APL-03` |
+| `/andrej-karpathy-skills:karpathy-guidelines` | Codebase Simplicity, Fragility & De-Slop Audit | Audited accidental complexity, dead Samsung Health subsystem, god-composable `DashboardScreen.kt`, gesture touch-slop collision, and bilateral telemetry | §59 | `KRP-01` to `KRP-06` |
 
 ---
 
@@ -3292,3 +3299,95 @@ Every animation and tactile micro-interaction implemented in Phase 34 was audite
 | **`DCK-01`** | `CoupleHubScreen.kt` | Couple Hub tab live verification with full-bleed ambient backdrop | [`dck01_couple_hub_tab_hover_dock.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/dck01_couple_hub_tab_hover_dock.jpg) | 🟢 Verified |
 | **Test Suite** | Unit Regression Tests | Automated Gradle test runner (33/33 tests green) | [`testDebugUnitTest`](file:///D:/Couple_fit/CoupleFit/app/build/reports/tests/testDebugUnitTest/index.html) | 🟢 Verified |
 | **Compiler** | `compileDebugAndroidTestKotlin` | Full Kotlin compile bar | 0 errors, 100% build green | 🟢 Verified |
+
+---
+
+## 59. Andrej Karpathy Codebase Review: Simplicity, Faults, Suggestions & New Ideas (KRP-01 to KRP-06) 🧠⚡
+
+> **Command Trigger**: `/andrej-karpathy-skills:karpathy-guidelines`  
+> **Guiding Philosophy**:
+> 1. *Think Before Coding*: Surface tradeoffs, state assumptions explicitly, never hide confusion.  
+> 2. *Simplicity First*: Minimum code that solves the problem. Nothing speculative. No single-use abstractions. If 200 lines could be 50, rewrite it.  
+> 3. *Surgical Changes*: Touch only what you must. Don't 'improve' adjacent code or refactor what isn't broken. Mention dead code instead of deleting silently.  
+> 4. *Goal-Driven Execution*: Define concrete success criteria; loop until verified with automated tests.  
+> **Associated Defect Logs**: `KRP-01`, `KRP-02`, `KRP-03`, `KRP-04`, `KRP-05`, `KRP-06`  
+> **Status**: 📋 **AUDITED & CATALOGED FOR MILESTONE WAVE 36+**
+
+---
+
+### 59.1 Core Review Findings: The Four Karpathy Pillars Applied
+
+#### 1. Simplicity First & Anti-Speculative Audit
+- **Dead Samsung Health Subsystem (`KRP-01`)**:
+  - The codebase contains 5 entire files under `com.couplefit.data.samsunghealth.*` (`SamsungHealthManager.kt`, `SamsungHealthRepository.kt`, `SamsungHealthRepositoryImpl.kt`, `SensitiveHealthProvider.kt`, `StandardHealthProvider.kt`), encompassing ~400 lines of SDK code and Dagger bindings.
+  - *Reality*: CoupleFit standardized 100% on Android Health Connect (`HealthConnectManager.kt`). Not a single ViewModel, UI screen, or WorkManager worker injects or calls Samsung Health.
+  - *Karpathy Verdict*: Classic speculative future-proofing. It bloats the classpath, confuses developers, and adds zero runtime value. Should be formally deprecated and cleanly removed in a dedicated prune wave.
+- **Orphaned Canvas Animations (`KRP-05`)**:
+  - `FloatingPathsBackground.kt`: 145 lines of complex 36-path cubic Bézier canvas animations with zero callers across the entire repository.
+  - `SmoothScrollPhysics.kt`: 119 lines introducing a custom `LenisNestedScrollConnection` that is placed on an outer Box on top of `pullRefresh`, creating nested scroll conflicts.
+- **Speculative Digit Reel Animation (`KRP-06`)**:
+  - `SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt`: 260 lines implementing rolling slot-machine digit animations with simulated motion blur.
+  - *Reality*: Used in only 1 secondary card (`Day1EmptyStateCard`), while the primary Hero Step counter and partner gauges use standard `Text("%,d".format(steps))`.
+
+#### 2. Faults, Fragility & Silent Failures (Think Before Coding)
+- **Unconditional Touch Slop Interception (`KRP-03` / `GST-01`)**:
+  - In `InteractiveChart.kt` (lines 384-421), `pointerInput` executes:
+    ```kotlin
+    while (true) {
+        val event = awaitPointerEvent()
+        val change = event.changes.firstOrNull() ?: break
+        if (change.pressed) {
+            updateIndex(change.position)
+            change.consume()
+        }
+    }
+    ```
+  - *Failure*: Unconditionally calling `change.consume()` on every pointer move intercepts vertical drags intended for parent scrolling. When a user swipes down across the chart area, the dashboard freezes or jerks abruptly.
+  - *Surgical Fix*: Replace with Compose's standard horizontal drag detection (`detectHorizontalDragGestures`) or an explicit touch-slop vector check (`abs(dx) > abs(dy)`), allowing vertical drags to pass unconsumed to parent scroll containers.
+- **Bilateral Telemetry Deficit (`KRP-04` / `DTV-01`)**:
+  - `InteractiveChart.kt` only accepts `data: List<ChartDataPoint>`, plotting only a single user curve. In a couple fitness companion whose entire raison d'être is mutual synchrony and friendly accountability, the main chart is incapable of showing user and partner waveforms side-by-side.
+  - *Simple Solution*: Extend `InteractiveChart` with optional `partnerData: List<ChartDataPoint>? = null`. Draw partner spline in Dashed Coral (`#FF4568`) on the same canvas coordinate system, with soft translucent delta fill between them. Under 60 lines of code solves the core feature deficit.
+
+#### 3. God-Composable Bloat & Recomposition Pressure (`KRP-02`)
+- `DashboardScreen.kt` has ballooned to **2,202 lines** in a single file.
+- It bundles:
+  1. 3 full horizontal pager screens (Side-by-Side, My Stats, Partner's Stats).
+  2. Duplicate card implementations (Standings card, Tug-of-War bar, Partner vitals copied across tabs).
+  3. Inlined dialogs (`TelemetryDiagnosticDialog`, `NotificationPermissionRationaleDialog`).
+  4. Inlined sub-composables (`SideBySideActivityCard`, `WeeklyStreakRow`, `StatCard`).
+- *Consequences*: High recompilation times, IDE lag, and broad recomposition scopes where a single partner telemetry update forces evaluation of the entire 2,200-line tree.
+- *Karpathy Refactoring Plan*: Decompose surgically into single-responsibility components in `com.couplefit.ui.dashboard.components.*` with zero change to visual design or contracts.
+
+---
+
+### 59.2 New Architectural Ideas & High-Impact Suggestions
+
+1. **Lightweight Bilateral Dual-Series Waveform (`DTV-01`)**:
+   - Rather than pulling in an external third-party library or writing 500 lines of complex chart code, add an optional `partnerData: List<ChartDataPoint>?` parameter directly to `InteractiveChart.kt`.
+   - Render User as Solid Cyan (`#00E5FF`) and Partner as Dashed Coral (`#FF4568`), with a subtle vertical hairline disclosing both values simultaneously upon scrub.
+
+2. **Zero-Overhead Horizontal Touch-Slop Gate (`GST-01`)**:
+   - Use Compose's native `detectHorizontalDragGestures` with a 12px horizontal slop threshold. If the user's initial motion is vertical (>15° angle), Compose automatically relinquishes pointer events to the parent `verticalScroll`, restoring 100% fluid dashboard scrolling.
+
+3. **Living Partner Presence Halo (`REL-01`)**:
+   - In `CoupleHubScreen.kt`, add an animated 2dp breathing ring around the partner's avatar whenever `healthData.partnerLastActiveMinutes < 15`. It immediately conveys that the partner is currently active and in sync without cluttering the UI with text labels.
+
+4. **De-Duplicate Dashboard Tab Surfaces (`KRP-02`)**:
+   - Extract `StandingsCard` and `VitalsSummaryCard` into reusable stateless composables, eliminating ~400 lines of copy-pasted UI code across the 3 horizontal pager tabs.
+
+5. **Safe Dead Code Deprecation (`PRN-01`)**:
+   - Tag the unused Samsung Health subsystem (`com.couplefit.data.samsunghealth.*`) and orphaned canvas animations (`FloatingPathsBackground.kt`) as deprecated in preparation for clean removal in Milestone Wave 36.
+
+---
+
+### 59.3 Detailed Catalog of Karpathy Defect Logs
+
+| Defect ID | Severity | File / Subsystem | Problem Statement | Karpathy Guideline Violated | Recommended Action |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`KRP-01`** | 🔴 P1 Debt | `data/samsunghealth/*` (5 files) | ~400 lines of unused Samsung Health SDK classes and repository bindings never injected or called. | **Simplicity First**: No speculative abstractions or unrequested configurability. | Deprecate and safely prune; standardize 100% on Health Connect. |
+| **`KRP-02`** | 🔴 P1 Debt | `DashboardScreen.kt` | 2,202 lines in a single god-file with duplicated card layouts and wide recomposition scope. | **Simplicity First**: If 200 lines could be 50, rewrite it. Single responsibility. | Extract sub-composables into `dashboard/components/` (<400 lines per file). |
+| **`KRP-03`** | 🔴 P1 Bug | `InteractiveChart.kt` (L384-421) | `pointerInput` consumes all pointer events unconditionally, freezing vertical dashboard scroll. | **Think Before Coding**: Fragile gesture assumptions cause interaction collisions. | Add horizontal touch-slop gate (`detectHorizontalDragGestures`); leave vertical drags unconsumed. |
+| **`KRP-04`** | 🔵 P2 Feature | `InteractiveChart.kt` | Chart only displays a single series (user); lacks partner curve comparison. | **Simplicity First**: Simple additive dual spline on existing canvas instead of rewriting. | Add `partnerData: List<ChartDataPoint>?`; draw dashed Coral curve with delta fill. |
+| **`KRP-05`** | 🟡 P3 Waste | `FloatingPathsBackground.kt` & `SmoothScrollPhysics.kt` | 264 lines of orphaned Bézier animations and conflicting nested scroll physics. | **Surgical Changes**: Mention dead code; eliminate runtime conflicts with Material pullRefresh. | Prune orphaned canvas file; align scroll physics strictly to native M3 overscroll. |
+| **`KRP-06`** | 💡 P3 Polish | `SpinningCounter.kt` (3 files) | 260 lines of complex digit reel code used in only 1 secondary card while hero uses plain text. | **Simplicity First**: Avoid overcomplicated single-use visual widgets. | Unify metric animations using standard Compose `AnimatedContent` or promote to hero cleanly. |
+
