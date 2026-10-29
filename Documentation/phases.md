@@ -827,3 +827,16 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   3. Added DataStore persistence (`KEY_LIQUID_GLASS`) and dedicated Settings Experience Hub switch row placed directly below Reduce Motion.
   4. Implemented graceful solid dark surface fallback (`containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)`) when toggled OFF or on Android < 12 (API 31).
 - **Release Tag**: `v2.9.21-liquid-glass-navbar-liq01`
+
+## Phase 37: UI Cleanliness & De-Boxing Refactor (BOX-01) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_37_DEBOX_CLEAN_UI.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_37_DEBOX_CLEAN_UI.md)
+- **Verification Report**: [`Documentation/phase37_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase37_verification_report.md)
+- **Status**: Completed & Verified on Live Hardware (Samsung Galaxy S24, `SM-S921B`)
+- **Key Deliverables**:
+  1. Replaced active tab box border (`BorderStroke(1.dp, ...)`) with seamless luminous glow pill (`RoundedCornerShape(percent = 50)`).
+  2. Softened dock drop shadow (`elevation = 4.dp`, transparent spot color) and outer rim stroke (`alpha = 0.10f`).
+  3. Calibrated `Modifier.iosGlass()` and `Modifier.liquiTactilePill()` borders to `0.5.dp` with softened specular stops.
+  4. Removed hard stroke borders (`border = null`) on all 3 `FilterChip` items and softened telemetry status badge border.
+  5. Softened weekday streak indicator border on "Fri" to `0.5.dp` (`0.35f` alpha).
+  6. Replaced `.systemBarsPadding()` with `.statusBarsPadding()` on the dashboard root column to eliminate double padding gaps.
+- **Release Tag**: `v2.9.22-debox-clean-ui-box01`

@@ -236,7 +236,7 @@ fun DashboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .systemBarsPadding()
+                .statusBarsPadding()
         ) {
             // Header with Date Overline, Title & Settings Icon
             Column(
@@ -545,12 +545,7 @@ fun DashboardScreen(
                             selectedContainerColor = VitalsAccent.copy(alpha = 0.15f),
                             selectedLabelColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = pagerState.currentPage == 0,
-                            borderColor = MaterialTheme.colorScheme.outline,
-                            selectedBorderColor = VitalsAccent
-                        )
+                        border = null
                     )
 
                     // Tab 1: My Stats
@@ -573,12 +568,7 @@ fun DashboardScreen(
                             selectedContainerColor = StepsAccent.copy(alpha = 0.15f),
                             selectedLabelColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = pagerState.currentPage == 1,
-                            borderColor = MaterialTheme.colorScheme.outline,
-                            selectedBorderColor = StepsAccent
-                        )
+                        border = null
                     )
 
                     // Tab 2: Partner's Stats
@@ -605,12 +595,7 @@ fun DashboardScreen(
                             selectedContainerColor = SystemRed.copy(alpha = 0.15f),
                             selectedLabelColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = pagerState.currentPage == 2,
-                            borderColor = MaterialTheme.colorScheme.outline,
-                            selectedBorderColor = SystemRed
-                        )
+                        border = null
                     )
                 }
 
@@ -1704,8 +1689,8 @@ fun SideBySideActivityCard(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .border(
-                            width = 1.dp,
-                            if (isStale) SystemOrange.copy(alpha = 0.45f) else SystemGreen.copy(alpha = 0.4f),
+                            width = 0.5.dp,
+                            if (isStale) SystemOrange.copy(alpha = 0.25f) else SystemGreen.copy(alpha = 0.25f),
                             RoundedCornerShape(12.dp)
                         )
                         .iosClickable(

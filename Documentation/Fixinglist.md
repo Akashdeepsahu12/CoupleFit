@@ -185,6 +185,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **TYP-05** | Telemetry Unit Alignment | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | App-Wide Metric Cards | Telemetry units ("BPM", "steps", "kcal", "%") sit flush on baseline with identical weight or inconsistent padding. | Visual crowding; slows down outdoor glancing speed. | Standardize `TelemetryReadout` pairing `HeroMetricDisplay` / `HeadlineLarge` numbers with optical baseline-aligned `LabelMedium` units (`onSurfaceVariant.copy(0.75f)`). | 🟢 Resolved |
 | **GLS-11** | Hub & Trends Liqui Glass | `/emilkowalski-skills:apple-design` | 🔵 **Correction Needed** | `CoupleHubScreen.kt` & `HealthTrendsScreen.kt` | Couple Hub and Health Trends screens still use opaque surface cards instead of the 4-layer optical Liqui Glass model. | Visual dissonance across tabs; breaks the unified living aurora background and optical depth language. | Refactor container cards in `CoupleHubScreen` and `HealthTrendsScreen` to 4-layer Liqui Glass stack with specular rim highlights. | 🟢 Resolved |
 | **REL-01** | Living Partner Presence Halo | `/designer-skills:interfaces-that-feel` | 💡 **Emotional Presence** | `CoupleHubScreen.kt` & `DashboardScreen.kt` | Online partner status displays as a static text string ("🟢 Partner Online") without emotional vitality. | Feels like an IT server status ping rather than an intimate connection to a living romantic partner. | Implement `LivingPresenceIndicator` with an animated 3-second breathing radial glow halo behind avatar and status pill. | 🟢 Resolved |
+| **BOX-01** | UI Cleanliness & De-Boxing Refactor | `/taste-skill:design-taste-frontend` | 🧼 **Aesthetic Purity** | Navigation Suite, Glass Tokens & Dashboard | Traces of harsh boxes, active tab capsule border strokes, heavy dock drop shadows, and over-specified 4-sided card borders. | Clutters interface; creates visual wireframe noise and breaks floating liquid glass illusion. | Removed active tab capsule border stroke in favor of luminous gradient glow pill; softened dock shadow (4dp, transparent spot); calibrated glass borders to 0.5dp; removed filter chip borders; softened streak indicator; eliminated double insets. | 🟢 Resolved |
 
 ---
 
@@ -3429,3 +3430,48 @@ In Phase 35, the navigation dock was elevated into a floating hover capsule abov
 | **`LIQ-01`** | `SettingsScreen.kt` | Liquid Glass toggle switched OFF in Experience Hub | [`liq01_settings_toggle_off_proof.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/liq01_settings_toggle_off_proof.png) | 🟢 Verified |
 | **`LIQ-01`** | `CoupleFitNavigationSuite.kt` | Solid surface container fallback rendered when Liquid Glass is turned OFF | [`liq01_navbar_solid_fallback.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/liq01_navbar_solid_fallback.png) | 🟢 Verified |
 | **`LIQ-01`** | `CoupleFitNavigationSuite.kt` | Restored Liquid Glass frosted diffusion after toggling switch back ON | [`liq01_restored_liquid_glass.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/liq01_restored_liquid_glass.png) | 🟢 Verified |
+
+---
+
+## 61. Phase 37: UI Cleanliness & De-Boxing Refactor (BOX-01) 🧼✨
+
+> **Associated Defect Logs**: `BOX-01`  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_37_DEBOX_CLEAN_UI.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_37_DEBOX_CLEAN_UI.md)  
+> **Verification Report**: [`Documentation/phase37_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase37_verification_report.md)  
+> **Status**: 🟢 **Resolved & Shipped** | Release Tag: `v2.9.22-debox-clean-ui-box01`
+
+### 61.1 Problem Statement & Root Cause
+Following the real-time Liquid Glass bottom bar implementation, subtle box-like lines and visual strokes persisted across several UI elements:
+1. **Active Tab Indicator Box**: The sliding active pill in `CoupleFitNavigationSuite.kt` possessed an explicit `border(BorderStroke(1.dp, ...))` and `RoundedCornerShape(22.dp)`, drawing a box around the active tab inside the dock.
+2. **Dock Drop-Shadow Smudge**: The dock's `elevation = 12.dp` with default spot shadow created a heavy dark rectangular halo beneath the navigation capsule.
+3. **Over-Specified 4-Sided Card Borders**: `Modifier.iosGlass()` defaulted to `borderWidth = 1.dp` with heavy specular stops (37%), creating box strokes around every dashboard and health card.
+4. **Hard Box Borders on Filter Chips**: `FilterChip` items ("Side-by-Side", "My Stats", "Partner's Stats") in `DashboardScreen.kt` had default Material 3 border strokes (`1.dp`).
+5. **Weekday Streak Pill Box Ring**: The current day ("Fri") in `MotionArcGauge.kt` drew a heavy `1.5.dp` stroke with 80% alpha around the weekday node.
+6. **Redundant Bottom Inset Padding**: `DashboardScreen.kt` applied `.systemBarsPadding()` to the root scrollable Column, causing double padding gaps above the floating navigation dock.
+
+### 61.2 Architectural Implementation
+1. **Active Tab Luminous Glow Pill (`CoupleFitNavigationSuite.kt`)**:
+   - Stripped `border(BorderStroke(1.dp, ...))` from the active indicator.
+   - Migrated shape to continuous `pillShape` (`RoundedCornerShape(percent = 50)`).
+   - Applied soft luminous radial and vertical gradient (`alpha = 0.20f` down to `0.06f`) to blend naturally with the frosted glass dock.
+2. **Dock Shadow & Rim Softening (`CoupleFitNavigationSuite.kt`)**:
+   - Softened dock perimeter stroke to `Color.White.copy(alpha = 0.10f)`.
+   - Reduced shadow elevation to `4.dp`, transparent spot color (`spotColor = Color.Transparent`), and soft ambient shadow (`ambientColor = Color.Black.copy(alpha = 0.15f)`).
+3. **Ultra-Delicate Glass Tokens (`GlassTokens.kt` & `LiquiGlassTokens.kt`)**:
+   - Softened default `borderWidth` from `1.dp` to `0.5.dp`.
+   - Calibrated specular highlight stops from 37% to 16% (`0x28FFFFFF`) and 14% to 6% (`0x10FFFFFF`).
+   - Reduced shadow elevation from `8.dp` to `4.dp` with transparent spot color.
+   - Calibrated `BezelWidth` and `borderWidth` in `LiquiGlassTokens.kt` to `0.5.dp` and softened rim brush gradient stops.
+4. **Dashboard Controls & Filter Chips De-Boxing (`DashboardScreen.kt`)**:
+   - Removed borders (`border = null`) on all 3 `FilterChip` instances.
+   - Softened telemetry status badge border from `1.dp` (`0.4f` alpha) to `0.5.dp` (`0.25f` alpha).
+   - Replaced `.systemBarsPadding()` with `.statusBarsPadding()` on the root column to eliminate double inset padding.
+5. **Streak Node Softening (`MotionArcGauge.kt`)**:
+   - Softened "Fri" streak indicator border from `1.5.dp` (`0.8f` alpha) to `0.5.dp` (`0.35f` alpha).
+
+### 61.3 Hardware & Live Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`BOX-01`** | `CoupleFitNavigationSuite.kt` | Live device inspection of active tab luminous glow pill with zero box borders | [`box01_deboxed_clean_ui.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/box01_deboxed_clean_ui.png) | 🟢 Verified |
+| **`BOX-01`** | `DashboardScreen.kt` | Live device inspection of borderless filter chips and ultra-delicate 0.5dp card rims | [`box01_deboxed_clean_ui.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/box01_deboxed_clean_ui.png) | 🟢 Verified |
+| **`BOX-01`** | `DashboardScreen.kt` | Scrolled view with cards floating over background and content gliding behind dock | [`box01_deboxed_scrolled_ui.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/box01_deboxed_scrolled_ui.png) | 🟢 Verified |

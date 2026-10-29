@@ -119,7 +119,7 @@ fun CoupleFitNavigationSuite(
                             .clip(pillShape)
                             .border(
                                 width = 0.5.dp,
-                                color = Color.White.copy(alpha = 0.18f),
+                                color = Color.White.copy(alpha = 0.10f),
                                 shape = pillShape
                             )
                     } else {
@@ -137,7 +137,7 @@ fun CoupleFitNavigationSuite(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(68.dp)
-                            .shadow(elevation = 12.dp, shape = pillShape, ambientColor = Color.Black.copy(alpha = 0.35f))
+                            .shadow(elevation = 4.dp, shape = pillShape, ambientColor = Color.Black.copy(alpha = 0.15f), spotColor = Color.Transparent)
                             .then(dockModifier)
                     ) {
                         BoxWithConstraints(
@@ -171,18 +171,14 @@ fun CoupleFitNavigationSuite(
                                     .graphicsLayer {
                                         scaleX = stretchFactor
                                     }
-                                    .clip(RoundedCornerShape(22.dp))
+                                    .clip(pillShape)
                                     .background(
                                         Brush.verticalGradient(
                                             listOf(
-                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.25f),
-                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.10f)
+                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.20f),
+                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.06f)
                                             )
                                         )
-                                    )
-                                    .border(
-                                        BorderStroke(1.dp, CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.40f)),
-                                        RoundedCornerShape(22.dp)
                                     )
                             )
 

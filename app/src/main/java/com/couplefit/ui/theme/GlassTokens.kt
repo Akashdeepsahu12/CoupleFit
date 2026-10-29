@@ -36,9 +36,9 @@ object GlassPrimitives {
     val TintWhite22 = Color(0x38FFFFFF)      // 22% white (specular highlight)
     val TintDarkScrim75 = Color(0xBF07080A)  // 75% dark scrim for modal backdrops
 
-    // Luminous Specular Stop Primitives (GLS-08)
-    val TintWhiteSpecularTop = Color(0x5EFFFFFF)  // 37% white specular light catch
-    val TintWhiteSpecularMid = Color(0x22FFFFFF)  // 13% white body sheen
+    // Luminous Specular Stop Primitives (GLS-08, refined for airy elegance BOX-01)
+    val TintWhiteSpecularTop = Color(0x28FFFFFF)  // 16% subtle specular light catch
+    val TintWhiteSpecularMid = Color(0x10FFFFFF)  // 6% soft body sheen
     val TintWhiteSurfaceGlint = Color(0x24FFFFFF) // 14% white top surface glint
     val TintWhiteSurfaceBody = Color(0x10FFFFFF)  // 6.5% white body
     val TintWhiteSurfaceBase = Color(0x06FFFFFF)  // 2.4% white shadow base
@@ -141,13 +141,13 @@ fun Modifier.iosGlass(
     fallbackColor: Color = GlassPrimitives.SolidSlateCard,
     blurRadius: Dp = GlassPrimitives.BlurCard,
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
-    borderWidth: Dp = 1.dp
+    borderWidth: Dp = 0.5.dp
 ): Modifier = this
     .shadow(
-        elevation = 8.dp,
+        elevation = 4.dp,
         shape = shape,
-        ambientColor = Color(0x66000005),
-        spotColor = Color(0x88000005)
+        ambientColor = Color(0x33000005),
+        spotColor = Color.Transparent
     )
     .clip(shape)
     .then(
@@ -175,7 +175,7 @@ fun Modifier.appleGlass(
     fallbackColor: Color = GlassPrimitives.SolidSlateCard,
     blurRadius: Dp = GlassPrimitives.BlurCard,
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
-    borderWidth: Dp = 1.dp
+    borderWidth: Dp = 0.5.dp
 ): Modifier = iosGlass(
     shape = shape,
     surfaceBrush = surfaceBrush,
@@ -196,7 +196,7 @@ fun Modifier.glassDock(
     fallbackColor: Color = GlassPrimitives.SolidSlateDock,
     blurRadius: Dp = GlassPrimitives.BlurDock,
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
-    borderWidth: Dp = 1.dp
+    borderWidth: Dp = 0.5.dp
 ): Modifier = this
     .shadow(
         elevation = GlassPrimitives.ElevationDock,
@@ -228,7 +228,7 @@ fun Modifier.glassModal(
     fallbackColor: Color = GlassPrimitives.SolidSlateModal,
     blurRadius: Dp = GlassPrimitives.BlurModal,
     borderBrush: Brush = GlassSemantics.BorderSpecularRim,
-    borderWidth: Dp = 1.dp
+    borderWidth: Dp = 0.5.dp
 ): Modifier = this
     .clip(shape)
     .then(

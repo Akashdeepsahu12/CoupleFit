@@ -421,10 +421,10 @@ fun WeeklyStreakRow(
                     .clip(RoundedCornerShape(16.dp))
                     .then(
                         if (isToday) Modifier
-                            .background(MotionCyanStart.copy(alpha = 0.15f))
+                            .background(MotionCyanStart.copy(alpha = 0.14f), shape = RoundedCornerShape(16.dp))
                             .border(
-                                width = 1.5.dp,
-                                color = MotionCyanStart.copy(alpha = 0.8f),
+                                width = 0.5.dp,
+                                color = MotionCyanStart.copy(alpha = 0.35f),
                                 shape = RoundedCornerShape(16.dp)
                             )
                             .padding(horizontal = 8.dp, vertical = 6.dp)

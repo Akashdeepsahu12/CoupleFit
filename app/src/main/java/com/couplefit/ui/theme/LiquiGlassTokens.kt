@@ -53,7 +53,7 @@ object LiquiTokens {
     // Squircle Geometry & Bevel Tokens
     val CardRadius: Dp = 22.dp
     val PillRadius: Dp = 20.dp
-    val BezelWidth: Dp = 1.25.dp
+    val BezelWidth: Dp = 0.5.dp
 }
 
 /**
@@ -128,13 +128,13 @@ fun Modifier.liquiGlass(
 fun Modifier.liquiTactilePill(
     shape: Shape = RoundedCornerShape(LiquiTokens.PillRadius),
     elevation: Dp = 3.dp,
-    borderWidth: Dp = 1.dp
+    borderWidth: Dp = 0.5.dp
 ): Modifier = composed {
     val rimBrush = Brush.verticalGradient(
         colors = listOf(
-            Color(0x66FFFFFF),
             Color(0x28FFFFFF),
-            Color(0x10FFFFFF)
+            Color(0x10FFFFFF),
+            Color(0x05FFFFFF)
         )
     )
 

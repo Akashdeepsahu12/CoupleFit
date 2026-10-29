@@ -424,3 +424,15 @@ graph TD
   - `SettingsScreen.kt` -> Introduces `"Liquid Glass Navigation Bar"` switch row under `APPEARANCE & MOTION` in `ExperienceHubContent`, located directly below `"Reduce Motion"`.
   - `Fixinglist.md` -> Section 60 & Master Defect Table entry `LIQ-01`
   - `Documentation/phase36_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
+
+### Phase 37: UI Cleanliness & De-Boxing Refactor (BOX-01) 🟢 Resolved
+- **Domain**: Frontend Design Taste, Aesthetic Purity & De-Slop (`/taste-skill:design-taste-frontend`, `/antislop-ui`, `/ui-ux-pro-max-skill:design-system`)
+- **Milestone Tag**: `v2.9.22-debox-clean-ui-box01`
+- **Nodes & Edges**:
+  - `BOX-01`: UI Cleanliness & De-Boxing Refactor
+  - `CoupleFitNavigationSuite.kt` -> Removed hard `BorderStroke(1.dp, ...)` from the active tab indicator; switched to luminous radial/vertical gradient glow pill with `RoundedCornerShape(percent = 50)`. Softened dock border stroke (`Color.White.copy(alpha = 0.10f)`) and dock drop shadow (`elevation = 4.dp`, `spotColor = Color.Transparent`, `ambientColor = Color.Black.copy(alpha = 0.15f)`).
+  - `GlassTokens.kt` & `LiquiGlassTokens.kt` -> Softened `borderWidth` from `1.dp` to `0.5.dp`; recalibrated specular stops from 37% to 16% (`0x28FFFFFF`) and 14% to 6% (`0x10FFFFFF`); reduced shadow elevation from `8.dp` to `4.dp` with transparent spot color; calibrated `BezelWidth` and `borderWidth` to `0.5.dp`.
+  - `DashboardScreen.kt` -> Removed hard box borders (`border = null`) on all 3 `FilterChip` items ("Side-by-Side", "My Stats", "Partner's Stats"); softened telemetry status badge border from `1.dp` (`0.4f` alpha) to `0.5.dp` (`0.25f` alpha); replaced `.systemBarsPadding()` with `.statusBarsPadding()` to eliminate redundant bottom padding gaps.
+  - `MotionArcGauge.kt` -> Softened today streak indicator border on "Fri" from `1.5.dp` (`0.8f` alpha) to `0.5.dp` (`0.35f` alpha).
+  - `Fixinglist.md` -> Section 61 & Master Defect Table entry `BOX-01`
+  - `Documentation/phase37_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
