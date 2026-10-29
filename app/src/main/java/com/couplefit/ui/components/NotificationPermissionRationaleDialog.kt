@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import com.couplefit.ui.theme.StepsAccent
 import com.couplefit.ui.theme.SystemRed
+import com.couplefit.ui.theme.dialogMeasure
 
 @Composable
 fun NotificationPermissionRationaleDialog(
@@ -42,6 +43,7 @@ fun NotificationPermissionRationaleDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
+                .dialogMeasure(minWidth = 320.dp, maxWidth = 480.dp)
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(24.dp),

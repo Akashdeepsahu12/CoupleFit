@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +32,7 @@ fun CoupleHubScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -40,7 +42,7 @@ fun CoupleHubScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -66,7 +68,7 @@ fun CoupleHubScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
                     )
                 ) {
                     Column(
@@ -154,7 +156,7 @@ fun CoupleHubScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)
                     )
                 ) {
                     Column(

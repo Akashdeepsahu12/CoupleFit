@@ -1,5 +1,7 @@
 package com.couplefit.ui.theme
 
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -15,4 +17,28 @@ object AppSpacing {
     val lg: Dp = 24.dp
     val xl: Dp = 32.dp
 }
+
+/**
+ * Constrains text reading containers to the optimal typographic measure of 45–75 characters
+ * per line (~600dp–640dp) on tablets, foldables, and desktop/DeX displays.
+ *
+ * Adheres strictly to `/designer-skills:readable-measure`:
+ * - Sustained reading & transparency copy: 55–70 CPL (~600dp)
+ * - UI cards & settings: 45–65 CPL (~520dp)
+ * - Excludes short labels and micro-badges
+ */
+fun Modifier.readableMeasure(
+    maxWidth: Dp = 620.dp,
+    minWidth: Dp = Dp.Unspecified
+): Modifier = this.widthIn(min = minWidth, max = maxWidth)
+
+/**
+ * Standardizes dialog and modal sheet measures, enforcing a minimum width of 320dp
+ * to prevent choked measure (<35 CPL) and a maximum of 500dp to avoid sprawl on wide viewports.
+ */
+fun Modifier.dialogMeasure(
+    minWidth: Dp = 320.dp,
+    maxWidth: Dp = 500.dp
+): Modifier = this.widthIn(min = minWidth, max = maxWidth)
+
 

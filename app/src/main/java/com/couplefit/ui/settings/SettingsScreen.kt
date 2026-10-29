@@ -170,27 +170,30 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color.Transparent
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color.Transparent
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // --- 4-Hub Segmented Navigation Bar (IA-03) ---
             SettingsHubBar(
                 activeHub = activeHub,
-                onHubSelected = { activeHub = it }
+                onHubSelected = { activeHub = it },
+                modifier = Modifier.readableMeasure(640.dp)
             )
 
             // --- Scrollable Hub Content Area ---
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .readableMeasure(640.dp)
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = AppSpacing.md, vertical = AppSpacing.xs),
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.md)
@@ -325,6 +328,7 @@ fun SettingsScreen(
     // 2-Step Strict Unlink Partner Dialog (CSA-07)
     if (showUnlinkPartnerDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = {
                 showUnlinkPartnerDialog = false
                 unlinkConfirmationText = ""
@@ -397,6 +401,7 @@ fun SettingsScreen(
     // Sign Out Dialog
     if (showSignOutDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = { showSignOutDialog = false },
             title = { Text("Sign Out of CoupleFit") },
             text = { Text("Are you sure you want to sign out? Your local health telemetry will remain stored on this device.") },
@@ -422,6 +427,7 @@ fun SettingsScreen(
     // Permanent Data & Account Deletion Dialog
     if (showDeleteAccountDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = { showDeleteAccountDialog = false },
             title = { Text("Delete Account & Cloud Telemetry") },
             text = { Text("This will permanently purge your health aggregates, cloud connection, and couple streaks from Firestore. This action cannot be reversed.") },
@@ -449,6 +455,7 @@ fun SettingsScreen(
     // Samsung Health Bridge Confirmation Dialog
     if (showSamsungBridgeDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = { showSamsungBridgeDialog = false },
             icon = {
                 Box(
@@ -482,6 +489,7 @@ fun SettingsScreen(
     // Open Source Licenses Dialog
     if (showLicensesDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(minWidth = 340.dp, maxWidth = 580.dp),
             onDismissRequest = { showLicensesDialog = false },
             title = { Text("Open Source Acknowledgments") },
             text = {
@@ -562,7 +570,7 @@ internal fun PartnershipHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -611,7 +619,7 @@ internal fun PartnershipHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -722,7 +730,7 @@ internal fun HealthSyncHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -779,7 +787,7 @@ internal fun HealthSyncHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -828,7 +836,7 @@ internal fun HealthSyncHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -896,7 +904,7 @@ internal fun ExperienceHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -928,7 +936,7 @@ internal fun ExperienceHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -971,7 +979,7 @@ internal fun ExperienceHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(
@@ -1005,7 +1013,7 @@ internal fun PrivacyHubContent(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(AppSpacing.md),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column(

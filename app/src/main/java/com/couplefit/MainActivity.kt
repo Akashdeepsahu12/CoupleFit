@@ -20,6 +20,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.couplefit.ui.components.AmbientVideoBackground
 import com.couplefit.ui.components.AmbientVideoRegistry
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -144,8 +145,16 @@ class MainActivity : ComponentActivity() {
                         revealState = revealState,
                         reduceMotion = effectiveReduceMotion
                     ) {
-                        // Main Routing Decision: Auth & Couple Linking Flow vs Dashboard
-                        when (val step = authUiState.currentStep) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            // Persistent Global Living Ambient Video Background across ALL screens (BGV-06)
+                            AmbientVideoBackground(
+                                modifier = Modifier.fillMaxSize(),
+                                videoResId = currentAmbientBgAsset.resId,
+                                reduceMotion = effectiveReduceMotion
+                            )
+
+                            // Main Routing Decision: Auth & Couple Linking Flow vs Dashboard
+                            when (val step = authUiState.currentStep) {
                             is AuthFlowStep.SignIn -> {
                                 SignInScreen(
                                     authViewModel = authViewModel,
@@ -273,6 +282,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
+                        }
                         }
                     }
 

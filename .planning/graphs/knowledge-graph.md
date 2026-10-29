@@ -367,3 +367,11 @@ graph TD
   - `MSR-06`: Legal Notice Sprawl (150–180 CPL) -> `SettingsScreen.kt`
   - `MSR-07`: Card Subtitle Sprawl (90–125 CPL) -> `DashboardScreen.kt`
   - `Modifier.readableMeasure()` -> `Spacing.kt` / `Measure.kt`
+
+### Global Ambient Video Architecture (BGV-06)
+- **Domain**: Visual Motion & Ambient Atmosphere (`/designer-skills:brand`)
+- **Nodes**:
+  - `MainActivity.kt` -> Hosts root `AmbientVideoBackground` with ExoPlayer hardware loop
+  - `CoupleFitNavigationSuite.kt` -> Delegates background rendering to root
+  - Transparent Cladding -> `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `CoupleHubScreen.kt`, `SettingsScreen.kt`, Auth screens
+  - Status: Shipped in Phase 33 (`v2.9.18-global-ambient-video-bgv06`)

@@ -47,6 +47,7 @@ fun HealthTrendsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -56,7 +57,7 @@ fun HealthTrendsScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color.Transparent
                 )
             )
         }

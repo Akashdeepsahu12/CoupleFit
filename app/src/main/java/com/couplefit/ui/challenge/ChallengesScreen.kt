@@ -101,6 +101,7 @@ fun ChallengesScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -127,7 +128,7 @@ fun ChallengesScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -140,7 +141,7 @@ fun ChallengesScreen(
             // Local Sub-Navigation Control (LOC-NAV-02 & NAV-04): M3 SecondaryTabRow with Haptics
             SecondaryTabRow(
                 selectedTabIndex = selectedTab.ordinal,
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth()
             ) {

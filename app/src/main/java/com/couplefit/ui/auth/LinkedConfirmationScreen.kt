@@ -45,7 +45,7 @@ fun LinkedConfirmationScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.background,
+                        Color.Transparent,
                         StepsAccent.copy(alpha = 0.12f),
                         ExerciseAccent.copy(alpha = 0.15f)
                     )
@@ -57,7 +57,9 @@ fun LinkedConfirmationScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .readableMeasure(maxWidth = 480.dp)
         ) {
             // Heart & Rings Celebration Badge
             Box(

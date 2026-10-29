@@ -51,18 +51,25 @@ fun DashboardAdaptiveScreen(
     val healthData by healthConnectViewModel.dashboardState.collectAsState()
     var selectedMetric by remember { mutableStateOf(TelemetryMetric.STEPS) }
 
-    if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
-        // Compact Phone: Single column operational dashboard
-        DashboardScreen(
-            isDarkTheme = isDarkTheme,
-            onToggleDarkTheme = onToggleDarkTheme,
-            reduceMotion = reduceMotion,
-            onOpenSettings = onOpenSettings,
-            onViewAllChallenges = onViewAllChallenges,
-            healthConnectViewModel = healthConnectViewModel
-        )
+    if (windowSizeClass.widthSizeClass != WindowWidthSizeClass.Expanded) {
+        // Compact Phone & Medium Viewports (<840dp): Centered readable operational dashboard
+        // Prevents premature 40/60 split that chokes Master Pane 1 to 22-30 CPL (MSR-05, GRD-01)
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            DashboardScreen(
+                modifier = Modifier.readableMeasure(640.dp),
+                isDarkTheme = isDarkTheme,
+                onToggleDarkTheme = onToggleDarkTheme,
+                reduceMotion = reduceMotion,
+                onOpenSettings = onOpenSettings,
+                onViewAllChallenges = onViewAllChallenges,
+                healthConnectViewModel = healthConnectViewModel
+            )
+        }
     } else {
-        // Tablet / Foldable (≥600dp): Active Two-Pane Master-Detail Layout (40% / 60%)
+        // Expanded Tablet / Desktop / DeX (≥840dp): Active Two-Pane Master-Detail Layout (40% / 60%)
         Row(modifier = Modifier.fillMaxSize()) {
             // Pane 1 (40% Master): Primary operational dashboard
             DashboardScreen(

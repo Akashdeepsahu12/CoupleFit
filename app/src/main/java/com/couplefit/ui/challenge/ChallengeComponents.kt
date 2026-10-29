@@ -241,7 +241,7 @@ fun StartChallengeDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .widthIn(max = 520.dp)
+                .dialogMeasure(minWidth = 320.dp, maxWidth = 520.dp)
                 .navigationBarsPadding()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 24.dp),

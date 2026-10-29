@@ -38,18 +38,21 @@ fun CoupleFitNavigationSuite(
     modifier: Modifier = Modifier,
     reduceMotion: Boolean = false,
     @RawRes ambientVideoResId: Int = AmbientVideoRegistry.defaultAsset.resId,
+    includeVideoBackground: Boolean = false,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val haptic = LocalHapticFeedback.current
 
     Box(modifier = modifier.fillMaxSize()) {
-        // 1. Living Ambient Aurora Video Background (BGV-04: dynamic shuffle R.raw.green1 / R.raw.blue)
-        AmbientVideoBackground(
-            modifier = Modifier.fillMaxSize(),
-            videoResId = ambientVideoResId,
-            reduceMotion = reduceMotion
-        )
+        // 1. Living Ambient Aurora Video Background (BGV-04 / BGV-06: Hoisted to MainActivity root)
+        if (includeVideoBackground) {
+            AmbientVideoBackground(
+                modifier = Modifier.fillMaxSize(),
+                videoResId = ambientVideoResId,
+                reduceMotion = reduceMotion
+            )
+        }
 
         // 2. Navigation Surface (Scaffold / NavigationRail)
         if (isCompact) {

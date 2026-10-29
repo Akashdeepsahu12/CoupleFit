@@ -1881,7 +1881,9 @@ fun TelemetryDiagnosticDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.iosGlass(
+        modifier = Modifier
+            .dialogMeasure()
+            .iosGlass(
             shape = RoundedCornerShape(28.dp),
             tintColor = GlassPrimitives.SolidSlateModal,
             blurRadius = GlassPrimitives.BlurModal

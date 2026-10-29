@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.AppSpacing
 import com.couplefit.ui.theme.SystemGreen
 import com.couplefit.ui.theme.iosGlass
+import com.couplefit.ui.theme.readableMeasure
 import kotlinx.coroutines.delay
 
 /**
@@ -53,6 +54,7 @@ fun MedicationDuePill(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .readableMeasure(maxWidth = 620.dp)
                 .padding(horizontal = AppSpacing.md)
                 .padding(bottom = AppSpacing.sm)
                 .iosGlass(shape = RoundedCornerShape(16.dp))

@@ -31,6 +31,8 @@ import com.couplefit.ui.theme.SystemBlue
 import com.couplefit.ui.theme.SystemGreen
 import com.couplefit.ui.theme.SystemRed
 import com.couplefit.ui.theme.VitalsAccent
+import com.couplefit.ui.theme.dialogMeasure
+import com.couplefit.ui.theme.readableMeasure
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +49,7 @@ fun PrivacyTransparencyScreen(
     var deleteConfirmationText by remember { mutableStateOf("") }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -62,7 +65,7 @@ fun PrivacyTransparencyScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -72,9 +75,15 @@ fun PrivacyTransparencyScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Card
+            Column(
+                modifier = Modifier
+                    .readableMeasure(640.dp)
+                    .fillMaxWidth()
+            ) {
+                // Header Card
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -326,12 +335,14 @@ fun PrivacyTransparencyScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 
     // Unlink Dialog
     if (showUnlinkDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = { showUnlinkDialog = false },
             icon = { Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
             title = { Text("Unlink Partner?") },
@@ -359,6 +370,7 @@ fun PrivacyTransparencyScreen(
     // Delete Account & Data Dialog
     if (showDeleteDialog) {
         AlertDialog(
+            modifier = Modifier.dialogMeasure(),
             onDismissRequest = {
                 showDeleteDialog = false
                 deleteConfirmationText = ""

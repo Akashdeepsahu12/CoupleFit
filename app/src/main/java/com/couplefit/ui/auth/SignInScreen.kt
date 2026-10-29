@@ -42,7 +42,7 @@ fun SignInScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.background,
+                        Color.Transparent,
                         StepsAccent.copy(alpha = 0.08f),
                         VitalsAccent.copy(alpha = 0.12f)
                     )
