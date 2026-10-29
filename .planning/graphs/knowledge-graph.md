@@ -336,3 +336,11 @@ graph TD
   - `ChallengeComponents.kt` -> `SideBySideChallengeCard` (Standing Glyphs)
   - `Fixinglist.md` -> Section 53
 - **WCAG Compliance**: WCAG 2.2 AA (1.4.1 Use of Color & 1.4.11 Non-text Contrast)
+
+### Phase 31: Typography Scale Hierarchy (TYP-02)
+- **Node**: `feat/typography-scale-typ02`
+- **Edges**:
+  - `Type.kt` -> `headlineSmall` (21sp, Bold, tnum)
+  - `Type.kt` -> `titleLarge` (19sp, SemiBold)
+  - `Fixinglist.md` -> Section 54
+  - `Fixinglist.md` -> `ANM-05`, `ANM-06`, `TYP-05`

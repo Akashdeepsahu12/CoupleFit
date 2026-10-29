@@ -79,7 +79,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **CLR-02** | Color System Architecture | `/designer-skills:color-system` | 🔵 **Correction Needed** | `Theme.kt` & `Color.kt` | Missing dedicated User vs. Partner identity color scales. UI components use ad-hoc hex values rather than semantic tokens. | Lacks clear visual distinction between user progress and partner telemetry across charts and rings. | Formalized `CoupleFitIdentityTokens` and mapped `tertiary = MotionPartnerStart` in `Theme.kt`. | 🟢 Resolved |
 | **CLR-03** | Color-Blind Ergonomics | `/designer-skills:color-system` | 💡 **Accessibility Optimization** | Metric Badges | Red steps (`#FF2D55`) and Green workouts (`#32D74B`) look identical to 8% of male users with Deuteranopia/Protanopia when unbadged. | Users cannot differentiate metrics by color alone. | Enforce multi-modal identification: pair every color and standing with unmistakable icon glyphs (Footsteps 👟, Flame 🔥, Stopwatch ⏱️, Heart ❤️, Directional Peak ▲/Min ▼, Standings 🏆/⚡/🤝). | 🟢 Resolved |
 | **TYP-01** | Typography Architecture | `/designer-skills:typography-scale` | 🔵 **Correction Needed** | `Type.kt` | Missing Hero Metric Display role. The largest size is `38.sp`, which is underpowered for a primary fitness telemetry step counter hero. | Hero step counters lack visual punch and authority compared to modern fitness leaders (Apple Fitness / Nike). | Added `HeroMetricDisplay` (`52.sp`, ExtraBold, line height `56.sp`, letter spacing `-1.0.sp`, `fontFeatureSettings = "tnum"`). | 🟢 Resolved |
-| **TYP-02** | Typography Scale Hierarchy | `/designer-skills:typography-scale` | 🔵 **Correction Needed** | `Type.kt` | Size duplication: `headlineSmall` and `titleLarge` both share identical `20.sp` font size and `26.sp` line height. | Optical flattening; card headers and section titles fail to convey distinct levels of hierarchy. | Differentiate sizes: adjust `headlineSmall` to `21.sp` (Bold) and `titleLarge` to `19.sp` (SemiBold). | 🔵 Open |
+| **TYP-02** | Typography Scale Hierarchy | `/designer-skills:typography-scale` | 🔵 **Correction Needed** | `Type.kt` | Size duplication: `headlineSmall` and `titleLarge` both share identical `20.sp` font size and `26.sp` line height. | Optical flattening; card headers and section titles fail to convey distinct levels of hierarchy. | Differentiate sizes: adjusted `headlineSmall` to `21.sp` (Bold, 27sp line height, -0.1sp tracking) and `titleLarge` to `19.sp` (SemiBold, 25sp line height). | 🟢 Resolved |
 | **TYP-03** | Typographic Glanceability | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | `Type.kt` (`labelSmall`) | Category chips (e.g. `DAILY GOAL`, `SYNC STATUS`) use standard tracking (`0.5.sp`) on micro 11sp text. | Low readability and glanceability on outdoor mobile viewports. | Increased tracking on `Typography.labelSmall` to `0.8.sp` (`0.06em`) for enhanced outdoor sunlight readability. | 🟢 Resolved |
 | **MSR-01** | Readable Measure & Layout | `/designer-skills:readable-measure` | 🔴 **Ergonomic Failure** | All Tablet / Foldable Screens | Unconstrained line length: Over 120 composables use unrestricted `Modifier.fillMaxWidth()`. On tablets (≥600dp), paragraphs stretch to **130–160 characters per line**, causing severe return-sweep tracking failure. | Users lose their place jumping between lines; high cognitive reading fatigue. | Implement `Modifier.readableMeasure(max = 600.dp)` to constrain reading containers to 45–75 characters (~65ch). | 🔴 Open |
 | **MSR-02** | Readable Measure in Modals | `/designer-skills:readable-measure` | 🔵 **Correction Needed** | `StartChallengeDialog.kt` | Choked measure in dialogs: Narrow 220dp modal widths compress text descriptions into **28–34 characters per line**, causing choppy, fragmented reading. | Disrupts cadence; looks cramped and unpolished. | Expand minimum dialog content width to 320dp to restore lines to the 40–55 character target zone. | 🔵 Open |
@@ -204,6 +204,10 @@ Run these commands in your terminal one by one to verify compilation, test logic
 ```
 
 ---
+
+| **ANM-05** | Dual Ring Celebration | `/motion:animation-principles` | 💡 **Animation Gap** | `DashboardScreen.kt` | When both partners close rings (100% daily goal), celebration only triggers locally on each ring with no synchronized couple celebration. | Missed opportunity for shared intimacy and emotional payoff. | Implement `CoupleRingClosureHarmonicBurst`: dual-ring golden luminescence bloom (`GoldRingGlow`) and couple banner (*"Couple Rings Closed Today! 💍✨"*). | 💡 Open |
+| **ANM-06** | Telemetry Chart Springs | `/motion:motion-system` | 💡 **Kinematic Polish** | `InteractiveChart.kt` | Diurnal telemetry chart scrubbing indicator snaps discretely without fluid spring interpolation. | Tactile roughness during scrubbing; lacks Apple WWDC fluid interface feel. | Apply `Animatable` spring kinematics (`damping 0.85f`, `stiffness 600f`) to scrub marker with haptic tick on hourly boundary traversal. | 💡 Open |
+| **TYP-05** | Glanceable Telemetry Readout | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | Metric Cards | Telemetry units ("BPM", "steps", "kcal") sit flush on baseline with identical weight or inconsistent padding. | Visual crowding; slows down outdoor glancing speed. | Standardize `TelemetryReadout` pairing `HeroMetricDisplay` / `HeadlineLarge` numbers with optical baseline-aligned `LabelMedium` units (`onSurfaceVariant.copy(0.75f)`). | 💡 Open |
 
 ## 4. Master Command Registry & Execution History 💻⚡
 
@@ -2898,3 +2902,34 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
   - `clr03_verified_scrolled.jpg`: Verified `TODAY'S COMPETITION` displaying `🏆 You're leading by 1000 steps!`.
   - `clr03_verified_vitals.jpg`: Verified `LIVE HEART RATE` with directional `▲ 90 Peak` and `▼ 66 Min` chips.
   - `clr03_verified_challenges_tab.jpg`: Verified Active Head-to-Head Duels with `⚡ Partner is leading by 3700 steps! Keep pushing! 💪`.
+
+## 54. Phase 31 Typography Scale Hierarchy & Harmonious Contrast (`TYP-02`) 🔤✨
+> **Associated Defect Logs in Fixinglist.md**: `TYP-02` (Modular Typographic Scale & Mathematical Ratio)  
+> **Associated Skill**: `/designer-skills:typography-scale`  
+> **Target Framework & Components**: `app/src/main/java/com/couplefit/ui/theme/Type.kt`  
+> **Verification Status**: 🟢 100% Resolved & Live-Device Verified on Pixel 10 Pro (`emulator-5554`)  
+
+### 54.1 Problem Diagnosis & Root Cause
+1. **`TYP-02` (Size Duplication & Optical Flattening)**:
+   - *Failure*: Both `headlineSmall` and `titleLarge` were configured with identical metrics (`fontSize = 20.sp`, `lineHeight = 26.sp`, `fontWeight = FontWeight.SemiBold`).
+   - *Impact*: Section headers and card container titles occupied the same visual plane. Users scanning the screen experienced optical flattening, unable to distinguish between section demarcations and individual card titles.
+   - *Solution*: Calibrated a mathematical typographic step in accordance with `/designer-skills:typography-scale`:
+     - `headlineSmall`: Promoted to `21.sp` font size, `27.sp` line height, `FontWeight.Bold`, `(-0.1).sp` letter spacing, with `fontFeatureSettings = "tnum"`.
+     - `titleLarge`: Refined to `19.sp` font size, `25.sp` line height, `FontWeight.SemiBold`, `0.15.sp` letter spacing.
+
+### 54.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/theme/Type.kt`**:
+   - Updated `headlineSmall` and `titleLarge` styles to eliminate size duplication and establish distinct optical rungs.
+2. **`Documentation/PLAN_PHASE_31_TYPOGRAPHY_SCALE.md`**:
+   - Comprehensive milestone plan defining acceptance criteria and scale ratios.
+3. **Identified & Cataloged New UX & Animation Gaps**:
+   - `ANM-05`: Dual Ring Closure Celebration Cascade & Harmonic Glow.
+   - `ANM-06`: Interactive Chart Scrub Popover Fluid Spring Dynamics & Haptic Tracking.
+   - `TYP-05`: Telemetry Micro-Unit Optical Baseline Alignment & Glanceability.
+
+### 54.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 32 actionable tasks, 0 failures).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors, 31 actionable tasks).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`, Pixel 10 Pro API 36)**:
+  - `typ02_verified_hierarchy.jpg`: Verified clear typographic hierarchy between section headings and card titles.

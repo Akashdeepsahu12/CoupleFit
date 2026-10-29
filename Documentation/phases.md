@@ -797,3 +797,9 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
 - **Status**: Completed & Verified on Device (`emulator-5554`)
 - **Key Deliverables**: Multi-modal glyphs across all telemetry (`👟`, `🔥`, `⏱️`, `❤️`), directional HR indicators (`▲`, `▼`), and standing indicators (`🏆`, `⚡`, `🤝`).
 - **Release Tag**: `v2.9.15-colorblind-ergonomics-clr03`
+
+## Phase 31: Typography Scale Hierarchy & Harmonious Contrast (TYP-02) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_31_TYPOGRAPHY_SCALE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_31_TYPOGRAPHY_SCALE.md)
+- **Status**: Completed & Verified on Device (`emulator-5554`)
+- **Key Deliverables**: Eliminated size duplication between `headlineSmall` (`21.sp` Bold) and `titleLarge` (`19.sp` SemiBold). Logged `ANM-05`, `ANM-06`, `TYP-05`.
+- **Release Tag**: `v2.9.16-typography-scale-typ02`

@@ -74,17 +74,17 @@ val Typography = Typography(
     ),
     headlineSmall = TextStyle(
         fontFamily = NeueHelveticaFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        lineHeight = 26.sp,
-        letterSpacing = 0.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = 21.sp,
+        lineHeight = 27.sp,
+        letterSpacing = (-0.1).sp,
         fontFeatureSettings = "tnum"
     ),
     titleLarge = TextStyle(
         fontFamily = NeueHelveticaFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-        lineHeight = 26.sp,
+        fontSize = 19.sp,
+        lineHeight = 25.sp,
         letterSpacing = 0.15.sp
     ),
     titleMedium = TextStyle(

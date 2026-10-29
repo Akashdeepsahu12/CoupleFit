@@ -151,3 +151,6 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 - [`PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md): Milestone plan for color-blind ergonomics and multi-modal metric glyphs (CLR-03).
 - [`RELEASE_NOTES_v2.9.15.md`](file:///D:/Couple_fit/CoupleFit/Documentation/RELEASE_NOTES_v2.9.15.md): Release notes for v2.9.15 Color-Blind Ergonomics.
+
+- [`PLAN_PHASE_31_TYPOGRAPHY_SCALE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_31_TYPOGRAPHY_SCALE.md): Milestone plan for typography scale hierarchy (TYP-02).
+- [`RELEASE_NOTES_v2.9.16.md`](file:///D:/Couple_fit/CoupleFit/Documentation/RELEASE_NOTES_v2.9.16.md): Release notes for v2.9.16 Typography Scale.
