@@ -77,7 +77,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **TST-03** | Frontend Design Taste | `/taste-skill:design-taste-frontend` | 💡 **Sensory Micro-Interaction** | Canvas Empty State | 0-step / early morning state renders completely dead, unlit tracks. | Demotivating empty state; lacks emotional warmth. | Added 0-step breathing cyan/coral pulse dot at the 12 o'clock ring cap in `ActivityRing.kt` when `animatedProgress <= 0.005f` with `reduceMotion` accessibility fallback. | 🟢 Resolved |
 | **CLR-01** | Color System Accessibility | `/designer-skills:color-system` | 🔴 **Accessibility Failure** | `Color.kt` | Contrast failures on text pills: White text on Aqua Cyan (`#00E5FF`) has a catastrophic **1.3:1** contrast ratio (fails WCAG AA 4.5:1). White text on `#FF2D55` Coral achieves only **3.8:1**. | Severe unreadability for low-vision or outdoor sunlight viewing. | Introduced `CoupleFitIdentityTokens.OnUserAccent` (`#001F38`, 7.8:1) and `OnPartnerAccent` (`#FFFFFF`, 4.6:1) satisfying WCAG 2.2 AA. | 🟢 Resolved |
 | **CLR-02** | Color System Architecture | `/designer-skills:color-system` | 🔵 **Correction Needed** | `Theme.kt` & `Color.kt` | Missing dedicated User vs. Partner identity color scales. UI components use ad-hoc hex values rather than semantic tokens. | Lacks clear visual distinction between user progress and partner telemetry across charts and rings. | Formalized `CoupleFitIdentityTokens` and mapped `tertiary = MotionPartnerStart` in `Theme.kt`. | 🟢 Resolved |
-| **CLR-03** | Color-Blind Ergonomics | `/designer-skills:color-system` | 💡 **Accessibility Optimization** | Metric Badges | Red steps (`#FF2D55`) and Green workouts (`#32D74B`) look identical to 8% of male users with Deuteranopia/Protanopia when unbadged. | Users cannot differentiate metrics by color alone. | Enforce multi-modal identification: pair every color with an unmistakable icon glyph (Flame, Footsteps, Heart). | 💡 Open |
+| **CLR-03** | Color-Blind Ergonomics | `/designer-skills:color-system` | 💡 **Accessibility Optimization** | Metric Badges | Red steps (`#FF2D55`) and Green workouts (`#32D74B`) look identical to 8% of male users with Deuteranopia/Protanopia when unbadged. | Users cannot differentiate metrics by color alone. | Enforce multi-modal identification: pair every color and standing with unmistakable icon glyphs (Footsteps 👟, Flame 🔥, Stopwatch ⏱️, Heart ❤️, Directional Peak ▲/Min ▼, Standings 🏆/⚡/🤝). | 🟢 Resolved |
 | **TYP-01** | Typography Architecture | `/designer-skills:typography-scale` | 🔵 **Correction Needed** | `Type.kt` | Missing Hero Metric Display role. The largest size is `38.sp`, which is underpowered for a primary fitness telemetry step counter hero. | Hero step counters lack visual punch and authority compared to modern fitness leaders (Apple Fitness / Nike). | Added `HeroMetricDisplay` (`52.sp`, ExtraBold, line height `56.sp`, letter spacing `-1.0.sp`, `fontFeatureSettings = "tnum"`). | 🟢 Resolved |
 | **TYP-02** | Typography Scale Hierarchy | `/designer-skills:typography-scale` | 🔵 **Correction Needed** | `Type.kt` | Size duplication: `headlineSmall` and `titleLarge` both share identical `20.sp` font size and `26.sp` line height. | Optical flattening; card headers and section titles fail to convey distinct levels of hierarchy. | Differentiate sizes: adjust `headlineSmall` to `21.sp` (Bold) and `titleLarge` to `19.sp` (SemiBold). | 🔵 Open |
 | **TYP-03** | Typographic Glanceability | `/designer-skills:typography-scale` | 💡 **Legibility Polish** | `Type.kt` (`labelSmall`) | Category chips (e.g. `DAILY GOAL`, `SYNC STATUS`) use standard tracking (`0.5.sp`) on micro 11sp text. | Low readability and glanceability on outdoor mobile viewports. | Increased tracking on `Typography.labelSmall` to `0.8.sp` (`0.06em`) for enhanced outdoor sunlight readability. | 🟢 Resolved |
@@ -2853,3 +2853,48 @@ Following `/ui-ux-pro-max-skill:design-system`, the CoupleFit visual system is b
   - `apple_liqui_redesign_verified.jpg`: Verified dashboard top view with 4-layer Liqui optical glass cards, tactile status pill, and razor-sharp typography over living video background.
   - `apple_liqui_redesign_nudges_verified.jpg`: Verified Quick Nudge row with high-contrast tactile pills and sapphire blue video shuffle.
   - `apple_liqui_redesign_heart_rate_verified.jpg`: Verified Live Heart Rate Card with smooth cubic spline, peak indicator ring (90 BPM), baseline grid, and floating navigation dock.
+
+## 53. Phase 30 Color-Blind Ergonomics & Multi-Modal Metric Glyphs (`CLR-03`) 🎨👁️
+> **Associated Defect Logs in Fixinglist.md**: `CLR-03` (WCAG 2.2 Success Criterion 1.4.1 Use of Color - Level A & 1.4.11 Non-text Contrast - Level AA)  
+> **Target Framework & Components**: `DashboardScreen.kt`, `DashboardAdaptiveScreen.kt`, `ChallengeComponents.kt`  
+> **Verification Status**: 🟢 100% Resolved & Live-Device Verified on Pixel 10 Pro (`emulator-5554`)  
+
+### 53.1 Problem Diagnosis & Root Cause
+1. **`CLR-03` (Color-Blind Accessibility & Multi-Modal Metric Glyphs)**:
+   - *Failure*: In previous dashboard releases, activity metrics and competition standings relied solely on hue (`#FF2D55` Move vs `#32D74B` Exercise, `SystemGreen` vs `SystemRed`). For ~8% of male users with Deuteranopia/Protanopia, these colors appear indistinguishable.
+   - *Impact*: Users could not discern metric domains or standing without secondary visual cues.
+   - *Solution*: Enforced universal multi-modal identification by pairing every metric, status chip, and competition standing with an unmistakable glyph:
+     - Footsteps (`"👟"`) for Steps
+     - Flame (`"🔥"`) for Calories / Caloric Burn
+     - Stopwatch (`"⏱️"`) for Active Minutes / Duration
+     - Heart (`"❤️"`) for Heart Rate (BPM)
+     - Upward arrow (`"▲"`) for Peak Heart Rate, Downward arrow (`"▼"`) for Min Heart Rate
+     - Trophy (`"🏆"`), Lightning (`"⚡"`), and Handshake (`"🤝"`) for Head-to-Head standings
+     - Lungs (`"🫁 O2"`) for Blood Oxygen telemetry
+
+### 53.2 Code & Architecture Deliverables
+1. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`**:
+   - `MetricPill(label, value, color, glyph = null)`: Added `glyph` parameter rendering alongside metric values.
+   - `PartnerOfflineCard`: Added `👟` glyph to spinning step counter, and `⏱️`, `🔥`, `❤️` glyphs to metric pills.
+   - `SideBySideActivityCard`: Disambiguated gauge subtitles to `"⏱️ ${activeMinutes}m  •  🔥 ${caloriesBurned} kcal"`.
+   - `Today's Competition`: Prepend `🏆 You're leading...`, `⚡ Partner is leading...`, and `🤝 Tied...`.
+   - `LiveHeartRateCard`: Added `▲ $peakVal Peak` and `▼ $minVal Min` directional cues.
+   - `BloodOxygenCard`: Added `🫁 O2` anatomical glyph.
+2. **`app/src/main/java/com/couplefit/ui/dashboard/DashboardAdaptiveScreen.kt`**:
+   - `TelemetryMetric`: Added `glyph: String` property to enum (`👟`, `❤️`, `⏱️`, `🔥`).
+   - `FilterChip`: Added `leadingIcon = { Text(metric.glyph, fontSize = 12.sp) }`.
+   - Bilateral Stat Cards: Prepend `selectedMetric.glyph` to titles (`"${selectedMetric.glyph} Your ${selectedMetric.label}"`).
+3. **`app/src/main/java/com/couplefit/ui/challenge/ChallengeComponents.kt`**:
+   - `SideBySideChallengeCard`: Added `🏆`, `⚡`, and `🤝` to head-to-head duel standing readouts.
+4. **`Documentation/PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md`**:
+   - Comprehensive milestone plan defining acceptance criteria and WCAG 2.2 bars.
+
+### 53.3 Deterministic Verification & ARTEMIS Proof
+- `.\gradlew.bat testDebugUnitTest`: **BUILD SUCCESSFUL** (100% green bar, 32 actionable tasks, 0 failures).
+- `.\gradlew.bat compileDebugAndroidTestKotlin`: **BUILD SUCCESSFUL** (0 errors, 31 actionable tasks).
+- `.\gradlew.bat installDebug`: **BUILD SUCCESSFUL** (Installed on `emulator-5554`).
+- **Live Device ARTEMIS Verification (`emulator-5554`, Pixel 10 Pro API 36)**:
+  - `clr03_verified_dashboard.jpg`: Verified Activity Gauges with `⏱️ 10m  •  🔥 1062 kcal` and Quick Nudges (`⚡`, `👋`, `🔥`).
+  - `clr03_verified_scrolled.jpg`: Verified `TODAY'S COMPETITION` displaying `🏆 You're leading by 1000 steps!`.
+  - `clr03_verified_vitals.jpg`: Verified `LIVE HEART RATE` with directional `▲ 90 Peak` and `▼ 66 Min` chips.
+  - `clr03_verified_challenges_tab.jpg`: Verified Active Head-to-Head Duels with `⚡ Partner is leading by 3700 steps! Keep pushing! 💪`.

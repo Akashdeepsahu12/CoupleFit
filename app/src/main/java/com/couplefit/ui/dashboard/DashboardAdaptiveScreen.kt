@@ -27,11 +27,11 @@ import com.couplefit.ui.components.InteractiveChart
 import com.couplefit.ui.healthconnect.HealthConnectViewModel
 import com.couplefit.ui.theme.*
 
-enum class TelemetryMetric(val label: String, val unit: String, val color: Color) {
-    STEPS("Steps", "steps", StepsAccent),
-    HEART_RATE("Heart Rate", "bpm", VitalsAccent),
-    ACTIVE_MINUTES("Active Minutes", "min", ExerciseAccent),
-    CALORIES("Caloric Burn", "kcal", SystemGreen)
+enum class TelemetryMetric(val label: String, val unit: String, val color: Color, val glyph: String) {
+    STEPS("Steps", "steps", StepsAccent, "👟"),
+    HEART_RATE("Heart Rate", "bpm", VitalsAccent, "❤️"),
+    ACTIVE_MINUTES("Active Minutes", "min", ExerciseAccent, "⏱️"),
+    CALORIES("Caloric Burn", "kcal", SystemGreen, "🔥")
 }
 
 /**
@@ -111,6 +111,12 @@ fun DashboardAdaptiveScreen(
                                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                                         selectedMetric = metric
                                     },
+                                    leadingIcon = {
+                                        Text(
+                                            metric.glyph,
+                                            fontSize = 12.sp
+                                        )
+                                    },
                                     label = {
                                         Text(
                                             metric.label,
@@ -142,7 +148,7 @@ fun DashboardAdaptiveScreen(
                         ) {
                             Column(modifier = Modifier.padding(AppSpacing.md)) {
                                 Text(
-                                    text = "Your ${selectedMetric.label}",
+                                    text = "${selectedMetric.glyph} Your ${selectedMetric.label}",
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -171,7 +177,7 @@ fun DashboardAdaptiveScreen(
                         ) {
                             Column(modifier = Modifier.padding(AppSpacing.md)) {
                                 Text(
-                                    text = "${healthData.partnerName}'s ${selectedMetric.label}",
+                                    text = "${selectedMetric.glyph} ${healthData.partnerName}'s ${selectedMetric.label}",
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

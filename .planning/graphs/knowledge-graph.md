@@ -327,3 +327,12 @@ graph TD
   - Fluid physics spring retargeting (`dampingRatio = 0.85f`, `stiffness = 160f`) for unhurried Apple Fitness-grade momentum settling.
 - **Node**: `RELEASE_NOTES_v2.9.14.md`
   - Documents release v2.9.14, verified on live Android emulator (`emulator-5554`) via Google ARTEMIS.
+
+### Phase 30: Color-Blind Ergonomics (CLR-03)
+- **Node**: `feat/colorblind-ergonomics-clr03`
+- **Edges**:
+  - `DashboardScreen.kt` -> `MetricPill` (Glyph-enabled)
+  - `DashboardAdaptiveScreen.kt` -> `TelemetryMetric` (Glyph-enabled)
+  - `ChallengeComponents.kt` -> `SideBySideChallengeCard` (Standing Glyphs)
+  - `Fixinglist.md` -> Section 53
+- **WCAG Compliance**: WCAG 2.2 AA (1.4.1 Use of Color & 1.4.11 Non-text Contrast)

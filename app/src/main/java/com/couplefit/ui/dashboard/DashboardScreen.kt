@@ -728,9 +728,9 @@ fun DashboardScreen(
                                     Spacer(modifier = Modifier.height(AppSpacing.xs))
                                     val stepDiff = healthData.steps - healthData.partnerSteps
                                     val standingText = when {
-                                        stepDiff > 0 -> "You're leading by ${stepDiff} steps!"
-                                        stepDiff < 0 -> "${healthData.partnerName} is leading by ${-stepDiff} steps!"
-                                        else -> "Tied at ${healthData.steps} steps! Keep moving!"
+                                        stepDiff > 0 -> "🏆 You're leading by ${stepDiff} steps!"
+                                        stepDiff < 0 -> "⚡ ${healthData.partnerName} is leading by ${-stepDiff} steps!"
+                                        else -> "🤝 Tied at ${healthData.steps} steps! Keep moving!"
                                     }
                                     Text(
                                         text = standingText,
@@ -913,7 +913,7 @@ fun DashboardScreen(
                                                     color = ColorCritical.copy(alpha = 0.12f)
                                                 ) {
                                                     Text(
-                                                        text = "$peakVal Peak",
+                                                        text = "▲ $peakVal Peak",
                                                         style = MaterialTheme.typography.labelSmall,
                                                         fontWeight = FontWeight.SemiBold,
                                                         color = ColorCritical,
@@ -926,7 +926,7 @@ fun DashboardScreen(
                                                         color = ColorInfo.copy(alpha = 0.12f)
                                                     ) {
                                                         Text(
-                                                            text = "$minVal Min",
+                                                            text = "▼ $minVal Min",
                                                             style = MaterialTheme.typography.labelSmall,
                                                             fontWeight = FontWeight.SemiBold,
                                                             color = ColorInfo,
@@ -1406,7 +1406,7 @@ fun DashboardScreen(
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
-                                            text = "O2",
+                                            text = "🫁 O2",
                                             fontWeight = FontWeight.Bold,
                                             color = StepsAccent
                                         )
@@ -1752,7 +1752,7 @@ fun SideBySideActivityCard(
                     }
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
                     Text(
-                        text = "${healthData.activeMinutes}m • ${healthData.caloriesBurned} kcal",
+                        text = "⏱️ ${healthData.activeMinutes}m  •  🔥 ${healthData.caloriesBurned} kcal",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1825,7 +1825,7 @@ fun SideBySideActivityCard(
 
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
                     Text(
-                        text = "${healthData.partnerActiveMinutes}m • ${healthData.partnerCaloriesBurned} kcal",
+                        text = "⏱️ ${healthData.partnerActiveMinutes}m  •  🔥 ${healthData.partnerCaloriesBurned} kcal",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2009,29 +2009,38 @@ fun PartnerOfflineCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    SpinningCounter(
-                        value = partnerSteps,
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = StepsAccent
-                        ),
-                        config = SpinConfig(
-                            cell = 20.dp,
-                            cellWidth = 11.dp,
-                            spinBlur = 1.5.dp
-                        ),
-                        animateOnFirstComposition = false
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "👟",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        SpinningCounter(
+                            value = partnerSteps,
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = StepsAccent
+                            ),
+                            config = SpinConfig(
+                                cell = 20.dp,
+                                cellWidth = 11.dp,
+                                spinBlur = 1.5.dp
+                            ),
+                            animateOnFirstComposition = false
+                        )
+                    }
                     Text(
                         text = "Steps",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                MetricPill("Active", "${partnerActiveMinutes}m", ExerciseAccent)
-                MetricPill("Calories", "%,d kcal".format(partnerCalories), CaloriesAccent)
+                MetricPill("Active", "${partnerActiveMinutes}m", ExerciseAccent, glyph = "⏱️")
+                MetricPill("Calories", "%,d kcal".format(partnerCalories), CaloriesAccent, glyph = "🔥")
                 if (partnerAvgHr > 0.0) {
-                    MetricPill("Avg HR", "${partnerAvgHr.toInt()} BPM", VitalsAccent)
+                    MetricPill("Avg HR", "${partnerAvgHr.toInt()} BPM", VitalsAccent, glyph = "❤️")
                 }
             }
         }
@@ -2042,15 +2051,27 @@ fun PartnerOfflineCard(
 fun MetricPill(
     label: String,
     value: String,
-    color: Color
+    color: Color,
+    glyph: String? = null
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (glyph != null) {
+                Text(
+                    text = glyph,
+                    style = MaterialTheme.typography.titleSmall
+                )
+            }
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,

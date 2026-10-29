@@ -203,9 +203,9 @@ fun SideBySideChallengeCard(
             } else {
                 val diff = challenge.myProgress - challenge.partnerProgress
                 val leaderText = when {
-                    diff > 0 -> "You're leading by $diff $unitLabel! 🔥"
-                    diff < 0 -> "$partnerName is leading by ${-diff} $unitLabel! Keep pushing! 💪"
-                    else -> "Tied neck-and-neck at ${challenge.myProgress} $unitLabel! ⚡"
+                    diff > 0 -> "🏆 You're leading by $diff $unitLabel! 🔥"
+                    diff < 0 -> "⚡ $partnerName is leading by ${-diff} $unitLabel! Keep pushing! 💪"
+                    else -> "🤝 Tied neck-and-neck at ${challenge.myProgress} $unitLabel!"
                 }
                 Text(
                     text = leaderText,

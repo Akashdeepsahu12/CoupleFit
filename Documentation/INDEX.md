@@ -148,3 +148,6 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 ### 3. 🤖 Developer SDLC & Agent Automation
 - [**`skillscommand.md`**](skillscommand.md): Quick-reference trigger guide for all installed developer skills.
 - [**`antigravity_sdlc_skills_prompts_master_manual.md`**](antigravity_sdlc_skills_prompts_master_manual.md): Comprehensive SDLC prompting manual.
+
+- [`PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md): Milestone plan for color-blind ergonomics and multi-modal metric glyphs (CLR-03).
+- [`RELEASE_NOTES_v2.9.15.md`](file:///D:/Couple_fit/CoupleFit/Documentation/RELEASE_NOTES_v2.9.15.md): Release notes for v2.9.15 Color-Blind Ergonomics.

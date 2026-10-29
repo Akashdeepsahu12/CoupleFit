@@ -791,3 +791,9 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
    - `.\gradlew.bat compileDebugAndroidTestKotlin`: BUILD SUCCESSFUL (0 errors).
    - `.\gradlew.bat installDebug`: BUILD SUCCESSFUL (Installed on `emulator-5554`).
    - Live Android verification on `emulator-5554`: confirmed 4-layer optical liquid glass, tactile pills, and smooth cubic spline chart across `apple_liqui_redesign_verified.jpg`, `apple_liqui_redesign_nudges_verified.jpg`, and `apple_liqui_redesign_heart_rate_verified.jpg`.
+
+## Phase 30: Color-Blind Ergonomics & Multi-Modal Metric Glyphs (CLR-03) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_30_COLORBLIND_ERGONOMICS.md)
+- **Status**: Completed & Verified on Device (`emulator-5554`)
+- **Key Deliverables**: Multi-modal glyphs across all telemetry (`👟`, `🔥`, `⏱️`, `❤️`), directional HR indicators (`▲`, `▼`), and standing indicators (`🏆`, `⚡`, `🤝`).
+- **Release Tag**: `v2.9.15-colorblind-ergonomics-clr03`
