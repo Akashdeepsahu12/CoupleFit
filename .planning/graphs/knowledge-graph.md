@@ -141,6 +141,12 @@ graph TD
     LQG -->|Liquid Glass Styling| CFNS
     P41P -->|Milestone Plan| BDE
     VR41 -->|Verification Report| CFNS
+    P43P["PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md"]:::doc
+    VR43["phase43_verification_report.md"]:::doc
+    P43P -->|Specifies Number Pop-In| NPI[NumberPopIn.kt]
+    NPI -->|Kinematic Spring Numbers| MAG[MotionArcGauge.kt]
+    MAG -->|Animated Gauges & Pill Chips| DS
+    VR43 -->|Verifies Pop-In Triggers & Physics| DS
     CHS -->|Privacy Shortcut [🔒]| SET
 
     SET --> HUB1
