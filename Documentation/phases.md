@@ -893,3 +893,28 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   5. **Dependency Hygiene**:
      - Pruned orphaned `import androidx.compose.foundation.BorderStroke` from `CoupleFitNavigationSuite.kt`.
 - **Release Tag**: `v2.9.25-karpathy-navigation-cleanup-krp07`
+
+
+## Phase 41: BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine (`LIQ-04`) 🟢
+- **Milestone Plan**: [Documentation/PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md)
+- **Verification Report**: [Documentation/phase41_verification_report.md](file:///D:/Couple_fit/CoupleFit/Documentation/phase41_verification_report.md)
+- **Status**: Completed & Verified on Devices (Google Pixel 10 Pro `emulator-5554` & Samsung Galaxy S24 `SM-S921B`)
+- **Key Deliverables**:
+  1. **Consolidated Kyant0-Inspired Backdrop Engine (`BackdropEngine.kt`)**:
+     - Stripped and consolidated BitChord's exact backdrop recording architecture: `Backdrop` interface, `LayerBackdrop` with `GraphicsLayer.record`, `rememberLayerBackdrop`, and `Modifier.layerBackdrop(backdrop)`.
+     - Built `BackdropEffectScope` supporting saturation vibrancy boost (`colorControls(saturation = 1.5f)`), real-time Gaussian blur, and Android 13+ physical 3D lens refraction (`lens(...)`) with AGSL `RuntimeShader(RoundedRectRefractionWithDispersionShaderString)`.
+     - 7-band chromatic dispersion: evaluates Red, Orange, Yellow, Green, Cyan, Blue, and Purple wavelengths with `circleMap` spherical normal mapping and depth effect.
+     - Built `Modifier.drawBackdrop` with native 1:1 hardware buffer sampling, decoupled rendering, surface wash drawing, and zero-distortion child pass-through.
+  2. **Liquid Glass Modifier & Theme Calibration (`LiquidGlass.kt`)**:
+     - Built `Modifier.liquidGlass` with `LocalAppBackdrop` and `LocalLiquidGlassEnabled` composition locals.
+     - Calibrated physical constants: `BLUR_RADIUS_DP = 28f`, `LENS_HEIGHT = 0.5f`, `LENS_AMOUNT = 0.5f`, `LENS_MAX_DP = 48f`, `GLASS_EDGE_WIDTH = 0.5.dp`, `GLASS_EDGE_COLOR = Color.White.copy(alpha = 0.22f)`.
+     - Calibrated surface tints: `Color(0xFF0E131E).copy(alpha = 0.58f)` for dark mode and `Color.White.copy(alpha = 0.35f)` for light mode.
+  3. **Navigation Suite Wiring & Kinetic Stretch & Squash (`CoupleFitNavigationSuite.kt`)**:
+     - Added opaque floor recording (`drawRect(windowBg)`) in `rememberLayerBackdrop` before `drawContent()` to eliminate transparent blur blackout.
+     - Attached `.layerBackdrop(appBackdrop)` to full-bleed content.
+     - Attached `.liquidGlass(shape = pillShape, surfaceTint = ...)` to floating dock container.
+     - Implemented BitChord kinetic active indicator with directional physical stretch & squash (`scaleX = 1f + lag * 0.22f`, `scaleY = 1f - lag * 0.22f * 0.45f`).
+  4. **Accessibility & Graceful Degradation**:
+     - Gated kinetic stretch/squash on `reduceMotion`: snaps cleanly with 0 bounce and 0 deformation when enabled.
+     - Falls back to solid dark surface (`MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)`) on Android < 12 or when toggled OFF in Settings.
+- **Release Tag**: `v2.9.26-bitchord-liquid-glass-refraction-liq04`

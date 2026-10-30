@@ -7,7 +7,13 @@ import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
-import com.couplefit.ui.glass.liquidRefractionLens
+import com.couplefit.ui.glass.rememberLayerBackdrop
+import com.couplefit.ui.glass.layerBackdrop
+import com.couplefit.ui.glass.liquidGlass
+import com.couplefit.ui.glass.glassBarTint
+import com.couplefit.ui.glass.LocalAppBackdrop
+import com.couplefit.ui.glass.LocalLiquidGlassEnabled
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 import androidx.annotation.RawRes
 import androidx.compose.animation.animateColorAsState
@@ -22,6 +28,7 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -102,28 +109,43 @@ fun CoupleFitNavigationSuite(
         )
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // 1. Living Ambient Aurora Video Background (BGV-04 / BGV-06: Hoisted to MainActivity root)
-        if (includeVideoBackground) {
-            AmbientVideoBackground(
-                modifier = Modifier.fillMaxSize(),
-                videoResId = ambientVideoResId,
-                reduceMotion = reduceMotion
-            )
+    // 1. Prepare opaque floor for backdrop recording (BitChord Architecture from liquideffect.md)
+    val windowBg = MaterialTheme.colorScheme.background
+    val paintBackdrop: ContentDrawScope.() -> Unit = remember(windowBg) {
+        {
+            drawRect(windowBg)
+            drawContent()
         }
+    }
+    val appBackdrop = rememberLayerBackdrop(onDraw = paintBackdrop)
 
-        // 2. Navigation Surface (Hover Dock / NavigationRail)
-        if (isCompact) {
-            // Compact Viewport: Phones (<600dp) with True Floating Hover Glass Navigation Dock (DCK-01)
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Content renders full-bleed edge-to-edge under the floating dock and serves as hazeSource
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .hazeSource(state = hazeState)
-                ) {
-                    content(PaddingValues(bottom = 96.dp))
-                }
+    CompositionLocalProvider(
+        LocalAppBackdrop provides appBackdrop,
+        LocalLiquidGlassEnabled provides useLiquidGlass
+    ) {
+        Box(modifier = modifier.fillMaxSize()) {
+            // 1. Living Ambient Aurora Video Background (BGV-04 / BGV-06: Hoisted to MainActivity root)
+            if (includeVideoBackground) {
+                AmbientVideoBackground(
+                    modifier = Modifier.fillMaxSize(),
+                    videoResId = ambientVideoResId,
+                    reduceMotion = reduceMotion
+                )
+            }
+
+            // 2. Navigation Surface (Hover Dock / NavigationRail)
+            if (isCompact) {
+                // Compact Viewport: Phones (<600dp) with True Floating Hover Glass Navigation Dock (DCK-01)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // Content renders full-bleed edge-to-edge under the floating dock and records backdrop
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .layerBackdrop(appBackdrop)
+                            .hazeSource(state = hazeState)
+                    ) {
+                        content(PaddingValues(bottom = 96.dp))
+                    }
 
                 // Floating Glass Navigation Dock hovering over content with optical glass & blur
                 Box(
@@ -134,10 +156,10 @@ fun CoupleFitNavigationSuite(
                         .navigationBarsPadding(),
                     contentAlignment = Alignment.Center
                 ) {
-                    // 3-Layer Decoupled Glass Architecture:
-                    // Layer 1: Glass Backdrop Plate (blurs & refracts background ONLY)
-                    // Layer 2: Sliding Active Capsule Pill
-                    // Layer 3: Foreground Tabs (100% razor-sharp, zero shader distortion)
+                    // Exact BitChord Liquid Glass Floating Dock (from liquideffect.md)
+                    // drawBackdrop executes 0.33x downscaling, 1.5x vibrancy boost, RenderEffect blur,
+                    // and physical 7-band chromatic dispersion AGSL lens refraction on the backdrop,
+                    // then draws child tabs with 100% crispness.
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -148,44 +170,14 @@ fun CoupleFitNavigationSuite(
                                 ambientColor = Color.Black.copy(alpha = 0.25f),
                                 spotColor = Color.Transparent
                             )
+                            .liquidGlass(
+                                shape = pillShape,
+                                surfaceTint = if (useLiquidGlass) glassBarTint() else null,
+                                borderWidth = 0.5.dp,
+                                borderColor = if (useLiquidGlass) Color.White.copy(alpha = 0.18f) else MaterialTheme.colorScheme.outlineVariant
+                            )
                     ) {
-                        // LAYER 1: GLASS BACKDROP PLATE
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .then(
-                                    if (useLiquidGlass) {
-                                        Modifier
-                                            .hazeEffect(
-                                                state = hazeState,
-                                                style = HazeMaterials.regular()
-                                            )
-                                            .liquidRefractionLens(
-                                                shape = pillShape,
-                                                refractionHeight = 6.dp,
-                                                refractionAmount = 2.5.dp
-                                            )
-                                            .clip(pillShape)
-                                            .background(dockBackdropBrush)
-                                            .border(
-                                                width = 0.5.dp,
-                                                brush = dockBorderBrush,
-                                                shape = pillShape
-                                            )
-                                    } else {
-                                        Modifier
-                                            .clip(pillShape)
-                                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
-                                            .border(
-                                                width = 0.5.dp,
-                                                color = MaterialTheme.colorScheme.outlineVariant,
-                                                shape = pillShape
-                                            )
-                                    }
-                                )
-                        )
-
-                        // LAYERS 2 & 3: ACTIVE PILL & FOREGROUND TABS
+                        // BitChord Active Indicator Pill & Foreground Tabs
                         BoxWithConstraints(
                             modifier = Modifier
                                 .fillMaxSize()
@@ -193,23 +185,25 @@ fun CoupleFitNavigationSuite(
                         ) {
                             val tabWidth = maxWidth / destinations.size
 
-                            // ANM-09: Spring-driven animated index with bouncy settling (snaps if reduceMotion)
+                            // BitChord Spring-driven animated index with elastic stretch & squash
                             val animatedIndex by animateFloatAsState(
                                 targetValue = selectedIndex.toFloat(),
                                 animationSpec = if (reduceMotion) {
                                     snap()
                                 } else {
                                     spring(
-                                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                                        stiffness = 420f
+                                        dampingRatio = 0.72f,
+                                        stiffness = 380f
                                     )
                                 },
                                 label = "dockIndicatorIndex"
                             )
 
-                            // Dynamic elastic elongation in travel direction (suppressed if reduceMotion)
+                            // BitChord physical stretch & squash kinematics
                             val delta = selectedIndex.toFloat() - animatedIndex
-                            val stretchFactor = if (reduceMotion) 1f else (1f + (kotlin.math.abs(delta) * 0.16f).coerceAtMost(0.32f))
+                            val lag = if (reduceMotion) 0f else kotlin.math.abs(delta).coerceIn(0f, 1f)
+                            val stretchX = if (reduceMotion) 1f else (1f + lag * 0.22f)
+                            val squashY = if (reduceMotion) 1f else (1f - lag * 0.22f * 0.45f)
 
                             // Sliding active indicator capsule (Draw-phase translation eliminates layout passes)
                             Box(
@@ -219,7 +213,8 @@ fun CoupleFitNavigationSuite(
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                                     .graphicsLayer {
                                         translationX = (tabWidth * animatedIndex).toPx()
-                                        scaleX = stretchFactor
+                                        scaleX = stretchX
+                                        scaleY = squashY
                                     }
                                     .clip(pillShape)
                                     .background(activeIndicatorBrush)
@@ -350,5 +345,6 @@ fun CoupleFitNavigationSuite(
                 }
             }
         }
+    }
     }
 }

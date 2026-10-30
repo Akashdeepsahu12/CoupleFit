@@ -1,4 +1,4 @@
-# CoupleFit Local Knowledge Graph 🕸️
+﻿# CoupleFit Local Knowledge Graph 🕸️
 
 > Generated via `/gsd-graphify` lifecycle mandate.
 
@@ -44,6 +44,8 @@ graph TD
         AG["AGENTS.md"]:::doc
         P39P["PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md"]:::doc
         VR39["phase39_verification_report.md"]:::doc
+        P41P["PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md"]:::doc
+        VR41["phase41_verification_report.md"]:::doc
         P40P["PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md"]:::doc
         VR40["phase40_verification_report.md"]:::doc
     end
@@ -52,6 +54,8 @@ graph TD
         CFD["CoupleFitDestinations.kt<br/>(Today, Challenges, Trends, Hub)"]:::arch
         CFNS["CoupleFitNavigationSuite.kt<br/>(3-Layer Decoupled Dock, Haptics)"]:::arch
         LGE["LiquidGlassEngine.kt<br/>(AGSL Refraction & Dispersion)"]:::arch
+        BDE["BackdropEngine.kt<br/>(Kyant0 Backdrop Recorder, 7-Band Dispersion)"]:::arch
+        LQG["LiquidGlass.kt<br/>(Modifier.liquidGlass, 28dp Blur, Specular Rim)"]:::arch
         FND["FloatingGlassNavBar<br/>(16dp Elevation, 32dp Pill, 28dp Blur)"]:::arch
         MA["MainActivity.kt<br/>(Scaffold Host, BackHandler Re-Anchoring)"]:::arch
         MANI["AndroidManifest.xml<br/>(enableOnBackInvokedCallback)"]:::arch
@@ -131,6 +135,10 @@ graph TD
     MODG -->|Translucency & Specular Rim| DS
     MODG -->|Translucency & Specular Rim| HTS
     FND -->|Floating Dock Shell| CFNS
+    BDE -->|Backdrop Layer Recording & AGSL Shader| LQG
+    LQG -->|Liquid Glass Styling| CFNS
+    P41P -->|Milestone Plan| BDE
+    VR41 -->|Verification Report| CFNS
     CHS -->|Privacy Shortcut [🔒]| SET
 
     SET --> HUB1
