@@ -944,3 +944,20 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Bound dock border to `GLASS_EDGE_COLOR` (`0.5.dp`, `Color.White.copy(alpha = 0.22f)`).
      - Maintained decoupled foreground rendering (100% crisp typography) and living ambient video background pass-through (`rememberLayerBackdrop()`).
 - **Release Tag**: `v2.9.28-physical-refraction-lens-ref01`
+
+## Phase 43: Number Pop-In Motion Physics & Dashboard Tracker Choreography (`POP-01`) 🔢✨
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md)
+- **Verification Report**: [`Documentation/phase43_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase43_verification_report.md)
+- **Status**: Completed & Verified on Devices (Google Pixel 10 Pro `emulator-5554` & Samsung Galaxy S24 `SM-S921B`)
+- **Key Deliverables**:
+  1. **Core Physics Engine & Safe Cubic Solver (`NumberPopIn.kt`)**:
+     - `SafeCubicBezierEasing`: Monotonic 18-step binary search cubic bezier solver evaluating `cubic-bezier(0.34, 1.45, 0.64, 1.0)` with zero allocations and zero floating-point no-solution exceptions at $t \to 1.0$.
+     - `NumberPopInText` & `NumberPopInCounter`: Decomposes strings and numbers into per-character animated glyphs with 70ms stagger delay, 8dp upward translation, 2dp Gaussian motion blur (Android 12+ API 31+ `RenderEffect.createBlurEffect`), opacity fade, and tabular numerals (`fontFeatureSettings = "tnum"`).
+     - Supports `prefix`, `suffix`, customizable kinematics, and full `reduceMotion` accessibility guardrail.
+  2. **Gauge & Pill Chip Choreography (`MotionArcGauge.kt`)**:
+     - Replaced `SpinningCounter` in `MotionArcProgressGauge` with `NumberPopInCounter(value = currentValue, animTrigger = animTrigger)`.
+     - Wired `NumberPopInText` into `MotionPillChip` for glanceable distance, calorie, and active-minute telemetry chips.
+  3. **Dashboard Lifecycle & Surface Integration (`DashboardScreen.kt`)**:
+     - Created `popInTrigger` backed by `rememberSaveable { mutableIntStateOf(1) }` and bound `popInTrigger++` to `Lifecycle.Event.ON_RESUME`, ensuring animations re-run every time the app opens or resumes from background.
+     - Wired `animTrigger` into `SideBySideActivityCard` (User & Partner gauges and under-gauge telemetry: active minutes and calories), `StatCard` (My Stats & Partner Stats), `PartnerOfflineCard` (Room SSOT cache for steps, active time, calories, and average BPM), and daily aggregate cards.
+- **Release Tag**: `v2.9.29-number-pop-in-trackers-pop01`

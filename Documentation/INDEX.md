@@ -1,4 +1,4 @@
-﻿# CoupleFit Documentation Hub 📚
+# CoupleFit Documentation Hub 📚
 
 Welcome to the centralized documentation directory for the **CoupleFit** ecosystem. Below is an index of all architectural, operational, release, and agent skills documentation, complete with the exact command trigger and associated defect log mappings.
 
@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md`**](PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 43 milestone plan: Number Pop-In Motion Physics & Dashboard Tracker Choreography (`POP-01`). |
+| [**`phase43_verification_report.md`**](phase43_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 43 verification report: Safe monotonic cubic solver, transitions.dev 500ms/70ms stagger/8dp offset physics, cold-start & resume triggers, and live device verification (`POP-01`). |
 | [**`PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md`**](PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 42 milestone plan: BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (`REF-01`). |
 | [**`phase42_verification_report.md`**](phase42_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 42 verification report: Dual AGSL shaders, inward convex optical distortion, corrected chain effect ordering, and live device verification (`REF-01`). |
 | [**`PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md`**](PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 41 milestone plan: BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine (`LIQ-04`). |

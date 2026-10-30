@@ -259,25 +259,19 @@ fun MotionArcProgressGauge(
 
                 Spacer(modifier = Modifier.height(if (compact) 2.dp else 6.dp))
 
-                // Big Animated Step Counter (Spinning Counter from transitions.dev)
+                // Big Animated Step Counter (transitions.dev number-pop-in)
                 val counterStyle = (if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium).copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     letterSpacing = (-0.5).sp
                 )
-                val cellHeight = if (compact) 32.dp else 48.dp
-                val cellWidth = if (compact) 18.dp else 26.dp
-                SpinningCounter(
+                NumberPopInCounter(
                     value = currentValue,
                     style = counterStyle,
-                    config = SpinConfig(
-                        cell = cellHeight,
-                        cellWidth = cellWidth,
-                        durationMs = if (reduceMotion) 0 else 1200,
-                        staggerMs = if (reduceMotion) 0 else 70,
-                        spinBlur = if (compact) 2.dp else 3.dp
-                    ),
-                    animateOnFirstComposition = false
+                    animTrigger = animTrigger,
+                    distanceDp = if (compact) 8.dp else 12.dp,
+                    blurDp = if (compact) 2.dp else 2.5.dp,
+                    reduceMotion = reduceMotion
                 )
 
                 // "steps" Label
@@ -333,17 +327,23 @@ fun MotionArcProgressGauge(
                 MotionPillChip(
                     icon = "⚡",
                     value = "${"%.2f".format(distanceKm)} km",
-                    accentColor = gradientColors.first()
+                    accentColor = gradientColors.first(),
+                    animTrigger = animTrigger,
+                    reduceMotion = reduceMotion
                 )
                 MotionPillChip(
                     icon = "🔥",
                     value = "$calories kcal",
-                    accentColor = Color(0xFFFF9500)
+                    accentColor = Color(0xFFFF9500),
+                    animTrigger = animTrigger,
+                    reduceMotion = reduceMotion
                 )
                 MotionPillChip(
                     icon = "⏱️",
                     value = "${activeMinutes}m",
-                    accentColor = Color(0xFF32D74B)
+                    accentColor = Color(0xFF32D74B),
+                    animTrigger = animTrigger,
+                    reduceMotion = reduceMotion
                 )
             }
         }
@@ -358,7 +358,9 @@ fun MotionPillChip(
     icon: String,
     value: String,
     accentColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animTrigger: Any? = null,
+    reduceMotion: Boolean = false
 ) {
     Box(
         modifier = modifier
@@ -380,11 +382,12 @@ fun MotionPillChip(
                 text = icon,
                 fontSize = 13.sp
             )
-            Text(
+            NumberPopInText(
                 text = value,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+                animTrigger = animTrigger,
+                reduceMotion = reduceMotion
             )
         }
     }

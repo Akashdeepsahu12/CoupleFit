@@ -38,6 +38,9 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.couplefit.ui.components.NumberPopInCounter
+import com.couplefit.ui.components.NumberPopInText
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -173,10 +176,14 @@ fun DashboardScreen(
         healthConnectViewModel.checkStatusAndFetchData()
     }
 
+    // Unified app-open & resume trigger for transitions.dev Number Pop-In animation (POP-01)
+    var popInTrigger by rememberSaveable { mutableIntStateOf(1) }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 healthConnectViewModel.onAppForeground()
+                popInTrigger++ // Triggers pop-in animation every time the app opens or resumes
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -676,10 +683,11 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(bottom = AppSpacing.xs)
                             )
 
-                            // Dual Activity Motion Gauges with Double-Tap Cheer & Telemetry Status Pill (FLOW-02, FLOW-03)
+                            // Dual Activity Motion Gauges with Double-Tap Cheer & Telemetry Status Pill (FLOW-02, FLOW-03, POP-01)
                             SideBySideActivityCard(
                                 healthData = healthData,
                                 reduceMotion = reduceMotion,
+                                animTrigger = popInTrigger,
                                 onSendCheer = { cheerMessage ->
                                     healthConnectViewModel.sendNudgeToPartner(cheerMessage)
                                 },
@@ -883,11 +891,12 @@ fun DashboardScreen(
                                             verticalAlignment = Alignment.Bottom,
                                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                                         ) {
-                                            Text(
-                                                text = "$currentBpm",
-                                                style = MaterialTheme.typography.displaySmall,
-                                                fontWeight = FontWeight.Bold,
+                                            NumberPopInCounter(
+                                                value = currentBpm.toLong(),
+                                                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
                                                 color = MaterialTheme.colorScheme.onSurface,
+                                                animTrigger = popInTrigger,
+                                                reduceMotion = reduceMotion,
                                                 modifier = Modifier.alignByBaseline()
                                             )
                                             Text(
@@ -1002,7 +1011,7 @@ fun DashboardScreen(
                                 caloriesCount = healthData.caloriesBurned,
                                 onSyncClick = { healthConnectViewModel.checkStatusAndFetchData() },
                                 onAddSampleStepsClick = { healthConnectViewModel.writeMockData(1000L) },
-                                animTrigger = if (isExplicitRefresh) (isPageActive && pagerState.currentPage == 1) else null,
+                                animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 1),
                                 isExplicitRefresh = isExplicitRefresh,
                                 reduceMotion = reduceMotion,
                                 staggerIndex = 0,
@@ -1191,7 +1200,7 @@ fun DashboardScreen(
                                 stepsCount = healthData.partnerSteps,
                                 activeMinutesCount = healthData.partnerActiveMinutes,
                                 caloriesCount = healthData.partnerCaloriesBurned,
-                                animTrigger = if (isExplicitRefresh) (isPageActive && pagerState.currentPage == 2) else null,
+                                animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 2),
                                 isExplicitRefresh = isExplicitRefresh,
                                 reduceMotion = reduceMotion,
                                 staggerIndex = 0,
@@ -1210,7 +1219,9 @@ fun DashboardScreen(
                                 partnerActiveMinutes = healthData.partnerActiveMinutes,
                                 partnerCalories = healthData.partnerCaloriesBurned,
                                 partnerAvgHr = healthData.partnerAverageHeartRate,
-                                lastUpdatedLabel = healthData.partnerLastUpdatedLabel
+                                lastUpdatedLabel = healthData.partnerLastUpdatedLabel,
+                                animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 2),
+                                reduceMotion = reduceMotion
                             )
 
                             Spacer(modifier = Modifier.height(AppSpacing.md))
@@ -1362,16 +1373,25 @@ fun DashboardScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                                    Text(
-                                        text = if (healthData.partnerAverageHeartRate > 0.0) {
-                                            "${healthData.partnerAverageHeartRate.toInt()} BPM"
-                                        } else {
-                                            "No HR aggregate shared today"
-                                        },
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (healthData.partnerAverageHeartRate > 0.0) VitalsAccent else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    if (healthData.partnerAverageHeartRate > 0.0) {
+                                        NumberPopInCounter(
+                                            value = healthData.partnerAverageHeartRate.toLong(),
+                                            style = MaterialTheme.typography.headlineMedium.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                color = VitalsAccent
+                                            ),
+                                            suffix = " BPM",
+                                            animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 2),
+                                            reduceMotion = reduceMotion
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "No HR aggregate shared today",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                     Text(
                                         text = "Daily average synchronized via Firestore",
                                         style = MaterialTheme.typography.bodySmall,
@@ -1418,16 +1438,24 @@ fun DashboardScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                                    Text(
-                                        text = if (healthData.partnerAverageOxygenSaturation > 0.0) {
-                                            String.format(java.util.Locale.US, "%.1f%%", healthData.partnerAverageOxygenSaturation)
-                                        } else {
-                                            "No SpO2 aggregate shared today"
-                                        },
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (healthData.partnerAverageOxygenSaturation > 0.0) StepsAccent else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    if (healthData.partnerAverageOxygenSaturation > 0.0) {
+                                        NumberPopInText(
+                                            text = String.format(java.util.Locale.US, "%.1f%%", healthData.partnerAverageOxygenSaturation),
+                                            style = MaterialTheme.typography.headlineMedium.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                color = StepsAccent
+                                            ),
+                                            animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 2),
+                                            reduceMotion = reduceMotion
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "No SpO2 aggregate shared today",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                     Text(
                                         text = "Daily average synchronized via Firestore",
                                         style = MaterialTheme.typography.bodySmall,
@@ -1634,6 +1662,7 @@ fun SideBySideActivityCard(
     healthData: HealthDashboardUiState,
     reduceMotion: Boolean,
     modifier: Modifier = Modifier,
+    animTrigger: Any? = null,
     onSendCheer: (String) -> Unit = {},
     onPingPartner: () -> Unit = {}
 ) {
@@ -1759,6 +1788,7 @@ fun SideBySideActivityCard(
                             compact = true,
                             gradientColors = listOf(MotionCyanStart, MotionSkyMid, MotionBlueEnd),
                             glowColor = MotionGlowCyan,
+                            animTrigger = animTrigger,
                             reduceMotion = reduceMotion
                         )
                         ConfettiParticleExplosion(
@@ -1769,11 +1799,31 @@ fun SideBySideActivityCard(
                         )
                     }
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    Text(
-                        text = "⏱️ ${healthData.activeMinutes}m  •  🔥 ${healthData.caloriesBurned} kcal",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "⏱️ ",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        NumberPopInText(
+                            text = "${healthData.activeMinutes}m",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            animTrigger = animTrigger,
+                            reduceMotion = reduceMotion
+                        )
+                        Text(
+                            text = "  •  🔥 ",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        NumberPopInText(
+                            text = "${healthData.caloriesBurned} kcal",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            animTrigger = animTrigger,
+                            reduceMotion = reduceMotion
+                        )
+                    }
                 }
 
                 Box(
@@ -1821,6 +1871,7 @@ fun SideBySideActivityCard(
                             compact = true,
                             gradientColors = listOf(MotionPartnerStart, MotionPartnerMid, MotionPartnerEnd),
                             glowColor = MotionPartnerGlow,
+                            animTrigger = animTrigger,
                             reduceMotion = reduceMotion
                         )
 
@@ -1842,11 +1893,31 @@ fun SideBySideActivityCard(
                     }
 
                     Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    Text(
-                        text = "⏱️ ${healthData.partnerActiveMinutes}m  •  🔥 ${healthData.partnerCaloriesBurned} kcal",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "⏱️ ",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        NumberPopInText(
+                            text = "${healthData.partnerActiveMinutes}m",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            animTrigger = animTrigger,
+                            reduceMotion = reduceMotion
+                        )
+                        Text(
+                            text = "  •  🔥 ",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        NumberPopInText(
+                            text = "${healthData.partnerCaloriesBurned} kcal",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            animTrigger = animTrigger,
+                            reduceMotion = reduceMotion
+                        )
+                    }
                 }
             }
         }
@@ -1961,6 +2032,8 @@ fun PartnerOfflineCard(
     partnerCalories: Long,
     partnerAvgHr: Double,
     lastUpdatedLabel: String,
+    animTrigger: Any? = null,
+    reduceMotion: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -2020,18 +2093,14 @@ fun PartnerOfflineCard(
                             text = "👟",
                             style = MaterialTheme.typography.titleSmall
                         )
-                        SpinningCounter(
+                        NumberPopInCounter(
                             value = partnerSteps,
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = StepsAccent
                             ),
-                            config = SpinConfig(
-                                cell = 20.dp,
-                                cellWidth = 11.dp,
-                                spinBlur = 1.5.dp
-                            ),
-                            animateOnFirstComposition = false
+                            animTrigger = animTrigger,
+                            reduceMotion = reduceMotion
                         )
                     }
                     Text(
@@ -2040,10 +2109,10 @@ fun PartnerOfflineCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                MetricPill("Active", "${partnerActiveMinutes}m", ExerciseAccent, glyph = "⏱️")
-                MetricPill("Calories", "%,d kcal".format(partnerCalories), CaloriesAccent, glyph = "🔥")
+                MetricPill("Active", "${partnerActiveMinutes}m", ExerciseAccent, glyph = "⏱️", animTrigger = animTrigger, reduceMotion = reduceMotion)
+                MetricPill("Calories", "%,d kcal".format(partnerCalories), CaloriesAccent, glyph = "🔥", animTrigger = animTrigger, reduceMotion = reduceMotion)
                 if (partnerAvgHr > 0.0) {
-                    MetricPill("Avg HR", "${partnerAvgHr.toInt()} BPM", VitalsAccent, glyph = "❤️")
+                    MetricPill("Avg HR", "${partnerAvgHr.toInt()} BPM", VitalsAccent, glyph = "❤️", animTrigger = animTrigger, reduceMotion = reduceMotion)
                 }
             }
         }
@@ -2055,7 +2124,9 @@ fun MetricPill(
     label: String,
     value: String,
     color: Color,
-    glyph: String? = null
+    glyph: String? = null,
+    animTrigger: Any? = null,
+    reduceMotion: Boolean = false
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
@@ -2068,11 +2139,14 @@ fun MetricPill(
                     style = MaterialTheme.typography.titleSmall
                 )
             }
-            Text(
+            NumberPopInText(
                 text = value,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = color
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                ),
+                animTrigger = animTrigger,
+                reduceMotion = reduceMotion
             )
         }
         Text(
