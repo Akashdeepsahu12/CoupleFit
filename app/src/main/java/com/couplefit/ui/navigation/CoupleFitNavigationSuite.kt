@@ -12,7 +12,6 @@ import com.couplefit.ui.glass.liquidRefractionLens
 import androidx.annotation.RawRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -78,6 +77,30 @@ fun CoupleFitNavigationSuite(
     val isLiquidGlassSupported = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.S }
     val useLiquidGlass = liquidGlassEnabled && isLiquidGlassSupported
     val pillShape = remember { RoundedCornerShape(percent = 50) }
+    val dockBackdropBrush = remember {
+        Brush.verticalGradient(
+            listOf(
+                Color.White.copy(alpha = 0.08f),
+                Color(0xFF0E131E).copy(alpha = 0.45f)
+            )
+        )
+    }
+    val dockBorderBrush = remember {
+        Brush.verticalGradient(
+            listOf(
+                Color.White.copy(alpha = 0.22f),
+                Color.White.copy(alpha = 0.06f)
+            )
+        )
+    }
+    val activeIndicatorBrush = remember {
+        Brush.verticalGradient(
+            listOf(
+                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.20f),
+                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.06f)
+            )
+        )
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         // 1. Living Ambient Aurora Video Background (BGV-04 / BGV-06: Hoisted to MainActivity root)
@@ -143,22 +166,10 @@ fun CoupleFitNavigationSuite(
                                                 refractionAmount = 2.5.dp
                                             )
                                             .clip(pillShape)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(
-                                                        Color.White.copy(alpha = 0.08f),
-                                                        Color(0xFF0E131E).copy(alpha = 0.45f)
-                                                    )
-                                                )
-                                            )
+                                            .background(dockBackdropBrush)
                                             .border(
                                                 width = 0.5.dp,
-                                                brush = Brush.verticalGradient(
-                                                    listOf(
-                                                        Color.White.copy(alpha = 0.22f),
-                                                        Color.White.copy(alpha = 0.06f)
-                                                    )
-                                                ),
+                                                brush = dockBorderBrush,
                                                 shape = pillShape
                                             )
                                     } else {
@@ -182,39 +193,36 @@ fun CoupleFitNavigationSuite(
                         ) {
                             val tabWidth = maxWidth / destinations.size
 
-                            // ANM-09: Spring-driven animated index with bouncy settling
+                            // ANM-09: Spring-driven animated index with bouncy settling (snaps if reduceMotion)
                             val animatedIndex by animateFloatAsState(
                                 targetValue = selectedIndex.toFloat(),
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = 420f
-                                ),
+                                animationSpec = if (reduceMotion) {
+                                    snap()
+                                } else {
+                                    spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = 420f
+                                    )
+                                },
                                 label = "dockIndicatorIndex"
                             )
 
-                            // Dynamic elastic elongation in travel direction
+                            // Dynamic elastic elongation in travel direction (suppressed if reduceMotion)
                             val delta = selectedIndex.toFloat() - animatedIndex
-                            val stretchFactor = 1f + (kotlin.math.abs(delta) * 0.16f).coerceAtMost(0.32f)
+                            val stretchFactor = if (reduceMotion) 1f else (1f + (kotlin.math.abs(delta) * 0.16f).coerceAtMost(0.32f))
 
-                            // Sliding active indicator capsule
+                            // Sliding active indicator capsule (Draw-phase translation eliminates layout passes)
                             Box(
                                 modifier = Modifier
-                                    .offset(x = tabWidth * animatedIndex)
                                     .width(tabWidth)
                                     .fillMaxHeight()
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                                     .graphicsLayer {
+                                        translationX = (tabWidth * animatedIndex).toPx()
                                         scaleX = stretchFactor
                                     }
                                     .clip(pillShape)
-                                    .background(
-                                        Brush.verticalGradient(
-                                            listOf(
-                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.20f),
-                                                CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.06f)
-                                            )
-                                        )
-                                    )
+                                    .background(activeIndicatorBrush)
                             )
 
                             // Tab destination items
@@ -227,12 +235,12 @@ fun CoupleFitNavigationSuite(
                                     val isSelected = index == selectedIndex
                                     val animatedColor by animateColorAsState(
                                         targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else Color(0xFF8E95A5),
-                                        animationSpec = tween(180),
+                                        animationSpec = if (reduceMotion) snap() else tween(180),
                                         label = "tabColor"
                                     )
                                     val iconScale by animateFloatAsState(
-                                        targetValue = if (isSelected) 1.08f else 1.0f,
-                                        animationSpec = spring(dampingRatio = 0.72f, stiffness = 500f),
+                                        targetValue = if (isSelected && !reduceMotion) 1.08f else 1.0f,
+                                        animationSpec = if (reduceMotion) snap() else spring(dampingRatio = 0.72f, stiffness = 500f),
                                         label = "tabIconScale"
                                     )
 

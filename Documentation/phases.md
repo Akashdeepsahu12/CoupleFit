@@ -872,3 +872,24 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Reduced chromatic dispersion RGB multipliers to `1.015 / 1.000 / 0.985` (down from `1.08 / 1.00 / 0.92`), eliminating 7px color separation and producing a subtle, realistic 0.5px prismatic rim refraction.
      - Reduced default `refractionHeight` to `6.dp` and `refractionAmount` to `2.5.dp` to prevent horizontal smear of background elements gliding underneath the dock.
 - **Release Tag**: `v2.9.24-liquid-glass-optical-decoupling-liq02`
+
+## Phase 40: Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening (`KRP-07`) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md)
+- **Verification Report**: [`Documentation/phase40_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase40_verification_report.md)
+- **Status**: Completed & Verified on Device (Samsung Galaxy S24 `SM-S921B`)
+- **Key Deliverables**:
+  1. **Dead Speculative Code Elimination**:
+     - Pruned 69 lines of unused `Modifier.standaloneLiquidGlass` and associated dead helpers (`isGlassSupported`, `GLASS_EDGE_WIDTH`, `GLASS_EDGE_COLOR`) from `LiquidGlassEngine.kt`, reducing the engine from 215 lines down to 125 lines.
+     - Pruned unused imports: `MaterialTheme`, `drawWithContent`, `luminance`, `Shader`, `background`, `border`, `Color`.
+  2. **Mathematical Geometry Alignment**:
+     - In `liquidRefractionLens`, calculated corner radius dynamically as `val r = size.height * 0.5f` in pixels, perfectly matching any pill height (34dp on 68dp dock) and eliminating hardcoded 32dp discrepancies.
+  3. **Accessibility Motion Gating**:
+     - In `CoupleFitNavigationSuite.kt`, gated `animatedIndex` on `reduceMotion`: uses `snap()` when enabled, eliminating bouncy oscillations.
+     - Suppressed elastic elongation (`stretchFactor = 1f`) when `reduceMotion` is true.
+     - Gated `iconScale` and `animatedColor` to snap without spring scaling when `reduceMotion` is true.
+  4. **GPU Draw-Phase Optimization**:
+     - Wrapped `dockBackdropBrush`, `dockBorderBrush`, and `activeIndicatorBrush` in `remember { ... }`, preventing object re-allocation on every recomposition.
+     - Migrated active indicator positioning from `Modifier.offset(x = ...)` to `Modifier.graphicsLayer { translationX = (tabWidth * animatedIndex).toPx(); scaleX = stretchFactor }`, keeping spring animations strictly in the GPU draw phase with zero relayout.
+  5. **Dependency Hygiene**:
+     - Pruned orphaned `import androidx.compose.foundation.BorderStroke` from `CoupleFitNavigationSuite.kt`.
+- **Release Tag**: `v2.9.25-karpathy-navigation-cleanup-krp07`

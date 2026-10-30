@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md`**](PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 40 milestone plan: Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening (`KRP-07`). |
+| [**`phase40_verification_report.md`**](phase40_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 40 verification report: Dead code elimination (-90 lines), true pill geometry, reduceMotion gating, and draw-phase zero-relayout optimization (`KRP-07`). |
 | [**`PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`**](PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 39 milestone plan: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (`LIQ-02`). |
 | [**`phase39_verification_report.md`**](phase39_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 39 verification report: 3-Layer Decoupled Glass Architecture, calibrated AGSL dispersion, test runs, and device visual verification (`LIQ-02`). |
 | [**`videolagfix.md`**](videolagfix.md) | `/gsd-plan-phase` | **Performance & Video Optimization** | Phase 39 milestone plan: Ambient video lag elimination, Media3 ExoPlayer migration, zero-gap looping, and raw asset transcoding (`VID-01`). |
@@ -166,3 +168,5 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [`phase38_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase38_verification_report.md): Verification report for Phase 38 (CPX-01).
 - [`PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md): Milestone plan for Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (LIQ-02).
 - [`phase39_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase39_verification_report.md): Verification report for Phase 39 (LIQ-02).
+- [`PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md): Milestone plan for Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening (KRP-07).
+- [`phase40_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase40_verification_report.md): Verification report for Phase 40 (KRP-07).

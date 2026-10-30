@@ -44,6 +44,8 @@ graph TD
         AG["AGENTS.md"]:::doc
         P39P["PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md"]:::doc
         VR39["phase39_verification_report.md"]:::doc
+        P40P["PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md"]:::doc
+        VR40["phase40_verification_report.md"]:::doc
     end
 
     subgraph NavigationLayer["Navigation & Routing Layer"]
@@ -474,3 +476,17 @@ graph TD
     - Reduced default `refractionHeight` to `6.dp` and `refractionAmount` to `2.5.dp` to prevent horizontal smear of background elements gliding underneath the dock.
   - `Fixinglist.md` -> Section 63 & Master Defect Table entry `LIQ-02`
   - `Documentation/phase39_verification_report.md` -> Full live device screenshot evidence and test logs on Google Pixel 10 Pro (`emulator-5554`).
+
+### Phase 40: Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening (KRP-07) 🟢 Resolved
+- **Domain**: Simplicity First, Code Hygiene, Accessibility Gating & GPU Draw Phase Optimization (`/andrej-karpathy-skills:karpathy-guidelines`)
+- **Milestone Tag**: `v2.9.25-karpathy-navigation-cleanup-krp07`
+- **Nodes & Edges**:
+  - `KRP-07`: Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening
+  - `LiquidGlassEngine.kt` -> Pruned 90 lines of dead speculative code (`Modifier.standaloneLiquidGlass`, `isGlassSupported`, `GLASS_EDGE_WIDTH`, `GLASS_EDGE_COLOR`, and unused imports). Calculated exact pill corner radius dynamically as `val r = size.height * 0.5f` in `liquidRefractionLens`.
+  - `CoupleFitNavigationSuite.kt` ->
+    - Pruned orphaned `import androidx.compose.foundation.BorderStroke`.
+    - Wrapped background and border gradient `Brush` objects in `remember { ... }`, eliminating memory allocation churn on recomposition.
+    - Gated active indicator animations, stretch factor, and icon scaling with `reduceMotion`: snaps instantly with zero oscillations and zero elastic stretching when enabled.
+    - Migrated sliding indicator capsule positioning from `Modifier.offset(x = ...)` to `Modifier.graphicsLayer { translationX = ...; scaleX = ... }`, completely eliminating Compose measure/layout passes during spring motion and ensuring 100% GPU draw-phase execution.
+  - `Fixinglist.md` -> Section 64 & Master Defect Table entry `KRP-07`
+  - `Documentation/phase40_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
