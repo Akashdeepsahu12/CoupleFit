@@ -79,10 +79,10 @@ half4 main(float2 coord) {
         float factor = sin(progress * 1.5707963) * refractionAmount;
         float2 normal = gradSdRoundedRect(centeredCoord, halfSize, radius);
 
-        // Chromatic Aberration / Dispersion offset (RGB wavelength splitting)
-        float2 rOffset = -normal * factor * 1.08;
-        float2 gOffset = -normal * factor * 1.00;
-        float2 bOffset = -normal * factor * 0.92;
+        // Chromatic Aberration / Dispersion offset (subtle realistic RGB split)
+        float2 rOffset = -normal * factor * 1.015;
+        float2 gOffset = -normal * factor * 1.000;
+        float2 bOffset = -normal * factor * 0.985;
 
         half4 rCol = content.eval(coord + rOffset);
         half4 gCol = content.eval(coord + gOffset);
@@ -110,9 +110,9 @@ private val GLASS_EDGE_COLOR = Color.White.copy(alpha = 0.10f)
 @Composable
 fun Modifier.standaloneLiquidGlass(
     shape: CornerBasedShape = RoundedCornerShape(percent = 50),
-    blurRadius: Dp = 32.dp,
-    refractionHeight: Dp = 22.dp,
-    refractionAmount: Dp = 14.dp,
+    blurRadius: Dp = 24.dp,
+    refractionHeight: Dp = 6.dp,
+    refractionAmount: Dp = 2.5.dp,
     tintColor: Color? = null,
 ): Modifier {
     if (!isGlassSupported()) {
@@ -184,8 +184,8 @@ fun Modifier.standaloneLiquidGlass(
 @Composable
 fun Modifier.liquidRefractionLens(
     shape: CornerBasedShape = RoundedCornerShape(percent = 50),
-    refractionHeight: Dp = 22.dp,
-    refractionAmount: Dp = 14.dp
+    refractionHeight: Dp = 6.dp,
+    refractionAmount: Dp = 2.5.dp
 ): Modifier {
     if (!isShaderRefractionSupported()) return this
 

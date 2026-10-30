@@ -111,41 +111,70 @@ fun CoupleFitNavigationSuite(
                         .navigationBarsPadding(),
                     contentAlignment = Alignment.Center
                 ) {
-                    val dockModifier = if (useLiquidGlass) {
-                        Modifier
-                            .hazeEffect(
-                                state = hazeState,
-                                style = HazeMaterials.regular()
-                            )
-                            .liquidRefractionLens(
-                                shape = pillShape,
-                                refractionHeight = 22.dp,
-                                refractionAmount = 14.dp
-                            )
-                            .clip(pillShape)
-                            .border(
-                                width = 0.5.dp,
-                                color = Color.White.copy(alpha = 0.12f),
-                                shape = pillShape
-                            )
-                    } else {
-                        Modifier
-                            .clip(pillShape)
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
-                            .border(
-                                width = 0.5.dp,
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                                shape = pillShape
-                            )
-                    }
-
+                    // 3-Layer Decoupled Glass Architecture:
+                    // Layer 1: Glass Backdrop Plate (blurs & refracts background ONLY)
+                    // Layer 2: Sliding Active Capsule Pill
+                    // Layer 3: Foreground Tabs (100% razor-sharp, zero shader distortion)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(68.dp)
-                            .shadow(elevation = 4.dp, shape = pillShape, ambientColor = Color.Black.copy(alpha = 0.15f), spotColor = Color.Transparent)
-                            .then(dockModifier)
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = pillShape,
+                                ambientColor = Color.Black.copy(alpha = 0.25f),
+                                spotColor = Color.Transparent
+                            )
                     ) {
+                        // LAYER 1: GLASS BACKDROP PLATE
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .then(
+                                    if (useLiquidGlass) {
+                                        Modifier
+                                            .hazeEffect(
+                                                state = hazeState,
+                                                style = HazeMaterials.regular()
+                                            )
+                                            .liquidRefractionLens(
+                                                shape = pillShape,
+                                                refractionHeight = 6.dp,
+                                                refractionAmount = 2.5.dp
+                                            )
+                                            .clip(pillShape)
+                                            .background(
+                                                Brush.verticalGradient(
+                                                    listOf(
+                                                        Color.White.copy(alpha = 0.08f),
+                                                        Color(0xFF0E131E).copy(alpha = 0.45f)
+                                                    )
+                                                )
+                                            )
+                                            .border(
+                                                width = 0.5.dp,
+                                                brush = Brush.verticalGradient(
+                                                    listOf(
+                                                        Color.White.copy(alpha = 0.22f),
+                                                        Color.White.copy(alpha = 0.06f)
+                                                    )
+                                                ),
+                                                shape = pillShape
+                                            )
+                                    } else {
+                                        Modifier
+                                            .clip(pillShape)
+                                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                                            .border(
+                                                width = 0.5.dp,
+                                                color = MaterialTheme.colorScheme.outlineVariant,
+                                                shape = pillShape
+                                            )
+                                    }
+                                )
+                        )
+
+                        // LAYERS 2 & 3: ACTIVE PILL & FOREGROUND TABS
                         BoxWithConstraints(
                             modifier = Modifier
                                 .fillMaxSize()

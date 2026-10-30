@@ -188,6 +188,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 | **REL-01** | Living Partner Presence Halo | `/designer-skills:interfaces-that-feel` | 💡 **Emotional Presence** | `CoupleHubScreen.kt` & `DashboardScreen.kt` | Online partner status displays as a static text string ("🟢 Partner Online") without emotional vitality. | Feels like an IT server status ping rather than an intimate connection to a living romantic partner. | Implement `LivingPresenceIndicator` with an animated 3-second breathing radial glow halo behind avatar and status pill. | 🟢 Resolved |
 | **BOX-01** | UI Cleanliness & De-Boxing Refactor | `/taste-skill:design-taste-frontend` | 🧼 **Aesthetic Purity** | Navigation Suite, Glass Tokens & Dashboard | Traces of harsh boxes, active tab capsule border strokes, heavy dock drop shadows, and over-specified 4-sided card borders. | Clutters interface; creates visual wireframe noise and breaks floating liquid glass illusion. | Removed active tab capsule border stroke in favor of luminous gradient glow pill; softened dock shadow (4dp, transparent spot); calibrated glass borders to 0.5dp; removed filter chip borders; softened streak indicator; eliminated double insets. | 🟢 Resolved |
 | **CPX-01** | User Experience & Refraction Overhaul | User Request / Product Direction | 🔴 **Functional & Aesthetic Refactor** | Auth, Dashboard, Hub, Navigation & Health Connect | 11 core user items: (1) Split-second invite partner flash on cold start; (2) Medication pill visible all day instead of [-1h, +1h] window; (3) Activity gauge glow bleeding outside box; (4) Unresponsive active duels tab/card; (5) Misaligned double-tap cheer text; (6) Static "You" / "Partner" names; (7) Couple Hub missing paired days, birthdays, and relation; (8) Lingering box outlines in Challenges & Settings; (9) Liquid glass dock lacking AGSL refraction lens & chromatic dispersion; (10) Missing tactile haptics; (11) Missing background running and expanded 10 Health Connect read permissions. | Breaks couple emotional resonance; causes auth visual flicker; privacy permission gaps; degraded glass aesthetic. | Cached couple session in SharedPreferences to eliminate auth flash; gated medication pill to 60-min window; contained Aurora mesh with clipToBounds and softened glow; interactive active duels card with spring feedback; removed misaligned cheer text; bound dynamic Google/DataStore names; redesigned Couple Hub with interactive couple dossier; de-boxed Challenges and Settings with iosGlass; created LiquidGlassEngine.kt with AGSL runtime shader and chromatic dispersion; added universal tactile haptics; requested REQUEST_IGNORE_BATTERY_OPTIMIZATIONS and declared 10 Health Connect read permissions. | 🟢 Resolved |
+| **LIQ-02** | Liquid Glass Dock Optical Decoupling | User Bug Report / Visual Inspection | 🔴 **Visual & Optical Defect** | `CoupleFitNavigationSuite.kt` & `LiquidGlassEngine.kt` | Liquid glass AGSL refraction shader and chromatic dispersion applied to parent dock container, distorting, melting, and rainbow-fringing foreground icons and text labels ("Today", "Challenges", "Trends", "Couple Hub"); oversized 22dp refraction height smeared background progress bar horizontally. | Severely degraded navigation legibility; optical text melting and double-vision rainbow artifacts. | Decoupled navigation dock into 3 discrete layers: Layer 1 (Glass Backdrop Plate with Haze, subtle 6dp chamfer rim refraction, 2.5dp bending, and 0.5dp specular border); Layer 2 (Sliding Active Capsule Pill); Layer 3 (Foreground Navigation Tabs with 100% razor-sharp, crisp, and un-distorted typography). Calibrated chromatic dispersion RGB split to 1.015 / 1.000 / 0.985. | 🟢 Resolved |
 
 ---
 
@@ -3525,3 +3526,41 @@ A comprehensive user feedback review identified 11 UX, architectural, and visual
 | **`CPX-01`** | `SettingsScreen.kt` | De-boxed settings cards with liquid glass and universal tactile haptics | [`cpx01_settings_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/cpx01_settings_live.png) | 🟢 Verified |
 | **`CPX-01`** | `SettingsScreen.kt` | 10 Health Connect metrics permission manager & Background Running button | [`cpx01_sync_sharing_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/cpx01_sync_sharing_live.png) | 🟢 Verified |
 | **`CPX-01`** | Android OS Dialog | Native background running battery optimization exemption dialog granted | [`cpx01_battery_opt_screen.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/cpx01_battery_opt_screen.png) | 🟢 Verified |
+
+
+---
+
+## 63. Phase 39: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (LIQ-02) 💎✨
+
+> **Associated Defect Logs**: `LIQ-02`  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md)  
+> **Verification Report**: [`Documentation/phase39_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase39_verification_report.md)  
+> **Status**: 🟢 **Resolved & Shipped** | Release Tag: `v2.9.24-liquid-glass-optical-decoupling-liq02`
+
+### 63.1 Problem Statement & Root Cause
+In Phase 38, the AGSL runtime shader lens refraction and chromatic dispersion engine was applied to the outer container `Box` of the floating navigation dock.
+
+In Android Jetpack Compose, setting `renderEffect = RenderEffect.createRuntimeShaderEffect(...)` on a container Composable causes Android to rasterize the entire Composable subtree into the shader input texture. As a result:
+1. **Foreground Text & Icon Melting**: The labels (*"Today"*, *"Challenges"*, *"Trends"*, *"Couple Hub"*) and icons were vertically warped, elongated, and suffered from 7px RGB chromatic ghosting (red/cyan/blue streaks).
+2. **Horizontal Smear Artifact**: Screen content scrolling behind the bar was sampled through an oversized 22dp refraction height, projecting bright streaks across the entire dock.
+3. **Deformed Active Pill**: The sliding indicator pill suffered from wavy, distorted contours.
+
+### 63.2 Architectural Implementation
+1. **3-Layer Decoupled Glass Architecture (`CoupleFitNavigationSuite.kt`)**:
+   - **Layer 1 (Glass Backdrop Plate)**: An independent background `Box` with `hazeEffect`, subtle lens rim refraction (`liquidRefractionLens`), 0.5dp specular border gradient (`Color.White.copy(0.22f)` to `0.06f`), and soft ambient drop shadow (`elevation = 6.dp`, `ambientColor = Color.Black.copy(0.25f)`). This layer blurs and refracts ONLY what is **behind** the dock.
+   - **Layer 2 (Sliding Active Capsule Pill)**: Smooth spring-animated luminous indicator pill (`CoupleFitIdentityTokens.UserPrimary`) sliding beneath the active tab with fluid spring dynamics (`Spring.DampingRatioMediumBouncy`, stiffness = 420f).
+   - **Layer 3 (Foreground Navigation Tabs)**: The `Row` of tabs with icons and text rendered cleanly **on top** of the glass plate, completely decoupled from `RenderEffect`, guaranteeing **100% razor-sharp, crisp, and un-distorted typography**.
+2. **Apple Physical Constants Calibration (`LiquidGlassEngine.kt`)**:
+   - Reduced `refractionHeight` from `22.dp` down to **`6.dp`** (restricting refraction strictly to the delicate outer curved rim/chamfer).
+   - Reduced `refractionAmount` from `14.dp` down to **`2.5.dp`** (subtle, realistic light bending at the edge).
+   - Calibrated chromatic dispersion RGB split from `1.08 / 1.00 / 0.92` to **`1.015 / 1.000 / 0.985`** (delicate 0.5px spectral prism refraction at the edge instead of harsh 7px RGB anaglyph lines).
+3. **Fallback & Accessibility Preservation**:
+   - When Liquid Glass is disabled in Settings (`useLiquidGlass = false`) or on Android < 12 (API 31), smoothly falls back to a solid dark surface (`MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)`) with clean 0.5dp border.
+
+### 63.3 Hardware & Live Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`LIQ-02`** | `CoupleFitNavigationSuite.kt` | Macro zoom inspection of Today tab: 100% razor-sharp text, crisp vector icon, zero chromatic melting | [`bottom_bar_fixed_inspection.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bottom_bar_fixed_inspection.png) | 🟢 Verified |
+| **`LIQ-02`** | `CoupleFitNavigationSuite.kt` | Macro zoom inspection of Challenges tab: glowing active star, crisp bold text, smooth active pill | [`bottom_bar_challenges_inspection.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bottom_bar_challenges_inspection.png) | 🟢 Verified |
+| **`LIQ-02`** | `CoupleFitNavigationSuite.kt` | Macro zoom inspection of Couple Hub tab: razor-sharp heart icon and text, frosted blur over cards | [`bottom_bar_hub_inspection.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bottom_bar_hub_inspection.png) | 🟢 Verified |
+| **`LIQ-02`** | `CoupleFitNavigationSuite.kt` | Live device scrolled view: frosted glass plate smoothly diffuses cards underneath dock with zero horizontal line artifacts | [`bottom_bar_scrolled_inspection.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bottom_bar_scrolled_inspection.png) | 🟢 Verified |

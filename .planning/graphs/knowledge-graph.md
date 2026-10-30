@@ -42,11 +42,14 @@ graph TD
         WFS["wireframe_spec_wf01_wf02_wf03_analysis.md"]:::doc
         NAVAUD["navigation_patterns_appwide_audit.md"]:::doc
         AG["AGENTS.md"]:::doc
+        P39P["PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md"]:::doc
+        VR39["phase39_verification_report.md"]:::doc
     end
 
     subgraph NavigationLayer["Navigation & Routing Layer"]
         CFD["CoupleFitDestinations.kt<br/>(Today, Challenges, Trends, Hub)"]:::arch
-        CFNS["CoupleFitNavigationSuite.kt<br/>(Dual Vectors, Bold Weight, Haptics)"]:::arch
+        CFNS["CoupleFitNavigationSuite.kt<br/>(3-Layer Decoupled Dock, Haptics)"]:::arch
+        LGE["LiquidGlassEngine.kt<br/>(AGSL Refraction & Dispersion)"]:::arch
         FND["FloatingGlassNavBar<br/>(16dp Elevation, 32dp Pill, 28dp Blur)"]:::arch
         MA["MainActivity.kt<br/>(Scaffold Host, BackHandler Re-Anchoring)"]:::arch
         MANI["AndroidManifest.xml<br/>(enableOnBackInvokedCallback)"]:::arch
@@ -456,3 +459,18 @@ graph TD
   - `AndroidManifest.xml` & `HealthConnectManager.kt` -> Declared `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` and 10 Health Connect read permissions (`StepsRecord`, `HeartRateRecord`, `TotalCaloriesBurnedRecord`, `ActiveCaloriesBurnedRecord`, `DistanceRecord`, `ExerciseSessionRecord`, `PowerRecord`, `SpeedRecord`, `SleepSessionRecord`, `OxygenSaturationRecord`) with strictly zero write permissions; added native battery optimization exemption request card in `SettingsScreen.kt`.
   - `Fixinglist.md` -> Section 62 & Master Defect Table entry `CPX-01`
   - `Documentation/phase38_verification_report.md` -> Full live device screenshot evidence and test logs on Pixel 10 Pro (`emulator-5554`) & Galaxy S24 (`SM-S921B`).
+
+### Phase 39: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (LIQ-02) 🟢 Resolved
+- **Domain**: Real-Time Shader Glassmorphism, Optical Composability & Material 3 Typography (`/taste-skill:design-taste-frontend`, `/ui-ux-pro-max-skill:design-system`, `/antislop-ui`)
+- **Milestone Tag**: `v2.9.24-liquid-glass-optical-decoupling-liq02`
+- **Nodes & Edges**:
+  - `LIQ-02`: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography
+  - `CoupleFitNavigationSuite.kt` -> Deconstructed floating navigation dock into 3-Layer Decoupled Glass Architecture:
+    - Layer 1 (Glass Backdrop Plate): Independent background Composable with Haze blur (`HazeMaterials.ultraThin()`), AGSL chamfer rim refraction (`refractionHeight = 6.dp`, `refractionAmount = 2.5.dp`), subtle vertical gradient tint, and 0.5dp specular border brush.
+    - Layer 2 (Sliding Active Capsule Pill): Smooth spring-animated indicator capsule inside `BoxWithConstraints` isolated from runtime shader effects.
+    - Layer 3 (Foreground Navigation Tabs): Direct `Row` of tabs with `Icon` and `Text` running without any shader `renderEffect`, restoring 100% razor-sharp, crisp typography and zero chromatic melting/ghosting.
+  - `LiquidGlassEngine.kt` -> Calibrated physical optical constants:
+    - Reduced chromatic dispersion RGB multipliers to `1.015 / 1.000 / 0.985` (down from `1.08 / 1.00 / 0.92`), eliminating 7px color separation and producing a subtle, realistic 0.5px prismatic rim refraction.
+    - Reduced default `refractionHeight` to `6.dp` and `refractionAmount` to `2.5.dp` to prevent horizontal smear of background elements gliding underneath the dock.
+  - `Fixinglist.md` -> Section 63 & Master Defect Table entry `LIQ-02`
+  - `Documentation/phase39_verification_report.md` -> Full live device screenshot evidence and test logs on Google Pixel 10 Pro (`emulator-5554`).

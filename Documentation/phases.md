@@ -858,3 +858,17 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   10. Added tactile haptics across navigation tabs, settings switches, duel format cards, and filter chips.
   11. Requested `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` and declared 10 Health Connect read permissions (`ActiveCaloriesBurned`, `Distance`, `Exercise`, `Power`, `Speed`, `Steps`, `TotalCaloriesBurned`, `Sleep`, `HeartRate`, `OxygenSaturation`).
 - **Release Tag**: `v2.9.23-couple-intimacy-refraction-cpx01`
+
+## Phase 39: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (LIQ-02) 🟢
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md)
+- **Verification Report**: [`Documentation/phase39_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase39_verification_report.md)
+- **Status**: Completed & Verified on Device (`emulator-5554`)
+- **Key Deliverables**:
+  1. Deconstructed floating navigation dock into a 3-Layer Decoupled Glass Architecture in `CoupleFitNavigationSuite.kt`:
+     - **Layer 1 (Glass Backdrop Plate)**: Sibling background `Box` with Chris Banes Haze blur (`HazeMaterials.ultraThin()`), AGSL refraction lens chamfer bevel (`refractionHeight = 6.dp`, `refractionAmount = 2.5.dp`), subtle vertical gradient tint, and 0.5dp specular border.
+     - **Layer 2 (Sliding Active Pill)**: Smooth spring-animated indicator capsule inside `BoxWithConstraints` completely isolated from runtime shader effects.
+     - **Layer 3 (Foreground Navigation Tabs)**: Direct `Row` of tabs with `Icon` and `Text` running without any shader `renderEffect`, restoring 100% razor-sharp, crisp typography and zero chromatic melting/ghosting.
+  2. Calibrated AGSL physical constants in `LiquidGlassEngine.kt`:
+     - Reduced chromatic dispersion RGB multipliers to `1.015 / 1.000 / 0.985` (down from `1.08 / 1.00 / 0.92`), eliminating 7px color separation and producing a subtle, realistic 0.5px prismatic rim refraction.
+     - Reduced default `refractionHeight` to `6.dp` and `refractionAmount` to `2.5.dp` to prevent horizontal smear of background elements gliding underneath the dock.
+- **Release Tag**: `v2.9.24-liquid-glass-optical-decoupling-liq02`

@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`**](PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 39 milestone plan: Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (`LIQ-02`). |
+| [**`phase39_verification_report.md`**](phase39_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 39 verification report: 3-Layer Decoupled Glass Architecture, calibrated AGSL dispersion, test runs, and device visual verification (`LIQ-02`). |
 | [**`videolagfix.md`**](videolagfix.md) | `/gsd-plan-phase` | **Performance & Video Optimization** | Phase 39 milestone plan: Ambient video lag elimination, Media3 ExoPlayer migration, zero-gap looping, and raw asset transcoding (`VID-01`). |
 | [**`liquideffect.md`**](liquideffect.md) | User Request & Spec | **Design System & Blueprint** | Implementation blueprint for real-time frosted liquid glass bottom navigation bar using Chris Banes Haze library (`LIQ-01`). |
 | [**`PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md`**](PLAN_PHASE_36_LIQUID_GLASS_NAVIGATION_BAR.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 36 milestone plan: Real-time liquid glass bottom navigation bar & Settings Experience Hub toggle (`LIQ-01`). |
@@ -162,3 +164,5 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 - [`PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_38_COUPLE_EXPERIENCE_AND_REFRACTION.md): Milestone plan for Couple Intimacy Profile, AGSL Refraction Liquid Glass Dock & Expanded Telemetry (CPX-01).
 - [`phase38_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase38_verification_report.md): Verification report for Phase 38 (CPX-01).
+- [`PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_39_LIQUID_GLASS_DOCK_OPTICAL_DECOUPLING.md): Milestone plan for Bottom Navigation Liquid Glass Optical Decoupling & Razor-Sharp Typography (LIQ-02).
+- [`phase39_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase39_verification_report.md): Verification report for Phase 39 (LIQ-02).
