@@ -1,4 +1,4 @@
-# CoupleFit — Master Audit, Gap Analysis & Defect Catalog 📋
+﻿# CoupleFit — Master Audit, Gap Analysis & Defect Catalog 📋
 
 **Audited Documents**:
 - [INFORMATION_ARCHITECTURE.md](file:///D:/Couple_fit/CoupleFit/Documentation/INFORMATION_ARCHITECTURE.md) (v2.1.0)
@@ -192,6 +192,7 @@ A cross-comparative audit between **`card-sort-analysis.md`**, **`INFORMATION_AR
 educeMotion flag received in CoupleFitNavigationSuite but bypassed by spring animations; (4) Allocation churn from non-remembered Brush instances and Modifier.offset forcing full layout passes on every spring animation frame; (5) Orphaned BorderStroke import. | Pruned 90 lines of dead speculative code, computed exact corner radius dynamically from layout height, gated spring physics and elongation with 
 educeMotion (snaps cleanly), remembered background/border/indicator gradient brushes, migrated sliding capsule to Modifier.graphicsLayer { translationX = ... } eliminating layout invalidations, and pruned orphaned imports. Verified 100% green tests on Samsung Galaxy S24 (SM-S921B). | 🟢 Resolved |
 | **LIQ-02** | Liquid Glass Dock Optical Decoupling | User Bug Report / Visual Inspection | 🔴 **Visual & Optical Defect** | `CoupleFitNavigationSuite.kt` & `LiquidGlassEngine.kt` | Liquid glass AGSL refraction shader and chromatic dispersion applied to parent dock container, distorting, melting, and rainbow-fringing foreground icons and text labels ("Today", "Challenges", "Trends", "Couple Hub"); oversized 22dp refraction height smeared background progress bar horizontally. | Severely degraded navigation legibility; optical text melting and double-vision rainbow artifacts. | Decoupled navigation dock into 3 discrete layers: Layer 1 (Glass Backdrop Plate with Haze, subtle 6dp chamfer rim refraction, 2.5dp bending, and 0.5dp specular border); Layer 2 (Sliding Active Capsule Pill); Layer 3 (Foreground Navigation Tabs with 100% razor-sharp, crisp, and un-distorted typography). Calibrated chromatic dispersion RGB split to 1.015 / 1.000 / 0.985. | 🟢 Resolved |
+| **BGV-07** | Ambient Video Background Occlusion Fix | User Bug Report / Live S24 Device Inspection | 🔴 **Visual & Atmospheric Defect** | `CoupleFitNavigationSuite.kt` & `BackdropEngine.kt` | User reported background not working. Root cause: In Phase 41 `CoupleFitNavigationSuite.kt`, `rememberLayerBackdrop(onDraw = paintBackdrop)` injected `drawRect(windowBg)` which drew an opaque solid `#07080A` black rectangle over the entire screen every frame, completely occluding and covering the underlying living `AmbientVideoBackground` running in `MainActivity.kt`. | Living ambient emerald/sapphire video background completely invisible, replaced by pitch black screen. | Replaced custom `paintBackdrop` with default transparent `rememberLayerBackdrop()`, eliminating the opaque black canvas block and restoring full visibility, smooth 1200ms fade-in bloom, and living motion of `AmbientVideoBackground` behind all frosted glass cards. Verified on physical Samsung Galaxy S24 (`SM-S921B`). | 🟢 Resolved |
 | **LIQ-04** | BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine | User Request (`liquideffect.md` & `kushagrasinghx/BitChord`) | 🔴 **Architectural & Optical Refactor** | `BackdropEngine.kt`, `LiquidGlass.kt`, `CoupleFitNavigationSuite.kt` | User requested BitChord's exact Kyant0-inspired Liquid Glass Bottom Navigation Bar from `liquideffect.md` and repository `kushagrasinghx/BitChord`: (1) Real-time 0.33x downscaled hardware backdrop layer recorder (`rememberLayerBackdrop`); (2) Root floor background drawing (`drawRect(windowBg)`) before content to eliminate transparent blur blackout; (3) 1.5x color vibrancy saturation boost (`colorControls`); (4) Android 13+ physical AGSL 7-band chromatic dispersion lens shader (`RoundedRectRefractionWithDispersionShaderString`) with `circleMap` spherical normal mapping and depth effect; (5) Decoupled foreground rendering via `drawBackdrop` ensuring 100% crisp, zero-distortion icons and typography; (6) Kinetic spring active indicator pill with directional physical stretch & squash (`scaleX = 1f + lag * 0.22f`, `scaleY = 1f - lag * 0.22f * 0.45f`); (7) Accessibility motion gating (`reduceMotion` snaps instantly, disables stretch/squash); (8) Solid dark surface fallback on Android < 12 or when toggled OFF in Settings. | Severe UX degradation when dock is opaque or non-refractive; unblurred or distorted icons and typography; missing kinetic micro-interactions. | Built complete BitChord backdrop engine in `BackdropEngine.kt`, calibrated `Modifier.liquidGlass` in `LiquidGlass.kt`, wired `rememberLayerBackdrop` and kinetic stretch & squash in `CoupleFitNavigationSuite.kt`. Verified on live Google Pixel 10 Pro emulator (`emulator-5554`) and Samsung Galaxy S24 (`SM-S921B`) via Google ARTEMIS. | 🟢 Resolved |
 
 ---
@@ -3646,3 +3647,41 @@ Following the Andrej Karpathy Codebase Review & Audit of Phase 39, five concrete
 | **`LIQ-04`** | `BackdropEngine.kt` & `LiquidGlass.kt` | Macro zoom inspection of Today tab on Google Pixel 10 Pro (`emulator-5554`): 100% razor-sharp text and icons, full-width frosted diffusion, specular rim highlight, glowing active pill | [`bitchord_p41_dock_macro.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bitchord_p41_dock_macro.png) | 🟢 Verified |
 | **`LIQ-04`** | `CoupleFitNavigationSuite.kt` | Macro zoom inspection of Challenges tab transition: active indicator pill smoothly glided to Challenges with glowing star icon, crisp typography, and full background diffusion | [`bitchord_p41_challenges_dock.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bitchord_p41_challenges_dock.png) | 🟢 Verified |
 | **`LIQ-04`** | Full App Dashboard | Live full-screen dashboard capture on Google Pixel 10 Pro (`emulator-5554`): floating liquid glass dock with full background refraction | [`bitchord_p41_full_coverage.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/bitchord_p41_full_coverage.png) | 🟢 Verified |
+
+
+---
+
+## 66. Phase 41.1: Ambient Video Background Occlusion Fix (`BGV-07`) 🌌✨
+
+> **Target Files**: [pp/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)  
+> **Associated Defect Logs**: `BGV-07`  
+> **Verified Hardware**: Samsung Galaxy S24 (`SM-S921B`, Android 14 / API 34)
+
+### 66.1 Problem Description & Root Cause
+Following the implementation of Phase 41, the user reported that the app background was no longer working.
+Live inspection of the user's physical Samsung Galaxy S24 (`SM-S921B`) revealed that the entire screen canvas was pitch black, despite `MediaPlayer` actively decoding the 1080x2400 portrait video stream (`green1.mp4`).
+- **Root Cause**: In Phase 41, `CoupleFitNavigationSuite.kt` introduced a custom `paintBackdrop` lambda:
+  ``kotlin
+  val paintBackdrop: ContentDrawScope.() -> Unit = remember(windowBg) {
+      {
+          drawRect(windowBg)
+          drawContent()
+      }
+  }
+  val appBackdrop = rememberLayerBackdrop(onDraw = paintBackdrop)
+  ``
+  When `LayerBackdropNode.draw()` executed on `Box(modifier = Modifier.fillMaxSize().layerBackdrop(appBackdrop))`, `drawRect(windowBg)` painted an opaque solid `#07080A` obsidian black rectangle across the entire 1080x2400 viewport on every frame before calling `drawLayer(backdrop.graphicsLayer)`. Because `CoupleFitNavigationSuite` sits in front of the global `AmbientVideoBackground` declared in `MainActivity.kt` (`BGV-06`), this opaque black layer completely blocked and occluded the living video background.
+
+### 66.2 Architectural Solution
+1. **Elimination of Opaque Canvas Block**:
+   - Replaced `paintBackdrop` with default `val appBackdrop = rememberLayerBackdrop()` in `CoupleFitNavigationSuite.kt`.
+   - Default `rememberLayerBackdrop()` executes strictly `{ drawContent() }` without painting any solid color floor.
+   - The spaces between dashboard cards remain completely transparent, allowing the underlying `AmbientVideoBackground` in `MainActivity.kt` to shine through unhindered.
+2. **Preservation of Liquid Glass Dock**:
+   - The floating navigation dock continues to record dashboard content passing underneath it into `appBackdrop`, applying 1.5x saturation vibrancy boost, 28dp Gaussian blur, 7-band chromatic dispersion AGSL lens refraction, 58% dark surface wash, and 0.5dp specular border.
+   - The living ambient video background is now fully visible through both the transparent spaces between cards and through the translucent frosted glass cards themselves.
+
+### 66.3 Hardware & Live Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`BGV-07`** | Full App Background on Samsung Galaxy S24 | Live device inspection on physical Samsung Galaxy S24 (`SM-S921B`): living emerald aurora video background restored, visible and blooming behind all cards and liquid glass dock | [s24_background_restored.png](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/s24_background_restored.png) | 🟢 Verified |

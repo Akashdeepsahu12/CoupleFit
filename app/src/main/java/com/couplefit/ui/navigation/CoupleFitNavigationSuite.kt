@@ -109,15 +109,8 @@ fun CoupleFitNavigationSuite(
         )
     }
 
-    // 1. Prepare opaque floor for backdrop recording (BitChord Architecture from liquideffect.md)
-    val windowBg = MaterialTheme.colorScheme.background
-    val paintBackdrop: ContentDrawScope.() -> Unit = remember(windowBg) {
-        {
-            drawRect(windowBg)
-            drawContent()
-        }
-    }
-    val appBackdrop = rememberLayerBackdrop(onDraw = paintBackdrop)
+    // 1. Prepare backdrop recording for liquid glass dock (BGV-06 transparent pass-through)
+    val appBackdrop = rememberLayerBackdrop()
 
     CompositionLocalProvider(
         LocalAppBackdrop provides appBackdrop,
