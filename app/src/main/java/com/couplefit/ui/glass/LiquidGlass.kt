@@ -17,14 +17,15 @@ import androidx.compose.ui.unit.dp
 
 val LocalLiquidGlassEnabled = staticCompositionLocalOf { true }
 val LocalAppBackdrop = staticCompositionLocalOf<Backdrop?> { null }
+val LocalRefractionBackdrop: ProvidableCompositionLocal<Backdrop?> get() = LocalAppBackdrop
 
 fun isGlassSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
+// Calibrated physical constants matching refraction.md (BitChord Physical Refraction Engine)
 private const val VIBRANCY = 1f
-private const val BLUR_RADIUS_DP = 28f
-private const val LENS_HEIGHT = 0.5f
-private const val LENS_AMOUNT = 0.5f
-private const val LENS_MAX_DP = 48f
+private const val DEFAULT_BLUR_RADIUS_DP = 10f
+private const val DEFAULT_REFRACTION_HEIGHT_DP = 24f
+private const val DEFAULT_REFRACTION_AMOUNT_DP = 26f
 private const val GLASS_RESOLUTION_SCALE = 1f
 
 val GLASS_EDGE_WIDTH = 0.5.dp
@@ -37,23 +38,28 @@ fun glassContentColor(): Color =
 @Composable
 fun glassBarTint(): Color =
     if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) {
-        Color.White.copy(alpha = 0.35f)
+        Color.White.copy(alpha = 0.12f)
     } else {
-        Color(0xFF0E131E).copy(alpha = 0.58f)
+        Color(0xFF0E131E).copy(alpha = 0.45f)
     }
 
 /**
- * Exact BitChord Liquid Glass modifier (from liquideffect.md).
+ * Physical 3D Lens Refraction modifier (from refraction.md):
  * Applies:
- * 1. 0.33x Hardware Downscaled Backdrop Layer sampling
- * 2. 1.5x Color Vibrancy Saturation boost
- * 3. Real-time RenderEffect Gaussian Blur
- * 4. Physical 3D Lens Refraction with 7-Band Chromatic Dispersion (Android 13+)
- * 5. Tinted Surface Sheen & 0.5dp Specular Rim Border
+ * 1. 1:1 Hardware Backdrop Layer sampling
+ * 2. Real-time RenderEffect Gaussian Blur (10dp for sharp spectral contrast)
+ * 3. Physical AGSL 3D Lens Refraction with 7-Wavelength Chromatic Dispersion (Android 13+)
+ * 4. Inward convex normal curvature displacement
+ * 5. Translucent surface tint & 0.5dp specular rim border
  */
 @Composable
-fun Modifier.liquidGlass(
+fun Modifier.refractiveLens(
     shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    blurRadius: Dp = DEFAULT_BLUR_RADIUS_DP.dp,
+    refractionHeight: Dp = DEFAULT_REFRACTION_HEIGHT_DP.dp,
+    refractionAmount: Dp = DEFAULT_REFRACTION_AMOUNT_DP.dp,
+    chromaticAberration: Boolean = true,
+    depthEffect: Boolean = true,
     surfaceTint: Color? = null,
     borderWidth: Dp = GLASS_EDGE_WIDTH,
     borderColor: Color = GLASS_EDGE_COLOR
@@ -69,9 +75,9 @@ fun Modifier.liquidGlass(
     }
 
     val density = LocalDensity.current
-    val blurPx = with(density) { BLUR_RADIUS_DP.dp.toPx() } * GLASS_RESOLUTION_SCALE
-    val lensHeightPx = with(density) { (LENS_HEIGHT * LENS_MAX_DP).dp.toPx() } * GLASS_RESOLUTION_SCALE
-    val lensAmountPx = with(density) { (LENS_AMOUNT * LENS_MAX_DP).dp.toPx() } * GLASS_RESOLUTION_SCALE
+    val blurPx = with(density) { blurRadius.toPx() } * GLASS_RESOLUTION_SCALE
+    val refHeightPx = with(density) { refractionHeight.toPx() } * GLASS_RESOLUTION_SCALE
+    val refAmountPx = with(density) { refractionAmount.toPx() } * GLASS_RESOLUTION_SCALE
 
     val surfaceTintColor = surfaceTint ?: glassBarTint()
 
@@ -84,10 +90,10 @@ fun Modifier.liquidGlass(
                 blur(blurPx)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     lens(
-                        refractionHeight = lensHeightPx,
-                        refractionAmount = lensAmountPx,
-                        depthEffect = true,
-                        chromaticAberration = true,
+                        refractionHeight = refHeightPx,
+                        refractionAmount = refAmountPx,
+                        depthEffect = depthEffect,
+                        chromaticAberration = chromaticAberration,
                     )
                 }
             },
@@ -98,3 +104,25 @@ fun Modifier.liquidGlass(
         )
         .border(borderWidth, borderColor, shape)
 }
+
+/**
+ * Exact BitChord Liquid Glass modifier (from liquideffect.md & refraction.md).
+ * Configured with calibrated 10dp blur, 24dp bevel thickness, and 26dp optical lens power.
+ */
+@Composable
+fun Modifier.liquidGlass(
+    shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    surfaceTint: Color? = null,
+    borderWidth: Dp = GLASS_EDGE_WIDTH,
+    borderColor: Color = GLASS_EDGE_COLOR
+): Modifier = refractiveLens(
+    shape = shape,
+    blurRadius = DEFAULT_BLUR_RADIUS_DP.dp,
+    refractionHeight = DEFAULT_REFRACTION_HEIGHT_DP.dp,
+    refractionAmount = DEFAULT_REFRACTION_AMOUNT_DP.dp,
+    chromaticAberration = true,
+    depthEffect = true,
+    surfaceTint = surfaceTint,
+    borderWidth = borderWidth,
+    borderColor = borderColor
+)

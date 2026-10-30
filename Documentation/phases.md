@@ -918,3 +918,29 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Gated kinetic stretch/squash on `reduceMotion`: snaps cleanly with 0 bounce and 0 deformation when enabled.
      - Falls back to solid dark surface (`MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)`) on Android < 12 or when toggled OFF in Settings.
 - **Release Tag**: `v2.9.26-bitchord-liquid-glass-refraction-liq04`
+
+## Phase 41.1: Ambient Video Background Occlusion Fix (`BGV-07`) 🌌✨
+- **Verification Report**: [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md#66-phase-411-ambient-video-background-occlusion-fix-bgv07-)
+- **Status**: Completed & Verified on Device (Samsung Galaxy S24 `SM-S921B`)
+- **Key Deliverables**:
+  1. Replaced `rememberLayerBackdrop(onDraw = paintBackdrop)` with default transparent `rememberLayerBackdrop()` in `CoupleFitNavigationSuite.kt`.
+  2. Eliminated the opaque solid black `drawRect(windowBg)` canvas fill that had been occluding the living 1080x2400 video background (`AmbientVideoBackground`).
+  3. Restored living aurora video motion shining through all transparent dashboard spaces and translucent frosted cards.
+- **Release Tag**: `v2.9.27-ambient-background-occlusion-fix-bgv07`
+
+## Phase 42: BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (`REF-01`) 💎🌈
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md)
+- **Verification Report**: [`Documentation/phase42_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase42_verification_report.md)
+- **Status**: Completed & Verified on Devices (Google Pixel 10 Pro `emulator-5554` & Samsung Galaxy S24 `SM-S921B`)
+- **Key Deliverables**:
+  1. **Dual AGSL Refraction Shaders & Correct Chain Effect Ordering (`BackdropEngine.kt`)**:
+     - Declared both `RoundedRectRefractionShaderString` (monochromatic fallback) and `RoundedRectRefractionWithDispersionShaderString` (7-band chromatic dispersion) from `refraction.md`.
+     - Inverted chain effect ordering: `createChainEffect(lensEffect, blurEffect)`. The backdrop is blurred first into a frosted baseline (inner), and the AGSL lens shader evaluates second (outer), ensuring rainbow chromatic dispersion bands remain razor-sharp along the pill bevel.
+     - Inverted coordinate displacement: passed `-kotlin.math.abs(refractionAmount)` to uniform, inverting the outward SDF gradient into inward physical convex lens magnification.
+  2. **Calibrated Physical Optics & Modifier Hierarchy (`LiquidGlass.kt`)**:
+     - Calibrated parameters to `refraction.md`: `blurRadius = 10.dp`, `refractionHeight = 24.dp`, `refractionAmount = 26.dp`, `depthEffect = true`, `chromaticAberration = true`, `surfaceTint = Color(0xFF0E131E).copy(alpha = 0.45f)`, and `borderColor = Color.White.copy(alpha = 0.22f)`.
+     - Exposed `Modifier.refractiveLens(...)` alongside `Modifier.liquidGlass(...)` with full `LocalAppBackdrop` integration.
+  3. **Floating Dock Border Alignment (`CoupleFitNavigationSuite.kt`)**:
+     - Bound dock border to `GLASS_EDGE_COLOR` (`0.5.dp`, `Color.White.copy(alpha = 0.22f)`).
+     - Maintained decoupled foreground rendering (100% crisp typography) and living ambient video background pass-through (`rememberLayerBackdrop()`).
+- **Release Tag**: `v2.9.28-physical-refraction-lens-ref01`

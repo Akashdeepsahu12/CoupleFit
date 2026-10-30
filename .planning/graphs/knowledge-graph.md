@@ -48,6 +48,8 @@ graph TD
         VR41["phase41_verification_report.md"]:::doc
         P40P["PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md"]:::doc
         VR40["phase40_verification_report.md"]:::doc
+        P42P["PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md"]:::doc
+        VR42["phase42_verification_report.md"]:::doc
     end
 
     subgraph NavigationLayer["Navigation & Routing Layer"]
@@ -498,3 +500,32 @@ graph TD
     - Migrated sliding indicator capsule positioning from `Modifier.offset(x = ...)` to `Modifier.graphicsLayer { translationX = ...; scaleX = ... }`, completely eliminating Compose measure/layout passes during spring motion and ensuring 100% GPU draw-phase execution.
   - `Fixinglist.md` -> Section 64 & Master Defect Table entry `KRP-07`
   - `Documentation/phase40_verification_report.md` -> Full live device screenshot evidence and test logs on Samsung Galaxy S24 (`SM-S921B`).
+
+### Phase 41: BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine (LIQ-04) 🟢 Resolved
+- **Domain**: Kyant0-Inspired Backdrop Engine, 7-Band Chromatic Dispersion & Kinetic Stretch-Squash Dock (`liquideffect.md`)
+- **Milestone Tag**: `v2.9.26-bitchord-liquid-glass-refraction-liq04`
+- **Nodes & Edges**:
+  - `LIQ-04`: BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine
+  - `BackdropEngine.kt` -> Built `Backdrop` interface, `LayerBackdrop` with `GraphicsLayer.record`, `rememberLayerBackdrop`, and `Modifier.drawBackdrop` with real-time 1:1 hardware buffer sampling, saturation vibrancy boost, and AGSL 7-band chromatic dispersion shader.
+  - `LiquidGlass.kt` -> Exposed `LocalAppBackdrop` and `LocalLiquidGlassEnabled`, calibrated physical constants.
+  - `CoupleFitNavigationSuite.kt` -> Attached `liquidGlass` dock with decoupled foreground rendering and kinetic active indicator stretch & squash.
+
+### Phase 41.1: Ambient Video Background Occlusion Fix (BGV-07) 🟢 Resolved
+- **Domain**: Ambient Motion & Canvas Transparency (`BGV-07`)
+- **Milestone Tag**: `v2.9.27-ambient-background-occlusion-fix-bgv07`
+- **Nodes & Edges**:
+  - `BGV-07`: Ambient Video Background Occlusion Fix
+  - `CoupleFitNavigationSuite.kt` -> Removed opaque solid `#07080A` `drawRect(windowBg)` canvas fill from `rememberLayerBackdrop()`. Restored living emerald/sapphire video background blooming cleanly behind all frosted glass cards and liquid dock.
+
+### Phase 42: BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (REF-01) 🟢 Resolved
+- **Domain**: Physical Optics, AGSL Convex Lens Refraction & Spectral Dispersion (`refraction.md` & `/karpathy-guidelines`)
+- **Milestone Tag**: `v2.9.28-physical-refraction-lens-ref01`
+- **Nodes & Edges**:
+  - `REF-01`: Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine
+  - `BackdropEngine.kt` ->
+    - Added `RoundedRectRefractionShaderString` (monochromatic fallback) and `RoundedRectRefractionWithDispersionShaderString` (7-band chromatic dispersion: Red, Orange, Yellow, Green, Cyan, Blue, Purple).
+    - Inverted `RenderEffect` chain ordering: `createChainEffect(lensEffect, blurEffect)`. Background is blurred first into a frosted baseline (inner), and the AGSL lens shader evaluates second (outer), ensuring rainbow chromatic dispersion bands remain razor-sharp along the pill bevel without being diffused away.
+    - Applied optical inversion: passed `-kotlin.math.abs(refractionAmount)` to uniform, inverting outward SDF gradient into inward physical convex lens magnification.
+  - `LiquidGlass.kt` -> Calibrated physical defaults (`blurRadius = 10.dp`, `refractionHeight = 24.dp`, `refractionAmount = 26.dp`, `borderColor = Color.White.copy(alpha = 0.22f)`), and exposed `Modifier.refractiveLens(...)`.
+  - `CoupleFitNavigationSuite.kt` -> Bound dock border to `GLASS_EDGE_COLOR` (0.5dp, 22% white) and preserved living ambient video background.
+  - `Documentation/phase42_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) and Samsung Galaxy S24 (`SM-S921B`).

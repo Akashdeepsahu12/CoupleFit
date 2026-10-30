@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md`**](PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 42 milestone plan: BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (`REF-01`). |
+| [**`phase42_verification_report.md`**](phase42_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 42 verification report: Dual AGSL shaders, inward convex optical distortion, corrected chain effect ordering, and live device verification (`REF-01`). |
 | [**`PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md`**](PLAN_PHASE_41_BITCHORD_LIQUID_GLASS.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 41 milestone plan: BitChord Liquid Glass Bottom Navigation Bar & Physical 3D Refraction Engine (`LIQ-04`). |
 | [**`phase41_verification_report.md`**](phase41_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 41 verification report: Kyant0 backdrop engine, 7-band chromatic dispersion, stretch & squash kinematics, and device visual verification (`LIQ-04`). |
 | [**`PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md`**](PLAN_PHASE_40_KARPATHY_NAVIGATION_CLEANUP.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 40 milestone plan: Karpathy Navigation & Liquid Glass Engine De-Slop & Performance Hardening (`KRP-07`). |

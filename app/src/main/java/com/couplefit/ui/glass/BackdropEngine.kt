@@ -66,6 +66,43 @@ float2 gradSdRoundedRect(float2 coord, float2 halfSize, float radius) {
 """
 
 @Language("AGSL")
+private const val RoundedRectRefractionShaderString = """
+uniform shader content;
+
+uniform float2 size;
+uniform float2 offset;
+uniform float4 cornerRadii;
+uniform float refractionHeight;
+uniform float refractionAmount;
+uniform float depthEffect;
+
+$RoundedRectSDF
+
+float circleMap(float x) {
+    return 1.0 - sqrt(1.0 - x * x);
+}
+
+half4 main(float2 coord) {
+    float2 halfSize = size * 0.5;
+    float2 centeredCoord = (coord + offset) - halfSize;
+    float radius = radiusAt(coord, cornerRadii);
+    
+    float sd = sdRoundedRect(centeredCoord, halfSize, radius);
+    if (-sd >= refractionHeight) {
+        return content.eval(coord);
+    }
+    sd = min(sd, 0.0);
+    
+    float d = circleMap(1.0 - -sd / refractionHeight) * refractionAmount;
+    float gradRadius = min(radius * 1.5, min(halfSize.x, halfSize.y));
+    float2 grad = normalize(gradSdRoundedRect(centeredCoord, halfSize, gradRadius) + depthEffect * normalize(centeredCoord));
+    
+    float2 refractedCoord = coord + d * grad;
+    return content.eval(refractedCoord);
+}
+"""
+
+@Language("AGSL")
 private const val RoundedRectRefractionWithDispersionShaderString = """
 uniform shader content;
 uniform float2 size;
@@ -272,24 +309,36 @@ interface BackdropEffectScope : Density {
         chromaticAberration: Boolean = false
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-        if (refractionHeight <= 0f || refractionAmount <= 0f) return
+        if (refractionHeight <= 0f || refractionAmount == 0f) return
 
         if (padding > 0f) {
             padding = (padding - refractionHeight).fastCoerceAtLeast(0f)
         }
 
-        val shader = RuntimeShader(RoundedRectRefractionWithDispersionShaderString)
+        val shaderString = if (chromaticAberration) {
+            RoundedRectRefractionWithDispersionShaderString
+        } else {
+            RoundedRectRefractionShaderString
+        }
+        val shader = RuntimeShader(shaderString)
         shader.setFloatUniform("size", size.width, size.height)
         shader.setFloatUniform("offset", 0f, 0f)
         val r = (size.height / 2f) // Pill corner radius
         shader.setFloatUniform("cornerRadii", r, r, r, r)
         shader.setFloatUniform("refractionHeight", refractionHeight)
-        shader.setFloatUniform("refractionAmount", refractionAmount)
+        // Physical optics: SDF gradient points outward; negative refractionAmount bends rays inward (convex lens curvature)
+        shader.setFloatUniform("refractionAmount", -kotlin.math.abs(refractionAmount))
         shader.setFloatUniform("depthEffect", if (depthEffect) 1f else 0f)
-        shader.setFloatUniform("chromaticAberration", if (chromaticAberration) 1f else 0f)
+        if (chromaticAberration) {
+            shader.setFloatUniform("chromaticAberration", 1f)
+        }
 
         val lensEffect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, "content")
-        renderEffect = renderEffect?.let { android.graphics.RenderEffect.createChainEffect(it, lensEffect) } ?: lensEffect
+        // Correct Chain Effect Ordering: RenderEffect.createChainEffect(outer, inner)
+        // blurEffect is evaluated first (inner), and lensEffect refracts the blurred result (outer)
+        renderEffect = renderEffect?.let { existingEffect ->
+            android.graphics.RenderEffect.createChainEffect(lensEffect, existingEffect)
+        } ?: lensEffect
     }
 }
 

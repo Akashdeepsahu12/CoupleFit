@@ -11,6 +11,7 @@ import com.couplefit.ui.glass.rememberLayerBackdrop
 import com.couplefit.ui.glass.layerBackdrop
 import com.couplefit.ui.glass.liquidGlass
 import com.couplefit.ui.glass.glassBarTint
+import com.couplefit.ui.glass.GLASS_EDGE_COLOR
 import com.couplefit.ui.glass.LocalAppBackdrop
 import com.couplefit.ui.glass.LocalLiquidGlassEnabled
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -167,7 +168,7 @@ fun CoupleFitNavigationSuite(
                                 shape = pillShape,
                                 surfaceTint = if (useLiquidGlass) glassBarTint() else null,
                                 borderWidth = 0.5.dp,
-                                borderColor = if (useLiquidGlass) Color.White.copy(alpha = 0.18f) else MaterialTheme.colorScheme.outlineVariant
+                                borderColor = if (useLiquidGlass) GLASS_EDGE_COLOR else MaterialTheme.colorScheme.outlineVariant
                             )
                     ) {
                         // BitChord Active Indicator Pill & Foreground Tabs
