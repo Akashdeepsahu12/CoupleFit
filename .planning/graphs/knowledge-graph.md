@@ -50,6 +50,10 @@ graph TD
         VR40["phase40_verification_report.md"]:::doc
         P42P["PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md"]:::doc
         VR42["phase42_verification_report.md"]:::doc
+        P43P["PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md"]:::doc
+        VR43["phase43_verification_report.md"]:::doc
+        P44P["PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md"]:::doc
+        VR44["phase44_verification_report.md"]:::doc
     end
 
     subgraph NavigationLayer["Navigation & Routing Layer"]
@@ -535,3 +539,23 @@ graph TD
   - `LiquidGlass.kt` -> Calibrated physical defaults (`blurRadius = 10.dp`, `refractionHeight = 24.dp`, `refractionAmount = 26.dp`, `borderColor = Color.White.copy(alpha = 0.22f)`), and exposed `Modifier.refractiveLens(...)`.
   - `CoupleFitNavigationSuite.kt` -> Bound dock border to `GLASS_EDGE_COLOR` (0.5dp, 22% white) and preserved living ambient video background.
   - `Documentation/phase42_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) and Samsung Galaxy S24 (`SM-S921B`).
+
+
+### Phase 43: Number Pop-In Motion Physics & Dashboard Tracker Choreography (POP-01) 🟢 Resolved
+- **Domain**: Kinematic Motion Physics & Tabular Numeral Choreography (transitions.dev)
+- **Milestone Tag**: `v2.9.29-number-pop-in-trackers-pop01`
+- **Nodes & Edges**:
+  - `POP-01`: Number Pop-In Motion Physics & Dashboard Tracker Choreography
+  - `NumberPopIn.kt` -> Monotonic cubic solver (`SafeCubicBezierEasing`) evaluating `cubic-bezier(0.34, 1.45, 0.64, 1.0)` with 45% overshoot, `NumberPopInText` and `NumberPopInCounter` with 70ms character stagger, 8dp upward translation, 2dp blur, and tabular numbers (`tnum`).
+  - `MotionArcGauge.kt` -> Integrated into `MotionArcProgressGauge` and `MotionPillChip`.
+  - `DashboardScreen.kt` -> Bound to `Lifecycle.Event.ON_RESUME` to re-trigger pop-in choreography every time the app opens or resumes.
+  - `Documentation/phase43_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) and Samsung Galaxy S24.
+
+### Phase 44: Expo Glass Effect Native Liquid Glass Bottom Navigation Bar (EXPO-01) 🟢 Resolved
+- **Domain**: Native Glass Optics, Dynamic Touch Compression & Decoupled Rendering (Expo Glass Effect SDK)
+- **Milestone Tag**: `v2.9.30-expo-glass-effect-bottom-bar-expo01`
+- **Nodes & Edges**:
+  - `EXPO-01`: Expo Glass Effect Native Liquid Glass Bottom Navigation Bar
+  - `LiquidGlass.kt` -> Declared `GlassEffectStyle` (`Regular`, `Clear`, `None`), `GlassColorScheme` (`Auto`, `Light`, `Dark`), `isGlassEffectAPIAvailable()`, and `Modifier.expoGlassEffect(...)` with style calibration, dynamic spring compression (`scale = 0.985f`), specular rim boost (`alpha = 0.42f`), and `reduceMotion` accessibility gating.
+  - `CoupleFitNavigationSuite.kt` -> Bound tab `MutableInteractionSource` states to dock press detection, applied `expoGlassEffect`, and preserved 100% razor-sharp decoupled foreground typography and living video background.
+  - `Documentation/phase44_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`).
