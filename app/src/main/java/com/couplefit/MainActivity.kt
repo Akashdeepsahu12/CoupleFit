@@ -20,6 +20,8 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import com.couplefit.ui.components.AmbientMeshGradientBackground
+import com.couplefit.ui.components.MeshGradientPreset
 import com.couplefit.ui.components.AmbientVideoBackground
 import com.couplefit.ui.components.AmbientVideoRegistry
 import androidx.compose.ui.Modifier
@@ -90,6 +92,9 @@ class MainActivity : ComponentActivity() {
             var liquidGlassEnabled by remember {
                 mutableStateOf(prefs.getBoolean("liquid_glass_enabled", true))
             }
+            var meshGradientEnabled by remember {
+                mutableStateOf(prefs.getBoolean("mesh_gradient_enabled", true))
+            }
             val effectiveReduceMotion = isSystemAnimationDisabled || userReduceMotion
 
             // Ambient video background shuffle across app opens (BGV-04)
@@ -158,12 +163,21 @@ class MainActivity : ComponentActivity() {
                         reduceMotion = effectiveReduceMotion
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
-                            // Persistent Global Living Ambient Video Background across ALL screens (BGV-06)
-                            AmbientVideoBackground(
-                                modifier = Modifier.fillMaxSize(),
-                                videoResId = currentAmbientBgAsset.resId,
-                                reduceMotion = effectiveReduceMotion
-                            )
+                            if (meshGradientEnabled) {
+                                // Persistent Global Living Expo Mesh Gradient Background across ALL screens (MSH-01)
+                                AmbientMeshGradientBackground(
+                                    modifier = Modifier.fillMaxSize(),
+                                    preset = MeshGradientPreset.CoupleFitMidnight,
+                                    reduceMotion = effectiveReduceMotion
+                                )
+                            } else {
+                                // Persistent Global Living Ambient Video Background across ALL screens (BGV-06)
+                                AmbientVideoBackground(
+                                    modifier = Modifier.fillMaxSize(),
+                                    videoResId = currentAmbientBgAsset.resId,
+                                    reduceMotion = effectiveReduceMotion
+                                )
+                            }
 
                             // Main Routing Decision: Auth & Couple Linking Flow vs Dashboard
                             when (val step = authUiState.currentStep) {
@@ -245,6 +259,11 @@ class MainActivity : ComponentActivity() {
                                             onToggleLiquidGlass = { newLiquidGlass ->
                                                 liquidGlassEnabled = newLiquidGlass
                                                 prefs.edit().putBoolean("liquid_glass_enabled", newLiquidGlass).apply()
+                                            },
+                                            meshGradientEnabled = meshGradientEnabled,
+                                            onToggleMeshGradient = { newMesh ->
+                                                meshGradientEnabled = newMesh
+                                                prefs.edit().putBoolean("mesh_gradient_enabled", newMesh).apply()
                                             }
                                         )
                                     } else {

@@ -64,6 +64,8 @@ fun SettingsScreen(
     onToggleReduceMotion: (Boolean) -> Unit = {},
     liquidGlassEnabled: Boolean = true,
     onToggleLiquidGlass: (Boolean) -> Unit = {},
+    meshGradientEnabled: Boolean = true,
+    onToggleMeshGradient: (Boolean) -> Unit = {},
     healthConnectViewModel: HealthConnectViewModel = hiltViewModel(),
     authViewModel: com.couplefit.ui.auth.AuthViewModel = hiltViewModel()
 ) {
@@ -275,6 +277,11 @@ fun SettingsScreen(
                                     liquidGlassEnabled = liquidGlassEnabled,
                                     onToggleLiquidGlass = {
                                         onToggleLiquidGlass(it)
+                                        triggerAutoSaveNotice()
+                                    },
+                                    meshGradientEnabled = meshGradientEnabled,
+                                    onToggleMeshGradient = {
+                                        onToggleMeshGradient(it)
                                         triggerAutoSaveNotice()
                                     },
                                     notifyCritical = notifyCritical,
@@ -971,6 +978,8 @@ internal fun ExperienceHubContent(
     onToggleReduceMotion: (Boolean) -> Unit,
     liquidGlassEnabled: Boolean = true,
     onToggleLiquidGlass: (Boolean) -> Unit = {},
+    meshGradientEnabled: Boolean = true,
+    onToggleMeshGradient: (Boolean) -> Unit = {},
     notifyCritical: Boolean,
     onToggleNotifyCritical: (Boolean) -> Unit,
     notifyNudges: Boolean,
@@ -1024,6 +1033,16 @@ internal fun ExperienceHubContent(
                 checked = liquidGlassEnabled,
                 onCheckedChange = { if (isLiquidGlassSupported) onToggleLiquidGlass(it) },
                 enabled = isLiquidGlassSupported
+            )
+            SettingsSwitchRow(
+                title = "Expo Mesh Gradient Background",
+                subtitle = if (meshGradientEnabled) {
+                    "Fluid living mesh gradient canvas (expo-mesh-gradient)"
+                } else {
+                    "Ambient video wallpaper"
+                },
+                checked = meshGradientEnabled,
+                onCheckedChange = onToggleMeshGradient
             )
         }
     }

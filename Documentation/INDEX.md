@@ -184,3 +184,5 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [`phase43_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase43_verification_report.md): Verification report for Phase 43 (POP-01).
 - [`PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md): Milestone plan for Expo Glass Effect Native Liquid Glass Bottom Navigation Bar (EXPO-01).
 - [`phase44_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase44_verification_report.md): Verification report for Phase 44 (EXPO-01).
+- [`PLAN_PHASE_45_EXPO_MESH_GRADIENT_BACKGROUND.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_45_EXPO_MESH_GRADIENT_BACKGROUND.md): Milestone plan for Expo Mesh Gradient Background SDK Implementation (MSH-01).
+- [`phase45_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase45_verification_report.md): Verification report for Phase 45 (MSH-01).
