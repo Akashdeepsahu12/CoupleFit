@@ -1022,3 +1022,23 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Authored unit test suite in `ExpoGlassEffectTest.kt` (100% green bar across all 36 unit tests).
      - Live hardware execution on `emulator-5554` verified fluid active capsule spring transitions and refraction across "Today", "Challenges", "Trends", and "Couple Hub" tabs.
 - **Release Tag**: `v2.9.32-expo-glass-effect-components-expo02`
+
+
+## Phase 47: Restore Ambient Video Aurora Gradient Background (`BGV-08`) 🌌✨
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md)
+- **Verification Report**: [`Documentation/phase47_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase47_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Primary Background Canvas Restoration (`MainActivity.kt`)**:
+     - Restored `AmbientVideoBackground` as the primary default background canvas across all screens (`Today`, `Challenges`, `Trends`, `Couple Hub`, and Auth flows).
+     - Migrated SharedPreferences key to `expo_mesh_gradient_enabled` defaulting to `false`, ensuring that all devices immediately return to the living video background without manual cache clearing.
+  2. **Settings Experience Hub Synchronization (`SettingsScreen.kt`)**:
+     - Updated `meshGradientEnabled` to default `false` in `SettingsScreen.kt`.
+     - Preserved the optional toggle in Experience Hub for laboratory testing.
+  3. **Optical & Glass Harmony**:
+     - Verified that `rememberLayerBackdrop()` captures the moving ambient video background cleanly.
+     - Confirmed that the Phase 46 Expo Glass Effect bottom navigation dock (`GlassContainer` & `GlassView`) refracts the moving aurora video seamlessly with zero blackouts, occlusion, or visual artifacts.
+  4. **Deterministic Verification**:
+     - Automated unit tests pass 100% green (`36/36` tests).
+     - Live hardware execution on `emulator-5554` verified via ARTEMIS screenshot capture (`p47_emulator_restored_ambient_video_bg.png`).
+- **Release Tag**: `v2.9.33-restore-ambient-video-bg-bgv08`

@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(prefs.getBoolean("liquid_glass_enabled", true))
             }
             var meshGradientEnabled by remember {
-                mutableStateOf(prefs.getBoolean("mesh_gradient_enabled", true))
+                mutableStateOf(prefs.getBoolean("expo_mesh_gradient_enabled", false))
             }
             val effectiveReduceMotion = isSystemAnimationDisabled || userReduceMotion
 
@@ -263,7 +263,7 @@ class MainActivity : ComponentActivity() {
                                             meshGradientEnabled = meshGradientEnabled,
                                             onToggleMeshGradient = { newMesh ->
                                                 meshGradientEnabled = newMesh
-                                                prefs.edit().putBoolean("mesh_gradient_enabled", newMesh).apply()
+                                                prefs.edit().putBoolean("expo_mesh_gradient_enabled", newMesh).putBoolean("mesh_gradient_enabled", newMesh).apply()
                                             }
                                         )
                                     } else {

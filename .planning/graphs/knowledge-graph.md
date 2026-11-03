@@ -584,3 +584,14 @@ graph TD
   - `CoupleFitNavigationSuite.kt` -> Wrapped bottom navigation dock in `GlassContainer(spacing = 8.dp, shape = pillShape)`. Rendered dock plate with `GlassView(Regular)` and sliding active indicator capsule as child `GlassView(Clear, tintColor = UserPrimary.copy(alpha = 0.22f), isInteractive = true)` with crystalline refraction (6dp blur, 26dp refraction, cyan tint wash, specular rim) and interactive spring touch compression.
   - `ExpoGlassEffectTest.kt` -> Unit test suite verifying `GlassEffectStyle` and `GlassColorScheme` variants, runtime helper parity, and calibrated physical constants (100% green bar).
   - `Documentation/phase46_verification_report.md` -> Live hardware screenshot verification across "Today", "Challenges", "Trends", and "Couple Hub" tabs on Google Pixel 10 Pro (`emulator-5554`).
+
+
+### Phase 47: Restore Ambient Video Aurora Gradient Background (BGV-08) 🟢 Resolved
+- **Domain**: Living Canvas Restoration, Ambient Video Motion & Optical Harmony
+- **Milestone Tag**: `v2.9.33-restore-ambient-video-bg-bgv08`
+- **Nodes & Edges**:
+  - `BGV-08`: Restore Ambient Video Aurora Gradient Background
+  - `MainActivity.kt` -> Reverted default root canvas from experimental AGSL mesh gradient back to `AmbientVideoBackground(videoResId = currentAmbientBgAsset.resId)`. Migrated SharedPreferences key to `expo_mesh_gradient_enabled` defaulting to `false`, guaranteeing immediate restoration on all devices.
+  - `SettingsScreen.kt` -> Updated `meshGradientEnabled` to default `false` in Experience Hub while preserving optional toggle for laboratory experimentation.
+  - `CoupleFitNavigationSuite.kt` & `LiquidGlass.kt` -> Confirmed full optical harmony between restored living video background and Phase 46 Expo Glass Effect bottom dock (`GlassContainer` & `GlassView(Clear)`).
+  - `Documentation/phase47_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) confirming restored deep sapphire/midnight blue aurora video background.

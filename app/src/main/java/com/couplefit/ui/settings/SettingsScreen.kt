@@ -64,7 +64,7 @@ fun SettingsScreen(
     onToggleReduceMotion: (Boolean) -> Unit = {},
     liquidGlassEnabled: Boolean = true,
     onToggleLiquidGlass: (Boolean) -> Unit = {},
-    meshGradientEnabled: Boolean = true,
+    meshGradientEnabled: Boolean = false,
     onToggleMeshGradient: (Boolean) -> Unit = {},
     healthConnectViewModel: HealthConnectViewModel = hiltViewModel(),
     authViewModel: com.couplefit.ui.auth.AuthViewModel = hiltViewModel()
@@ -978,7 +978,7 @@ internal fun ExperienceHubContent(
     onToggleReduceMotion: (Boolean) -> Unit,
     liquidGlassEnabled: Boolean = true,
     onToggleLiquidGlass: (Boolean) -> Unit = {},
-    meshGradientEnabled: Boolean = true,
+    meshGradientEnabled: Boolean = false,
     onToggleMeshGradient: (Boolean) -> Unit = {},
     notifyCritical: Boolean,
     onToggleNotifyCritical: (Boolean) -> Unit,

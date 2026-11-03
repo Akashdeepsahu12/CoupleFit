@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**`PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md`**](PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 47 milestone plan: Restore Ambient Video Aurora Gradient Background (`BGV-08`). |
+| [**`phase47_verification_report.md`**](phase47_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 47 verification report: Reverted default background to `AmbientVideoBackground`, optical harmony with Expo Glass dock, unit tests, and live device verification (`BGV-08`). |
 | [**\PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md\**](PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md) | \/gsd-plan-phase\ | **Roadmap & Milestones** | Phase 46 milestone plan: Expo Glass Effect Component Architecture (\GlassContainer\ & \GlassView\) for Bottom Navigation Bar (\GLS-08\ / \EXPO-02\). |
 | [**\phase46_verification_report.md\**](phase46_verification_report.md) | \/gsd-verify-work\ | **Verification & UAT** | Phase 46 verification report: \GlassContainer\ parent coordination, \GlassView(Clear)\ active indicator refraction, unit tests, and live device verification (\GLS-08\ / \EXPO-02\). |
 | [**`PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md`**](PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 43 milestone plan: Number Pop-In Motion Physics & Dashboard Tracker Choreography (`POP-01`). |
