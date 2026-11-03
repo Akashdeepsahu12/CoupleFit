@@ -6,6 +6,8 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +24,9 @@ import androidx.compose.ui.unit.dp
 val LocalLiquidGlassEnabled = staticCompositionLocalOf { true }
 val LocalAppBackdrop = staticCompositionLocalOf<Backdrop?> { null }
 val LocalRefractionBackdrop: ProvidableCompositionLocal<Backdrop?> get() = LocalAppBackdrop
+
+val LocalGlassContainerActive = compositionLocalOf { false }
+val LocalGlassContainerSpacing = compositionLocalOf { 0.dp }
 
 fun isGlassSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
@@ -60,6 +65,11 @@ enum class GlassColorScheme {
  * Runtime check helper matching expo-glass-effect's isGlassEffectAPIAvailable()
  */
 fun isGlassEffectAPIAvailable(): Boolean = isGlassSupported()
+
+/**
+ * Runtime check helper matching expo-glass-effect's isLiquidGlassAvailable()
+ */
+fun isLiquidGlassAvailable(): Boolean = isGlassEffectAPIAvailable()
 
 // Calibrated physical constants matching refraction.md (BitChord Physical Refraction Engine)
 private const val VIBRANCY = 1f
@@ -268,4 +278,76 @@ fun Modifier.expoGlassEffect(
             borderWidth = borderWidth,
             borderColor = effectiveBorderColor
         )
+}
+
+/**
+ * Expo Glass Effect GlassContainer composable matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
+ *
+ * Parent container that groups and coordinates multiple adjacent or nested [GlassView] components,
+ * providing shared spacing thresholds, backdrop sampling, and a unified glass rendering context.
+ */
+@Composable
+fun GlassContainer(
+    modifier: Modifier = Modifier,
+    spacing: Dp = 8.dp,
+    shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    content: @Composable BoxScope.() -> Unit
+) {
+    CompositionLocalProvider(
+        LocalGlassContainerActive provides true,
+        LocalGlassContainerSpacing provides spacing
+    ) {
+        Box(
+            modifier = modifier.clip(shape),
+            content = content
+        )
+    }
+}
+
+/**
+ * Expo Glass Effect GlassView composable matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
+ *
+ * Renders an individual translucent, light-bending liquid glass surface.
+ *
+ * @param modifier Layout and positioning modifier
+ * @param glassEffectStyle Glass style: [GlassEffectStyle.Regular] (frosted), [GlassEffectStyle.Clear] (crystalline), or [GlassEffectStyle.None]
+ * @param tintColor Color tint applied over the glass surface
+ * @param colorScheme Color scheme override ([GlassColorScheme.Auto], [GlassColorScheme.Light], [GlassColorScheme.Dark])
+ * @param isInteractive Enables dynamic interactive touch feedback with spring compression and specular boost
+ * @param shape Corner clipping shape (defaults to capsule pill)
+ * @param borderWidth Specular edge width
+ * @param borderColor Specular edge color
+ * @param isPressed External press state override
+ * @param reduceMotion Disables spring animations for accessibility
+ * @param content Child composable content
+ */
+@Composable
+fun GlassView(
+    modifier: Modifier = Modifier,
+    glassEffectStyle: GlassEffectStyle = GlassEffectStyle.Regular,
+    tintColor: Color? = null,
+    colorScheme: GlassColorScheme = GlassColorScheme.Auto,
+    isInteractive: Boolean = false,
+    shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    borderWidth: Dp = GLASS_EDGE_WIDTH,
+    borderColor: Color? = null,
+    isPressed: Boolean = false,
+    reduceMotion: Boolean = false,
+    content: @Composable (BoxScope.() -> Unit)? = null
+) {
+    Box(
+        modifier = modifier.expoGlassEffect(
+            shape = shape,
+            glassEffectStyle = glassEffectStyle,
+            isInteractive = isInteractive,
+            tintColor = tintColor,
+            colorScheme = colorScheme,
+            borderWidth = borderWidth,
+            borderColor = borderColor,
+            isPressed = isPressed,
+            reduceMotion = reduceMotion
+        )
+    ) {
+        content?.invoke(this)
+    }
 }

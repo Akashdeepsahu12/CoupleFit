@@ -13,6 +13,8 @@ import com.couplefit.ui.glass.liquidGlass
 import com.couplefit.ui.glass.expoGlassEffect
 import com.couplefit.ui.glass.GlassEffectStyle
 import com.couplefit.ui.glass.GlassColorScheme
+import com.couplefit.ui.glass.GlassContainer
+import com.couplefit.ui.glass.GlassView
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import com.couplefit.ui.glass.glassBarTint
@@ -160,213 +162,226 @@ fun CoupleFitNavigationSuite(
                         content(PaddingValues(bottom = 96.dp))
                     }
 
-                // Floating Glass Navigation Dock hovering over content with optical glass & blur
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 10.dp)
-                        .navigationBarsPadding(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Exact BitChord Liquid Glass Floating Dock (from liquideffect.md)
-                    // drawBackdrop executes 0.33x downscaling, 1.5x vibrancy boost, RenderEffect blur,
-                    // and physical 7-band chromatic dispersion AGSL lens refraction on the backdrop,
-                    // then draws child tabs with 100% crispness.
+                    // Floating Glass Navigation Dock hovering over content with optical glass & blur
                     Box(
                         modifier = Modifier
+                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .height(68.dp)
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = pillShape,
-                                ambientColor = Color.Black.copy(alpha = 0.25f),
-                                spotColor = Color.Transparent
-                            )
-                            .expoGlassEffect(
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                            .navigationBarsPadding(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Expo Glass Effect GlassContainer grouping dock plate and sliding active capsule
+                        GlassContainer(
+                            modifier = Modifier.fillMaxWidth(),
+                            spacing = 8.dp,
+                            shape = pillShape
+                        ) {
+                            // Exact BitChord Liquid Glass Floating Dock (from liquideffect.md & refraction.md)
+                            // drawBackdrop executes 0.33x downscaling, 1.5x vibrancy boost, RenderEffect blur,
+                            // and physical 7-band chromatic dispersion AGSL lens refraction on the backdrop,
+                            // then draws child tabs with 100% crispness.
+                            GlassView(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(68.dp)
+                                    .shadow(
+                                        elevation = 6.dp,
+                                        shape = pillShape,
+                                        ambientColor = Color.Black.copy(alpha = 0.25f),
+                                        spotColor = Color.Transparent
+                                    ),
                                 shape = pillShape,
                                 glassEffectStyle = if (useLiquidGlass) glassEffectStyle else GlassEffectStyle.None,
                                 isInteractive = isInteractive,
                                 tintColor = glassTintColor,
                                 isPressed = isDockPressed,
                                 reduceMotion = reduceMotion
-                            )
-                    ) {
-                        // BitChord Active Indicator Pill & Foreground Tabs
-                        BoxWithConstraints(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 6.dp, vertical = 6.dp)
-                        ) {
-                            val tabWidth = maxWidth / destinations.size
-
-                            // BitChord Spring-driven animated index with elastic stretch & squash
-                            val animatedIndex by animateFloatAsState(
-                                targetValue = selectedIndex.toFloat(),
-                                animationSpec = if (reduceMotion) {
-                                    snap()
-                                } else {
-                                    spring(
-                                        dampingRatio = 0.72f,
-                                        stiffness = 380f
-                                    )
-                                },
-                                label = "dockIndicatorIndex"
-                            )
-
-                            // BitChord physical stretch & squash kinematics
-                            val delta = selectedIndex.toFloat() - animatedIndex
-                            val lag = if (reduceMotion) 0f else kotlin.math.abs(delta).coerceIn(0f, 1f)
-                            val stretchX = if (reduceMotion) 1f else (1f + lag * 0.22f)
-                            val squashY = if (reduceMotion) 1f else (1f - lag * 0.22f * 0.45f)
-
-                            // Sliding active indicator capsule (Draw-phase translation eliminates layout passes)
-                            Box(
-                                modifier = Modifier
-                                    .width(tabWidth)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
-                                    .graphicsLayer {
-                                        translationX = (tabWidth * animatedIndex).toPx()
-                                        scaleX = stretchX
-                                        scaleY = squashY
-                                    }
-                                    .clip(pillShape)
-                                    .background(activeIndicatorBrush)
-                            )
-
-                            // Tab destination items
-                            Row(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                destinations.forEachIndexed { index, destination ->
-                                    val isSelected = index == selectedIndex
-                                    val itemInteractionSource = when (index) {
-                                        0 -> tab0InteractionSource
-                                        1 -> tab1InteractionSource
-                                        2 -> tab2InteractionSource
-                                        else -> tab3InteractionSource
-                                    }
-                                    val animatedColor by animateColorAsState(
-                                        targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else Color(0xFF8E95A5),
-                                        animationSpec = if (reduceMotion) snap() else tween(180),
-                                        label = "tabColor"
-                                    )
-                                    val iconScale by animateFloatAsState(
-                                        targetValue = if (isSelected && !reduceMotion) 1.08f else 1.0f,
-                                        animationSpec = if (reduceMotion) snap() else spring(dampingRatio = 0.72f, stiffness = 500f),
-                                        label = "tabIconScale"
+                                // BitChord Active Indicator Pill & Foreground Tabs
+                                BoxWithConstraints(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 6.dp, vertical = 6.dp)
+                                ) {
+                                    val tabWidth = maxWidth / destinations.size
+
+                                    // BitChord Spring-driven animated index with elastic stretch & squash
+                                    val animatedIndex by animateFloatAsState(
+                                        targetValue = selectedIndex.toFloat(),
+                                        animationSpec = if (reduceMotion) {
+                                            snap()
+                                        } else {
+                                            spring(
+                                                dampingRatio = 0.72f,
+                                                stiffness = 380f
+                                            )
+                                        },
+                                        label = "dockIndicatorIndex"
                                     )
 
-                                    Column(
+                                    // BitChord physical stretch & squash kinematics
+                                    val delta = selectedIndex.toFloat() - animatedIndex
+                                    val lag = if (reduceMotion) 0f else kotlin.math.abs(delta).coerceIn(0f, 1f)
+                                    val stretchX = if (reduceMotion) 1f else (1f + lag * 0.22f)
+                                    val squashY = if (reduceMotion) 1f else (1f - lag * 0.22f * 0.45f)
+
+                                    // Sliding active indicator capsule as child GlassView (Clear crystalline refraction)
+                                    val activeIndicatorGlassStyle = if (useLiquidGlass) GlassEffectStyle.Clear else GlassEffectStyle.None
+                                    val activeIndicatorTint = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
+
+                                    GlassView(
                                         modifier = Modifier
-                                            .weight(1f)
+                                            .width(tabWidth)
                                             .fillMaxHeight()
-                                            .clip(RoundedCornerShape(22.dp))
-                                            .iosMomentumClickable(
-                                                interactionSource = itemInteractionSource,
-                                                pressedScale = 0.94f,
-                                                onClickLabel = destination.contentDescription
-                                            ) {
-                                                if (!isSelected) {
-                                                    CoupleFitHaptics.performSubtleTick(null, haptic)
-                                                }
-                                                onDestinationSelected(destination)
-                                            }
-                                            .semantics {
-                                                role = Role.Tab
-                                                selected = isSelected
-                                                contentDescription = "${destination.label} tab, ${if (isSelected) "selected" else "not selected"}"
+                                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                                            .graphicsLayer {
+                                                translationX = (tabWidth * animatedIndex).toPx()
+                                                scaleX = stretchX
+                                                scaleY = squashY
                                             },
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
+                                        shape = pillShape,
+                                        glassEffectStyle = activeIndicatorGlassStyle,
+                                        tintColor = activeIndicatorTint,
+                                        isInteractive = isInteractive,
+                                        isPressed = isDockPressed,
+                                        reduceMotion = reduceMotion,
+                                        borderColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.35f)
+                                    )
+
+                                    // Tab destination items
+                                    Row(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(
-                                            imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-                                            contentDescription = null,
-                                            tint = animatedColor,
-                                            modifier = Modifier
-                                                .size(24.dp)
-                                                .graphicsLayer {
-                                                    scaleX = iconScale
-                                                    scaleY = iconScale
-                                                }
-                                        )
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = destination.label,
-                                            style = MaterialTheme.typography.labelSmall.copy(
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                fontSize = 11.sp
-                                            ),
-                                            color = animatedColor
-                                        )
+                                        destinations.forEachIndexed { index, destination ->
+                                            val isSelected = index == selectedIndex
+                                            val itemInteractionSource = when (index) {
+                                                0 -> tab0InteractionSource
+                                                1 -> tab1InteractionSource
+                                                2 -> tab2InteractionSource
+                                                else -> tab3InteractionSource
+                                            }
+                                            val animatedColor by animateColorAsState(
+                                                targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else Color(0xFF8E95A5),
+                                                animationSpec = if (reduceMotion) snap() else tween(180),
+                                                label = "tabColor"
+                                            )
+                                            val iconScale by animateFloatAsState(
+                                                targetValue = if (isSelected && !reduceMotion) 1.08f else 1.0f,
+                                                animationSpec = if (reduceMotion) snap() else spring(dampingRatio = 0.72f, stiffness = 500f),
+                                                label = "tabIconScale"
+                                            )
+
+                                            Column(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .fillMaxHeight()
+                                                    .clip(RoundedCornerShape(22.dp))
+                                                    .iosMomentumClickable(
+                                                        interactionSource = itemInteractionSource,
+                                                        pressedScale = 0.94f,
+                                                        onClickLabel = destination.contentDescription
+                                                    ) {
+                                                        if (!isSelected) {
+                                                            CoupleFitHaptics.performSubtleTick(null, haptic)
+                                                        }
+                                                        onDestinationSelected(destination)
+                                                    }
+                                                    .semantics {
+                                                        role = Role.Tab
+                                                        selected = isSelected
+                                                        contentDescription = "${destination.label} tab, ${if (isSelected) "selected" else "not selected"}"
+                                                    },
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
+                                                    contentDescription = null,
+                                                    tint = animatedColor,
+                                                    modifier = Modifier
+                                                        .size(24.dp)
+                                                        .graphicsLayer {
+                                                            scaleX = iconScale
+                                                            scaleY = iconScale
+                                                        }
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Text(
+                                                    text = destination.label,
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                        fontSize = 11.sp
+                                                    ),
+                                                    color = animatedColor
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-        } else {
-            // Expanded Viewport: Tablets and Foldables (≥600dp) with Glass Rail
-            Row(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
-                ) {
-                    val railItemColors = NavigationRailItemDefaults.colors(
-                        selectedIconColor = CoupleFitIdentityTokens.UserPrimary,
-                        selectedTextColor = CoupleFitIdentityTokens.UserPrimary,
-                        unselectedIconColor = Color(0xFF8E95A5),
-                        unselectedTextColor = Color(0xFF8E95A5),
-                        indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
-                    )
-                    NavigationRail(
+            } else {
+                // Expanded Viewport: Tablets and Foldables (≥600dp) with Glass Rail
+                Row(modifier = Modifier.fillMaxSize()) {
+                    Box(
                         modifier = Modifier
-                            .width(84.dp)
                             .fillMaxHeight()
-                            .glassDock(shape = RoundedCornerShape(24.dp)),
-                        containerColor = Color.Transparent,
-                        header = {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                            .padding(start = 12.dp, top = 12.dp, bottom = 12.dp)
                     ) {
-                        destinations.forEach { destination ->
-                            val isSelected = destination == selectedDestination
-                            NavigationRailItem(
-                                selected = isSelected,
-                                onClick = {
-                                    if (!isSelected) {
-                                        CoupleFitHaptics.performSubtleTick(null, haptic)
-                                    }
-                                    onDestinationSelected(destination)
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-                                        contentDescription = destination.contentDescription
-                                    )
-                                },
-                                label = {
-                                    Text(
-                                        text = destination.label,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                colors = railItemColors
-                            )
+                        val railItemColors = NavigationRailItemDefaults.colors(
+                            selectedIconColor = CoupleFitIdentityTokens.UserPrimary,
+                            selectedTextColor = CoupleFitIdentityTokens.UserPrimary,
+                            unselectedIconColor = Color(0xFF8E95A5),
+                            unselectedTextColor = Color(0xFF8E95A5),
+                            indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
+                        )
+                        NavigationRail(
+                            modifier = Modifier
+                                .width(84.dp)
+                                .fillMaxHeight()
+                                .glassDock(shape = RoundedCornerShape(24.dp)),
+                            containerColor = Color.Transparent,
+                            header = {
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        ) {
+                            destinations.forEach { destination ->
+                                val isSelected = destination == selectedDestination
+                                NavigationRailItem(
+                                    selected = isSelected,
+                                    onClick = {
+                                        if (!isSelected) {
+                                            CoupleFitHaptics.performSubtleTick(null, haptic)
+                                        }
+                                        onDestinationSelected(destination)
+                                    },
+                                    icon = {
+                                        Icon(
+                                            imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
+                                            contentDescription = destination.contentDescription
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = destination.label,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    colors = railItemColors
+                                )
+                            }
                         }
                     }
-                }
-                Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                    content(PaddingValues(0.dp))
+                    Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                        content(PaddingValues(0.dp))
+                    }
                 }
             }
         }
-    }
     }
 }

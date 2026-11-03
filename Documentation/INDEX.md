@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**\PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md\**](PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md) | \/gsd-plan-phase\ | **Roadmap & Milestones** | Phase 46 milestone plan: Expo Glass Effect Component Architecture (\GlassContainer\ & \GlassView\) for Bottom Navigation Bar (\GLS-08\ / \EXPO-02\). |
+| [**\phase46_verification_report.md\**](phase46_verification_report.md) | \/gsd-verify-work\ | **Verification & UAT** | Phase 46 verification report: \GlassContainer\ parent coordination, \GlassView(Clear)\ active indicator refraction, unit tests, and live device verification (\GLS-08\ / \EXPO-02\). |
 | [**`PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md`**](PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 43 milestone plan: Number Pop-In Motion Physics & Dashboard Tracker Choreography (`POP-01`). |
 | [**`phase43_verification_report.md`**](phase43_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 43 verification report: Safe monotonic cubic solver, transitions.dev 500ms/70ms stagger/8dp offset physics, cold-start & resume triggers, and live device verification (`POP-01`). |
 | [**`PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md`**](PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 42 milestone plan: BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (`REF-01`). |

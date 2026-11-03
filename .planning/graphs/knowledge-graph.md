@@ -1,4 +1,4 @@
-﻿# CoupleFit Local Knowledge Graph 🕸️
+# CoupleFit Local Knowledge Graph 🕸️
 
 > Generated via `/gsd-graphify` lifecycle mandate.
 
@@ -573,3 +573,14 @@ graph TD
   - `SettingsScreen.kt` -> Added `Expo Mesh Gradient Background` switch row in Experience Hub.
   - `MeshGradientTest.kt` -> Comprehensive unit test suite (grid dimensions, signature palettes, normalized bounds).
   - `Documentation/phase45_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`).
+
+
+### Phase 46: Expo Glass Effect Component Architecture (`GlassContainer` & `GlassView`) for Bottom Navigation Bar (GLS-08 / EXPO-02) 🟢 Resolved
+- **Domain**: Native Glass Component Architecture, Nested Optical Refraction & Tactile Haptics (Expo Glass Effect SDK)
+- **Milestone Tag**: `v2.9.32-expo-glass-effect-components-expo02`
+- **Nodes & Edges**:
+  - `EXPO-02`: Expo Glass Effect Component Architecture (`GlassContainer` & `GlassView`)
+  - `LiquidGlass.kt` -> Declared `GlassContainer` (parent coordinating container with `LocalGlassContainerActive`, `LocalGlassContainerSpacing`, and shared spacing), `GlassView` (discrete configurable glass surface composable), and `isLiquidGlassAvailable()` runtime helper.
+  - `CoupleFitNavigationSuite.kt` -> Wrapped bottom navigation dock in `GlassContainer(spacing = 8.dp, shape = pillShape)`. Rendered dock plate with `GlassView(Regular)` and sliding active indicator capsule as child `GlassView(Clear, tintColor = UserPrimary.copy(alpha = 0.22f), isInteractive = true)` with crystalline refraction (6dp blur, 26dp refraction, cyan tint wash, specular rim) and interactive spring touch compression.
+  - `ExpoGlassEffectTest.kt` -> Unit test suite verifying `GlassEffectStyle` and `GlassColorScheme` variants, runtime helper parity, and calibrated physical constants (100% green bar).
+  - `Documentation/phase46_verification_report.md` -> Live hardware screenshot verification across "Today", "Challenges", "Trends", and "Couple Hub" tabs on Google Pixel 10 Pro (`emulator-5554`).
