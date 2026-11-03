@@ -10,6 +10,11 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import com.couplefit.ui.glass.rememberLayerBackdrop
 import com.couplefit.ui.glass.layerBackdrop
 import com.couplefit.ui.glass.liquidGlass
+import com.couplefit.ui.glass.expoGlassEffect
+import com.couplefit.ui.glass.GlassEffectStyle
+import com.couplefit.ui.glass.GlassColorScheme
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import com.couplefit.ui.glass.glassBarTint
 import com.couplefit.ui.glass.GLASS_EDGE_COLOR
 import com.couplefit.ui.glass.LocalAppBackdrop
@@ -75,6 +80,9 @@ fun CoupleFitNavigationSuite(
     @RawRes ambientVideoResId: Int = AmbientVideoRegistry.defaultAsset.resId,
     includeVideoBackground: Boolean = false,
     liquidGlassEnabled: Boolean = true,
+    glassEffectStyle: GlassEffectStyle = GlassEffectStyle.Regular,
+    isInteractive: Boolean = true,
+    glassTintColor: Color? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
@@ -85,6 +93,17 @@ fun CoupleFitNavigationSuite(
     val isLiquidGlassSupported = remember { Build.VERSION.SDK_INT >= Build.VERSION_CODES.S }
     val useLiquidGlass = liquidGlassEnabled && isLiquidGlassSupported
     val pillShape = remember { RoundedCornerShape(percent = 50) }
+
+    // Expo Glass Effect: Track interactive touch states across all navigation tabs
+    val tab0InteractionSource = remember { MutableInteractionSource() }
+    val tab1InteractionSource = remember { MutableInteractionSource() }
+    val tab2InteractionSource = remember { MutableInteractionSource() }
+    val tab3InteractionSource = remember { MutableInteractionSource() }
+    val isTab0Pressed by tab0InteractionSource.collectIsPressedAsState()
+    val isTab1Pressed by tab1InteractionSource.collectIsPressedAsState()
+    val isTab2Pressed by tab2InteractionSource.collectIsPressedAsState()
+    val isTab3Pressed by tab3InteractionSource.collectIsPressedAsState()
+    val isDockPressed = isTab0Pressed || isTab1Pressed || isTab2Pressed || isTab3Pressed
     val dockBackdropBrush = remember {
         Brush.verticalGradient(
             listOf(
@@ -164,11 +183,13 @@ fun CoupleFitNavigationSuite(
                                 ambientColor = Color.Black.copy(alpha = 0.25f),
                                 spotColor = Color.Transparent
                             )
-                            .liquidGlass(
+                            .expoGlassEffect(
                                 shape = pillShape,
-                                surfaceTint = if (useLiquidGlass) glassBarTint() else null,
-                                borderWidth = 0.5.dp,
-                                borderColor = if (useLiquidGlass) GLASS_EDGE_COLOR else MaterialTheme.colorScheme.outlineVariant
+                                glassEffectStyle = if (useLiquidGlass) glassEffectStyle else GlassEffectStyle.None,
+                                isInteractive = isInteractive,
+                                tintColor = glassTintColor,
+                                isPressed = isDockPressed,
+                                reduceMotion = reduceMotion
                             )
                     ) {
                         // BitChord Active Indicator Pill & Foreground Tabs
@@ -222,6 +243,12 @@ fun CoupleFitNavigationSuite(
                             ) {
                                 destinations.forEachIndexed { index, destination ->
                                     val isSelected = index == selectedIndex
+                                    val itemInteractionSource = when (index) {
+                                        0 -> tab0InteractionSource
+                                        1 -> tab1InteractionSource
+                                        2 -> tab2InteractionSource
+                                        else -> tab3InteractionSource
+                                    }
                                     val animatedColor by animateColorAsState(
                                         targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else Color(0xFF8E95A5),
                                         animationSpec = if (reduceMotion) snap() else tween(180),
@@ -239,6 +266,7 @@ fun CoupleFitNavigationSuite(
                                             .fillMaxHeight()
                                             .clip(RoundedCornerShape(22.dp))
                                             .iosMomentumClickable(
+                                                interactionSource = itemInteractionSource,
                                                 pressedScale = 0.94f,
                                                 onClickLabel = destination.contentDescription
                                             ) {

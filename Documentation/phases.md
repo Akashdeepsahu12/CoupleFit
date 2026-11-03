@@ -961,3 +961,19 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Created `popInTrigger` backed by `rememberSaveable { mutableIntStateOf(1) }` and bound `popInTrigger++` to `Lifecycle.Event.ON_RESUME`, ensuring animations re-run every time the app opens or resumes from background.
      - Wired `animTrigger` into `SideBySideActivityCard` (User & Partner gauges and under-gauge telemetry: active minutes and calories), `StatCard` (My Stats & Partner Stats), `PartnerOfflineCard` (Room SSOT cache for steps, active time, calories, and average BPM), and daily aggregate cards.
 - **Release Tag**: `v2.9.29-number-pop-in-trackers-pop01`
+
+## Phase 44: Expo Glass Effect Native Liquid Glass Bottom Navigation Bar (`EXPO-01`) 💎✨
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md)
+- **Verification Report**: [`Documentation/phase44_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase44_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Official Expo Glass Effect API Parity (`LiquidGlass.kt`)**:
+     - Declared `GlassEffectStyle`: `Regular` (frosted liquid glass: 14dp blur, 22dp refraction, 0.45 dark tint, 0.22 specular rim highlight), `Clear` (high-clarity crystalline: 6dp blur, 26dp refraction, 0.20 tint, 0.35 specular rim highlight), and `None` (neutral fallback).
+     - Declared `GlassColorScheme`: `Auto`, `Light`, and `Dark` theme adaptation modes.
+     - Runtime capability detection: `isGlassEffectAPIAvailable(): Boolean` (`Build.VERSION.SDK_INT >= S`).
+     - Created `Modifier.expoGlassEffect(...)`: Style-calibrated blur and refraction parameters, spring-driven tactile compression (`scale = 0.985f`), dynamic specular rim brightening (`alpha = 0.42f`), and accessibility `reduceMotion` gating.
+  2. **Interactive Dock Integration & Decoupled Rendering (`CoupleFitNavigationSuite.kt`)**:
+     - Bound individual navigation tab `MutableInteractionSource` states to derive dock-wide tactile press state (`isDockPressed`).
+     - Applied `.expoGlassEffect(...)` to the floating dock container while passing interaction sources to tab items.
+     - Maintained decoupled foreground rendering (100% crisp typography) and living ambient video background pass-through (`rememberLayerBackdrop()`).
+- **Release Tag**: `v2.9.30-expo-glass-effect-bottom-bar-expo01`

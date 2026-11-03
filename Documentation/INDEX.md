@@ -178,3 +178,9 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [`phase40_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase40_verification_report.md): Verification report for Phase 40 (KRP-07).
 
 - [phase41_verification_report.md](file:///D:/Couple_fit/CoupleFit/Documentation/phase41_verification_report.md): Verification report for Phase 41 (LIQ-04).
+- [`PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_42_REFRACTION_LENS_ENGINE.md): Milestone plan for BitChord Physical 3D Lens Refraction & 7-Wavelength Chromatic Dispersion Engine (REF-01).
+- [`phase42_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase42_verification_report.md): Verification report for Phase 42 (REF-01).
+- [`PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_43_NUMBER_POP_IN_ANIMATION.md): Milestone plan for Number Pop-In Motion Physics & Dashboard Tracker Choreography (POP-01).
+- [`phase43_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase43_verification_report.md): Verification report for Phase 43 (POP-01).
+- [`PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_44_EXPO_GLASS_EFFECT_BOTTOM_BAR.md): Milestone plan for Expo Glass Effect Native Liquid Glass Bottom Navigation Bar (EXPO-01).
+- [`phase44_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase44_verification_report.md): Verification report for Phase 44 (EXPO-01).
