@@ -606,3 +606,15 @@ graph TD
   - `CoupleFitNavigationSuite.kt` -> Wrapped bottom navigation dock in `GlassContainer(spacing = 8.dp)`. Applied animated `styleConfig = GlassEffectStyleConfig(Regular, animate = true, 300ms)` to dock plate and `styleConfig = GlassEffectStyleConfig(Clear, animate = true, 280ms)` to sliding active indicator capsule. Decoupled foreground rendering guarantees 100% crisp typography and icons.
   - `ExpoGlassEffectTest.kt` -> Unit test suite verifying `GlassEffectStyleConfig` default and custom values, style enum variants, and runtime helpers (100% green bar).
   - `Documentation/phase48_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub on Google Pixel 10 Pro (`emulator-5554`).
+
+
+### Phase 49: Expo MCP Official Glass Effect Alignment (EXPO-04 / GLS-10) 🟢 Resolved
+- **Domain**: Expo MCP SDK Ingestion, Exact Schema Alignment & Live Verification
+- **Milestone Tag**: `v2.9.35-expo-mcp-glass-effect-alignment-expo04`
+- **Nodes & Edges**:
+  - `EXPO-04`: Expo MCP Official Glass Effect Alignment
+  - `Expo MCP Server` -> Retrieved official documentation via `search_documentation` and `read_documentation` tools for `expo-glass-effect` (~58.0.5).
+  - `LiquidGlass.kt` -> Aligned `GlassEffectStyleConfig` with Expo's exact schema: `style: GlassEffectStyle`, `animate: Boolean = false`, and `animationDuration: Float = 0.3f` (in seconds). Bound `durationMillis` to Compose animation specs.
+  - `CoupleFitNavigationSuite.kt` -> Configured outer dock plate and sliding active indicator capsule with aligned `GlassEffectStyleConfig` instances (`0.3f` and `0.28f` seconds).
+  - `ExpoGlassEffectTest.kt` -> Unit test suite verifying schema defaults (`animate = false`, `animationDuration = 0.3f`) and custom overrides (100% green bar).
+  - `Documentation/phase49_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub on Google Pixel 10 Pro (`emulator-5554`).

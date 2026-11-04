@@ -3989,3 +3989,41 @@ The user requested applying the official Expo Glass Effect SDK specification ([h
 | **`EXPO-03`** | Animated Glass Dock (Today Tab) | Live capture on `emulator-5554`: floating dock with `GlassContainer`, outer `GlassView(Regular)` and sliding active capsule `GlassView(Clear)` over ambient video background | [`p48_emulator_expo_glass_dock_today.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_today.png) | 🟢 Verified |
 | **`EXPO-03`** | Tab Switch to Challenges | Tab transition verification: crystalline glass capsule spring glide to Challenges tab with dynamic proximity blending | [`p48_emulator_expo_glass_dock_challenges_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_challenges_active.png) | 🟢 Verified |
 | **`EXPO-03`** | Tab Switch to Couple Hub | Tab transition verification: far-right Couple Hub tab activated with animated crystalline glass refraction | [`p48_emulator_expo_glass_dock_couplehub_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_couplehub_active.png) | 🟢 Verified |
+
+
+---
+
+## 74. Phase 49: Expo MCP Official Glass Effect Alignment (`EXPO-04` / `GLS-10`) 💎📱
+
+> **Milestone Plan Reference**: [`Documentation/PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md)  
+> **Verification Report**: [`Documentation/phase49_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase49_verification_report.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/ui/glass/LiquidGlass.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/glass/LiquidGlass.kt)
+> - [`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)
+> - [`app/src/test/java/com/couplefit/ui/ExpoGlassEffectTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/ExpoGlassEffectTest.kt)  
+> **Associated Defect / Enhancement Logs**: `EXPO-04`, `GLS-10`
+
+### 74.1 Problem Description & Alignment
+The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/versions/latest/sdk/glass-effect/ ... use expo mcp"*:
+- Queried the official Expo MCP Server tools (`search_documentation` and `read_documentation`) to ingest the authoritative specification.
+- Aligned `GlassEffectStyleConfig` to accept `animationDuration: Float = 0.3f` (in seconds), with `animate: Boolean = false` as default, strictly matching the Expo TypeScript SDK contract.
+- Verified `GlassContainer` (`spacing: Dp`) proximity refraction and smooth animation kinematics across all bottom navigation tabs.
+
+### 74.2 Architectural Solution
+1. **Expo MCP Schema Synchronization (`LiquidGlass.kt`)**:
+   - `GlassEffectStyleConfig`: `style`, `animate = false`, `animationDuration = 0.3f`, `durationMillis`.
+   - Continuous property animations across blur, refraction, and tint.
+2. **Bottom Navigation Suite Integration (`CoupleFitNavigationSuite.kt`)**:
+   - Dock plate: `GlassView` with `styleConfig = GlassEffectStyleConfig(style = GlassEffectStyle.Regular, animate = true, animationDuration = 0.3f)`.
+   - Sliding active indicator capsule: `GlassView` with `styleConfig = GlassEffectStyleConfig(style = GlassEffectStyle.Clear, animate = true, animationDuration = 0.28f)`.
+3. **Deterministic Multi-Device Verification**:
+   - Automated unit tests pass 100% green (`ExpoGlassEffectTest`).
+   - Android test Kotlin compilation passes with zero errors.
+   - Live execution on `emulator-5554` verified via ARTEMIS screenshot captures across Today, Challenges, and Couple Hub.
+
+### 74.3 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`EXPO-04`** | Expo MCP Glass Dock (Today Tab) | Live capture on `emulator-5554`: floating dock with `GlassContainer`, outer `GlassView(Regular)` and sliding active capsule `GlassView(Clear)` | [`p49_emulator_expo_mcp_glass_dock_today.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p49_emulator_expo_mcp_glass_dock_today.png) | 🟢 Verified |
+| **`EXPO-04`** | Tab Switch to Challenges | Tab transition verification: crystalline glass capsule spring glide to Challenges tab | [`p49_emulator_expo_mcp_glass_dock_challenges_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p49_emulator_expo_mcp_glass_dock_challenges_active.png) | 🟢 Verified |
+| **`EXPO-04`** | Tab Switch to Couple Hub | Tab transition verification: far-right Couple Hub tab activated with crystalline glass refraction | [`p49_emulator_expo_mcp_glass_dock_couplehub_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p49_emulator_expo_mcp_glass_dock_couplehub_active.png) | 🟢 Verified |

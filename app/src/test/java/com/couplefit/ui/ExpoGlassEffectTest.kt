@@ -41,17 +41,19 @@ class ExpoGlassEffectTest {
     fun glassEffectStyleConfig_hasSensibleDefaultsAndCustomValues() {
         val defaultConfig = GlassEffectStyleConfig()
         assertEquals(GlassEffectStyle.Regular, defaultConfig.style)
-        assertTrue(defaultConfig.animate)
-        assertEquals(300, defaultConfig.animationDurationMs)
+        org.junit.Assert.assertFalse(defaultConfig.animate)
+        assertEquals(0.3f, defaultConfig.animationDuration, 0.001f)
+        assertEquals(300, defaultConfig.durationMillis)
 
         val customConfig = GlassEffectStyleConfig(
             style = GlassEffectStyle.Clear,
             animate = true,
-            animationDurationMs = 280
+            animationDuration = 0.28f
         )
         assertEquals(GlassEffectStyle.Clear, customConfig.style)
         assertTrue(customConfig.animate)
-        assertEquals(280, customConfig.animationDurationMs)
+        assertEquals(0.28f, customConfig.animationDuration, 0.001f)
+        assertEquals(280, customConfig.durationMillis)
     }
 
     @Test

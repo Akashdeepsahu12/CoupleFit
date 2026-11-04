@@ -67,12 +67,20 @@ enum class GlassColorScheme {
  * Animation and style configuration for [GlassView], matching expo-glass-effect's
  * object configuration for glassEffectStyle:
  * `{ style: "clear" | "regular" | "none", animate: boolean, animationDuration: number }`
+ *
+ * @param style Target glass style: [GlassEffectStyle.Regular], [GlassEffectStyle.Clear], or [GlassEffectStyle.None]
+ * @param animate Whether to animate the style change (default: false, matching Expo SDK)
+ * @param animationDuration Duration of the animation in seconds (matching Expo SDK type `number`)
+ * @param animationDurationMs Optional convenience millisecond duration override
  */
 data class GlassEffectStyleConfig(
     val style: GlassEffectStyle = GlassEffectStyle.Regular,
-    val animate: Boolean = true,
-    val animationDurationMs: Int = 300
-)
+    val animate: Boolean = false,
+    val animationDuration: Float = 0.3f,
+    val animationDurationMs: Int = (animationDuration * 1000f).toInt()
+) {
+    val durationMillis: Int get() = if (animationDurationMs != 300) animationDurationMs else (animationDuration * 1000f).toInt()
+}
 
 /**
  * Runtime check helper matching expo-glass-effect's isGlassEffectAPIAvailable()
@@ -256,19 +264,20 @@ fun Modifier.expoGlassEffect(
         GlassEffectStyle.None -> 0f
     }
 
+    val animDuration = styleConfig.durationMillis
     val effectiveBlurRadiusDp by animateFloatAsState(
         targetValue = targetBlurRadiusDp,
-        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = animDuration),
         label = "glassBlurRadius"
     )
     val effectiveRefractionHeightDp by animateFloatAsState(
         targetValue = targetRefractionHeightDp,
-        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = animDuration),
         label = "glassRefractionHeight"
     )
     val effectiveRefractionAmountDp by animateFloatAsState(
         targetValue = targetRefractionAmountDp,
-        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = animDuration),
         label = "glassRefractionAmount"
     )
 
@@ -289,7 +298,7 @@ fun Modifier.expoGlassEffect(
 
     val effectiveTintColor by animateColorAsState(
         targetValue = baseTintColor,
-        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = animDuration),
         label = "glassTintColor"
     )
 

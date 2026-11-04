@@ -196,7 +196,7 @@ fun CoupleFitNavigationSuite(
                                 styleConfig = GlassEffectStyleConfig(
                                     style = if (useLiquidGlass) glassEffectStyle else GlassEffectStyle.None,
                                     animate = true,
-                                    animationDurationMs = 300
+                                    animationDuration = 0.3f
                                 ),
                                 isInteractive = isInteractive,
                                 tintColor = glassTintColor,
@@ -235,7 +235,7 @@ fun CoupleFitNavigationSuite(
                                     val activeIndicatorStyleConfig = GlassEffectStyleConfig(
                                         style = if (useLiquidGlass) GlassEffectStyle.Clear else GlassEffectStyle.None,
                                         animate = true,
-                                        animationDurationMs = 280
+                                        animationDuration = 0.28f
                                     )
                                     val activeIndicatorTint = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
 

@@ -1063,3 +1063,24 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Android test Kotlin compilation passes with zero errors.
      - Live execution on `emulator-5554` verified via ARTEMIS screenshot captures across Today, Challenges, and Couple Hub.
 - **Release Tag**: `v2.9.34-expo-glass-effect-proximity-blending-expo03`
+
+
+## Phase 49: Expo MCP Official Glass Effect Alignment (`EXPO-04` / `GLS-10`) 💎📱
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md)
+- **Verification Report**: [`Documentation/phase49_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase49_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Direct Ingestion via Live Expo MCP Server**:
+     - Used `expo` MCP tools `search_documentation` and `read_documentation` to ingest the official Expo SDK specification for `expo-glass-effect` (~58.0.5).
+  2. **Exact Schema Fidelity (`LiquidGlass.kt`)**:
+     - Aligned `GlassEffectStyleConfig` with Expo's exact schema: `style: GlassEffectStyle`, `animate: Boolean = false`, and `animationDuration: Float = 0.3f` (in seconds).
+     - Bound `durationMillis` to `animateFloatAsState` and `animateColorAsState` interpolations.
+  3. **Bottom Navigation Dock Integration (`CoupleFitNavigationSuite.kt`)**:
+     - Configured outer dock plate with `GlassView(styleConfig = GlassEffectStyleConfig(Regular, animate = true, animationDuration = 0.3f))`.
+     - Configured active indicator capsule with `GlassView(styleConfig = GlassEffectStyleConfig(Clear, animate = true, animationDuration = 0.28f), tintColor = UserPrimary.copy(alpha = 0.22f))`.
+     - 100% crisp decoupled foreground text and icons meeting WCAG 2.2 AA.
+  4. **Deterministic Multi-Device & Test Verification**:
+     - Unit tests pass 100% green (`ExpoGlassEffectTest`).
+     - Android test compilation passes with zero errors.
+     - Verified live on `emulator-5554` via ARTEMIS screenshots.
+- **Release Tag**: `v2.9.35-expo-mcp-glass-effect-alignment-expo04`
