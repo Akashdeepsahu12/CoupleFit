@@ -14,6 +14,7 @@ import com.couplefit.ui.glass.expoGlassEffect
 import com.couplefit.ui.glass.GlassEffectStyle
 import com.couplefit.ui.glass.GlassColorScheme
 import com.couplefit.ui.glass.GlassContainer
+import com.couplefit.ui.glass.GlassEffectStyleConfig
 import com.couplefit.ui.glass.GlassView
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -192,7 +193,11 @@ fun CoupleFitNavigationSuite(
                                         spotColor = Color.Transparent
                                     ),
                                 shape = pillShape,
-                                glassEffectStyle = if (useLiquidGlass) glassEffectStyle else GlassEffectStyle.None,
+                                styleConfig = GlassEffectStyleConfig(
+                                    style = if (useLiquidGlass) glassEffectStyle else GlassEffectStyle.None,
+                                    animate = true,
+                                    animationDurationMs = 300
+                                ),
                                 isInteractive = isInteractive,
                                 tintColor = glassTintColor,
                                 isPressed = isDockPressed,
@@ -226,8 +231,12 @@ fun CoupleFitNavigationSuite(
                                     val stretchX = if (reduceMotion) 1f else (1f + lag * 0.22f)
                                     val squashY = if (reduceMotion) 1f else (1f - lag * 0.22f * 0.45f)
 
-                                    // Sliding active indicator capsule as child GlassView (Clear crystalline refraction)
-                                    val activeIndicatorGlassStyle = if (useLiquidGlass) GlassEffectStyle.Clear else GlassEffectStyle.None
+                                    // Sliding active indicator capsule as child GlassView (Clear crystalline refraction with animated config)
+                                    val activeIndicatorStyleConfig = GlassEffectStyleConfig(
+                                        style = if (useLiquidGlass) GlassEffectStyle.Clear else GlassEffectStyle.None,
+                                        animate = true,
+                                        animationDurationMs = 280
+                                    )
                                     val activeIndicatorTint = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
 
                                     GlassView(
@@ -241,7 +250,7 @@ fun CoupleFitNavigationSuite(
                                                 scaleY = squashY
                                             },
                                         shape = pillShape,
-                                        glassEffectStyle = activeIndicatorGlassStyle,
+                                        styleConfig = activeIndicatorStyleConfig,
                                         tintColor = activeIndicatorTint,
                                         isInteractive = isInteractive,
                                         isPressed = isDockPressed,

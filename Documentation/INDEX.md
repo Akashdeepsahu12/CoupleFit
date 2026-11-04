@@ -190,3 +190,10 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [`phase44_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase44_verification_report.md): Verification report for Phase 44 (EXPO-01).
 - [`PLAN_PHASE_45_EXPO_MESH_GRADIENT_BACKGROUND.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_45_EXPO_MESH_GRADIENT_BACKGROUND.md): Milestone plan for Expo Mesh Gradient Background SDK Implementation (MSH-01).
 - [`phase45_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase45_verification_report.md): Verification report for Phase 45 (MSH-01).
+
+- [`PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md): Milestone plan for Expo Glass Effect Component Architecture GlassContainer & GlassView for Bottom Navigation Bar (EXPO-02 / GLS-08).
+- [`phase46_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase46_verification_report.md): Verification report for Phase 46 (EXPO-02 / GLS-08).
+- [`PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md): Milestone plan for Restoring Ambient Video Aurora Gradient Background (BGV-08).
+- [`phase47_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase47_verification_report.md): Verification report for Phase 47 (BGV-08).
+- [`PLAN_PHASE_48_EXPO_GLASS_EFFECT_PROXIMITY_BLENDING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_48_EXPO_GLASS_EFFECT_PROXIMITY_BLENDING.md): Milestone plan for Expo Glass Effect Advanced Dynamic Proximity & Liquid Blending Engine (EXPO-03 / GLS-09).
+- [`phase48_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase48_verification_report.md): Verification report for Phase 48 (EXPO-03 / GLS-09).

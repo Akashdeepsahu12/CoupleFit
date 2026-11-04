@@ -3948,3 +3948,44 @@ In Phase 45, an experimental procedural AGSL `MeshGradient` was enabled by defau
 | Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **`BGV-08`** | Restored Ambient Video Background | Live capture on `emulator-5554`: deep sapphire/midnight blue living ambient video background restored behind all cards and Expo Glass bottom dock | [`p47_emulator_restored_ambient_video_bg.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p47_emulator_restored_ambient_video_bg.png) | 🟢 Verified |
+
+
+---
+
+## 73. Phase 48: Expo Glass Effect Advanced Dynamic Proximity & Liquid Blending Engine (`EXPO-03` / `GLS-09`) 💎📱
+
+> **Milestone Plan Reference**: [`Documentation/PLAN_PHASE_48_EXPO_GLASS_EFFECT_PROXIMITY_BLENDING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_48_EXPO_GLASS_EFFECT_PROXIMITY_BLENDING.md)  
+> **Verification Report**: [`Documentation/phase48_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase48_verification_report.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/ui/glass/LiquidGlass.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/glass/LiquidGlass.kt)
+> - [`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)
+> - [`app/src/test/java/com/couplefit/ui/ExpoGlassEffectTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/ExpoGlassEffectTest.kt)  
+> **Associated Defect / Enhancement Logs**: `EXPO-03`, `GLS-09`
+
+### 73.1 Problem Description & Alignment
+The user requested applying the official Expo Glass Effect SDK specification ([https://docs.expo.dev/versions/latest/sdk/glass-effect/](https://docs.expo.dev/versions/latest/sdk/glass-effect/)) to the bottom navigation bar with full Expo MCP/SDK parity:
+- `GlassView` required dynamic animation configuration (`GlassEffectStyleConfig`) allowing style changes (`regular`, `clear`, `none`) to interpolate blur radius, refraction depth, and surface tint smoothly across frames.
+- `GlassContainer` required active proximity coordination where `spacing` influences child `GlassView` refraction margins and boundary blending, delivering the authentic "Liquid Glass" optical merging when elements are nearby.
+- Decoupled foreground rendering guarantees 100% crisp typography and icons without optical aberration.
+
+### 73.2 Architectural Solution
+1. **Dynamic Style Animation Configuration (`LiquidGlass.kt`)**:
+   - Declared `data class GlassEffectStyleConfig(val style: GlassEffectStyle = GlassEffectStyle.Regular, val animate: Boolean = true, val animationDurationMs: Int = 300)`.
+   - In `Modifier.expoGlassEffect`, animated `effectiveBlurRadiusDp`, `effectiveRefractionHeightDp`, `effectiveRefractionAmountDp`, and `effectiveTintColor` using `animateFloatAsState` and `animateColorAsState`.
+2. **Container-Aware Proximity Blending (`LiquidGlass.kt`)**:
+   - `GlassContainer` provides `LocalGlassContainerActive` and `LocalGlassContainerSpacing`.
+   - `GlassView` calculates a proximity refraction bonus based on `containerSpacing` when active inside a container.
+3. **Bottom Navigation Suite Integration (`CoupleFitNavigationSuite.kt`)**:
+   - Outer dock plate uses `GlassView` with `styleConfig = GlassEffectStyleConfig(style = GlassEffectStyle.Regular, animate = true, animationDurationMs = 300)`.
+   - Sliding active indicator capsule uses `GlassView` with `styleConfig = GlassEffectStyleConfig(style = GlassEffectStyle.Clear, animate = true, animationDurationMs = 280)`.
+4. **Deterministic Multi-Device Verification**:
+   - Automated unit tests pass 100% green (`ExpoGlassEffectTest`).
+   - Android test Kotlin compilation passes with zero errors.
+   - Live execution on `emulator-5554` verified via ARTEMIS screenshot captures across Today, Challenges, and Couple Hub.
+
+### 73.3 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`EXPO-03`** | Animated Glass Dock (Today Tab) | Live capture on `emulator-5554`: floating dock with `GlassContainer`, outer `GlassView(Regular)` and sliding active capsule `GlassView(Clear)` over ambient video background | [`p48_emulator_expo_glass_dock_today.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_today.png) | 🟢 Verified |
+| **`EXPO-03`** | Tab Switch to Challenges | Tab transition verification: crystalline glass capsule spring glide to Challenges tab with dynamic proximity blending | [`p48_emulator_expo_glass_dock_challenges_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_challenges_active.png) | 🟢 Verified |
+| **`EXPO-03`** | Tab Switch to Couple Hub | Tab transition verification: far-right Couple Hub tab activated with animated crystalline glass refraction | [`p48_emulator_expo_glass_dock_couplehub_active.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/66d03291-2236-4d36-b172-ec4997fdf3ca/p48_emulator_expo_glass_dock_couplehub_active.png) | 🟢 Verified |

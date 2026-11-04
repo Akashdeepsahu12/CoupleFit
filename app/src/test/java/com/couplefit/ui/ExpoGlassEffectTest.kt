@@ -4,6 +4,7 @@ import com.couplefit.ui.glass.GLASS_EDGE_COLOR
 import com.couplefit.ui.glass.GLASS_EDGE_WIDTH
 import com.couplefit.ui.glass.GlassColorScheme
 import com.couplefit.ui.glass.GlassEffectStyle
+import com.couplefit.ui.glass.GlassEffectStyleConfig
 import com.couplefit.ui.glass.isGlassEffectAPIAvailable
 import com.couplefit.ui.glass.isGlassSupported
 import com.couplefit.ui.glass.isLiquidGlassAvailable
@@ -14,7 +15,7 @@ import org.junit.Test
 
 /**
  * Unit test suite verifying Expo Glass Effect component architecture and API parity
- * (Phase 46: GLS-08 / EXPO-02).
+ * (Phase 48: GLS-09 / EXPO-03).
  */
 class ExpoGlassEffectTest {
 
@@ -34,6 +35,23 @@ class ExpoGlassEffectTest {
         assertNotNull(GlassColorScheme.valueOf("Auto"))
         assertNotNull(GlassColorScheme.valueOf("Light"))
         assertNotNull(GlassColorScheme.valueOf("Dark"))
+    }
+
+    @Test
+    fun glassEffectStyleConfig_hasSensibleDefaultsAndCustomValues() {
+        val defaultConfig = GlassEffectStyleConfig()
+        assertEquals(GlassEffectStyle.Regular, defaultConfig.style)
+        assertTrue(defaultConfig.animate)
+        assertEquals(300, defaultConfig.animationDurationMs)
+
+        val customConfig = GlassEffectStyleConfig(
+            style = GlassEffectStyle.Clear,
+            animate = true,
+            animationDurationMs = 280
+        )
+        assertEquals(GlassEffectStyle.Clear, customConfig.style)
+        assertTrue(customConfig.animate)
+        assertEquals(280, customConfig.animationDurationMs)
     }
 
     @Test

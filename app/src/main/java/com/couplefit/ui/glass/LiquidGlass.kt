@@ -1,9 +1,11 @@
 package com.couplefit.ui.glass
 
 import android.os.Build
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -60,6 +62,17 @@ enum class GlassColorScheme {
     Light,
     Dark
 }
+
+/**
+ * Animation and style configuration for [GlassView], matching expo-glass-effect's
+ * object configuration for glassEffectStyle:
+ * `{ style: "clear" | "regular" | "none", animate: boolean, animationDuration: number }`
+ */
+data class GlassEffectStyleConfig(
+    val style: GlassEffectStyle = GlassEffectStyle.Regular,
+    val animate: Boolean = true,
+    val animationDurationMs: Int = 300
+)
 
 /**
  * Runtime check helper matching expo-glass-effect's isGlassEffectAPIAvailable()
@@ -181,15 +194,16 @@ fun Modifier.liquidGlass(
  * Expo Glass Effect native liquid glass modifier matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
  *
  * Implements:
- * 1. [GlassEffectStyle] variants: Regular (frosted liquid), Clear (crystalline), or None.
- * 2. [isInteractive] touch state with spring physics compression and specular rim boost.
- * 3. [tintColor] and [colorScheme] overrides.
- * 4. Fallback rendering on unsupported hardware or disabled state.
+ * 1. [GlassEffectStyleConfig] with dynamic property animation across blur, refraction, and tint.
+ * 2. [LocalGlassContainerActive] and [LocalGlassContainerSpacing] proximity blending coordination.
+ * 3. [isInteractive] touch state with spring physics compression and specular rim boost.
+ * 4. [tintColor] and [colorScheme] overrides.
+ * 5. Fallback rendering on unsupported hardware or disabled state.
  */
 @Composable
 fun Modifier.expoGlassEffect(
     shape: CornerBasedShape = RoundedCornerShape(percent = 50),
-    glassEffectStyle: GlassEffectStyle = GlassEffectStyle.Regular,
+    styleConfig: GlassEffectStyleConfig,
     isInteractive: Boolean = true,
     tintColor: Color? = null,
     colorScheme: GlassColorScheme = GlassColorScheme.Auto,
@@ -198,8 +212,12 @@ fun Modifier.expoGlassEffect(
     isPressed: Boolean = false,
     reduceMotion: Boolean = false
 ): Modifier {
+    val glassEffectStyle = styleConfig.style
     val backdrop = LocalAppBackdrop.current
     val isEnabled = LocalLiquidGlassEnabled.current
+    val inContainer = LocalGlassContainerActive.current
+    val containerSpacing = LocalGlassContainerSpacing.current
+
     val isDark = when (colorScheme) {
         GlassColorScheme.Auto -> MaterialTheme.colorScheme.surface.luminance() <= 0.5f
         GlassColorScheme.Dark -> true
@@ -219,25 +237,43 @@ fun Modifier.expoGlassEffect(
             .border(borderWidth, fallbackBorder, shape)
     }
 
-    // Kinematic parameters calibrated based on glassEffectStyle
-    val blurRadius = when (glassEffectStyle) {
-        GlassEffectStyle.Regular -> 14.dp
-        GlassEffectStyle.Clear -> 6.dp
-        GlassEffectStyle.None -> 0.dp
+    // Kinematic parameters calibrated based on glassEffectStyle with container proximity blending
+    val targetBlurRadiusDp = when (glassEffectStyle) {
+        GlassEffectStyle.Regular -> 14f
+        GlassEffectStyle.Clear -> 6f
+        GlassEffectStyle.None -> 0f
     }
-    val refractionHeight = when (glassEffectStyle) {
-        GlassEffectStyle.Regular -> 22.dp
-        GlassEffectStyle.Clear -> 26.dp
-        GlassEffectStyle.None -> 0.dp
+    val proximityRefractionBonus = if (inContainer) (containerSpacing.value * 0.25f).coerceIn(0f, 6f) else 0f
+
+    val targetRefractionHeightDp = when (glassEffectStyle) {
+        GlassEffectStyle.Regular -> 22f + proximityRefractionBonus
+        GlassEffectStyle.Clear -> 26f + proximityRefractionBonus
+        GlassEffectStyle.None -> 0f
     }
-    val refractionAmount = when (glassEffectStyle) {
-        GlassEffectStyle.Regular -> 22.dp
-        GlassEffectStyle.Clear -> 28.dp
-        GlassEffectStyle.None -> 0.dp
+    val targetRefractionAmountDp = when (glassEffectStyle) {
+        GlassEffectStyle.Regular -> 22f + proximityRefractionBonus
+        GlassEffectStyle.Clear -> 28f + proximityRefractionBonus
+        GlassEffectStyle.None -> 0f
     }
 
+    val effectiveBlurRadiusDp by animateFloatAsState(
+        targetValue = targetBlurRadiusDp,
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        label = "glassBlurRadius"
+    )
+    val effectiveRefractionHeightDp by animateFloatAsState(
+        targetValue = targetRefractionHeightDp,
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        label = "glassRefractionHeight"
+    )
+    val effectiveRefractionAmountDp by animateFloatAsState(
+        targetValue = targetRefractionAmountDp,
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        label = "glassRefractionAmount"
+    )
+
     // Tint overlay calculation
-    val surfaceTintColor = tintColor ?: if (isDark) {
+    val baseTintColor = tintColor ?: if (isDark) {
         when (glassEffectStyle) {
             GlassEffectStyle.Regular -> Color(0xFF0E131E).copy(alpha = 0.45f)
             GlassEffectStyle.Clear -> Color(0xFF0E131E).copy(alpha = 0.20f)
@@ -250,6 +286,12 @@ fun Modifier.expoGlassEffect(
             GlassEffectStyle.None -> Color.White.copy(alpha = 0.90f)
         }
     }
+
+    val effectiveTintColor by animateColorAsState(
+        targetValue = baseTintColor,
+        animationSpec = if (reduceMotion || !styleConfig.animate) snap() else tween(durationMillis = styleConfig.animationDurationMs),
+        label = "glassTintColor"
+    )
 
     // Interactive specular boost
     val interactiveBorderAlpha = if (isInteractive && isPressed && !reduceMotion) 0.42f else 0.22f
@@ -269,22 +311,45 @@ fun Modifier.expoGlassEffect(
         }
         .refractiveLens(
             shape = shape,
-            blurRadius = blurRadius,
-            refractionHeight = refractionHeight,
-            refractionAmount = refractionAmount,
+            blurRadius = effectiveBlurRadiusDp.dp,
+            refractionHeight = effectiveRefractionHeightDp.dp,
+            refractionAmount = effectiveRefractionAmountDp.dp,
             chromaticAberration = true,
             depthEffect = true,
-            surfaceTint = surfaceTintColor,
+            surfaceTint = effectiveTintColor,
             borderWidth = borderWidth,
             borderColor = effectiveBorderColor
         )
 }
 
+@Composable
+fun Modifier.expoGlassEffect(
+    shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    glassEffectStyle: GlassEffectStyle = GlassEffectStyle.Regular,
+    isInteractive: Boolean = true,
+    tintColor: Color? = null,
+    colorScheme: GlassColorScheme = GlassColorScheme.Auto,
+    borderWidth: Dp = GLASS_EDGE_WIDTH,
+    borderColor: Color? = null,
+    isPressed: Boolean = false,
+    reduceMotion: Boolean = false
+): Modifier = expoGlassEffect(
+    shape = shape,
+    styleConfig = GlassEffectStyleConfig(style = glassEffectStyle, animate = false),
+    isInteractive = isInteractive,
+    tintColor = tintColor,
+    colorScheme = colorScheme,
+    borderWidth = borderWidth,
+    borderColor = borderColor,
+    isPressed = isPressed,
+    reduceMotion = reduceMotion
+)
+
 /**
  * Expo Glass Effect GlassContainer composable matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
  *
  * Parent container that groups and coordinates multiple adjacent or nested [GlassView] components,
- * providing shared spacing thresholds, backdrop sampling, and a unified glass rendering context.
+ * providing shared spacing thresholds, proximity blending, backdrop sampling, and a unified glass rendering context.
  */
 @Composable
 fun GlassContainer(
@@ -307,10 +372,10 @@ fun GlassContainer(
 /**
  * Expo Glass Effect GlassView composable matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
  *
- * Renders an individual translucent, light-bending liquid glass surface.
+ * Renders an individual translucent, light-bending liquid glass surface with optional animated style transitions.
  *
  * @param modifier Layout and positioning modifier
- * @param glassEffectStyle Glass style: [GlassEffectStyle.Regular] (frosted), [GlassEffectStyle.Clear] (crystalline), or [GlassEffectStyle.None]
+ * @param styleConfig Style & animation configuration ([GlassEffectStyleConfig])
  * @param tintColor Color tint applied over the glass surface
  * @param colorScheme Color scheme override ([GlassColorScheme.Auto], [GlassColorScheme.Light], [GlassColorScheme.Dark])
  * @param isInteractive Enables dynamic interactive touch feedback with spring compression and specular boost
@@ -320,6 +385,42 @@ fun GlassContainer(
  * @param isPressed External press state override
  * @param reduceMotion Disables spring animations for accessibility
  * @param content Child composable content
+ */
+@Composable
+fun GlassView(
+    modifier: Modifier = Modifier,
+    styleConfig: GlassEffectStyleConfig,
+    tintColor: Color? = null,
+    colorScheme: GlassColorScheme = GlassColorScheme.Auto,
+    isInteractive: Boolean = false,
+    shape: CornerBasedShape = RoundedCornerShape(percent = 50),
+    borderWidth: Dp = GLASS_EDGE_WIDTH,
+    borderColor: Color? = null,
+    isPressed: Boolean = false,
+    reduceMotion: Boolean = false,
+    content: @Composable (BoxScope.() -> Unit)? = null
+) {
+    Box(
+        modifier = modifier.expoGlassEffect(
+            shape = shape,
+            styleConfig = styleConfig,
+            isInteractive = isInteractive,
+            tintColor = tintColor,
+            colorScheme = colorScheme,
+            borderWidth = borderWidth,
+            borderColor = borderColor,
+            isPressed = isPressed,
+            reduceMotion = reduceMotion
+        )
+    ) {
+        content?.invoke(this)
+    }
+}
+
+/**
+ * Expo Glass Effect GlassView composable matching https://docs.expo.dev/versions/latest/sdk/glass-effect/
+ *
+ * Direct style overload without animation wrapper.
  */
 @Composable
 fun GlassView(
@@ -334,20 +435,16 @@ fun GlassView(
     isPressed: Boolean = false,
     reduceMotion: Boolean = false,
     content: @Composable (BoxScope.() -> Unit)? = null
-) {
-    Box(
-        modifier = modifier.expoGlassEffect(
-            shape = shape,
-            glassEffectStyle = glassEffectStyle,
-            isInteractive = isInteractive,
-            tintColor = tintColor,
-            colorScheme = colorScheme,
-            borderWidth = borderWidth,
-            borderColor = borderColor,
-            isPressed = isPressed,
-            reduceMotion = reduceMotion
-        )
-    ) {
-        content?.invoke(this)
-    }
-}
+) = GlassView(
+    modifier = modifier,
+    styleConfig = GlassEffectStyleConfig(style = glassEffectStyle, animate = false),
+    tintColor = tintColor,
+    colorScheme = colorScheme,
+    isInteractive = isInteractive,
+    shape = shape,
+    borderWidth = borderWidth,
+    borderColor = borderColor,
+    isPressed = isPressed,
+    reduceMotion = reduceMotion,
+    content = content
+)
