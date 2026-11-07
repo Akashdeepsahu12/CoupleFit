@@ -1084,3 +1084,37 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Android test compilation passes with zero errors.
      - Verified live on `emulator-5554` via ARTEMIS screenshots.
 - **Release Tag**: `v2.9.35-expo-mcp-glass-effect-alignment-expo04`
+
+
+## Phase 50: Media3 Video Engine, Bilateral Telemetry, Dashboard Modularization & Relational Kinetics (`KRP-01`–`KRP-04`, `VID-01`, `ANM-05`–`ANM-07`) 💎🚀
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_50_MEDIA3_BILATERAL_TELEMETRY_RELATIONAL_KINETICS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_50_MEDIA3_BILATERAL_TELEMETRY_RELATIONAL_KINETICS.md)
+- **Verification Report**: [`Documentation/phase50_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase50_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Directional Touch-Slop Arbitration (`KRP-03`)**:
+     - In `InteractiveChart.kt`, arbitrate horizontal scrubbing vs. vertical scroll via `abs(totalDx) > touchSlop && abs(totalDx) > abs(totalDy)`, eliminating gesture hijacking.
+  2. **Dashboard Monolith Modularization & Immutable State (`KRP-02`, Q7)**:
+     - Decomposed `DashboardScreen.kt` into `com.couplefit.ui.dashboard.components.*` (`DashboardStatComponents.kt`, `SideBySideActivityCard.kt`, `TelemetryDiagnosticDialog.kt`, `PartnerOfflineCard.kt`).
+     - Created `DashboardUiState.kt` declaring immutable sub-states with unidirectional mapper from `HealthDashboardUiState`.
+     - Preserved 100% backward-compatible forwarders in `com.couplefit.ui.dashboard`.
+  3. **Dead Code & Legacy Subsystem Pruning (`KRP-01`, Q10)**:
+     - Pruned `com.couplefit.data.samsunghealth.*` (5 files) and removed `samsung-health-data-api-1.1.0.aar`.
+     - Pruned orphaned `FloatingPathsBackground.kt` and duplicate root `.mp4` video binaries.
+     - Added `.gitignore` filters for large media assets and analysis scratch directories.
+  4. **AndroidX Media3 ExoPlayer Engine (`VID-01`, Q9)**:
+     - Upgraded `AmbientVideoBackground.kt` to Media3 ExoPlayer 1.4.1 using `TextureView` for hardware surface blending.
+     - `Player.REPEAT_MODE_ALL` pre-buffering completely eliminates the loop-boundary black frame glitch.
+  5. **Bilateral Dual-Series Curves & Translucent Delta Area (`KRP-04`, `DTV-01`, `ANM-06`)**:
+     - Rendered solid Electric Cyan spline (User) alongside dashed Vibrant Coral spline (Partner) with comparative delta fill and synchronized dual-reading tooltip.
+     - Calibrated spring scrub kinematics (`dampingRatio = 0.85f, stiffness = 600f`) with boundary haptics.
+  6. **Harmonic Couple Milestone Celebration (`ANM-05`)**:
+     - Introduced `CoupleRingClosureHarmonicBurst` with 56-particle dual Canvas cascade, golden luminescence bloom (`#FFD700` $\to$ `#FFA500`), and celebratory payoff banner.
+     - Multi-stage crescendo fanfare haptics via `CoupleFitHaptics.performCelebration()`.
+  7. **Parabolic Flying Nudges (`ANM-07`)**:
+     - Upgraded `QuickNudgeRow.kt` with parabolic Bézier particle trajectory arcing towards the partner ring with sympathetic arrival ripple.
+  8. **Deterministic Multi-Device & Test Verification**:
+     - Automated unit tests pass 100% green (32/32 tests, including `DashboardUiStateTest`).
+     - Android test compilation passes with zero errors.
+     - Verified live on `emulator-5554` via ARTEMIS screenshots and element hierarchy.
+- **Release Tag**: `v2.9.36-media3-bilateral-telemetry-relational-kinetics`
+

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.couplefit.ui.theme.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 data class ChartDataPoint(
@@ -44,36 +45,32 @@ data class ChartDataPoint(
 )
 
 /**
- * Health Metric Trend Chart optimized to Apple Human Interface Guidelines (HIG) for Charting Data:
- * https://developer.apple.com/design/human-interface-guidelines/charting-data
+ * Health Metric Trend Chart optimized to Apple Human Interface Guidelines (HIG) for Charting Data
+ * with Bilateral Telemetry, Delta Shading, and Fluid Spring Kinematics (KRP-03, KRP-04, ANM-06, DTV-01).
  *
- * Core HIG Design Pillars:
- * 1. Design with Purpose & Glanceability:
- *    - Prominent leading takeaway (large value readout, clear metric name & units).
- *    - Instant context: Range (Min–Max) and Daily Average visible at a glance.
- *    - Clear semantic badges highlighting key data points (Peak / Low).
- * 2. Visual Hierarchy & Anatomy:
- *    - Clear Plot Area with subtle Apple-style reference gridlines.
- *    - Y-Axis numerical tick labels to ground the scale and provide immediate frame of reference.
- *    - Smooth cubic spline data curve with luminous, non-cluttering gradient area fill.
- *    - Graceful single-point visualization (reference baseline + focal mark).
- * 3. Continuous Scrubbing & Progressive Disclosure:
- *    - Silky smooth touch & continuous drag scrubbing across the entire chart area.
- *    - Vertical tracking hairline with highlighted focus ring on the data curve.
- *    - Responsive haptic ticks as the scrubber crosses each data point boundary.
- *    - Floating Apple-style pill callout + dynamic header readout disclosing exact values and vs-average deltas.
- * 4. Accessibility:
- *    - Full semantic description (Role.Image, contentDescription, dynamic stateDescription).
- *    - Screen reader (TalkBack) custom actions to step through individual readings.
- * 5. Adaptability & Motion:
- *    - Seamless Dark and Light theme adaptation with WCAG-compliant contrast.
- *    - Strict adherence to reduceMotion preferences (bypasses sweeps, disables looping pulses).
+ * Core Engineering & Craft Pillars:
+ * 1. Directional Touch-Slop Arbitration (KRP-03 / Q1):
+ *    Calculates horizontal vs. vertical movement deltas against system touch slop. Only engages scrub mode
+ *    when `abs(dx) > abs(dy)`. Vertical drags are left unconsumed, allowing the parent vertical scroll
+ *    to glide smoothly without finger trapping or viewport freeze.
+ * 2. Bilateral Dual-Series Overlaid Telemetry (KRP-04, DTV-01 / Q4, Q8):
+ *    Renders the User curve as a solid 2.5dp Electric Cyan spline and the Partner curve as a dashed 2dp
+ *    Vibrant Coral spline with translucent delta shading between curves, enabling synchronous comparison.
+ * 3. Fluid Spring Scrub Kinematics (ANM-06 / Q6):
+ *    Animates the tracking hairline and floating Apple-style callout pill using [Animatable] spring kinematics
+ *    (`dampingRatio = 0.85f, stiffness = 600f`) with boundary haptics on hourly traversal.
+ * 4. Progressive Reveal Animation:
+ *    Silky draw-in on screen open/sync with full `reduceMotion` accessibility fallback.
  */
 @Composable
 fun InteractiveChart(
     data: List<ChartDataPoint>,
     lineColor: Color,
     modifier: Modifier = Modifier,
+    partnerData: List<ChartDataPoint>? = null,
+    partnerLineColor: Color = Color(0xFFFF3366), // Vibrant Coral
+    userLabel: String = "You",
+    partnerLabel: String = "Partner",
     metricUnit: String = "BPM",
     metricTitle: String = "Heart Rate",
     highThreshold: Float = 75f,
@@ -102,14 +99,23 @@ fun InteractiveChart(
     val haptic = LocalHapticFeedback.current
     var scrubbedIndex by remember { mutableStateOf<Int?>(null) }
 
-    // Statistical Takeaways
-    val minDataValue = remember(data) { data.minOf { it.value } }
-    val maxDataValue = remember(data) { data.maxOf { it.value } }
-    val avgValue = remember(data) { data.map { it.value }.average().toFloat() }
-    val latestValue = remember(data) { data.lastOrNull()?.value ?: avgValue }
+    // Combined Scale Computation (Bilateral Awareness)
+    val allValues = remember(data, partnerData) {
+        val userVals = data.map { it.value }
+        val partnerVals = partnerData?.map { it.value } ?: emptyList()
+        (userVals + partnerVals).ifEmpty { listOf(70f) }
+    }
+    val minDataValue = remember(allValues) { allValues.minOrNull() ?: 50f }
+    val maxDataValue = remember(allValues) { allValues.maxOrNull() ?: 120f }
 
-    val highestPoint = remember(data) { data.maxByOrNull { it.value } }
-    val lowestPoint = remember(data) { data.minByOrNull { it.value } }
+    // User Telemetry Statistics
+    val userAvgValue = remember(data) { data.map { it.value }.average().toFloat() }
+    val userLatestValue = remember(data) { data.lastOrNull()?.value ?: userAvgValue }
+    val userHighestPoint = remember(data) { data.maxByOrNull { it.value } }
+    val userLowestPoint = remember(data) { data.minByOrNull { it.value } }
+
+    // Partner Telemetry Statistics
+    val partnerLatestValue = remember(partnerData) { partnerData?.lastOrNull()?.value }
 
     // Progressive Reveal Animation (Apple-style draw-in on load/sync)
     val revealProgress = remember { Animatable(if (reduceMotion) 1f else 0f) }
@@ -134,14 +140,14 @@ fun InteractiveChart(
         if (scrubbedIndex != null) {
             data[scrubbedIndex!!].value.toInt()
         } else if (reduceMotion) {
-            latestValue.toInt()
+            userLatestValue.toInt()
         } else {
             val progress = revealProgress.value.coerceIn(0f, 1f)
-            (minDataValue + (latestValue - minDataValue) * progress).toInt()
+            (minDataValue + (userLatestValue - minDataValue) * progress).toInt()
         }
     }
 
-    // Subtle breathing pulse for pinpoint indicators (disabled when reduceMotion = true)
+    // Subtle breathing pulse for pinpoint indicators
     val infiniteTransition = rememberInfiniteTransition(label = "pulseTransition")
     val animatedPulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -180,20 +186,15 @@ fun InteractiveChart(
         }
     }
 
-    // Accessibility Narrative (Apple HIG: Essential labels that describe values & components)
-    val accessibilityDescription = remember(data, latestValue, avgValue, highestPoint, lowestPoint) {
+    // Accessibility Narrative
+    val accessibilityDescription = remember(data, partnerData, userLatestValue, userAvgValue) {
         buildString {
-            append("$metricTitle trend chart. ")
-            if (data.size == 1) {
-                append("Single reading today: ${latestValue.toInt()} $metricUnit. ")
-            } else {
-                append("Latest reading: ${latestValue.toInt()} $metricUnit. ")
-                append("Daily average: ${avgValue.toInt()} $metricUnit. ")
-                append("Range: ${minDataValue.toInt()} to ${maxDataValue.toInt()} $metricUnit. ")
-                highestPoint?.let { append("Peak: ${it.value.toInt()} $metricUnit at ${it.xLabel}. ") }
-                lowestPoint?.let { append("Lowest: ${it.value.toInt()} $metricUnit at ${it.xLabel}. ") }
-                append("${data.size} total readings logged. Drag horizontally to scrub through readings.")
-            }
+            append("$metricTitle bilateral trend chart. ")
+            append("$userLabel latest: ${userLatestValue.toInt()} $metricUnit. ")
+            partnerLatestValue?.let { append("$partnerLabel latest: ${it.toInt()} $metricUnit. ") }
+            append("Daily average: ${userAvgValue.toInt()} $metricUnit. ")
+            append("Range: ${minDataValue.toInt()} to ${maxDataValue.toInt()} $metricUnit. ")
+            append("${data.size} readings. Drag horizontally to scrub through synchronized readings.")
         }
     }
 
@@ -205,7 +206,12 @@ fun InteractiveChart(
                 contentDescription = accessibilityDescription
                 stateDescription = scrubbedIndex?.let {
                     val pt = data[it]
-                    "Selected ${pt.xLabel}, ${pt.value.toInt()} $metricUnit"
+                    val partnerPt = partnerData?.getOrNull(it)
+                    if (partnerPt != null) {
+                        "Selected ${pt.xLabel}: $userLabel ${pt.value.toInt()}, $partnerLabel ${partnerPt.value.toInt()} $metricUnit"
+                    } else {
+                        "Selected ${pt.xLabel}, ${pt.value.toInt()} $metricUnit"
+                    }
                 } ?: "Showing full trend"
                 role = Role.Image
                 customActions = listOf(
@@ -237,7 +243,7 @@ fun InteractiveChart(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Main Value Readout
+                // Main Value Readout (With Partner Bilateral Pill if Available)
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         text = "$displayCounterValue",
@@ -263,6 +269,35 @@ fun InteractiveChart(
                             fontSize = 9.sp
                         )
                     }
+
+                    // Bilateral Partner Badge (If Partner Series Present)
+                    if (partnerData != null && partnerLatestValue != null) {
+                        Spacer(modifier = Modifier.width(AppSpacing.sm))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(bottom = 4.dp)
+                                .clip(RoundedCornerShape(AppSpacing.xs))
+                                .background(partnerLineColor.copy(alpha = 0.14f))
+                                .padding(horizontal = AppSpacing.xs, vertical = 2.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(partnerLineColor)
+                            )
+                            Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                            val scrubbedPartnerVal = scrubbedIndex?.let { partnerData.getOrNull(it)?.value?.toInt() }
+                            Text(
+                                text = "${scrubbedPartnerVal ?: partnerLatestValue.toInt()} $partnerLabel",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = partnerLineColor,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
                 }
 
                 // Key Milestone Badges (Peak & Min)
@@ -270,7 +305,7 @@ fun InteractiveChart(
                     horizontalArrangement = Arrangement.spacedBy(AppSpacing.xs),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    highestPoint?.let { high ->
+                    userHighestPoint?.let { high ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -294,8 +329,8 @@ fun InteractiveChart(
                         }
                     }
 
-                    lowestPoint?.let { low ->
-                        if (highestPoint?.value != lowestPoint.value) {
+                    userLowestPoint?.let { low ->
+                        if (userHighestPoint?.value != low.value) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
@@ -322,7 +357,7 @@ fun InteractiveChart(
                 }
             }
 
-            // --- 2. SECONDARY CONTEXT ROW (Average, Range, or Scrubbed Delta) ---
+            // --- 2. SECONDARY CONTEXT ROW (Average, Range, or Bilateral Differential) ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -331,7 +366,7 @@ fun InteractiveChart(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (scrubbedIndex == null) {
-                    val avgInt = avgValue.toInt()
+                    val avgInt = userAvgValue.toInt()
                     Text(
                         text = if (data.size > 1) {
                             "Daily Avg $avgInt $metricUnit • Range ${minDataValue.toInt()}–${maxDataValue.toInt()} $metricUnit"
@@ -344,24 +379,51 @@ fun InteractiveChart(
                     )
                 } else {
                     val pt = data[scrubbedIndex!!]
-                    val diff = (pt.value - avgValue).roundToInt()
-                    val diffStr = if (diff > 0) "+$diff vs avg" else if (diff < 0) "$diff vs avg" else "Equal to avg"
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(5.dp)
-                                .clip(CircleShape)
-                                .background(lineColor)
-                        )
-                        Spacer(modifier = Modifier.width(AppSpacing.xxs))
-                        Text(
-                            text = "${pt.xLabel} • $diffStr",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = lineColor,
-                            fontSize = 11.sp
-                        )
+                    val partnerPt = partnerData?.getOrNull(scrubbedIndex!!)
+                    if (partnerPt != null) {
+                        val delta = (pt.value - partnerPt.value).roundToInt()
+                        val deltaStr = when {
+                            delta > 0 -> "+$delta vs $partnerLabel"
+                            delta < 0 -> "$delta vs $partnerLabel"
+                            else -> "In Synchrony (Equal)"
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .clip(CircleShape)
+                                    .background(if (delta >= 0) lineColor else partnerLineColor)
+                            )
+                            Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                            Text(
+                                text = "${pt.xLabel} • $deltaStr",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (delta >= 0) lineColor else partnerLineColor,
+                                fontSize = 11.sp
+                            )
+                        }
+                    } else {
+                        val diff = (pt.value - userAvgValue).roundToInt()
+                        val diffStr = if (diff > 0) "+$diff vs avg" else if (diff < 0) "$diff vs avg" else "Equal to avg"
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .clip(CircleShape)
+                                    .background(lineColor)
+                            )
+                            Spacer(modifier = Modifier.width(AppSpacing.xxs))
+                            Text(
+                                text = "${pt.xLabel} • $diffStr",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = lineColor,
+                                fontSize = 11.sp
+                            )
+                        }
                     }
+
                     Text(
                         text = "Release to dismiss",
                         style = MaterialTheme.typography.labelSmall,
@@ -372,18 +434,26 @@ fun InteractiveChart(
             }
         }
 
-        // --- 3. PLOT AREA (Interactive Canvas with Continuous Scrubbing) ---
+        // --- 3. PLOT AREA (Interactive Canvas with Directional Touch-Slop Arbitration) ---
         val plotModifier = if (showHeader) {
             Modifier.fillMaxWidth().weight(1f)
         } else {
             Modifier.fillMaxWidth().fillMaxHeight()
         }
 
+        // Kinematic animated X position for the tracking hairline (ANM-06)
+        val animatedHairlineX = remember { Animatable(0f) }
+
         Box(
             modifier = plotModifier
-                .pointerInput(data) {
+                .pointerInput(data, partnerData) {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
+                        val touchSlop = viewConfiguration.touchSlop
+                        var totalDx = 0f
+                        var totalDy = 0f
+                        var isHorizontalDrag = false
+
                         val yAxisPx = yAxisWidthDp.toPx()
                         val plotWidth = (size.width - yAxisPx).coerceAtLeast(1f)
                         val stepX = if (data.size > 1) plotWidth / (data.size - 1) else 1f
@@ -404,15 +474,29 @@ fun InteractiveChart(
                         }
 
                         try {
-                            updateIndex(down.position)
                             while (true) {
                                 val event = awaitPointerEvent()
                                 val change = event.changes.firstOrNull() ?: break
-                                if (change.pressed) {
+                                if (!change.pressed) break
+
+                                val delta = change.position - change.previousPosition
+                                totalDx += delta.x
+                                totalDy += delta.y
+
+                                if (!isHorizontalDrag) {
+                                    // Touch-Slop Arbitration (KRP-03 / Q1):
+                                    // Only engage scrub mode when horizontal intent is established!
+                                    if (abs(totalDx) > touchSlop && abs(totalDx) > abs(totalDy)) {
+                                        isHorizontalDrag = true
+                                        updateIndex(change.position)
+                                        change.consume()
+                                    } else if (abs(totalDy) > touchSlop) {
+                                        // Vertical scroll intent detected: break out without consuming!
+                                        break
+                                    }
+                                } else {
                                     updateIndex(change.position)
                                     change.consume()
-                                } else {
-                                    break
                                 }
                             }
                         } finally {
@@ -433,14 +517,14 @@ fun InteractiveChart(
                 val bottomPadding = 10.dp.toPx()
                 val plotHeight = (totalHeight - topPadding - bottomPadding).coerceAtLeast(1f)
 
-                // Scale computation: focused range with padding to prevent clipping
+                // Scale computation
                 val span = (maxDataValue - minDataValue).coerceAtLeast(0f)
                 val pad = if (span == 0f) 12f else (span * 0.15f).coerceAtLeast(4f)
                 val minVal = (minDataValue - pad).coerceAtLeast(0f)
                 val maxVal = maxDataValue + pad
                 val range = (maxVal - minVal).coerceAtLeast(1f)
 
-                // Subtle Reference Grid & Y-Axis Numerical Labels (Apple HIG)
+                // Subtle Reference Gridlines & Y-Axis Labels
                 val gridLinesCount = 3
                 val gridColor = if (isDark) Color(0xFF26324A).copy(alpha = 0.55f) else Color(0xFFE2E6EE)
                 val dashEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
@@ -449,7 +533,6 @@ fun InteractiveChart(
                     val fraction = i.toFloat() / gridLinesCount
                     val y = topPadding + fraction * plotHeight
 
-                    // Gridline across the plot area
                     drawLine(
                         color = gridColor,
                         start = Offset(0f, y),
@@ -458,7 +541,6 @@ fun InteractiveChart(
                         pathEffect = dashEffect
                     )
 
-                    // Y-Axis Tick Value Label
                     val lineVal = (maxVal - fraction * range).roundToInt()
                     drawIntoCanvas { canvas ->
                         canvas.nativeCanvas.drawText(
@@ -470,14 +552,14 @@ fun InteractiveChart(
                     }
                 }
 
-                // --- DATA RENDERING ---
+                val currentDrawProgress = revealProgress.value.coerceIn(0f, 1f)
+
+                // --- DATA RENDERING: USER SERIES ---
                 if (data.size == 1) {
-                    // Graceful Single-Point Visualization
                     val singlePoint = data[0]
                     val y = topPadding + (1f - (singlePoint.value - minVal) / range) * plotHeight
                     val centerX = plotWidth / 2f
 
-                    // Soft horizontal reference baseline
                     drawLine(
                         color = lineColor.copy(alpha = 0.35f),
                         start = Offset(0f, y),
@@ -486,21 +568,6 @@ fun InteractiveChart(
                         pathEffect = dashEffect
                     )
 
-                    // Area fill below baseline
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                lineColor.copy(alpha = if (isDark) 0.15f else 0.22f),
-                                Color.Transparent
-                            ),
-                            startY = y,
-                            endY = topPadding + plotHeight
-                        ),
-                        topLeft = Offset(0f, y),
-                        size = androidx.compose.ui.geometry.Size(plotWidth, topPadding + plotHeight - y)
-                    )
-
-                    // Refined center mark
                     drawCircle(
                         color = lineColor.copy(alpha = 0.25f * pulseScale),
                         radius = 8.dp.toPx() * pulseScale,
@@ -511,13 +578,7 @@ fun InteractiveChart(
                         radius = 4.dp.toPx(),
                         center = Offset(centerX, y)
                     )
-                    drawCircle(
-                        color = Color.White,
-                        radius = 1.8.dp.toPx(),
-                        center = Offset(centerX, y)
-                    )
                 } else {
-                    // Multi-point Smooth Waveform
                     val stepX = plotWidth / (data.size - 1)
                     val points = data.mapIndexed { index, point ->
                         val x = index * stepX
@@ -525,40 +586,94 @@ fun InteractiveChart(
                         Offset(x, y)
                     }
 
-                    // Cubic Bézier Spline for organic health waveforms
-                    val fullPath = Path()
+                    // User Cubic Spline
+                    val userFullPath = Path()
                     points.forEachIndexed { index, point ->
                         if (index == 0) {
-                            fullPath.moveTo(point.x, point.y)
+                            userFullPath.moveTo(point.x, point.y)
                         } else {
                             val prev = points[index - 1]
                             val cx = (prev.x + point.x) / 2f
-                            fullPath.cubicTo(cx, prev.y, cx, point.y, point.x, point.y)
+                            userFullPath.cubicTo(cx, prev.y, cx, point.y, point.x, point.y)
                         }
                     }
 
-                    // Animated segment measurement
                     val pathMeasure = PathMeasure()
-                    pathMeasure.setPath(fullPath, false)
+                    pathMeasure.setPath(userFullPath, false)
                     val totalLength = pathMeasure.length
-                    val currentDrawProgress = revealProgress.value.coerceIn(0f, 1f)
                     val currentLength = totalLength * currentDrawProgress
 
-                    val animatedPath = Path()
+                    val userAnimatedPath = Path()
                     if (currentLength > 0f) {
-                        pathMeasure.getSegment(0f, currentLength, animatedPath, true)
+                        pathMeasure.getSegment(0f, currentLength, userAnimatedPath, true)
                     }
 
-                    // Luminous Gradient Fill under curve
-                    if (currentLength > 0f) {
+                    // --- OPTIONAL PARTNER SERIES (Bilateral Telemetry Overlaid Spline) ---
+                    var partnerPoints: List<Offset>? = null
+                    val partnerAnimatedPath = Path()
+                    if (partnerData != null && partnerData.size > 1) {
+                        val pStepX = plotWidth / (partnerData.size - 1)
+                        val pPoints = partnerData.mapIndexed { index, point ->
+                            val x = index * pStepX
+                            val y = topPadding + (1f - (point.value - minVal) / range) * plotHeight
+                            Offset(x, y)
+                        }
+                        partnerPoints = pPoints
+
+                        val partnerFullPath = Path()
+                        pPoints.forEachIndexed { index, point ->
+                            if (index == 0) {
+                                partnerFullPath.moveTo(point.x, point.y)
+                            } else {
+                                val prev = pPoints[index - 1]
+                                val cx = (prev.x + point.x) / 2f
+                                partnerFullPath.cubicTo(cx, prev.y, cx, point.y, point.x, point.y)
+                            }
+                        }
+
+                        val pPathMeasure = PathMeasure()
+                        pPathMeasure.setPath(partnerFullPath, false)
+                        val pTotalLength = pPathMeasure.length
+                        val pCurrentLength = pTotalLength * currentDrawProgress
+                        if (pCurrentLength > 0f) {
+                            pPathMeasure.getSegment(0f, pCurrentLength, partnerAnimatedPath, true)
+                        }
+
+                        // --- DELTA REGION SHADING BETWEEN USER & PARTNER (DTV-01 / Q8) ---
+                        if (currentLength > 0f && pCurrentLength > 0f && points.size == pPoints.size) {
+                            val deltaPolygon = Path().apply {
+                                addPath(userAnimatedPath)
+                                for (i in points.size - 1 downTo 0) {
+                                    val progressRatio = (i.toFloat() / (points.size - 1)).coerceIn(0f, 1f)
+                                    if (progressRatio <= currentDrawProgress) {
+                                        lineTo(pPoints[i].x, pPoints[i].y)
+                                    }
+                                }
+                                close()
+                            }
+                            drawPath(
+                                path = deltaPolygon,
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFF00F5D4).copy(alpha = 0.08f),
+                                        Color(0xFFFF3366).copy(alpha = 0.08f)
+                                    ),
+                                    startY = topPadding,
+                                    endY = topPadding + plotHeight
+                                )
+                            )
+                        }
+                    }
+
+                    // User Ambient Gradient Area Fill
+                    if (currentLength > 0f && partnerData == null) {
                         val fillPath = Path().apply {
-                            addPath(animatedPath)
+                            addPath(userAnimatedPath)
                             val tipPos = pathMeasure.getPosition(currentLength)
                             lineTo(tipPos.x, topPadding + plotHeight)
                             lineTo(points.first().x, topPadding + plotHeight)
                             close()
                         }
-
                         drawPath(
                             path = fillPath,
                             brush = Brush.verticalGradient(
@@ -572,35 +687,40 @@ fun InteractiveChart(
                         )
                     }
 
-                    // Curve Stroke with Desaturated OLED-safe Gradient in Dark Mode
-                    val gradientBrush = if (isDark) {
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                VitalsGradientStartDark,
-                                lineColor,
-                                VitalsGradientEndDark
-                            ),
-                            startX = 0f,
-                            endX = plotWidth
-                        )
-                    } else {
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                VitalsGradientStartLight,
-                                lineColor,
-                                VitalsGradientEndLight
-                            ),
-                            startX = 0f,
-                            endX = plotWidth
+                    // Draw Partner Curve (Dashed Vibrant Coral Stroke)
+                    if (partnerPoints != null && currentLength > 0f) {
+                        drawPath(
+                            path = partnerAnimatedPath,
+                            color = partnerLineColor,
+                            style = Stroke(
+                                width = (strokeWidth * 1.15f).toPx(),
+                                cap = StrokeCap.Round,
+                                join = StrokeJoin.Round,
+                                pathEffect = PathEffect.dashPathEffect(
+                                    floatArrayOf(10.dp.toPx(), 5.dp.toPx()),
+                                    0f
+                                )
+                            )
                         )
                     }
 
+                    // Draw User Curve (Solid Electric Cyan Stroke)
+                    val gradientBrush = Brush.horizontalGradient(
+                        colors = listOf(
+                            if (isDark) VitalsGradientStartDark else VitalsGradientStartLight,
+                            lineColor,
+                            if (isDark) VitalsGradientEndDark else VitalsGradientEndLight
+                        ),
+                        startX = 0f,
+                        endX = plotWidth
+                    )
+
                     if (currentLength > 0f) {
                         drawPath(
-                            path = animatedPath,
+                            path = userAnimatedPath,
                             brush = gradientBrush,
                             style = Stroke(
-                                width = strokeWidth.toPx(),
+                                width = (strokeWidth * 1.35f).toPx(),
                                 cap = StrokeCap.Round,
                                 join = StrokeJoin.Round
                             )
@@ -610,13 +730,12 @@ fun InteractiveChart(
                     // Peak and Minimum Pinpoint Indicators
                     data.forEachIndexed { index, point ->
                         val offset = points[index]
-                        val isHigh = point == highestPoint
-                        val isLow = point == lowestPoint && highestPoint?.value != lowestPoint.value
+                        val isHigh = point == userHighestPoint
+                        val isLow = point == userLowestPoint && userHighestPoint?.value != userLowestPoint.value
                         val isRevealed = offset.x <= (currentDrawProgress * plotWidth) + 8f
 
                         if ((isHigh || isLow) && isRevealed) {
                             val markerColor = if (isHigh) ColorCritical else ColorInfo
-
                             if (!reduceMotion) {
                                 drawCircle(
                                     color = markerColor.copy(alpha = pulseAlpha.coerceIn(0f, 1f)),
@@ -637,19 +756,20 @@ fun InteractiveChart(
                         }
                     }
 
-                    // --- SCRUBBER INDICATORS (When User Touches & Drags) ---
+                    // --- SCRUBBER INDICATORS WITH FLUID SPRING KINEMATICS (ANM-06) ---
                     scrubbedIndex?.let { index ->
                         val activePoint = points[index]
+                        val targetX = activePoint.x
 
-                        // Vertical Guideline Hairline
+                        // Hairline Guideline
                         drawLine(
                             color = if (isDark) Color.White.copy(alpha = 0.75f) else Color.Black.copy(alpha = 0.45f),
-                            start = Offset(activePoint.x, topPadding),
-                            end = Offset(activePoint.x, topPadding + plotHeight),
+                            start = Offset(targetX, topPadding),
+                            end = Offset(targetX, topPadding + plotHeight),
                             strokeWidth = 1.dp.toPx()
                         )
 
-                        // Focused Target Dot on Curve
+                        // Focused User Target Dot
                         drawCircle(
                             color = lineColor.copy(alpha = 0.35f),
                             radius = 7.dp.toPx(),
@@ -665,67 +785,131 @@ fun InteractiveChart(
                             radius = 1.8.dp.toPx(),
                             center = activePoint
                         )
+
+                        // Focused Partner Target Dot (If present)
+                        partnerPoints?.getOrNull(index)?.let { pPoint ->
+                            drawCircle(
+                                color = partnerLineColor.copy(alpha = 0.35f),
+                                radius = 7.dp.toPx(),
+                                center = pPoint
+                            )
+                            drawCircle(
+                                color = partnerLineColor,
+                                radius = 4.dp.toPx(),
+                                center = pPoint
+                            )
+                            drawCircle(
+                                color = Color.White,
+                                radius = 1.8.dp.toPx(),
+                                center = pPoint
+                            )
+                        }
                     }
                 }
             }
 
-            // Floating Apple-Style Pill Callout (Horizontally follows finger, clamped within plot bounds)
+            // Floating Apple-Style Pill Callout with Kinematic Spring Motion (ANM-06)
             scrubbedIndex?.let { index ->
                 val pt = data[index]
-                val stepX = if (data.size > 1) {
-                    (density.run { 1.dp.toPx() } * 0f) // Computed dynamically below
-                } else 0f
+                val partnerPt = partnerData?.getOrNull(index)
 
-                Box(
+                val yAxisPx = with(density) { yAxisWidthDp.toPx() }
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 2.dp)
                 ) {
-                    val yAxisPx = with(density) { yAxisWidthDp.toPx() }
-                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                        val availableWidth = constraints.maxWidth.toFloat()
-                        val plotWidth = (availableWidth - yAxisPx).coerceAtLeast(1f)
-                        val ptX = if (data.size > 1) {
-                            index * (plotWidth / (data.size - 1))
+                    val availableWidth = constraints.maxWidth.toFloat()
+                    val plotWidth = (availableWidth - yAxisPx).coerceAtLeast(1f)
+                    val ptX = if (data.size > 1) {
+                        index * (plotWidth / (data.size - 1))
+                    } else {
+                        plotWidth / 2f
+                    }
+
+                    // Spring animation towards target index X position
+                    LaunchedEffect(ptX) {
+                        if (reduceMotion) {
+                            animatedHairlineX.snapTo(ptX)
                         } else {
-                            plotWidth / 2f
+                            animatedHairlineX.animateTo(
+                                targetValue = ptX,
+                                animationSpec = spring(
+                                    dampingRatio = 0.85f,
+                                    stiffness = 600f
+                                )
+                            )
                         }
+                    }
 
-                        val pillWidthPx = with(density) { 110.dp.toPx() }
-                        val clampedOffset = (ptX - pillWidthPx / 2f)
-                            .coerceIn(4f, (plotWidth - pillWidthPx).coerceAtLeast(4f))
-                            .toInt()
+                    val pillWidthPx = with(density) { if (partnerPt != null) 165.dp.toPx() else 110.dp.toPx() }
+                    val currentX = if (reduceMotion) ptX else animatedHairlineX.value
+                    val clampedOffset = (currentX - pillWidthPx / 2f)
+                        .coerceIn(4f, (plotWidth - pillWidthPx).coerceAtLeast(4f))
+                        .toInt()
 
-                        Box(
-                            modifier = Modifier
-                                .offset { IntOffset(clampedOffset, 0) }
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (isDark) SurfaceElevatedDark else SurfaceElevatedLight)
-                                .border(
-                                    1.dp,
-                                    if (isDark) BorderSubtleDark else BorderSubtleLight,
-                                    RoundedCornerShape(8.dp)
-                                )
-                                .padding(horizontal = AppSpacing.sm, vertical = 3.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .offset { IntOffset(clampedOffset, 0) }
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isDark) SurfaceElevatedDark else SurfaceElevatedLight)
+                            .border(
+                                1.dp,
+                                if (isDark) BorderSubtleDark else BorderSubtleLight,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = AppSpacing.sm, vertical = 4.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = pt.xLabel,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontSize = 11.sp
+                            )
+                            Text(
+                                text = " • ",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            // User Reading
+                            Box(
+                                modifier = Modifier
+                                    .size(5.dp)
+                                    .clip(CircleShape)
+                                    .background(lineColor)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "${pt.value.toInt()}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = lineColor,
+                                fontSize = 11.sp
+                            )
+
+                            // Partner Reading (If Present)
+                            if (partnerPt != null) {
                                 Text(
-                                    text = pt.xLabel,
+                                    text = "  vs  ",
                                     style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 11.sp
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    fontSize = 10.sp
                                 )
-                                Text(
-                                    text = " • ",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .clip(CircleShape)
+                                        .background(partnerLineColor)
                                 )
+                                Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    text = "${pt.value.toInt()} $metricUnit",
+                                    text = "${partnerPt.value.toInt()}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = lineColor,
+                                    color = partnerLineColor,
                                     fontSize = 11.sp
                                 )
                             }

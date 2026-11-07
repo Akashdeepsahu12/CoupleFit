@@ -703,6 +703,7 @@ fun DashboardScreen(
                                 partnerName = healthData.partnerName,
                                 mySteps = healthData.steps,
                                 partnerSteps = healthData.partnerSteps,
+                                reduceMotion = reduceMotion,
                                 onSendNudge = { nudgeMessage ->
                                     healthConnectViewModel.sendNudgeToPartner(nudgeMessage)
                                 }
@@ -1484,6 +1485,11 @@ fun DashboardScreen(
     }
 }
 
+// =========================================================================
+// Backward-compatible delegates for package com.couplefit.ui.dashboard
+// Underlying implementations modularized in com.couplefit.ui.dashboard.components.* (KRP-02)
+// =========================================================================
+
 @Composable
 fun StatCard(
     title: String,
@@ -1501,161 +1507,23 @@ fun StatCard(
     staggerIndex: Int = 0,
     isPartner: Boolean = false,
     modifier: Modifier = Modifier
-) {
-    // Staggered slide-up entrance: each card arrives slightly after the previous
-    val enterOffsetY = remember { Animatable(if (reduceMotion) 0f else 80f) }
-    val enterAlpha  = remember { Animatable(if (reduceMotion) 1f else 0f) }
-    LaunchedEffect(animTrigger) {
-        val delayMs = (staggerIndex * 80L).coerceAtMost(320L)
-        kotlinx.coroutines.delay(delayMs)
-        launch {
-            enterOffsetY.animateTo(
-                targetValue = 0f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMediumLow
-                )
-            )
-        }
-        launch {
-            enterAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(stiffness = Spring.StiffnessLow)
-            )
-        }
-    }
-    var showMenu by remember { mutableStateOf(false) }
-    var menuOffset by remember { mutableStateOf(DpOffset.Zero) }
-    val haptic = LocalHapticFeedback.current
-    
-    var isPressed by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
-        targetValue = if (!reduceMotion && isPressed) 0.95f else 1f,
-        animationSpec = if (reduceMotion) androidx.compose.animation.core.snap() else spring(dampingRatio = 0.6f, stiffness = 400f),
-        label = "cardScale"
-    )
-    val alpha by animateFloatAsState(
-        targetValue = if (!reduceMotion && isPressed) 0.85f else 1f,
-        animationSpec = if (reduceMotion) androidx.compose.animation.core.snap() else spring(dampingRatio = 1f, stiffness = 500f),
-        label = "cardAlpha"
-    )
-    
-    // Partial UI Update: Animate only the numeric value itself
-    val animStepsCount by androidx.compose.animation.core.animateIntAsState(
-        targetValue = (stepsCount ?: (stepsProgress * 10000).toLong()).toInt(),
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 400),
-        label = "stepsCount"
-    )
-    
-    val animActiveMinsCount by androidx.compose.animation.core.animateIntAsState(
-        targetValue = (activeMinutesCount ?: (exerciseProgress * 60).toLong()).toInt(),
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 400),
-        label = "activeMinsCount"
-    )
-    
-    val animCaloriesCount by androidx.compose.animation.core.animateIntAsState(
-        targetValue = (caloriesCount ?: ((stepsProgress * 0.75f) * 600).toLong()).toInt(),
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 400),
-        label = "caloriesCount"
-    )
-
-    Card(
-        modifier = modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                this.alpha = alpha * enterAlpha.value
-                translationY = enterOffsetY.value
-            }
-            .iosGlass(shape = MaterialTheme.shapes.large)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = { 
-                        isPressed = true
-                        tryAwaitRelease()
-                        isPressed = false
-                    },
-                    onLongPress = { offset ->
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        menuOffset = DpOffset(offset.x.toDp(), offset.y.toDp())
-                        showMenu = true
-                    }
-                )
-            },
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        border = null
-    ) {
-        Box {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(AppSpacing.md),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                if (subtitle.isNotEmpty()) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = AppSpacing.xxs),
-                        maxLines = 1
-                    )
-                }
-                Spacer(modifier = Modifier.height(AppSpacing.xs))
-                // Motion Arc Progress Gauge inspired by 558.mp4 motion graphics
-                MotionArcProgressGauge(
-                    progress = stepsProgress,
-                    currentValue = stepsCount ?: (stepsProgress * 10000).toLong(),
-                    goalValue = 10000L,
-                    distanceKm = (animStepsCount * 0.000762).coerceAtLeast(0.0),
-                    calories = animCaloriesCount.toLong(),
-                    activeMinutes = animActiveMinsCount.toLong(),
-                    gradientColors = if (isPartner) listOf(MotionPartnerStart, MotionPartnerMid, MotionPartnerEnd) else listOf(MotionCyanStart, MotionSkyMid, MotionBlueEnd),
-                    glowColor = if (isPartner) MotionPartnerGlow else MotionGlowCyan,
-                    animTrigger = animTrigger,
-                    reduceMotion = reduceMotion
-                )
-            }
-            
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                offset = menuOffset
-            ) {
-                if (onSyncClick != null) {
-                    DropdownMenuItem(
-                        text = { Text("Sync with Health Connect") },
-                        onClick = {
-                            showMenu = false
-                            onSyncClick()
-                        }
-                    )
-                }
-                if (onAddSampleStepsClick != null) {
-                    DropdownMenuItem(
-                        text = { Text("Add 1,000 Test Steps") },
-                        onClick = {
-                            showMenu = false
-                            onAddSampleStepsClick()
-                        }
-                    )
-                }
-                DropdownMenuItem(
-                    text = { Text("Share with Partner") },
-                    onClick = { showMenu = false }
-                )
-            }
-        }
-    }
-}
+) = com.couplefit.ui.dashboard.components.StatCard(
+    title = title,
+    subtitle = subtitle,
+    stepsProgress = stepsProgress,
+    exerciseProgress = exerciseProgress,
+    stepsCount = stepsCount,
+    activeMinutesCount = activeMinutesCount,
+    caloriesCount = caloriesCount,
+    onSyncClick = onSyncClick,
+    onAddSampleStepsClick = onAddSampleStepsClick,
+    animTrigger = animTrigger,
+    isExplicitRefresh = isExplicitRefresh,
+    reduceMotion = reduceMotion,
+    staggerIndex = staggerIndex,
+    isPartner = isPartner,
+    modifier = modifier
+)
 
 @Composable
 fun SideBySideActivityCard(
@@ -1665,281 +1533,15 @@ fun SideBySideActivityCard(
     animTrigger: Any? = null,
     onSendCheer: (String) -> Unit = {},
     onPingPartner: () -> Unit = {}
-) {
-    val context = LocalContext.current
-    val haptic = LocalHapticFeedback.current
-    var showDiagnosticDialog by remember { mutableStateOf(false) }
-    var cheerCooldownUntil by remember { mutableLongStateOf(0L) }
-    var cheerTriggerCount by remember { mutableIntStateOf(0) }
-    var showCheerCelebration by remember { mutableStateOf(false) }
-    var userClosureCelebrated by remember { mutableStateOf(false) }
-    var partnerClosureCelebrated by remember { mutableStateOf(false) }
+) = com.couplefit.ui.dashboard.components.SideBySideActivityCard(
+    healthData = healthData,
+    reduceMotion = reduceMotion,
+    modifier = modifier,
+    animTrigger = animTrigger,
+    onSendCheer = onSendCheer,
+    onPingPartner = onPingPartner
+)
 
-    LaunchedEffect(healthData.stepsProgress) {
-        if (healthData.stepsProgress >= 1f && !userClosureCelebrated) {
-            userClosureCelebrated = true
-            CoupleFitHaptics.performHeartbeat(context, haptic)
-        }
-    }
-
-    LaunchedEffect(healthData.partnerStepsProgress) {
-        if (healthData.partnerStepsProgress >= 1f && !partnerClosureCelebrated) {
-            partnerClosureCelebrated = true
-            CoupleFitHaptics.performHeartbeat(context, haptic)
-        }
-    }
-
-    val isStale = remember(healthData.partnerLastUpdated) {
-        val ts = healthData.partnerLastUpdated
-        if (ts == null || ts == 0L) true
-        else (System.currentTimeMillis() - ts) > 15 * 60 * 1000L // Stale if older than 15 mins
-    }
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.large)
-            .iosGlass(shape = MaterialTheme.shapes.large),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        border = null
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(MaterialTheme.shapes.large)
-        ) {
-            // Contained subtle aurora mesh strictly within Activity Gauges box boundary (CPX-03)
-            AuroraTelemetryMesh(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(MaterialTheme.shapes.large),
-                userGlowColor = MotionGlowCyan.copy(alpha = 0.05f),
-                partnerGlowColor = CoupleFitIdentityTokens.PartnerGlow.copy(alpha = 0.05f)
-            )
-
-            Column(modifier = Modifier.padding(AppSpacing.md)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "ACTIVITY GAUGES",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                // Interactive Telemetry Status Pill (FLOW-03, Two-Material tactile control)
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            color = if (isStale) SystemOrange.copy(alpha = 0.18f) else SystemGreen.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .border(
-                            width = 0.5.dp,
-                            if (isStale) SystemOrange.copy(alpha = 0.25f) else SystemGreen.copy(alpha = 0.25f),
-                            RoundedCornerShape(12.dp)
-                        )
-                        .iosClickable(
-                            onClickLabel = "View Telemetry Diagnostics",
-                            onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                showDiagnosticDialog = true
-                            }
-                        )
-                ) {
-                    Text(
-                        text = if (isStale) "🟡 ${healthData.partnerLastUpdatedLabel} • Cached ℹ️"
-                               else "🟢 ${healthData.partnerLastUpdatedLabel} • Live ⚡",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = if (isStale) SystemOrange else SystemGreen
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // User Column (Dynamic User Name - CPX-06)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = if (healthData.userName.isNotBlank() && healthData.userName != "You") healthData.userName else "You",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MotionCyanStart
-                    )
-                    Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    Box(contentAlignment = Alignment.Center) {
-                        MotionArcProgressGauge(
-                            progress = healthData.stepsProgress,
-                            currentValue = healthData.steps,
-                            compact = true,
-                            gradientColors = listOf(MotionCyanStart, MotionSkyMid, MotionBlueEnd),
-                            glowColor = MotionGlowCyan,
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                        ConfettiParticleExplosion(
-                            visible = userClosureCelebrated,
-                            modifier = Modifier.size(160.dp),
-                            radius = 70.dp,
-                            reduceMotion = reduceMotion
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "⏱️ ",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        NumberPopInText(
-                            text = "${healthData.activeMinutes}m",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                        Text(
-                            text = "  •  🔥 ",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        NumberPopInText(
-                            text = "${healthData.caloriesBurned} kcal",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .height(160.dp)
-                        .width(1.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
-                )
-
-                // Partner Column (Dynamic Partner Name - CPX-06, Symmetrical Baseline Alignment - CPX-05)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = if (healthData.partnerName.isNotBlank()) healthData.partnerName else "Partner",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MotionPartnerStart
-                    )
-                    Spacer(modifier = Modifier.height(AppSpacing.xs))
-
-                    // Direct manipulation double-tap target on partner ring
-                    Box(
-                        modifier = Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        val now = System.currentTimeMillis()
-                                        if (now > cheerCooldownUntil) {
-                                            cheerCooldownUntil = now + 3000L // 3s cooldown limiter
-                                            cheerTriggerCount++
-                                            showCheerCelebration = true
-                                            CoupleFitHaptics.performHeartbeat(context, haptic)
-                                            onSendCheer("Cheered your steps! 🔥❤️")
-                                        }
-                                    }
-                                )
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MotionArcProgressGauge(
-                            progress = healthData.partnerStepsProgress,
-                            currentValue = healthData.partnerSteps,
-                            compact = true,
-                            gradientColors = listOf(MotionPartnerStart, MotionPartnerMid, MotionPartnerEnd),
-                            glowColor = MotionPartnerGlow,
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-
-                        // High-performance Floating Heart & Flame Cluster (FLOW-02, DSN-02)
-                        FloatingHeartCheerCluster(
-                            visible = showCheerCelebration,
-                            modifier = Modifier.size(140.dp),
-                            reduceMotion = reduceMotion,
-                            onAnimationEnd = { showCheerCelebration = false }
-                        )
-
-                        // 100% Daily Ring Closure Confetti (DSN-02, MIC-02)
-                        ConfettiParticleExplosion(
-                            visible = partnerClosureCelebrated,
-                            modifier = Modifier.size(160.dp),
-                            radius = 70.dp,
-                            reduceMotion = reduceMotion
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(AppSpacing.xs))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "⏱️ ",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        NumberPopInText(
-                            text = "${healthData.partnerActiveMinutes}m",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                        Text(
-                            text = "  •  🔥 ",
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                        NumberPopInText(
-                            text = "${healthData.partnerCaloriesBurned} kcal",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                    }
-                }
-            }
-        }
-    }
-    }
-
-    // Telemetry Diagnostic Dialog (FLOW-03)
-    if (showDiagnosticDialog) {
-        TelemetryDiagnosticDialog(
-            partnerName = healthData.partnerName,
-            lastUpdatedLabel = healthData.partnerLastUpdatedLabel,
-            isStale = isStale,
-            onDismiss = { showDiagnosticDialog = false },
-            onPingPartner = onPingPartner
-        )
-    }
-}
-
-/**
- * Telemetry Diagnostic Dialog providing transparent insight into partner sync status
- * and an immediate, high-priority "Ping Partner Device 📡" action (FLOW-03).
- */
 @Composable
 fun TelemetryDiagnosticDialog(
     partnerName: String,
@@ -1947,82 +1549,13 @@ fun TelemetryDiagnosticDialog(
     isStale: Boolean,
     onDismiss: () -> Unit,
     onPingPartner: () -> Unit
-) {
-    var pingSent by remember { mutableStateOf(false) }
-    val haptic = LocalHapticFeedback.current
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        modifier = Modifier
-            .dialogMeasure()
-            .iosGlass(
-            shape = RoundedCornerShape(28.dp),
-            tintColor = GlassPrimitives.SolidSlateModal,
-            blurRadius = GlassPrimitives.BlurModal
-        ),
-        containerColor = Color.Transparent,
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = if (isStale) "🟡 Partner Sync Diagnostics" else "🟢 Partner Telemetry Live",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = if (isStale)
-                        "$partnerName's device has not synced recently ($lastUpdatedLabel). You are viewing cached offline Room SSOT records."
-                    else
-                        "$partnerName's telemetry is currently in live synchronization with Health Connect and Firestore.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "• Room SSOT cache remains available offline\n• Tap Ping to send high-priority sync wake-up to $partnerName",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (pingSent) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = SystemGreen.copy(alpha = 0.2f),
-                        border = BorderStroke(1.dp, SystemGreen.copy(alpha = 0.4f)),
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                    ) {
-                        Text(
-                            text = "✓ High-priority sync ping sent to $partnerName!",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = SystemGreen,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            FilledTonalButton(
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    onPingPartner()
-                    pingSent = true
-                }
-            ) {
-                Text("Ping Partner Device 📡", fontWeight = FontWeight.Bold)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
+) = com.couplefit.ui.dashboard.components.TelemetryDiagnosticDialog(
+    partnerName = partnerName,
+    lastUpdatedLabel = lastUpdatedLabel,
+    isStale = isStale,
+    onDismiss = onDismiss,
+    onPingPartner = onPingPartner
+)
 
 @Composable
 fun PartnerOfflineCard(
@@ -2035,231 +1568,40 @@ fun PartnerOfflineCard(
     animTrigger: Any? = null,
     reduceMotion: Boolean = false,
     modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .iosGlass(shape = MaterialTheme.shapes.large),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        border = null
-    ) {
-        Column(modifier = Modifier.padding(AppSpacing.md)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "$partnerName's Telemetry",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Room SSOT cache • Available offline",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = SystemOrange.copy(alpha = 0.15f),
-                    border = BorderStroke(1.dp, SystemOrange.copy(alpha = 0.35f))
-                ) {
-                    Text(
-                        text = lastUpdatedLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = SystemOrange,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(AppSpacing.sm))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "👟",
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                        NumberPopInCounter(
-                            value = partnerSteps,
-                            style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = StepsAccent
-                            ),
-                            animTrigger = animTrigger,
-                            reduceMotion = reduceMotion
-                        )
-                    }
-                    Text(
-                        text = "Steps",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                MetricPill("Active", "${partnerActiveMinutes}m", ExerciseAccent, glyph = "⏱️", animTrigger = animTrigger, reduceMotion = reduceMotion)
-                MetricPill("Calories", "%,d kcal".format(partnerCalories), CaloriesAccent, glyph = "🔥", animTrigger = animTrigger, reduceMotion = reduceMotion)
-                if (partnerAvgHr > 0.0) {
-                    MetricPill("Avg HR", "${partnerAvgHr.toInt()} BPM", VitalsAccent, glyph = "❤️", animTrigger = animTrigger, reduceMotion = reduceMotion)
-                }
-            }
-        }
-    }
-}
+) = com.couplefit.ui.dashboard.components.PartnerOfflineCard(
+    partnerName = partnerName,
+    partnerSteps = partnerSteps,
+    partnerActiveMinutes = partnerActiveMinutes,
+    partnerCalories = partnerCalories,
+    partnerAvgHr = partnerAvgHr,
+    lastUpdatedLabel = lastUpdatedLabel,
+    animTrigger = animTrigger,
+    reduceMotion = reduceMotion,
+    modifier = modifier
+)
 
 @Composable
 fun MetricPill(
     label: String,
     value: String,
     color: Color,
-    glyph: String? = null,
     animTrigger: Any? = null,
-    reduceMotion: Boolean = false
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            if (glyph != null) {
-                Text(
-                    text = glyph,
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
-            NumberPopInText(
-                text = value,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = color
-                ),
-                animTrigger = animTrigger,
-                reduceMotion = reduceMotion
-            )
-        }
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
+    reduceMotion: Boolean = false,
+    glyph: String? = null
+) = com.couplefit.ui.dashboard.components.MetricPill(
+    label = label,
+    value = value,
+    color = color,
+    animTrigger = animTrigger,
+    reduceMotion = reduceMotion,
+    glyph = glyph
+)
 
-/**
- * ANM-12: Living Kinetic Orbital Telemetry Sync Pulse.
- * Renders rotating cyan/amber orbital particle ring with expanding radar ripples during active
- * telemetry sync, settling into a calm breathing green pulse when synchronized.
- */
 @Composable
 fun OrbitalSyncPulse(
     isSyncing: Boolean,
     modifier: Modifier = Modifier
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "orbitalSync")
-
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "orbitalRotation"
-    )
-
-    val rippleProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1400, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "orbitalRipple"
-    )
-
-    val idleBreath by infiniteTransition.animateFloat(
-        initialValue = 0.55f,
-        targetValue = 1.0f,
-        animationSpec = infiniteRepeatable(
-            animation = androidx.compose.animation.core.tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "idleBreath"
-    )
-
-    Box(
-        modifier = modifier.size(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val centerOffset = Offset(size.width / 2f, size.height / 2f)
-            val baseRadius = 5.dp.toPx()
-
-            if (isSyncing) {
-                // Expanding radar pulse wave
-                val waveRadius = baseRadius + rippleProgress * 6.dp.toPx()
-                val waveAlpha = (1f - rippleProgress).coerceIn(0f, 1f) * 0.7f
-                drawCircle(
-                    color = CoupleFitIdentityTokens.UserPrimary.copy(alpha = waveAlpha),
-                    radius = waveRadius,
-                    center = centerOffset,
-                    style = Stroke(width = 1.5.dp.toPx())
-                )
-
-                // Central glowing nexus
-                drawCircle(
-                    color = CoupleFitIdentityTokens.SynchronyGold.copy(alpha = 0.9f),
-                    radius = 3.dp.toPx(),
-                    center = centerOffset
-                )
-
-                // Dual orbital particles: User Cyan (top) and Partner Coral (bottom)
-                val orbitRadius = 7.5.dp.toPx()
-                val rad = Math.toRadians(rotation.toDouble())
-                val cyanX = (centerOffset.x + orbitRadius * Math.cos(rad)).toFloat()
-                val cyanY = (centerOffset.y + orbitRadius * Math.sin(rad)).toFloat()
-                val coralX = (centerOffset.x - orbitRadius * Math.cos(rad)).toFloat()
-                val coralY = (centerOffset.y - orbitRadius * Math.sin(rad)).toFloat()
-
-                // Cyan user orbital particle
-                drawCircle(
-                    color = CoupleFitIdentityTokens.UserPrimary,
-                    radius = 2.2.dp.toPx(),
-                    center = Offset(cyanX, cyanY)
-                )
-
-                // Coral partner orbital particle
-                drawCircle(
-                    color = CoupleFitIdentityTokens.PartnerPrimary,
-                    radius = 2.2.dp.toPx(),
-                    center = Offset(coralX, coralY)
-                )
-            } else {
-                // Steady breathing green synchrony dot
-                drawCircle(
-                    color = SystemGreen.copy(alpha = idleBreath * 0.35f),
-                    radius = 5.5.dp.toPx(),
-                    center = centerOffset
-                )
-                drawCircle(
-                    color = SystemGreen.copy(alpha = idleBreath),
-                    radius = 3.2.dp.toPx(),
-                    center = centerOffset
-                )
-            }
-        }
-    }
-}
-
+) = com.couplefit.ui.dashboard.components.OrbitalSyncPulse(
+    isSyncing = isSyncing,
+    modifier = modifier
+)

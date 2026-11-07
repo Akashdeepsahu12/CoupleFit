@@ -77,6 +77,43 @@ object CoupleFitHaptics {
         composeHaptic?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
+    /**
+     * Crescendo Fanfare Celebration (Q11 / ANM-05)
+     * Calibrated 3-stage tactile flourish for couple ring closure milestone:
+     * - Pulse 1: 15ms light preamble pulse (amp 80)
+     * - Gap 1: 50ms pause
+     * - Pulse 2: 25ms medium ascending pulse (amp 150)
+     * - Gap 2: 60ms pause
+     * - Pulse 3: 40ms triumphant finale pulse (amp 255)
+     */
+    fun performCelebration(context: Context?, composeHaptic: HapticFeedback? = null) {
+        if (context != null) {
+            try {
+                val vibrator = getVibrator(context)
+                if (vibrator != null && vibrator.hasVibrator()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        val timings = longArrayOf(0, 15, 50, 25, 60, 40)
+                        val amplitudes = intArrayOf(0, 80, 0, 150, 0, 255)
+                        val effect = if (vibrator.hasAmplitudeControl()) {
+                            VibrationEffect.createWaveform(timings, amplitudes, -1)
+                        } else {
+                            VibrationEffect.createWaveform(timings, -1)
+                        }
+                        vibrator.vibrate(effect)
+                        return
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator.vibrate(longArrayOf(0, 15, 50, 25, 60, 40), -1)
+                        return
+                    }
+                }
+            } catch (_: Throwable) {
+                // Ignore
+            }
+        }
+        composeHaptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
+
     @Suppress("DEPRECATION")
     private fun getVibrator(context: Context): Vibrator? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

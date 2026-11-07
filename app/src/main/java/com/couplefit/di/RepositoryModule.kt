@@ -1,8 +1,6 @@
 package com.couplefit.di
 
 import com.couplefit.data.repository.HealthRepositoryImpl
-import com.couplefit.data.samsunghealth.SamsungHealthRepository
-import com.couplefit.data.samsunghealth.SamsungHealthRepositoryImpl
 import com.couplefit.domain.repository.HealthRepository
 import dagger.Binds
 import dagger.Module
@@ -17,11 +15,6 @@ abstract class RepositoryModule {
     abstract fun bindHealthRepository(
         healthRepositoryImpl: HealthRepositoryImpl
     ): HealthRepository
-
-    @Binds
-    abstract fun bindSamsungHealthRepository(
-        samsungHealthRepositoryImpl: SamsungHealthRepositoryImpl
-    ): SamsungHealthRepository
 
     @Binds
     abstract fun bindPartnerRepository(

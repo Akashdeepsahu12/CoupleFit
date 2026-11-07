@@ -199,3 +199,5 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [`phase48_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase48_verification_report.md): Verification report for Phase 48 (EXPO-03 / GLS-09).
 - [`PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_49_EXPO_MCP_GLASS_EFFECT_ALIGNMENT.md): Milestone plan for Expo MCP Official Glass Effect Alignment (EXPO-04 / GLS-10).
 - [`phase49_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase49_verification_report.md): Verification report for Phase 49 (EXPO-04 / GLS-10).
+- [`PLAN_PHASE_50_MEDIA3_BILATERAL_TELEMETRY_RELATIONAL_KINETICS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_50_MEDIA3_BILATERAL_TELEMETRY_RELATIONAL_KINETICS.md): Milestone plan for Media3 Video Engine, Bilateral Telemetry, Dashboard Modularization & Relational Kinetics (Phase 50).
+- [`phase50_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase50_verification_report.md): Verification report for Phase 50 (Phase 50).

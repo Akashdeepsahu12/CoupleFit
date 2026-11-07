@@ -8,3 +8,13 @@ local.properties
 .DS_Store
 google-services.json
 *.exe
+
+# Media & Large Asset Governance (Q10)
+/*.mp4
+/*.mov
+/*.webm
+/*.avi
+
+# Tooling and scratch artifacts
+.archify/
+.codebread/

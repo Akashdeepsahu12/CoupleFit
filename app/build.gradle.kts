@@ -142,8 +142,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
 
-    // Samsung Health Data SDK
-    implementation(files("libs/samsung-health-data-api-1.1.0.aar"))
+    // AndroidX Media3 (ExoPlayer - Zero-gap loop streaming)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     // Health Connect (Stable 1.1.0)
     implementation(libs.health.connect.client)
