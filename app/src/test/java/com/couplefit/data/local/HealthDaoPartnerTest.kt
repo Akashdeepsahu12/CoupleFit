@@ -125,4 +125,53 @@ class HealthDaoPartnerTest {
             executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS partnerDaily") }
         )
     }
+
+    @Test
+    fun `test Room Migration 3 to 4 creates coupleChallenges table`() {
+        val executedSql = mutableListOf<String>()
+
+        val dbProxy = Proxy.newProxyInstance(
+            SupportSQLiteDatabase::class.java.classLoader,
+            arrayOf(SupportSQLiteDatabase::class.java)
+        ) { _, method, args ->
+            if (method.name == "execSQL" && args != null && args.isNotEmpty()) {
+                executedSql.add(args[0] as String)
+            }
+            null
+        } as SupportSQLiteDatabase
+
+        HealthDatabase.MIGRATION_3_4.migrate(dbProxy)
+
+        assertTrue(
+            "Migration 3 to 4 must create coupleChallenges table",
+            executedSql.any { it.contains("CREATE TABLE IF NOT EXISTS coupleChallenges") }
+        )
+    }
+
+    @Test
+    fun `test CoupleChallengeEntity creation and integrity`() {
+        val challenge = CoupleChallengeEntity(
+            id = "chal_999",
+            coupleId = "couple_pair_1",
+            type = "STEPS",
+            goal = 12000,
+            start = "2026-11-01",
+            end = "2026-11-07",
+            status = "ACTIVE",
+            myProgress = 8500,
+            partnerProgress = 9200,
+            winnerUserId = null,
+            completedAt = null,
+            lastUpdated = 1731200000000L
+        )
+
+        assertEquals("chal_999", challenge.id)
+        assertEquals("couple_pair_1", challenge.coupleId)
+        assertEquals("STEPS", challenge.type)
+        assertEquals(12000, challenge.goal)
+        assertEquals("ACTIVE", challenge.status)
+        assertEquals(8500, challenge.myProgress)
+        assertEquals(9200, challenge.partnerProgress)
+        assertEquals(1731200000000L, challenge.lastUpdated)
+    }
 }

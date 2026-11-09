@@ -9,6 +9,9 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
 | [**EGM_FULL_APP_REVIEW.md**](EGM_FULL_APP_REVIEW.md) | EGM Goldfish Review Council | **Architecture & Quality Audit** | Master full-stack EGM audit covering Frontend & Backend hazards, security contradictions, GPU leaks, and 5-phase remediation roadmap. |
+| [**PLAN_PHASE_56_PRODUCTION_TEST_RIGOR.md**](PLAN_PHASE_56_PRODUCTION_TEST_RIGOR.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 56 milestone plan: Production Build & Test Rigor (`TST-01`, `TST-02`, `R8-02`). |
+| [**phase56_verification_report.md**](phase56_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 56 verification report: In-memory SQLite Room integration suite on emulator, substantive Compose UI assertions, mathematical motion & contrast contracts, and release R8 minification. |
+| [**PLAN_PHASE_55_YAGNI_SIMPLIFICATION_TRENDS.md**](PLAN_PHASE_55_YAGNI_SIMPLIFICATION_TRENDS.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 55 milestone plan: YAGNI Simplification & Feature Realization (`YAG-01`, `FEAT-01`, `DEP-01`). |
 | [**phase55_verification_report.md**](phase55_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 55 verification report: LiquidGlassEngine consolidation (`YAG-01`), pure Material 3 migration and M2 eradication (`DEP-01`), and dynamic HealthTrends live telemetry (`FEAT-01`). |
 | [**DESIGN.md**](DESIGN.md) | Design System Synthesis | **Design System** | Complete semantic design tokens, color palette, glassmorphism specs, and typography scales. |
 | [**STITCH_PROMPTS.md**](STITCH_PROMPTS.md) | Screen Design Specs | **UI / UX Architecture** | Exhaustive screen prompts and specifications for Today, Challenges, Trends, and Couple Hub. |

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.couplefit.ui.components.LiveHeartRateEmptyWaveform
 import com.couplefit.ui.navigation.CoupleFitNavigationSuite
 import com.couplefit.ui.navigation.TopLevelDestination
 import com.couplefit.ui.theme.*
@@ -407,18 +408,41 @@ class NavigationComposeUiTest {
 
     @Test
     fun live_heart_rate_permanently_unfolded_on_dashboard_verified() {
-        // Assert that the Live Heart Rate & Vitals Pulse card is permanently open on the dashboard
+        // Assert that the Live Heart Rate & Vitals Waveform displays actionable UI nodes
         // without requiring any dropdown accordion toggle (VHR-04, TST-09, ENG-05)
-        assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                LiveHeartRateEmptyWaveform(
+                    tint = VitalsAccent,
+                    reduceMotion = false,
+                    onSyncClick = {}
+                )
+            }
+        }
+
+        // Verify headline, helper copy, and sync CTA button are displayed as first-class nodes
+        composeTestRule.onNodeWithText("Awaiting Heart Rate Records").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Wear your watch or sync Health Connect to display telemetry").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Sync Health Connect").assertIsDisplayed()
     }
 
     @Test
     fun live_heart_rate_layout_polished_verified() {
         // Assert that the Live Heart Rate card layout conforms to UI-UX Pro Max standards (VHR-05, DSN-04, ENG-06)
-        // 1. Specular top tint remains consistent with liquid glass theme
-        assertEquals(androidx.compose.ui.graphics.Color(0x5EFFFFFF), GlassPrimitives.TintWhiteSpecularTop)
-        // 2. Stroke and typography tokens verified
-        assertEquals(androidx.compose.ui.graphics.Color(0x2EFFFFFF), GlassPrimitives.TintWhiteSpecularMid)
+        // Verifies interaction delivery on sync trigger and accessibility motion bypass
+        var syncTriggered = false
+        composeTestRule.setContent {
+            CoupleFitTheme {
+                LiveHeartRateEmptyWaveform(
+                    tint = VitalsAccent,
+                    reduceMotion = true,
+                    onSyncClick = { syncTriggered = true }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Sync Health Connect").performClick()
+        assertTrue("Sync Health Connect CTA must deliver click action", syncTriggered)
     }
 
     @Test
