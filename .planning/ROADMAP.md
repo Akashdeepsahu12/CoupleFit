@@ -1,4 +1,4 @@
-# CoupleFit Milestone Roadmap 🗺️
+﻿# CoupleFit Milestone Roadmap 🗺️
 
 ## Phase 1: Type-Safe Route Foundations (`CSA-01`)
 - **Status**: 🟢 Completed & Shipped
@@ -50,6 +50,14 @@
   - **`NAV-05`**: Preserved 0-tap unified bilateral telemetry invariant on Today. Implemented dedicated `TelemetryPerspective` segmented row (`[Both 👥] [You 👤] [Partner 💖]`) on `HealthTrendsScreen.kt` with solo telemetry cards and animated content switching.
   - **Test Suite**: `NavigationComposeUiTest.kt` extended with UI tests verifying perspective toggle and card rendering.
 - **Release Tag**: `v2.4.2-nav04-nav05`
+
+## Phase 51: Real-Time Partner Telemetry Synchronization & Demo Seeding Engine (PTR-01)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **PTR-01**: Room SSOT telemetry seeding via seedDemoPartnerDaily() and ddPartnerSteps() in PartnerRepository. Dynamic session observation in HealthConnectViewModel re-binding Firestore listeners. Automatic demo seeding in AuthViewModel. Simulation controls (+1k Partner button) in DashboardScreen.
+  - **Test Suite**: PartnerRepositoryTest.kt and PartnerTelemetrySyncTest.kt passing 100% green; 	estDebugUnitTest 32/32 green; compileDebugAndroidTestKotlin 0 errors.
+  - **Device Verification**: Verified live on emulator-5554 with screenshots showing 7,420 steps and active sync.
+- **Release Tag**: 2.9.37-partner-telemetry-sync-ptr01`r
 
 ## Phase 7: Production Hardening & Accessibility (`RSP-01`, `GST-01`, `CLR-01`, `MSR-01`)
 - **Status**: ⚪ Pending Next Milestone

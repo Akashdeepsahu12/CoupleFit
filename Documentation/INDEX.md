@@ -1,4 +1,4 @@
-# CoupleFit Documentation Hub 📚
+﻿# CoupleFit Documentation Hub 📚
 
 Welcome to the centralized documentation directory for the **CoupleFit** ecosystem. Below is an index of all architectural, operational, release, and agent skills documentation, complete with the exact command trigger and associated defect log mappings.
 
@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md**](PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 51 milestone plan: Real-Time Partner Telemetry Synchronization & Demo Seeding Engine (PTR-01). |
+| [**phase51_verification_report.md**](phase51_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 51 verification report: Room SSOT seeding, dynamic session re-binding, +1k Partner controls, and live device verification (PTR-01). |
 | [**`PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md`**](PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 47 milestone plan: Restore Ambient Video Aurora Gradient Background (`BGV-08`). |
 | [**`phase47_verification_report.md`**](phase47_verification_report.md) | `/gsd-verify-work` | **Verification & UAT** | Phase 47 verification report: Reverted default background to `AmbientVideoBackground`, optical harmony with Expo Glass dock, unit tests, and live device verification (`BGV-08`). |
 | [**\PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md\**](PLAN_PHASE_46_EXPO_GLASS_EFFECT_BOTTOM_BAR.md) | \/gsd-plan-phase\ | **Roadmap & Milestones** | Phase 46 milestone plan: Expo Glass Effect Component Architecture (\GlassContainer\ & \GlassView\) for Bottom Navigation Bar (\GLS-08\ / \EXPO-02\). |

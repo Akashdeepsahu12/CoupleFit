@@ -34,7 +34,8 @@ data class AuthUiState(
 class AuthViewModel @Inject constructor(
     private val authManager: FirebaseAuthManager,
     private val coupleLinkManager: CoupleLinkManager,
-    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
+    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
+    private val partnerRepository: com.couplefit.domain.repository.PartnerRepository
 ) : ViewModel() {
 
     private val initialSession = authManager.getCurrentSession()
@@ -170,6 +171,11 @@ class AuthViewModel @Inject constructor(
                         } else {
                             session
                         }
+                        // Seed demo partner telemetry in Room for immediate visibility (PTR-01)
+                        viewModelScope.launch {
+                            val dateStr = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+                            partnerRepository.seedDemoPartnerDaily(activeSession.partnerId ?: "partner_demo", dateStr)
+                        }
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             userSession = activeSession,
@@ -213,6 +219,11 @@ class AuthViewModel @Inject constructor(
             coupleId = current.coupleId ?: "couple_demo",
             partnerId = current.partnerId ?: "partner_demo"
         )
+        // Seed demo partner telemetry in Room for immediate visibility (PTR-01)
+        viewModelScope.launch {
+            val dateStr = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+            partnerRepository.seedDemoPartnerDaily(linked.partnerId ?: "partner_demo", dateStr)
+        }
         _uiState.value = _uiState.value.copy(
             isLoading = false,
             userSession = linked,

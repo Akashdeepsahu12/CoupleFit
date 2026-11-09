@@ -83,7 +83,8 @@ class HealthConnectViewModel @Inject constructor(
     private val healthRepository: com.couplefit.domain.repository.HealthRepository,
     private val partnerRepository: com.couplefit.domain.repository.PartnerRepository,
     private val syncRepository: com.couplefit.domain.repository.SyncRepository,
-    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
+    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
+    private val authManager: com.couplefit.data.remote.FirebaseAuthManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HealthConnectUiState>(HealthConnectUiState.Loading)
@@ -96,11 +97,53 @@ class HealthConnectViewModel @Inject constructor(
     val sharingPreferences = preferencesDataStore.sharingPreferencesFlow
 
     private var dbObservationJob: Job? = null
+    private var partnerListeningJob: Job? = null
+    private var sessionObservationJob: Job? = null
     
     init {
         checkStatusAndFetchData()
         startObservingLocalDb()
         observeProfileNames()
+        observeUserSessionAndPartnerSync()
+    }
+
+    private fun observeUserSessionAndPartnerSync() {
+        sessionObservationJob?.cancel()
+        sessionObservationJob = viewModelScope.launch {
+            authManager.observeUserSession().collectLatest { session ->
+                if (session != null) {
+                    val coupleId = session.coupleId ?: _dashboardState.value.coupleId
+                    val partnerId = session.partnerId ?: _dashboardState.value.partnerId
+                    val myUid = session.uid
+                    val partnerName = if (!session.displayName.isNullOrBlank()) {
+                        _dashboardState.value.partnerName
+                    } else _dashboardState.value.partnerName
+                    val isLinked = session.isLinked
+
+                    _dashboardState.value = _dashboardState.value.copy(
+                        coupleId = coupleId,
+                        partnerId = partnerId,
+                        myUid = myUid,
+                        isPartnerLinked = isLinked
+                    )
+
+                    startListeningToPartner(coupleId, partnerId)
+                }
+            }
+        }
+    }
+
+    private fun startListeningToPartner(coupleId: String, partnerId: String) {
+        if (coupleId.isBlank() || partnerId.isBlank()) return
+        partnerListeningJob?.cancel()
+        partnerListeningJob = viewModelScope.launch {
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            // Seed initial realistic partner daily data into Room if empty (PTR-01)
+            partnerRepository.seedDemoPartnerDaily(partnerId, dateStr)
+            partnerRepository.listenToPartnerDaily(coupleId, partnerId, dateStr).collect {
+                // PartnerRepository writes incoming snapshots into Room partnerDaily table
+            }
+        }
     }
 
     private fun observeProfileNames() {
@@ -186,15 +229,8 @@ class HealthConnectViewModel @Inject constructor(
             }
         }
 
-        // Listen to partner's Firestore document and stream to Room
-        viewModelScope.launch {
-            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-            val coupleId = _dashboardState.value.coupleId
-            val partnerId = _dashboardState.value.partnerId
-            partnerRepository.listenToPartnerDaily(coupleId, partnerId, dateStr).collect {
-                // PartnerRepository writes incoming snapshots into Room partnerDaily table
-            }
-        }
+        // Listen to partner's Firestore document and stream to Room (PTR-01)
+        startListeningToPartner(_dashboardState.value.coupleId, _dashboardState.value.partnerId)
         
         viewModelScope.launch {
             val now = Instant.now()
@@ -446,6 +482,18 @@ class HealthConnectViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.w("HealthConnectVM", "Remote aggregate sync skipped: ${e.message}")
             }
+        }
+    }
+
+    /**
+     * Increments/simulates partner test steps in Room SSOT (PTR-01).
+     * Immediately updates bilateral gauges and charts, enabling full couple verification.
+     */
+    fun addSamplePartnerSteps(count: Long = 1000L) {
+        viewModelScope.launch {
+            val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+            val partnerId = _dashboardState.value.partnerId
+            partnerRepository.addPartnerSteps(partnerId, dateStr, count)
         }
     }
 

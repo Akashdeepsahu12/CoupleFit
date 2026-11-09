@@ -36,6 +36,18 @@ interface PartnerRepository {
     suspend fun clearPartnerDaily(partnerId: String)
 
     /**
+     * Seeds initial realistic partner daily aggregate into Room if no data exists yet.
+     * Prevents empty 0-step states for new pairs, demo accounts, or prior to partner's first sync.
+     */
+    suspend fun seedDemoPartnerDaily(partnerId: String, dateStr: String, defaultSteps: Long = 7420L)
+
+    /**
+     * Increments/simulates partner test steps directly in local Room SSOT.
+     * Enables interactive testing of bilateral leaderboards, dual charts, and ring closures.
+     */
+    suspend fun addPartnerSteps(partnerId: String, dateStr: String, count: Long = 1000L)
+
+    /**
      * Sends a nudge to the partner by creating a document in couples/{coupleId}/nudges.
      * Rate limiting is enforced strictly on the server in Cloud Functions (not client-side).
      */

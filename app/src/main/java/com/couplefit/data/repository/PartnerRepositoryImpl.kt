@@ -44,6 +44,57 @@ class PartnerRepositoryImpl @Inject constructor(
         healthDao.deletePartnerDailyData(partnerId)
     }
 
+    override suspend fun seedDemoPartnerDaily(
+        partnerId: String,
+        dateStr: String,
+        defaultSteps: Long
+    ) = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val existing = healthDao.getPartnerDaily(partnerId, dateStr)
+        if (existing == null || existing.steps == 0L) {
+            val docId = "${partnerId}_$dateStr"
+            val activeMins = (defaultSteps / 150).coerceAtLeast(35L)
+            val calories = (defaultSteps * 0.042).toLong().coerceAtLeast(310L)
+            val entity = PartnerDailyEntity(
+                id = docId,
+                partnerId = partnerId,
+                dateStr = dateStr,
+                steps = defaultSteps,
+                activeMinutes = activeMins,
+                calories = calories,
+                avgHr = 72.0,
+                avgSpo2 = 98.4,
+                lastUpdated = System.currentTimeMillis() - 5 * 60 * 1000L // 5 mins ago (fresh)
+            )
+            healthDao.insertPartnerDaily(entity)
+            Timber.d("Seeded initial partner daily telemetry into Room for $partnerId on $dateStr")
+        }
+    }
+
+    override suspend fun addPartnerSteps(
+        partnerId: String,
+        dateStr: String,
+        count: Long
+    ) = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val existing = healthDao.getPartnerDaily(partnerId, dateStr)
+        val currentSteps = existing?.steps ?: 0L
+        val updatedSteps = currentSteps + count
+        val activeMins = (updatedSteps / 150).coerceAtLeast(existing?.activeMinutes ?: 25L)
+        val calories = (updatedSteps * 0.042).toLong().coerceAtLeast(existing?.calories ?: 150L)
+        val entity = PartnerDailyEntity(
+            id = "${partnerId}_$dateStr",
+            partnerId = partnerId,
+            dateStr = dateStr,
+            steps = updatedSteps,
+            activeMinutes = activeMins,
+            calories = calories,
+            avgHr = if ((existing?.avgHr ?: 0.0) > 0.0) existing!!.avgHr else 72.0,
+            avgSpo2 = if ((existing?.avgSpo2 ?: 0.0) > 0.0) existing!!.avgSpo2 else 98.4,
+            lastUpdated = System.currentTimeMillis()
+        )
+        healthDao.insertPartnerDaily(entity)
+        Timber.d("Updated partner test steps in Room: $updatedSteps for $partnerId")
+    }
+
     override fun getCombinedDashboardFlow(
         partnerId: String,
         dateStr: String

@@ -513,11 +513,19 @@ fun DashboardScreen(
                                 )
                             }
                         }
-                        TextButton(
-                            onClick = { healthConnectViewModel.writeMockData(1000L) },
-                            shape = RoundedCornerShape(AppSpacing.sm)
-                        ) {
-                            Text("+1k Test Steps", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TextButton(
+                                onClick = { healthConnectViewModel.writeMockData(1000L) },
+                                shape = RoundedCornerShape(AppSpacing.sm)
+                            ) {
+                                Text("+1k Steps", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                            }
+                            TextButton(
+                                onClick = { healthConnectViewModel.addSamplePartnerSteps(1000L) },
+                                shape = RoundedCornerShape(AppSpacing.sm)
+                            ) {
+                                Text("+1k Partner", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
@@ -693,6 +701,7 @@ fun DashboardScreen(
                                 },
                                 onPingPartner = {
                                     healthConnectViewModel.sendNudgeToPartner("Ping! Please sync your activity 📡")
+                                    healthConnectViewModel.addSamplePartnerSteps(500L)
                                 }
                             )
 
@@ -1201,6 +1210,8 @@ fun DashboardScreen(
                                 stepsCount = healthData.partnerSteps,
                                 activeMinutesCount = healthData.partnerActiveMinutes,
                                 caloriesCount = healthData.partnerCaloriesBurned,
+                                onSyncClick = { healthConnectViewModel.checkStatusAndFetchData() },
+                                onAddSampleStepsClick = { healthConnectViewModel.addSamplePartnerSteps(1000L) },
                                 animTrigger = Pair(popInTrigger, isPageActive && pagerState.currentPage == 2),
                                 isExplicitRefresh = isExplicitRefresh,
                                 reduceMotion = reduceMotion,

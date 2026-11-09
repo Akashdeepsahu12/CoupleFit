@@ -186,6 +186,86 @@ class PartnerRepositoryTest {
     }
 
     @Test
+    fun `seedDemoPartnerDaily inserts initial entity when Room is empty`() = runTest {
+        val partnerId = "partner_demo"
+        val dateStr = "2026-10-21"
+
+        coEvery { healthDao.getPartnerDaily(partnerId, dateStr) } returns null
+
+        partnerRepository.seedDemoPartnerDaily(partnerId, dateStr, defaultSteps = 7500L)
+
+        coVerify(exactly = 1) {
+            healthDao.insertPartnerDaily(
+                match {
+                    it.partnerId == partnerId &&
+                    it.dateStr == dateStr &&
+                    it.steps == 7500L &&
+                    it.activeMinutes > 0L &&
+                    it.calories > 0L
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `seedDemoPartnerDaily does not overwrite when Room already has active data`() = runTest {
+        val partnerId = "partner_active"
+        val dateStr = "2026-10-21"
+        val existing = PartnerDailyEntity(
+            id = "${partnerId}_$dateStr",
+            partnerId = partnerId,
+            dateStr = dateStr,
+            steps = 9800L,
+            activeMinutes = 65L,
+            calories = 490L,
+            avgHr = 74.0,
+            avgSpo2 = 98.0,
+            lastUpdated = 1729500000000L
+        )
+
+        coEvery { healthDao.getPartnerDaily(partnerId, dateStr) } returns existing
+
+        partnerRepository.seedDemoPartnerDaily(partnerId, dateStr, defaultSteps = 7500L)
+
+        coVerify(exactly = 0) {
+            healthDao.insertPartnerDaily(any())
+        }
+    }
+
+    @Test
+    fun `addPartnerSteps increments partner steps and recalculates metrics`() = runTest {
+        val partnerId = "partner_123"
+        val dateStr = "2026-10-21"
+        val existing = PartnerDailyEntity(
+            id = "${partnerId}_$dateStr",
+            partnerId = partnerId,
+            dateStr = dateStr,
+            steps = 4000L,
+            activeMinutes = 25L,
+            calories = 160L,
+            avgHr = 72.0,
+            avgSpo2 = 98.5,
+            lastUpdated = 1729500000000L
+        )
+
+        coEvery { healthDao.getPartnerDaily(partnerId, dateStr) } returns existing
+
+        partnerRepository.addPartnerSteps(partnerId, dateStr, count = 1500L)
+
+        coVerify(exactly = 1) {
+            healthDao.insertPartnerDaily(
+                match {
+                    it.partnerId == partnerId &&
+                    it.dateStr == dateStr &&
+                    it.steps == 5500L && // 4000 + 1500
+                    it.activeMinutes >= 25L &&
+                    it.calories >= 160L
+                }
+            )
+        }
+    }
+
+    @Test
     fun `sendNudge creates document in couples nudges collection with PENDING status`() = runTest {
         val coupleId = "cpl_123"
         val senderUid = "user_me"

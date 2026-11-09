@@ -618,3 +618,29 @@ graph TD
   - `CoupleFitNavigationSuite.kt` -> Configured outer dock plate and sliding active indicator capsule with aligned `GlassEffectStyleConfig` instances (`0.3f` and `0.28f` seconds).
   - `ExpoGlassEffectTest.kt` -> Unit test suite verifying schema defaults (`animate = false`, `animationDuration = 0.3f`) and custom overrides (100% green bar).
   - `Documentation/phase49_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub on Google Pixel 10 Pro (`emulator-5554`).
+
+
+### Phase 50: Media3 Video Engine, Bilateral Telemetry, Dashboard Modularization & Relational Kinetics (KRP-01-KRP-04, VID-01, ANM-05-ANM-07) 🟢 Resolved
+- **Domain**: AndroidX Media3 ExoPlayer Engine, Directional Touch-Slop Arbitration, Monolith Decomposition & Harmonic Celebrations
+- **Milestone Tag**: v2.9.36-media3-bilateral-telemetry-relational-kinetics
+- **Nodes & Edges**:
+  - KRP-03: Directional touch-slop arbitration in InteractiveChart.kt (abs(totalDx) > touchSlop && abs(totalDx) > abs(totalDy)).
+  - KRP-02 & Q7: Monolithic DashboardScreen.kt decomposed into com.couplefit.ui.dashboard.components.* + DashboardUiState.kt.
+  - KRP-01: Pruned dead legacy Samsung Health subsystem, duplicate mp4 binaries, and FloatingPathsBackground.kt.
+  - KRP-04 / DTV-01: Bilateral dual splines (cyan user, dashed coral partner) with delta fill and synchronized dual-reading tooltip.
+  - VID-01: AndroidX Media3 ExoPlayer 1.4.1 upgrade on TextureView with zero-gap loop playback.
+  - ANM-05: CoupleRingClosureHarmonicBurst with 56-particle dual Canvas cascade and fanfare haptics.
+  - ANM-07: Parabolic flying nudge particles in QuickNudgeRow.kt.
+  - Documentation/phase50_verification_report.md -> Live hardware screenshot verification across Today, My Stats, and Partner's Stats on Google Pixel 10 Pro (emulator-5554).
+
+### Phase 51: Real-Time Partner Telemetry Synchronization & Demo Seeding Engine (PTR-01) 🟢 Resolved
+- **Domain**: Partner Telemetry Synchronization, Room SSOT Seeding & Session Binding
+- **Milestone Tag**: v2.9.37-partner-telemetry-sync-ptr01
+- **Nodes & Edges**:
+  - PTR-01: Remediation for missing partner telemetry in UI.
+  - PartnerRepository.kt & PartnerRepositoryImpl.kt -> Added seedDemoPartnerDaily(partnerId, dateStr, defaultSteps) and addPartnerSteps(partnerId, dateStr, count) for local Room SSOT mutation.
+  - HealthConnectViewModel.kt -> Injected FirebaseAuthManager, added observeUserSessionAndPartnerSync() to dynamically observe authenticated credentials and re-bind Firestore snapshot listeners via startListeningToPartner(), and exposed addSamplePartnerSteps().
+  - AuthViewModel.kt -> Auto-seeded realistic partner daily telemetry during guest sign-in (signInAsGuest) and demo entry (enterDemoDashboard).
+  - DashboardScreen.kt -> Added +1k Partner button in the morning welcome card alongside +1k Steps, wired partner stat card add sample steps trigger, and updated nudge refresh callback.
+  - PartnerRepositoryTest.kt & PartnerTelemetrySyncTest.kt -> Automated unit test suite verifying Room seeding, step increments, UI mapping, and dual ring closure (32/32 tests 100% green).
+  - Documentation/phase51_verification_report.md -> Live hardware screenshot verification on Google Pixel 10 Pro (emulator-5554) confirming Partner: 7,420 steps, 49m, 311 kcal, and active sync indicator.

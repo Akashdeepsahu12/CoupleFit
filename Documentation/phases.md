@@ -1118,3 +1118,29 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Verified live on `emulator-5554` via ARTEMIS screenshots and element hierarchy.
 - **Release Tag**: `v2.9.36-media3-bilateral-telemetry-relational-kinetics`
 
+
+## Phase 51: Real-Time Partner Telemetry Synchronization & Demo Seeding Engine (`PTR-01`) 💎🚀
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md)
+- **Verification Report**: [`Documentation/phase51_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase51_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Dynamic Session Observation & Firestore Re-Binding (`HealthConnectViewModel.kt`)**:
+     - Injected `FirebaseAuthManager` and established `observeUserSessionAndPartnerSync()`.
+     - Dynamically observes active credentials, updating `coupleId`, `partnerId`, `myUid`, and `isPartnerLinked`.
+     - Re-binds Firestore snapshot listener via `startListeningToPartner(coupleId, partnerId)` whenever session state changes.
+  2. **Room Database SSOT Seeding & Incremental Mutation (`PartnerRepository.kt`, `PartnerRepositoryImpl.kt`)**:
+     - Added `seedDemoPartnerDaily(partnerId, dateStr, defaultSteps)` to populate realistic daily metrics (7,420 steps, 48m active, 385 kcal, 72 bpm HR, 98.4% SpO2) into Room if unpopulated.
+     - Added `addPartnerSteps(partnerId, dateStr, count)` to atomically update partner steps and recalculate dependent metrics.
+  3. **Auto-Seeding on Guest/Demo Login (`AuthViewModel.kt`)**:
+     - Wired `seedDemoPartnerDaily` into `signInAsGuest()` and `enterDemoDashboard()`.
+  4. **Simulation Controls & UI Telemetry (`DashboardScreen.kt`)**:
+     - Added `+1k Partner` button in the morning welcome card alongside `+1k Steps`.
+     - Wired `onAddSampleStepsClick` to `addSamplePartnerSteps(1000L)` on the Partner `StatCard` in Tab 2.
+     - Bound `onPingPartner` to nudge partner telemetry updates.
+  5. **Deterministic Multi-Device & Test Verification**:
+     - Automated unit tests pass 100% green (32/32 tests, including `PartnerRepositoryTest` and `PartnerTelemetrySyncTest`).
+     - Android test compilation passes with zero errors (`compileDebugAndroidTestKotlin`).
+     - Live execution on `emulator-5554` verified via ARTEMIS screenshots: Partner steps displayed at `7,420 steps`, 49m, 311 kcal, and `"You & Partner are in sync"` connection badge.
+- **Release Tag**: `v2.9.37-partner-telemetry-sync-ptr01`
+
+
