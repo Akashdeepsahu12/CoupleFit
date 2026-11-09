@@ -4070,4 +4070,41 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PTR-01`** | Today Tab Partner Telemetry & Gauges | Live capture on `emulator-5554`: Partner steps displayed at `7,420 steps`, 49m active, 311 kcal, 74.2% glowing arc gauge, sync status `"You & Partner are in sync"`, and `+1k Partner` button active | [`phase51_dashboard_updated.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase51_dashboard_updated.png) | 🟢 Verified |
 | **`PTR-02`** | Automated Regression Test Suite | `.\gradlew.bat testDebugUnitTest` and `compileDebugAndroidTestKotlin` with `PartnerRepositoryTest` and `PartnerTelemetrySyncTest` | 32/32 tests passed 100% green | 🟢 Verified |
 
+---
+
+## 77. Phase 52: Security Rules Hardening, Zero-Write Privacy & Production Configuration (`SEC-01`, `SEC-02`, `SEC-04`, `HC-01`, `CFG-01`, `CFG-02`, `R8-01`) 💎🛡️
+
+> **Verification Report**: [`Documentation/phase52_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase52_verification_report.md)  
+> **Target Files**:
+> - [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules)
+> - [`app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt)
+> - [`app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`app/src/main/java/com/couplefit/widget/PokeActionCallback.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/PokeActionCallback.kt)
+> - [`app/src/main/java/com/couplefit/widget/WidgetEntryPoint.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/widget/WidgetEntryPoint.kt)
+> - [`app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt)
+> - [`app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`app/src/main/AndroidManifest.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/AndroidManifest.xml)
+> - [`app/proguard-rules.pro`](file:///D:/Couple_fit/CoupleFit/app/proguard-rules.pro)
+> - [`app/build.gradle.kts`](file:///D:/Couple_fit/CoupleFit/app/build.gradle.kts)
+
+### 77.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SEC-01`** | EGM Full-Stack Audit | 🔴 **Security P0** | `firestore.rules` | Security rule contradiction prevented couple members from creating or updating challenges under `/challenges/{challengeId}`. | Updated rules to permit create/update by authenticated couple members with mutual membership validation. | 🟢 **Resolved** |
+| **`SEC-02`** | EGM Full-Stack Audit | 🔴 **Security P0** | `firestore.rules` | Wide-open read access on `/users/{uid}` allowed arbitrary authenticated users to read full profile details. | Restricted read access strictly to `isOwner(uid)` or `isLinkedPartner(uid)`. Added step count validation `0 <= steps < 250000`. | 🟢 **Resolved** |
+| **`HC-01`** | EGM Full-Stack Audit | 🔴 **Privacy P0** | `HealthConnectManager.kt`, `HealthConnectViewModel.kt` | `HealthConnectManager` declared `writeSampleSteps(count)` which violated the read-only privacy contract and caused runtime security exceptions. | Permanently removed `writeSampleSteps` and all write mutations to Health Connect. | 🟢 **Resolved** |
+| **`SEC-04`** | EGM Full-Stack Audit | 🟡 **Security P1** | `AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` | User data deletion (`deleteUserData`) left local Room database tables and preferences intact on the device. | Injected `HealthDatabase` and invoked `clearAllTables()` and `preferencesDataStore.clearAll()`. Added partner data purge on `unlinkPartner()`. | 🟢 **Resolved** |
+| **`CFG-02`** | EGM Full-Stack Audit | 🟡 **Configuration P1** | `PokeActionCallback.kt`, `WidgetEntryPoint.kt` | Glance app widget hardcoded `"couple_1"`, `"user_1"`, and `"partner_1"`. | Replaced hardcoded IDs with dynamic session credentials read from `couplefit_session_cache` and `authManager`. | 🟢 **Resolved** |
+| **`CFG-01`** | EGM Full-Stack Audit | 🟡 **Configuration P1** | `AndroidManifest.xml`, `app/build.gradle.kts` | Dead Samsung telemetry permissions and battery optimization exemption in manifest; release APK was signed with debug signing config. | Removed dead permissions and dead package queries. Removed debug signing from release build type. | 🟢 **Resolved** |
+| **`R8-01`** | EGM Full-Stack Audit | 🟡 **Configuration P1** | `app/proguard-rules.pro` | Test mocking library (`MockK`) was kept in production ProGuard; Glance ActionCallback and serialization models lacked explicit keep rules. | Removed MockK keep rule; added keep rules for Glance ActionCallback and `@Serializable` classes. | 🟢 **Resolved** |
+
+### 77.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`SEC-01`** | Firestore Rules Compilation | Syntax & policy structure validation | `firestore.rules` | 🟢 Verified |
+| **`HC-01`** | Zero-Write Contract | Source code verification & manifest inspection | No write permissions requested | 🟢 Verified |
+| **`P52-01`** | Automated Regression Test Suite | `.\gradlew.bat testDebugUnitTest` and `compileDebugAndroidTestKotlin` | 32/32 tests passed 100% green | 🟢 Verified |
+| **`P52-02`** | Live Android Emulator Run | `.\gradlew.bat installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase52_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase52_live.png) | 🟢 Verified |
+
+
 

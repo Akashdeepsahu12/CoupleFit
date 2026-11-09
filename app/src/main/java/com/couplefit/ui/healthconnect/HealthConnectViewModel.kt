@@ -467,14 +467,7 @@ class HealthConnectViewModel @Inject constructor(
                 lastSyncedAt = now
             )
 
-            // 4. Try to write to Health Connect SDK if available & permitted (non-blocking)
-            try {
-                healthConnectManager.writeSampleSteps(count)
-            } catch (e: Exception) {
-                Log.w("HealthConnectVM", "Health Connect SDK write skipped or failed: ${e.message}")
-            }
-
-            // 5. Upload to remote partner sync so partner can see the mock steps too
+            // 4. Upload to remote partner sync so partner can see the mock steps too
             try {
                 val coupleId = _dashboardState.value.coupleId
                 val myUid = _dashboardState.value.myUid

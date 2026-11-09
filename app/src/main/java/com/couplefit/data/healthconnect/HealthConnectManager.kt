@@ -460,30 +460,6 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         }
     }
 
-    suspend fun writeSampleSteps(count: Long = 1000L): Result<Unit> {
-        val client = getClient() ?: return Result.failure(IllegalStateException("Health Connect is not available"))
-        return try {
-            val endTime = Instant.now()
-            val startTime = endTime.minus(15, ChronoUnit.MINUTES)
-            val zoneOffset = ZoneId.systemDefault().rules.getOffset(endTime)
-            
-            val record = StepsRecord(
-                count = count,
-                startTime = startTime,
-                endTime = endTime,
-                startZoneOffset = zoneOffset,
-                endZoneOffset = zoneOffset,
-                metadata = androidx.health.connect.client.records.metadata.Metadata.manualEntry()
-            )
-            client.insertRecords(listOf(record))
-            Log.d(TAG, "Successfully wrote $count sample steps to Health Connect")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to write sample steps to Health Connect", e)
-            Result.failure(e)
-        }
-    }
-
     /**
      * Navigates to Health Connect settings or Google Play Store if an install/update is required.
      */

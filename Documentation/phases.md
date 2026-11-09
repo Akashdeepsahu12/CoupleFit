@@ -1144,3 +1144,31 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
 - **Release Tag**: `v2.9.37-partner-telemetry-sync-ptr01`
 
 
+
+
+---
+
+## Phase 52: Security Rules Hardening, Zero-Write Privacy & Production Configuration (`SEC-01`, `SEC-02`, `SEC-04`, `HC-01`, `CFG-01`, `CFG-02`, `R8-01`) 💎🛡️
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_52_SECURITY_RULES_HARDENING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_52_SECURITY_RULES_HARDENING.md)
+- **Verification Report**: [`Documentation/phase52_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase52_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Mutual Couple Challenge Rules Security (`firestore.rules` - `SEC-01`)**:
+     - Resolved security rule contradiction blocking challenge creation: permits `create` and `update` by authenticated couple members with mutual membership verification.
+  2. **Scoped User Document Read Permissions (`firestore.rules` - `SEC-02`)**:
+     - Restricted read access on `/users/{uid}` strictly to `isOwner(uid)` or `isLinkedPartner(uid)`. Added range checks (`0 <= steps < 250000`).
+  3. **Zero-Write Health Connect Privacy Guarantee (`HealthConnectManager.kt` - `HC-01`)**:
+     - Permanently removed `writeSampleSteps(count)` and related write invocations. App strictly honors read-only Health Connect integration.
+  4. **Cascading GDPR/CCPA Local Table Deletion (`AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` - `SEC-04`)**:
+     - Injected `HealthDatabase` into `AuthViewModel`; wipes all Room tables (`clearAllTables()`) and clears DataStore on `deleteUserData()`; purges partner daily data and challenges on `unlinkPartner()`.
+  5. **Dynamic Glance Home Screen Widget Credentials (`PokeActionCallback.kt`, `WidgetEntryPoint.kt` - `CFG-02`)**:
+     - Replaced hardcoded `"couple_1"`, `"user_1"`, and `"partner_1"` IDs with live session credentials from `couplefit_session_cache` and `FirebaseAuthManager`.
+  6. **Production Manifest & Release Build Cleansing (`AndroidManifest.xml`, `build.gradle.kts` - `CFG-01`)**:
+     - Removed dead Samsung telemetry permission (`WRITE_USE_APP_FEATURE_SURVEY`), dead Samsung queries, and battery optimization exemption. Removed debug signing from release build type.
+  7. **R8 ProGuard Hardening (`proguard-rules.pro` - `R8-01`)**:
+     - Stripped test-only MockK keep rules from release ProGuard; added keep rules for Glance `ActionCallback` and `@kotlinx.serialization.Serializable` data models.
+  8. **Deterministic Multi-Device & Test Verification**:
+     - Automated unit tests pass 100% green (`.\gradlew testDebugUnitTest`).
+     - Android test compilation passes with zero errors (`.\gradlew compileDebugAndroidTestKotlin`).
+     - Live execution on `emulator-5554` verified via ARTEMIS screenshots (`phase52_live.png`).
+- **Release Tag**: `v2.9.38-security-hardening-sec01`
