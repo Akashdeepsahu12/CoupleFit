@@ -8,6 +8,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**EGM_FULL_APP_REVIEW.md**](EGM_FULL_APP_REVIEW.md) | EGM Goldfish Review Council | **Architecture & Quality Audit** | Master full-stack EGM audit covering Frontend & Backend hazards, security contradictions, GPU leaks, and 5-phase remediation roadmap. |
 | [**PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md**](PLAN_PHASE_51_PARTNER_TELEMETRY_SYNC.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 51 milestone plan: Real-Time Partner Telemetry Synchronization & Demo Seeding Engine (PTR-01). |
 | [**phase51_verification_report.md**](phase51_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 51 verification report: Room SSOT seeding, dynamic session re-binding, +1k Partner controls, and live device verification (PTR-01). |
 | [**`PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md`**](PLAN_PHASE_47_RESTORE_AMBIENT_VIDEO_BACKGROUND.md) | `/gsd-plan-phase` | **Roadmap & Milestones** | Phase 47 milestone plan: Restore Ambient Video Aurora Gradient Background (`BGV-08`). |
