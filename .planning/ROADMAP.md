@@ -73,5 +73,16 @@
 - **Release Tag**: `v2.9.38-security-hardening-sec01`
 
 ## Phase 53: Performance & GPU Leak Elimination (`AGSL-01`, `PERF-02`, `UI-01`, `EXO-01`, `COR-01`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`AGSL-01`**: BackdropShaderCache singleton caching RuntimeShader instances for refraction and dispersion on Android 13+.
+  - **`PERF-02`**: Hoisted Path, PathMeasure, and Brush allocations out of Canvas in InteractiveChart.kt, eliminating GC allocation jitter.
+  - **`UI-01`**: Removed 10-second polling LaunchedEffect loop in DashboardScreen.kt; reactive Flow observation drives all state updates.
+  - **`EXO-01`**: ExoPlayer release in DisposableEffect.onDispose and dynamic setMediaItem() updates on videoResId change in AmbientVideoBackground.kt.
+  - **`COR-01`**: Job cancellation tracking in ChallengeViewModel.kt preventing stacked concurrent Firestore flow listeners.
+  - **Test Suite**: `testDebugUnitTest` 32/32 green; `compileDebugAndroidTestKotlin` 0 errors; live verified on `emulator-5554` (`phase53_live.png`).
+- **Release Tag**: `v2.9.39-performance-gpu-leaks`
+
+## Phase 54: Data Integrity, Room SSOT & Background Sync Pipeline (`DAT-01`, `DAT-04`, `DAT-02`, `DAT-05`, `WRK-01`, `HC-02`, `PERF-01`)
 - **Status**: 🟡 In Progress
-- **Goal**: Cache `RuntimeShader` compilation outside draw loops, eliminate `Path` allocations in `InteractiveChart`, remove 10-second polling recompositions in `DashboardScreen`, release `ExoPlayer` on dispose in `AmbientVideoBackground`, and cancel stale jobs in `ChallengeViewModel`.
+- **Goal**: Fix Room DAO LIMIT 1 partner stream hijacking (`DAT-01`), surface network errors instead of false sync (`DAT-04`), fix Changes API token overwrite (`HC-02`), schedule WorkManager background sync (`WRK-01`), and eliminate thread contention (`PERF-01`).

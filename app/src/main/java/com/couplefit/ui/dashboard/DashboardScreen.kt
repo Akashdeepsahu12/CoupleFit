@@ -218,17 +218,6 @@ fun DashboardScreen(
         }
     )
 
-    // Foreground fast-refresh loop (simulate 10s polling of local cache if flow wasn't active)
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(10_000)
-            // Just increment sync trigger subtly, but we keep isExplicitRefresh = false 
-            // so we don't trigger the "dramatic" entrance animations on background tick
-            // In a real app this would trigger the DAO fetch if we weren't using Flow
-            syncTrigger++
-        }
-    }
-
     val todayFormatted = remember {
         try {
             LocalDate.now().format(

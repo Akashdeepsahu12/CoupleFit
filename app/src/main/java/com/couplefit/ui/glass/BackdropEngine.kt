@@ -4,6 +4,7 @@ import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.graphics.Shader
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -277,6 +278,16 @@ private class LayerBackdropNode(var backdrop: LayerBackdrop) :
 // 3. EFFECT SCOPE & DRAW BACKDROP MODIFIER
 // =========================================================================
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private object BackdropShaderCache {
+    val dispersionShader: RuntimeShader by lazy {
+        RuntimeShader(RoundedRectRefractionWithDispersionShaderString)
+    }
+    val refractionShader: RuntimeShader by lazy {
+        RuntimeShader(RoundedRectRefractionShaderString)
+    }
+}
+
 interface BackdropEffectScope : Density {
     val size: Size
     val shape: Shape
@@ -315,12 +326,12 @@ interface BackdropEffectScope : Density {
             padding = (padding - refractionHeight).fastCoerceAtLeast(0f)
         }
 
-        val shaderString = if (chromaticAberration) {
-            RoundedRectRefractionWithDispersionShaderString
+        // AGSL-01: Use cached singleton RuntimeShader instance to prevent per-frame AGSL recompilation churn
+        val shader = if (chromaticAberration) {
+            BackdropShaderCache.dispersionShader
         } else {
-            RoundedRectRefractionShaderString
+            BackdropShaderCache.refractionShader
         }
-        val shader = RuntimeShader(shaderString)
         shader.setFloatUniform("size", size.width, size.height)
         shader.setFloatUniform("offset", 0f, 0f)
         val r = (size.height / 2f) // Pill corner radius

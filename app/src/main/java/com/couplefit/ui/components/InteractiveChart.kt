@@ -505,6 +505,44 @@ fun InteractiveChart(
                     }
                 }
         ) {
+            // PERF-02: Hoist Path, PathMeasure, and Brush allocations out of Canvas draw loop to prevent GC allocation churn
+            val userFullPath = remember { Path() }
+            val userAnimatedPath = remember { Path() }
+            val partnerFullPath = remember { Path() }
+            val partnerAnimatedPath = remember { Path() }
+            val deltaPolygon = remember { Path() }
+            val fillPath = remember { Path() }
+            val userPathMeasure = remember { PathMeasure() }
+            val partnerPathMeasure = remember { PathMeasure() }
+
+            val deltaGradientBrush = remember {
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF00F5D4).copy(alpha = 0.08f),
+                        Color(0xFFFF3366).copy(alpha = 0.08f)
+                    )
+                )
+            }
+
+            val userFillBrush = remember(isDark, lineColor) {
+                Brush.verticalGradient(
+                    colors = listOf(
+                        lineColor.copy(alpha = if (isDark) 0.22f else 0.28f),
+                        lineColor.copy(alpha = 0.01f)
+                    )
+                )
+            }
+
+            val userStrokeGradientBrush = remember(isDark, lineColor) {
+                Brush.horizontalGradient(
+                    colors = listOf(
+                        if (isDark) VitalsGradientStartDark else VitalsGradientStartLight,
+                        lineColor,
+                        if (isDark) VitalsGradientEndDark else VitalsGradientEndLight
+                    )
+                )
+            }
+
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val totalWidth = size.width
                 val totalHeight = size.height
@@ -587,7 +625,7 @@ fun InteractiveChart(
                     }
 
                     // User Cubic Spline
-                    val userFullPath = Path()
+                    userFullPath.rewind()
                     points.forEachIndexed { index, point ->
                         if (index == 0) {
                             userFullPath.moveTo(point.x, point.y)
@@ -598,19 +636,18 @@ fun InteractiveChart(
                         }
                     }
 
-                    val pathMeasure = PathMeasure()
-                    pathMeasure.setPath(userFullPath, false)
-                    val totalLength = pathMeasure.length
+                    userPathMeasure.setPath(userFullPath, false)
+                    val totalLength = userPathMeasure.length
                     val currentLength = totalLength * currentDrawProgress
 
-                    val userAnimatedPath = Path()
+                    userAnimatedPath.rewind()
                     if (currentLength > 0f) {
-                        pathMeasure.getSegment(0f, currentLength, userAnimatedPath, true)
+                        userPathMeasure.getSegment(0f, currentLength, userAnimatedPath, true)
                     }
 
                     // --- OPTIONAL PARTNER SERIES (Bilateral Telemetry Overlaid Spline) ---
                     var partnerPoints: List<Offset>? = null
-                    val partnerAnimatedPath = Path()
+                    partnerAnimatedPath.rewind()
                     if (partnerData != null && partnerData.size > 1) {
                         val pStepX = plotWidth / (partnerData.size - 1)
                         val pPoints = partnerData.mapIndexed { index, point ->
@@ -620,7 +657,7 @@ fun InteractiveChart(
                         }
                         partnerPoints = pPoints
 
-                        val partnerFullPath = Path()
+                        partnerFullPath.rewind()
                         pPoints.forEachIndexed { index, point ->
                             if (index == 0) {
                                 partnerFullPath.moveTo(point.x, point.y)
@@ -631,59 +668,42 @@ fun InteractiveChart(
                             }
                         }
 
-                        val pPathMeasure = PathMeasure()
-                        pPathMeasure.setPath(partnerFullPath, false)
-                        val pTotalLength = pPathMeasure.length
+                        partnerPathMeasure.setPath(partnerFullPath, false)
+                        val pTotalLength = partnerPathMeasure.length
                         val pCurrentLength = pTotalLength * currentDrawProgress
                         if (pCurrentLength > 0f) {
-                            pPathMeasure.getSegment(0f, pCurrentLength, partnerAnimatedPath, true)
+                            partnerPathMeasure.getSegment(0f, pCurrentLength, partnerAnimatedPath, true)
                         }
 
                         // --- DELTA REGION SHADING BETWEEN USER & PARTNER (DTV-01 / Q8) ---
                         if (currentLength > 0f && pCurrentLength > 0f && points.size == pPoints.size) {
-                            val deltaPolygon = Path().apply {
-                                addPath(userAnimatedPath)
-                                for (i in points.size - 1 downTo 0) {
-                                    val progressRatio = (i.toFloat() / (points.size - 1)).coerceIn(0f, 1f)
-                                    if (progressRatio <= currentDrawProgress) {
-                                        lineTo(pPoints[i].x, pPoints[i].y)
-                                    }
+                            deltaPolygon.rewind()
+                            deltaPolygon.addPath(userAnimatedPath)
+                            for (i in points.size - 1 downTo 0) {
+                                val progressRatio = (i.toFloat() / (points.size - 1)).coerceIn(0f, 1f)
+                                if (progressRatio <= currentDrawProgress) {
+                                    deltaPolygon.lineTo(pPoints[i].x, pPoints[i].y)
                                 }
-                                close()
                             }
+                            deltaPolygon.close()
                             drawPath(
                                 path = deltaPolygon,
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color(0xFF00F5D4).copy(alpha = 0.08f),
-                                        Color(0xFFFF3366).copy(alpha = 0.08f)
-                                    ),
-                                    startY = topPadding,
-                                    endY = topPadding + plotHeight
-                                )
+                                brush = deltaGradientBrush
                             )
                         }
                     }
 
                     // User Ambient Gradient Area Fill
                     if (currentLength > 0f && partnerData == null) {
-                        val fillPath = Path().apply {
-                            addPath(userAnimatedPath)
-                            val tipPos = pathMeasure.getPosition(currentLength)
-                            lineTo(tipPos.x, topPadding + plotHeight)
-                            lineTo(points.first().x, topPadding + plotHeight)
-                            close()
-                        }
+                        fillPath.rewind()
+                        fillPath.addPath(userAnimatedPath)
+                        val tipPos = userPathMeasure.getPosition(currentLength)
+                        fillPath.lineTo(tipPos.x, topPadding + plotHeight)
+                        fillPath.lineTo(points.first().x, topPadding + plotHeight)
+                        fillPath.close()
                         drawPath(
                             path = fillPath,
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    lineColor.copy(alpha = if (isDark) 0.22f else 0.28f),
-                                    lineColor.copy(alpha = 0.01f)
-                                ),
-                                startY = topPadding,
-                                endY = topPadding + plotHeight
-                            )
+                            brush = userFillBrush
                         )
                     }
 
@@ -705,20 +725,10 @@ fun InteractiveChart(
                     }
 
                     // Draw User Curve (Solid Electric Cyan Stroke)
-                    val gradientBrush = Brush.horizontalGradient(
-                        colors = listOf(
-                            if (isDark) VitalsGradientStartDark else VitalsGradientStartLight,
-                            lineColor,
-                            if (isDark) VitalsGradientEndDark else VitalsGradientEndLight
-                        ),
-                        startX = 0f,
-                        endX = plotWidth
-                    )
-
                     if (currentLength > 0f) {
                         drawPath(
                             path = userAnimatedPath,
-                            brush = gradientBrush,
+                            brush = userStrokeGradientBrush,
                             style = Stroke(
                                 width = (strokeWidth * 1.35f).toPx(),
                                 cap = StrokeCap.Round,

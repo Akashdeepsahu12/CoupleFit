@@ -4108,3 +4108,32 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 
 
 
+
+---
+
+## 78. Phase 53: Performance & GPU Leak Elimination (`AGSL-01`, `PERF-02`, `UI-01`, `EXO-01`, `COR-01`) 💎⚡
+
+> **Verification Report**: [`Documentation/phase53_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase53_verification_report.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/ui/glass/BackdropEngine.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/glass/BackdropEngine.kt)
+> - [`app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt)
+> - [`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt)
+> - [`app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt)
+
+### 78.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`AGSL-01`** | EGM Full-Stack Audit | 🟡 **Performance P1** | `BackdropEngine.kt` | `RuntimeShader` was instantiated on every draw frame inside `lens()`, causing constant Skia shader recompilation and GC pressure on Android 13+. | Cached singleton `RuntimeShader` instances in `@RequiresApi(TIRAMISU) BackdropShaderCache`. `lens()` now only updates uniforms. | 🟢 **Resolved** |
+| **`PERF-02`** | EGM Full-Stack Audit | 🟡 **Performance P1** | `InteractiveChart.kt` | Inside `Canvas`, up to 6 `Path` instances, 2 `PathMeasure` objects, and multiple `Brush` gradients were allocated on every animation tick. | Hoisted `Path`, `PathMeasure`, and `Brush` allocations using `remember` and cleared paths with `.rewind()`. | 🟢 **Resolved** |
+| **`UI-01`** | EGM Full-Stack Audit | 🟡 **Performance P1** | `DashboardScreen.kt` | Unthrottled 10-second polling coroutine (`while (true) { delay(10_000); syncTrigger++ }`) forced periodic full-dashboard recompositions. | Removed polling loop; state updates are driven reactively by Room SSOT and Firestore `Flow`s. | 🟢 **Resolved** |
+| **`EXO-01`** | EGM Full-Stack Audit | 🟡 **Performance P1** | `AmbientVideoBackground.kt` | `ExoPlayer` was not released when leaving composition (only on surface destroyed), and dynamic video switching failed to update the player. | Released `ExoPlayer` in `DisposableEffect.onDispose` and added `LaunchedEffect(videoResId, exoPlayerRef)` to dynamically update `setMediaItem()`. | 🟢 **Resolved** |
+| **`COR-01`** | EGM Full-Stack Audit | 🟡 **Performance P1** | `ChallengeViewModel.kt` | `observeChallenges()` launched new coroutines without canceling previous listeners, leaking concurrent Firestore flows. | Added `private var observeJob: Job? = null` and canceled prior job before launching new flow collectors. | 🟢 **Resolved** |
+
+### 78.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`AGSL-01`** | Shader Cache & Uniforms | Zero Skia recompilations in draw scope | `BackdropEngine.kt` | 🟢 Verified |
+| **`PERF-02`** | Zero-Allocation Chart Canvas | Memory heap stability across scrub gestures | `InteractiveChart.kt` | 🟢 Verified |
+| **`P53-01`** | Automated Regression Test Suite | `.\gradlew.bat testDebugUnitTest` and `compileDebugAndroidTestKotlin` | 32/32 tests passed 100% green | 🟢 Verified |
+| **`P53-02`** | Live Android Emulator Run | `.\gradlew.bat installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase53_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase53_live.png) | 🟢 Verified |

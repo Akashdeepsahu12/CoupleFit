@@ -1172,3 +1172,27 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Android test compilation passes with zero errors (`.\gradlew compileDebugAndroidTestKotlin`).
      - Live execution on `emulator-5554` verified via ARTEMIS screenshots (`phase52_live.png`).
 - **Release Tag**: `v2.9.38-security-hardening-sec01`
+
+
+---
+
+## Phase 53: Performance & GPU Leak Elimination (`AGSL-01`, `PERF-02`, `UI-01`, `EXO-01`, `COR-01`) 💎⚡
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_53_PERFORMANCE_GPU_LEAKS.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_53_PERFORMANCE_GPU_LEAKS.md)
+- **Verification Report**: [`Documentation/phase53_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase53_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Singleton Skia AGSL RuntimeShader Cache (`BackdropEngine.kt` - `AGSL-01`)**:
+     - Built `@RequiresApi(TIRAMISU) BackdropShaderCache` with lazy `dispersionShader` and `refractionShader` singletons, setting uniforms in `lens()` without AGSL recompilation churn.
+  2. **Zero-Allocation Canvas Spline Pipeline (`InteractiveChart.kt` - `PERF-02`)**:
+     - Hoisted 6 `Path` instances, 2 `PathMeasure` objects, and gradient `Brush` objects outside the `Canvas` draw pass using `remember`; cleared paths with `.rewind()` in frame rendering.
+  3. **Elimination of Monolithic Polling Loop (`DashboardScreen.kt` - `UI-01`)**:
+     - Removed unthrottled 10-second `while (true)` coroutine ticking `syncTrigger++`; state updates are driven 100% reactively by Room SSOT and Firestore `Flow`s.
+  4. **Leak-Free Media3 ExoPlayer Lifecycle & Media Switching (`AmbientVideoBackground.kt` - `EXO-01`)**:
+     - Released `ExoPlayer` in `DisposableEffect.onDispose` and dynamically updated `setMediaItem()` via `LaunchedEffect(videoResId, exoPlayerRef)`.
+  5. **Single-Job Coroutine Governance (`ChallengeViewModel.kt` - `COR-01`)**:
+     - Added `private var observeJob: Job? = null` and canceled existing listeners before launching new Firestore flow collectors.
+  6. **Deterministic Multi-Device & Test Verification**:
+     - Automated unit tests pass 100% green (`.\gradlew testDebugUnitTest`).
+     - Android test compilation passes with zero errors (`.\gradlew compileDebugAndroidTestKotlin`).
+     - Live execution on `emulator-5554` verified via ARTEMIS screenshots (`phase53_live.png`).
+- **Release Tag**: `v2.9.39-performance-gpu-leaks`
