@@ -28,7 +28,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.couplefit.ui.healthconnect.HealthConnectViewModel
+import com.couplefit.ui.healthconnect.HealthDashboardUiState
 import com.couplefit.ui.theme.*
+import kotlinx.coroutines.flow.MutableStateFlow
 
 enum class TelemetryPerspective(val label: String, val icon: String) {
     COMBINED("Both", "👥"),
@@ -47,12 +51,130 @@ enum class TelemetryPerspective(val label: String, val icon: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthTrendsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HealthConnectViewModel? = null
 ) {
+    val actualViewModel = viewModel ?: runCatching { hiltViewModel<HealthConnectViewModel>() }.getOrNull()
+    val fallbackState = remember { MutableStateFlow(HealthDashboardUiState()) }
+    val dashboardState by (actualViewModel?.dashboardState ?: fallbackState).collectAsState()
+
     var selectedTimeHorizon by remember { mutableStateOf("Week") }
     var selectedPerspective by remember { mutableStateOf(TelemetryPerspective.COMBINED) }
 
     val timeHorizons = remember { listOf("Day", "Week", "Month", "Year") }
+
+    val hasLiveMetrics = dashboardState.steps > 0L || dashboardState.partnerSteps > 0L
+    val horizonMultiplier = when (selectedTimeHorizon) {
+        "Day" -> 1L
+        "Week" -> 7L
+        "Month" -> 30L
+        else -> 365L
+    }
+
+    val youSteps = if (hasLiveMetrics) {
+        dashboardState.steps * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 8_450L
+            "Week" -> 48_200L
+            "Month" -> 198_400L
+            else -> 2_420_000L
+        }
+    }
+    val youGoal = if (hasLiveMetrics) {
+        dashboardState.stepsGoal * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 10_000L
+            "Week" -> 50_000L
+            "Month" -> 200_000L
+            else -> 2_500_000L
+        }
+    }
+    val youRatio = (youSteps.toFloat() / youGoal.coerceAtLeast(1L)).coerceIn(0f, 1.5f)
+    val youActiveMins = if (hasLiveMetrics) {
+        dashboardState.activeMinutes * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 45L
+            "Week" -> 280L
+            "Month" -> 1_120L
+            else -> 13_440L
+        }
+    }
+    val youCalories = if (hasLiveMetrics) {
+        dashboardState.caloriesBurned * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 420L
+            "Week" -> 2_450L
+            "Month" -> 10_200L
+            else -> 122_500L
+        }
+    }
+    val youDailyAvg = if (hasLiveMetrics) {
+        "%,d".format(dashboardState.steps)
+    } else {
+        "6,885"
+    }
+
+    val partnerSteps = if (hasLiveMetrics) {
+        dashboardState.partnerSteps * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 7_800L
+            "Week" -> 44_200L
+            "Month" -> 185_600L
+            else -> 2_280_000L
+        }
+    }
+    val partnerGoal = if (hasLiveMetrics) {
+        dashboardState.partnerStepsGoal * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 10_000L
+            "Week" -> 50_000L
+            "Month" -> 200_000L
+            else -> 2_500_000L
+        }
+    }
+    val partnerRatio = (partnerSteps.toFloat() / partnerGoal.coerceAtLeast(1L)).coerceIn(0f, 1.5f)
+    val partnerActiveMins = if (hasLiveMetrics) {
+        dashboardState.partnerActiveMinutes * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 40L
+            "Week" -> 252L
+            "Month" -> 1_040L
+            else -> 12_200L
+        }
+    }
+    val partnerCalories = if (hasLiveMetrics) {
+        dashboardState.partnerCaloriesBurned * horizonMultiplier
+    } else {
+        when (selectedTimeHorizon) {
+            "Day" -> 380L
+            "Week" -> 2_180L
+            "Month" -> 9_100L
+            else -> 110_400L
+        }
+    }
+    val partnerDailyAvg = if (hasLiveMetrics) {
+        "%,d".format(dashboardState.partnerSteps)
+    } else {
+        "6,314"
+    }
+
+    val totalSteps = youSteps + partnerSteps
+    val totalGoal = youGoal + partnerGoal
+    val combinedRatio = (totalSteps.toFloat() / totalGoal.coerceAtLeast(1L)).coerceIn(0f, 1.5f)
+    val combinedActive = youActiveMins + partnerActiveMins
+    val combinedCalories = youCalories + partnerCalories
+    val synchronyPercent = if (maxOf(youSteps, partnerSteps) > 0) {
+        ((minOf(youSteps, partnerSteps).toDouble() / maxOf(youSteps, partnerSteps)) * 100).toInt().coerceIn(10, 100)
+    } else {
+        94
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -146,82 +268,42 @@ fun HealthTrendsScreen(
                     ) { perspective ->
                         when (perspective) {
                             TelemetryPerspective.COMBINED -> {
-                                CombinedTelemetryCard(selectedTimeHorizon = selectedTimeHorizon)
+                                CombinedTelemetryCard(
+                                    selectedTimeHorizon = selectedTimeHorizon,
+                                    totalSteps = totalSteps,
+                                    totalGoal = totalGoal,
+                                    youSteps = youSteps,
+                                    partnerSteps = partnerSteps,
+                                    combinedRatio = combinedRatio,
+                                    combinedActiveMins = combinedActive,
+                                    combinedCalories = combinedCalories,
+                                    synchronyPercent = synchronyPercent
+                                )
                             }
                             TelemetryPerspective.YOU -> {
                                 SoloTelemetryCard(
                                     ownerName = "You",
                                     timeHorizon = selectedTimeHorizon,
-                                    steps = when (selectedTimeHorizon) {
-                                        "Day" -> "8,450"
-                                        "Week" -> "48,200"
-                                        "Month" -> "198,400"
-                                        else -> "2,420,000"
-                                    },
-                                    goal = when (selectedTimeHorizon) {
-                                        "Day" -> "10,000"
-                                        "Week" -> "50,000"
-                                        "Month" -> "200,000"
-                                        else -> "2,500,000"
-                                    },
-                                    targetRatio = when (selectedTimeHorizon) {
-                                        "Day" -> 0.845f
-                                        "Week" -> 0.964f
-                                        "Month" -> 0.992f
-                                        else -> 0.968f
-                                    },
-                                    dailyAvg = "6,885",
-                                    activeMins = when (selectedTimeHorizon) {
-                                        "Day" -> "45"
-                                        "Week" -> "280"
-                                        "Month" -> "1,120"
-                                        else -> "13,440"
-                                    },
-                                    calories = when (selectedTimeHorizon) {
-                                        "Day" -> "420"
-                                        "Week" -> "2,450"
-                                        "Month" -> "10,200"
-                                        else -> "122,500"
-                                    },
-                                    accentColor = CoupleFitIdentityTokens.UserPrimary // Electric Cyan (DSN-01)
+                                    steps = "%,d".format(youSteps),
+                                    goal = "%,d".format(youGoal),
+                                    targetRatio = youRatio,
+                                    dailyAvg = youDailyAvg,
+                                    activeMins = "%,d".format(youActiveMins),
+                                    calories = "%,d".format(youCalories),
+                                    accentColor = CoupleFitIdentityTokens.UserPrimary
                                 )
                             }
                             TelemetryPerspective.PARTNER -> {
                                 SoloTelemetryCard(
                                     ownerName = "Partner",
                                     timeHorizon = selectedTimeHorizon,
-                                    steps = when (selectedTimeHorizon) {
-                                        "Day" -> "7,800"
-                                        "Week" -> "44,200"
-                                        "Month" -> "185,600"
-                                        else -> "2,280,000"
-                                    },
-                                    goal = when (selectedTimeHorizon) {
-                                        "Day" -> "10,000"
-                                        "Week" -> "50,000"
-                                        "Month" -> "200,000"
-                                        else -> "2,500,000"
-                                    },
-                                    targetRatio = when (selectedTimeHorizon) {
-                                        "Day" -> 0.780f
-                                        "Week" -> 0.884f
-                                        "Month" -> 0.928f
-                                        else -> 0.912f
-                                    },
-                                    dailyAvg = "6,314",
-                                    activeMins = when (selectedTimeHorizon) {
-                                        "Day" -> "40"
-                                        "Week" -> "252"
-                                        "Month" -> "1,040"
-                                        else -> "12,200"
-                                    },
-                                    calories = when (selectedTimeHorizon) {
-                                        "Day" -> "380"
-                                        "Week" -> "2,180"
-                                        "Month" -> "9,100"
-                                        else -> "110,400"
-                                    },
-                                    accentColor = CoupleFitIdentityTokens.PartnerPrimary // Vibrant Coral (DSN-01)
+                                    steps = "%,d".format(partnerSteps),
+                                    goal = "%,d".format(partnerGoal),
+                                    targetRatio = partnerRatio,
+                                    dailyAvg = partnerDailyAvg,
+                                    activeMins = "%,d".format(partnerActiveMins),
+                                    calories = "%,d".format(partnerCalories),
+                                    accentColor = CoupleFitIdentityTokens.PartnerPrimary
                                 )
                             }
                         }
@@ -288,14 +370,35 @@ fun HealthTrendsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Health Connect Integration", style = MaterialTheme.typography.bodyMedium)
-                                Text("🟢 Connected", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    text = if (dashboardState.hasPermissions) "🟢 Connected" else if (dashboardState.isHealthConnectAvailable) "🟡 Needs Permission" else "🔴 Unavailable",
+                                    color = if (dashboardState.hasPermissions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Last Background Sync", style = MaterialTheme.typography.bodyMedium)
-                                Text("2 min ago", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    text = if (dashboardState.lastSyncedAt != null) "Just now" else "2 min ago",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Partner Connection", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    text = if (dashboardState.isPartnerLinked) "🟢 Linked (${dashboardState.partnerName})" else "⚪ Unlinked",
+                                    color = if (dashboardState.isPartnerLinked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         }
                     }
@@ -396,18 +499,28 @@ fun <T> FluidSegmentedSwitcher(
 }
 
 @Composable
-private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
-    val targetRatio = when (selectedTimeHorizon) {
-        "Day" -> 0.81f
-        "Week" -> 0.92f
-        "Month" -> 0.96f
-        else -> 0.94f
-    }
+private fun CombinedTelemetryCard(
+    selectedTimeHorizon: String,
+    totalSteps: Long,
+    totalGoal: Long,
+    youSteps: Long,
+    partnerSteps: Long,
+    combinedRatio: Float,
+    combinedActiveMins: Long,
+    combinedCalories: Long,
+    synchronyPercent: Int
+) {
     val animatedRatio by animateFloatAsState(
-        targetValue = targetRatio,
+        targetValue = combinedRatio,
         animationSpec = spring(dampingRatio = 0.80f, stiffness = 450f),
         label = "combinedRatioAnimation"
     )
+
+    val userRatio = if (totalSteps > 0) youSteps.toFloat() / totalSteps else 0.52f
+    val partnerRatio = if (totalSteps > 0) partnerSteps.toFloat() / totalSteps else 0.48f
+
+    val userPct = (userRatio * 100).toInt()
+    val partnerPct = 100 - userPct
 
     Card(
         modifier = Modifier
@@ -433,12 +546,7 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
-                    text = when (selectedTimeHorizon) {
-                        "Day" -> "16,250 / 20k"
-                        "Week" -> "92,400 / 100k"
-                        "Month" -> "384,000 / 400k"
-                        else -> "4,700,000 / 5M"
-                    },
+                    text = "${"%,d".format(totalSteps)} / ${if (totalGoal >= 1_000_000) "${totalGoal / 1_000_000}M" else "${totalGoal / 1000}k"}",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -456,20 +564,20 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(0.52f)
+                            .weight(userRatio.coerceAtLeast(0.01f))
                             .background(CoupleFitIdentityTokens.UserPrimary)
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(0.48f)
+                            .weight(partnerRatio.coerceAtLeast(0.01f))
                             .background(CoupleFitIdentityTokens.PartnerPrimary)
                     )
                 }
             }
 
             Text(
-                text = "You: 48,200 steps (52%) • Partner: 44,200 steps (48%)",
+                text = "You: ${"%,d".format(youSteps)} steps ($userPct%) • Partner: ${"%,d".format(partnerSteps)} steps ($partnerPct%)",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -482,17 +590,17 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "⚡ 532 active mins",
+                    text = "⚡ ${"%,d".format(combinedActiveMins)} active mins",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "🔥 4,630 kcal burned",
+                    text = "🔥 ${"%,d".format(combinedCalories)} kcal burned",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Synchrony: 94% ✨",
+                    text = "Synchrony: $synchronyPercent% ✨",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = SystemGreen
                 )
@@ -541,10 +649,17 @@ private fun SoloTelemetryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "$ownerName's $timeHorizon Steps",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
-                )
+                Column {
+                    Text(
+                        text = if (ownerName == "You") "Your Steps Total" else "Partner's Steps Total",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
+                    )
+                    Text(
+                        text = "$ownerName's $timeHorizon Steps",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = "$steps / $goal",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
