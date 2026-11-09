@@ -134,6 +134,25 @@ fun HealthConnectScreen(
                     Text("Sync Now")
                 }
             }
+
+            is HealthConnectUiState.Error -> {
+                Text(
+                    text = "Sync Error",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = state.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = { viewModel.checkStatusAndFetchData() }) {
+                    Text("Retry Sync")
+                }
+            }
         }
     }
 }

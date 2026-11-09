@@ -63,13 +63,13 @@ interface HealthDao {
     @Query("SELECT * FROM partnerDaily WHERE partnerId = :partnerId AND dateStr = :dateStr")
     fun getPartnerDailyFlow(partnerId: String, dateStr: String): Flow<PartnerDailyEntity?>
 
-    @Query("SELECT * FROM partnerDaily WHERE dateStr = :dateStr LIMIT 1")
+    @Query("SELECT * FROM partnerDaily WHERE dateStr = :dateStr ORDER BY lastUpdated DESC LIMIT 1")
     fun getPartnerDailyFlow(dateStr: String): Flow<PartnerDailyEntity?>
 
     @Query("SELECT * FROM partnerDaily WHERE partnerId = :partnerId AND dateStr = :dateStr")
     suspend fun getPartnerDaily(partnerId: String, dateStr: String): PartnerDailyEntity?
 
-    @Query("SELECT * FROM partnerDaily WHERE dateStr = :dateStr LIMIT 1")
+    @Query("SELECT * FROM partnerDaily WHERE dateStr = :dateStr ORDER BY lastUpdated DESC LIMIT 1")
     suspend fun getPartnerDaily(dateStr: String): PartnerDailyEntity?
 
     @Query("DELETE FROM partnerDaily WHERE partnerId = :partnerId")

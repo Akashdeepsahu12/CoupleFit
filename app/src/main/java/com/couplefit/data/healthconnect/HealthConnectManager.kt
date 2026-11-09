@@ -337,6 +337,7 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         try {
             var currentToken = dataStore.getChangesToken()
             var shouldFullResync = false
+            var pendingToken: String? = null
 
             if (currentToken == null) {
                 Log.d(TAG, "Changes API: No token stored, performing initial full resync")
@@ -348,7 +349,7 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                     shouldFullResync = true
                 } else {
                     Log.d(TAG, "Changes API: Incremental update received (${changesResponse.changes.size} changes)")
-                    dataStore.saveChangesToken(changesResponse.nextChangesToken)
+                    pendingToken = changesResponse.nextChangesToken
                     shouldFullResync = changesResponse.changes.isNotEmpty()
                 }
             }
@@ -356,7 +357,7 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
             if (shouldFullResync) {
                 val freshToken = getChangesToken()
                 if (freshToken != null) {
-                    dataStore.saveChangesToken(freshToken)
+                    pendingToken = freshToken
                 }
             }
 
@@ -421,6 +422,11 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
             }
             if (hrEntities.isNotEmpty() || o2Entities.isNotEmpty()) {
                 healthDao.insertMetrics(hrEntities + o2Entities)
+            }
+
+            // HC-02: Defer committing the next changes token until local database insertion succeeds
+            pendingToken?.let { token ->
+                dataStore.saveChangesToken(token)
             }
 
             return Result.success(aggregateData)

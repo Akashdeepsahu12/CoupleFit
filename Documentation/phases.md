@@ -1196,3 +1196,29 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Android test compilation passes with zero errors (`.\gradlew compileDebugAndroidTestKotlin`).
      - Live execution on `emulator-5554` verified via ARTEMIS screenshots (`phase53_live.png`).
 - **Release Tag**: `v2.9.39-performance-gpu-leaks`
+
+
+---
+
+## Phase 54: Data Integrity, Room SSOT & Background Sync Pipeline (`DAT-01`, `DAT-04`, `DAT-02`, `DAT-05`, `WRK-01`, `HC-02`, `PERF-01`) 💎🔄
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_54_DATA_INTEGRITY_SYNC_PIPELINE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_54_DATA_INTEGRITY_SYNC_PIPELINE.md)
+- **Verification Report**: [`Documentation/phase54_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase54_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Deterministic Room SSOT Ordering (`HealthDao.kt` - `DAT-01`)**:
+     - Added `ORDER BY lastUpdated DESC LIMIT 1` on `getPartnerDailyFlow(dateStr)` and `getPartnerDaily(dateStr)` to guarantee latest partner data retrieval.
+  2. **Transparent Sync Error Reporting (`HealthConnectViewModel.kt`, `HealthConnectScreen.kt` - `DAT-04`)**:
+     - Exposed `syncErrorMessage` in `HealthDashboardUiState` and added `HealthConnectUiState.Error(message)` with retry affordances, eliminating silent swallowing of network failures.
+  3. **Polymorphic Timestamp Deserialization (`PartnerRepositoryImpl.kt` - `DAT-02`)**:
+     - Handled `com.google.firebase.Timestamp`, numeric epoch values (`Number`), and ISO strings without crashing or dropping to fallback.
+  4. **Monotonic Sequential Database Write Fence (`PartnerRepositoryImpl.kt` - `DAT-05`, `PERF-01`)**:
+     - Sequenced Room writes via `Dispatchers.IO.limitedParallelism(1)` and added monotonic timestamp check (`partnerDaily.lastUpdated >= existing.lastUpdated`) to ignore stale network arrivals.
+  5. **Background Sync Worker Scheduling (`CoupleFitApplication.kt` - `WRK-01`)**:
+     - Scheduled unique 15-minute background synchronization via `WorkManager.enqueueUniquePeriodicWork("HealthConnectPeriodicSync")`.
+  6. **Transactional Continuation Token Commit (`HealthConnectManager.kt` - `HC-02`)**:
+     - Deferred committing Changes API continuation tokens until local Room operations complete successfully.
+  7. **Deterministic Multi-Device & Test Verification**:
+     - Automated unit tests pass 100% green (`.\gradlew testDebugUnitTest`).
+     - Android test compilation passes with zero errors (`.\gradlew compileDebugAndroidTestKotlin`).
+     - Live execution on `emulator-5554` verified via ARTEMIS screenshots (`phase54_live.png`).
+- **Release Tag**: `v2.9.40-data-integrity-sync-pipeline`

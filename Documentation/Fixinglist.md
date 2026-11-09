@@ -4137,3 +4137,34 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PERF-02`** | Zero-Allocation Chart Canvas | Memory heap stability across scrub gestures | `InteractiveChart.kt` | 🟢 Verified |
 | **`P53-01`** | Automated Regression Test Suite | `.\gradlew.bat testDebugUnitTest` and `compileDebugAndroidTestKotlin` | 32/32 tests passed 100% green | 🟢 Verified |
 | **`P53-02`** | Live Android Emulator Run | `.\gradlew.bat installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase53_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase53_live.png) | 🟢 Verified |
+
+---
+
+## 79. Phase 54: Data Integrity, Room SSOT & Background Sync Pipeline (`DAT-01`, `DAT-04`, `DAT-02`, `DAT-05`, `WRK-01`, `HC-02`, `PERF-01`) 💎🔄
+
+> **Verification Report**: [`Documentation/phase54_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase54_verification_report.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/data/local/HealthDao.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/HealthDao.kt)
+> - [`app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectScreen.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/CoupleFitApplication.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/CoupleFitApplication.kt)
+> - [`app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt)
+
+### 79.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`DAT-01`** | EGM Full-Stack Audit | 🟡 **Data Integrity P1** | `HealthDao.kt` | `SELECT * FROM partnerDaily WHERE dateStr = :dateStr LIMIT 1` lacked deterministic ordering, risking returning arbitrary/stale partner data if multiple records exist. | Added `ORDER BY lastUpdated DESC LIMIT 1` on `getPartnerDailyFlow(dateStr)` and `getPartnerDaily(dateStr)`. | 🟢 **Resolved** |
+| **`DAT-04`** | EGM Full-Stack Audit | 🟡 **Data Integrity P1** | `HealthConnectViewModel.kt`, `HealthConnectScreen.kt` | Failed background or network sync was silently swallowed into `HealthConnectUiState.Empty` with no error message, showing false sync success. | Added `syncErrorMessage` in `HealthDashboardUiState` and `HealthConnectUiState.Error` with retry controls. | 🟢 **Resolved** |
+| **`DAT-02`** | EGM Full-Stack Audit | 🟡 **Data Integrity P1** | `PartnerRepositoryImpl.kt` | Assuming numeric epoch millis on Firestore `lastUpdated` caused cast failures when Firestore wrote `com.google.firebase.Timestamp`. | Implemented polymorphic timestamp parsing handling `Timestamp`, `Number`, and `String`. | 🟢 **Resolved** |
+| **`DAT-05` / `PERF-01`** | EGM Full-Stack Audit | 🟡 **Data Integrity P1** | `PartnerRepositoryImpl.kt` | Concurrent un-sequenced Room writes on Firestore snapshot reception allowed thread contention and stale overwrites. | Added monotonic check (`lastUpdated >= existing.lastUpdated`) on a dedicated `Dispatchers.IO.limitedParallelism(1)` sequential write lane. | 🟢 **Resolved** |
+| **`WRK-01`** | EGM Full-Stack Audit | 🟡 **Sync Pipeline P1** | `CoupleFitApplication.kt` | `HealthConnectSyncWorker` was implemented but never scheduled with WorkManager, causing background sync to be completely dead. | Enqueued unique 15-minute periodic background sync via `WorkManager.enqueueUniquePeriodicWork("HealthConnectPeriodicSync")`. | 🟢 **Resolved** |
+| **`HC-02`** | EGM Full-Stack Audit | 🟡 **Health Connect P1** | `HealthConnectManager.kt` | Changes API continuation token was committed to DataStore before local Room writes succeeded, permanently dropping changes on failure. | Deferred `dataStore.saveChangesToken(pendingToken)` until AFTER all Room database insertions complete successfully. | 🟢 **Resolved** |
+
+### 79.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`DAT-01`** | Deterministic Room Query | SQL AST verification with `ORDER BY lastUpdated DESC` | `HealthDao.kt` | 🟢 Verified |
+| **`HC-02`** | Transactional Changes Token | Commit order verification in sync loop | `HealthConnectManager.kt` | 🟢 Verified |
+| **`P54-01`** | Automated Regression Test Suite | `.\gradlew.bat testDebugUnitTest` and `compileDebugAndroidTestKotlin` | 32/32 tests passed 100% green | 🟢 Verified |
+| **`P54-02`** | Live Android Emulator Run | `.\gradlew.bat installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase54_live.png`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase54_live.png) | 🟢 Verified |

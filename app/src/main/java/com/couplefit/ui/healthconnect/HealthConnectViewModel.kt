@@ -65,13 +65,15 @@ data class HealthDashboardUiState(
     val partnerLastUpdatedLabel: String = "Awaiting sync",
     val coupleId: String = "couple_1",
     val myUid: String = "me",
-    val nudgeSentMessage: String? = null
+    val nudgeSentMessage: String? = null,
+    val syncErrorMessage: String? = null
 )
 
 sealed class HealthConnectUiState {
     object Loading : HealthConnectUiState()
     object Empty : HealthConnectUiState()
     data class Success(val data: AggregatedHealthData, val lastSyncedAt: Instant) : HealthConnectUiState()
+    data class Error(val message: String) : HealthConnectUiState()
     object PermissionRevoked : HealthConnectUiState()
     object NotAvailable : HealthConnectUiState()
 }
@@ -329,15 +331,20 @@ class HealthConnectViewModel @Inject constructor(
 
             _dashboardState.value = _dashboardState.value.copy(
                 isSyncing = false,
-                lastSyncedAt = now
+                lastSyncedAt = now,
+                syncErrorMessage = null
             )
             
             _uiState.value = HealthConnectUiState.Success(data = aggregatedData, lastSyncedAt = now)
             
         } catch (e: Exception) {
             Log.e("Sync", "Partial/failed sync", e)
-            _dashboardState.value = _dashboardState.value.copy(isSyncing = false)
-            _uiState.value = HealthConnectUiState.Empty
+            val errorMsg = e.localizedMessage ?: "Sync error occurred"
+            _dashboardState.value = _dashboardState.value.copy(
+                isSyncing = false,
+                syncErrorMessage = errorMsg
+            )
+            _uiState.value = HealthConnectUiState.Error(errorMsg)
         }
     }
 

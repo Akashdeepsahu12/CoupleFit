@@ -74,6 +74,36 @@ class CoupleFitApplication : Application(), Configuration.Provider {
                 timber.log.Timber.w(task.exception, "Fetching FCM registration token failed")
             }
         }
+
+        // Schedule periodic background sync for Health Connect & partner updates (WRK-01)
+        scheduleBackgroundHealthConnectSync()
+    }
+
+    private fun scheduleBackgroundHealthConnectSync() {
+        try {
+            val constraints = androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build()
+
+            val syncRequest = androidx.work.PeriodicWorkRequestBuilder<com.couplefit.data.healthconnect.HealthConnectSyncWorker>(
+                15, java.util.concurrent.TimeUnit.MINUTES
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    1, java.util.concurrent.TimeUnit.MINUTES
+                )
+                .build()
+
+            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "HealthConnectPeriodicSync",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                syncRequest
+            )
+            timber.log.Timber.d("Scheduled unique 15-minute background HealthConnectSyncWorker")
+        } catch (e: Exception) {
+            timber.log.Timber.w(e, "Failed to schedule background HealthConnectSyncWorker")
+        }
     }
 
     override val workManagerConfiguration: Configuration
