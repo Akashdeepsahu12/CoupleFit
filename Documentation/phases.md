@@ -1285,3 +1285,24 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   5. 100% green test policy maintained (testDebugUnitTest 41/41 green, compileDebugAndroidTestKotlin 0 errors).
   6. Verified live on emulator-5554 via ARTEMIS screenshot capture.
 - Release Tag: v2.9.43-rollback-egm-ui-restored
+
+---
+
+## Phase 58: Adaptive Responsive Typography System (`TYP-06`, `ADP-01`) 💎🔤
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md)
+- **Verification Report**: [`Documentation/phase58_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase58_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Window Size Class Breakpoint Engine (`Type.kt` - `TYP-06`)**:
+     - Introduced `getAdaptiveTypographyScale(screenWidthDp: Int)` supporting Compact Narrow (<360dp: 0.90x), Compact Standard (360-599dp: 1.00x), Medium (600-839dp: 1.10x), and Expanded (≥840dp: 1.20x).
+  2. **Adaptive Material 3 Typography Scaling (`Type.kt` - `TYP-06`)**:
+     - Implemented `getAdaptiveTypography()` dynamically scaling all 15 Material 3 typography styles (`display*`, `headline*`, `title*`, `body*`, `label*`) while strictly preserving font family, font weight, letter spacing, and `"tnum"` tabular numerals.
+  3. **Responsive Hero Metric Display Token (`Type.kt`, `Theme.kt` - `ADP-01`)**:
+     - Provided `LocalHeroMetricDisplay` composition local and `MaterialTheme.heroMetricDisplay` (`52.sp` baseline, scaling from 46.8sp to 62.4sp) for prominent telemetry counters.
+  4. **Theme Dynamic Wire-in (`Theme.kt`)**:
+     - Wrapped `MaterialTheme` inside `CompositionLocalProvider(LocalHeroMetricDisplay provides adaptiveHeroMetric)` driven by `rememberAdaptiveTypography()` and `rememberAdaptiveHeroMetric()`.
+  5. **Automated Unit Testing (`AdaptiveTypographyTest.kt`)**:
+     - 5-test suite covering breakpoint rungs, proportional scaling, monotonic progression, and tabular numerals preservation (41/41 actionable tasks passed 100% green).
+  6. **Live Device Verification on Android Emulator (`emulator-5554`)**:
+     - Verified clean UI layout, sharp typography, zero text clipping or overlapping strings, and full partner telemetry synchronization.
+- **Release Tag**: `v2.9.44-adaptive-typography-typ06`

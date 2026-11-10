@@ -113,3 +113,21 @@
   - **`R8-02`**: Verified release build R8 ProGuard minification via `minifyReleaseWithR8` (33/33 tasks executed, 0 errors).
   - **Test Suite**: `connectedDebugAndroidTest` 4/4 passed; `testDebugUnitTest` 32/32 green; `compileDebugAndroidTestKotlin` 0 errors; live verified on `emulator-5554` (`phase56_live.png`).
 - **Release Tag**: `v2.9.42-production-test-rigor`
+
+## Phase 57: Rollback of EGM Automated UI Disruptions & Restoration of Phase 51 Interface (`EGM-REV-01`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`EGM-REV-01`**: Restored pristine Phase 51 UI and graphics architecture (`LiquidGlassEngine.kt`, `DashboardScreen.kt`, `HealthTrendsScreen.kt`, `InteractiveChart.kt`, `AmbientVideoBackground.kt`) while safely preserving all documentation and plans.
+  - **Test Suite**: `testDebugUnitTest` 41/41 passed 100% green; `compileDebugAndroidTestKotlin` 0 errors; verified live on `emulator-5554` (`live_restored_phase51.jpg`).
+- **Release Tag**: `v2.9.43-rollback-egm-ui-restored`
+
+## Phase 58: Adaptive Responsive Typography System (`TYP-06`, `ADP-01`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`TYP-06`**: Dynamic Material 3 typography scaling across Window Size Classes (<360dp: 0.90x, 360-599dp: 1.00x, 600-839dp: 1.10x, ≥840dp: 1.20x) with preserved font families, font weights, letter spacing, and `"tnum"` tabular numerals.
+  - **`ADP-01`**: Unified responsive hero telemetry display token (`LocalHeroMetricDisplay` at 52sp baseline, scaling from 46.8sp to 62.4sp).
+  - **`Theme Integration`**: Provided dynamic adaptive typography and hero metrics in `CoupleFitTheme` via `CompositionLocalProvider(LocalHeroMetricDisplay provides adaptiveHeroMetric)`.
+  - **Test Suite**: 5-test unit suite in `AdaptiveTypographyTest.kt` passing 100% green (`testDebugUnitTest` 41/41 green, `compileDebugAndroidTestKotlin` 0 errors).
+  - **Device Verification**: Verified live on `emulator-5554` (`phase58_adaptive_typography_live.jpg`) via ARTEMIS.
+- **Release Tag**: `v2.9.44-adaptive-typography-typ06`
+

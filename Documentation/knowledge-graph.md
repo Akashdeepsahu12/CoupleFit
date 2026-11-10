@@ -644,3 +644,23 @@ graph TD
   - DashboardScreen.kt -> Added +1k Partner button in the morning welcome card alongside +1k Steps, wired partner stat card add sample steps trigger, and updated nudge refresh callback.
   - PartnerRepositoryTest.kt & PartnerTelemetrySyncTest.kt -> Automated unit test suite verifying Room seeding, step increments, UI mapping, and dual ring closure (32/32 tests 100% green).
   - Documentation/phase51_verification_report.md -> Live hardware screenshot verification on Google Pixel 10 Pro (emulator-5554) confirming Partner: 7,420 steps, 49m, 311 kcal, and active sync indicator.
+
+### Phase 57: Rollback of EGM Automated UI Disruptions & Restoration of Phase 51 Interface (EGM-REV-01) 🟢 Resolved
+- **Domain**: System Recovery, Interface Restoration & AGSL Shader Pipeline
+- **Milestone Tag**: `v2.9.43-rollback-egm-ui-restored`
+- **Nodes & Edges**:
+  - `EGM-REV-01`: Reverted automated UI disruptions from Phases 52-56 back to Phase 51 baseline.
+  - `LiquidGlassEngine.kt`: Restored full AGSL runtime shader and chromatic dispersion optics.
+  - `DashboardScreen.kt` & `HealthTrendsScreen.kt`: Restored clean typography, pull-refresh dynamics, and partner telemetry engine.
+  - `Documentation/phase57_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`).
+
+### Phase 58: Adaptive Responsive Typography System (TYP-06 / ADP-01) 🟢 Resolved
+- **Domain**: Responsive Typography, Window Size Class Breakpoints & CompositionLocal Telemetry Tokens
+- **Milestone Tag**: `v2.9.44-adaptive-typography-typ06`
+- **Nodes & Edges**:
+  - `TYP-06`: Dynamic Material 3 typography scaling across Window Size Classes (<360dp: 0.90x, 360-599dp: 1.00x, 600-839dp: 1.10x, ≥840dp: 1.20x).
+  - `ADP-01`: Unified responsive hero telemetry display token (`LocalHeroMetricDisplay` at 52sp baseline).
+  - `Type.kt` -> Declared `getAdaptiveTypographyScale()`, `getAdaptiveTypography()`, `getAdaptiveHeroMetric()`, `rememberAdaptiveTypography()`, and `rememberAdaptiveHeroMetric()`.
+  - `Theme.kt` -> Bound dynamic adaptive typography and hero metrics, wrapped `MaterialTheme` inside `CompositionLocalProvider(LocalHeroMetricDisplay provides adaptiveHeroMetric)`.
+  - `AdaptiveTypographyTest.kt` -> 5-test unit suite verifying scale rungs, proportional sizing, monotonic growth, and tabular numerals preservation (100% green bar).
+  - `Documentation/phase58_verification_report.md` -> Live hardware screenshot verification across Today dashboard on Google Pixel 10 Pro (`emulator-5554`).

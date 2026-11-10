@@ -1,6 +1,12 @@
 package com.couplefit.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -144,3 +150,96 @@ val Typography = Typography(
         letterSpacing = 0.8.sp // Outdoor sunlight tracking (TYP-03)
     )
 )
+
+/**
+ * CompositionLocal providing active adaptive HeroMetricDisplay.
+ */
+val LocalHeroMetricDisplay = compositionLocalOf { HeroMetricDisplay }
+
+/**
+ * Convenience accessor for adaptive HeroMetricDisplay from MaterialTheme.
+ */
+val MaterialTheme.heroMetricDisplay: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalHeroMetricDisplay.current
+
+/**
+ * Calculates adaptive typography scale factor based on screen width dp:
+ * - < 360dp: 0.90f (Compact narrow, prevents clipping/overflow)
+ * - 360dp..599dp: 1.00f (Compact standard mobile)
+ * - 600dp..839dp: 1.10f (Medium, foldables & portrait tablets)
+ * - >= 840dp: 1.20f (Expanded, landscape tablets & large viewports)
+ */
+fun getAdaptiveTypographyScale(screenWidthDp: Int): Float = when {
+    screenWidthDp < 360 -> 0.90f
+    screenWidthDp < 600 -> 1.00f
+    screenWidthDp < 840 -> 1.10f
+    else -> 1.20f
+}
+
+/**
+ * Returns an adaptive Typography instance scaled proportionally for the given screen width.
+ */
+fun getAdaptiveTypography(screenWidthDp: Int): Typography {
+    val scale = getAdaptiveTypographyScale(screenWidthDp)
+    if (scale == 1.0f) return Typography
+
+    fun TextStyle.scale(): TextStyle = this.copy(
+        fontSize = (this.fontSize.value * scale).sp,
+        lineHeight = (this.lineHeight.value * scale).sp
+    )
+
+    return Typography(
+        displayLarge = Typography.displayLarge.scale(),
+        displayMedium = Typography.displayMedium.scale(),
+        displaySmall = Typography.displaySmall.scale(),
+        headlineLarge = Typography.headlineLarge.scale(),
+        headlineMedium = Typography.headlineMedium.scale(),
+        headlineSmall = Typography.headlineSmall.scale(),
+        titleLarge = Typography.titleLarge.scale(),
+        titleMedium = Typography.titleMedium.scale(),
+        titleSmall = Typography.titleSmall.scale(),
+        bodyLarge = Typography.bodyLarge.scale(),
+        bodyMedium = Typography.bodyMedium.scale(),
+        bodySmall = Typography.bodySmall.scale(),
+        labelLarge = Typography.labelLarge.scale(),
+        labelMedium = Typography.labelMedium.scale(),
+        labelSmall = Typography.labelSmall.scale()
+    )
+}
+
+/**
+ * Returns an adaptive HeroMetricDisplay scaled proportionally for the given screen width.
+ */
+fun getAdaptiveHeroMetric(screenWidthDp: Int): TextStyle {
+    val scale = getAdaptiveTypographyScale(screenWidthDp)
+    if (scale == 1.0f) return HeroMetricDisplay
+    return HeroMetricDisplay.copy(
+        fontSize = (HeroMetricDisplay.fontSize.value * scale).sp,
+        lineHeight = (HeroMetricDisplay.lineHeight.value * scale).sp
+    )
+}
+
+/**
+ * Composable remember helper that recalculates Typography whenever configuration screen width changes.
+ */
+@Composable
+fun rememberAdaptiveTypography(): Typography {
+    val configuration = LocalConfiguration.current
+    return remember(configuration.screenWidthDp) {
+        getAdaptiveTypography(configuration.screenWidthDp)
+    }
+}
+
+/**
+ * Composable remember helper that recalculates HeroMetricDisplay whenever configuration screen width changes.
+ */
+@Composable
+fun rememberAdaptiveHeroMetric(): TextStyle {
+    val configuration = LocalConfiguration.current
+    return remember(configuration.screenWidthDp) {
+        getAdaptiveHeroMetric(configuration.screenWidthDp)
+    }
+}
+

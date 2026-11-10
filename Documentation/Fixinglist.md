@@ -4242,3 +4242,27 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | :--- | :--- | :--- | :--- | :--- |
 | **REV-01** | Live Restored Dashboard Screen | Live capture on emulator-5554 via ARTEMIS: verified pristine Phase 51 UI with partner steps (7,420 steps), liquid glass dock, and morning cards | [live_restored_phase51.jpg](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/live_restored_phase51.jpg) | 🟢 Verified |
 | **REV-02** | Automated Regression Suite | .\gradlew.bat testDebugUnitTest and compileDebugAndroidTestKotlin | 41/41 actionable tasks passed 100% green | 🟢 Verified |
+
+---
+
+## 83. Phase 58: Adaptive Responsive Typography System (`TYP-06`, `ADP-01`) 💎🔤
+
+> **Verification Report**: [`Documentation/phase58_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase58_verification_report.md)  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/ui/theme/Type.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/theme/Type.kt)
+> - [`app/src/main/java/com/couplefit/ui/theme/Theme.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/theme/Theme.kt)
+> - [`app/src/test/java/com/couplefit/ui/AdaptiveTypographyTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/AdaptiveTypographyTest.kt)
+
+### 83.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`TYP-06`** | User Feedback & Device Review | 🟡 **Typography P1** | `Type.kt`, `Theme.kt` | Static, non-adaptive typography caused awkward wrapping and truncated strings on narrow screens (<360dp) and under-scaled text on tablets/foldables (≥600dp). | Implemented dynamic adaptive typography engine scaling Material 3 typography across Window Size Classes (<360dp: 0.90x, 360-599dp: 1.00x, 600-839dp: 1.10x, ≥840dp: 1.20x) with preserved font feature settings (`"tnum"`). | 🟢 **Resolved** |
+| **`ADP-01`** | User Feedback & Ergonomics | 🟡 **Adaptive P1** | `Type.kt`, `Theme.kt` | Step and telemetry counters had no unified responsive hero scale, causing disproportionate gauge layouts. | Added `LocalHeroMetricDisplay` composition local (`52.sp` baseline) scaling proportionally across window sizes (46.8sp to 62.4sp). | 🟢 **Resolved** |
+
+### 83.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`TYP-06-UNT`** | Unit Test Suite (5 tests) | `AdaptiveTypographyTest.kt` executing via `./gradlew testDebugUnitTest` | 41/41 actionable tasks passed 100% green | 🟢 Verified |
+| **`TYP-06-DEV`** | Live Android Emulator Run | `./gradlew installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase58_adaptive_typography_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase58_adaptive_typography_live.jpg) | 🟢 Verified |
+| **`TYP-06-HIE`** | UI Hierarchy & Bounds | `mobile_get_device_state(view_type="hierarchy")` | Clean bounds, no clipping or text occlusion detected | 🟢 Verified |

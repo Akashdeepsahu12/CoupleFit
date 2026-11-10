@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -79,10 +80,17 @@ fun CoupleFitTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = Shapes,
-        content = content
-    )
+    val adaptiveTypography = rememberAdaptiveTypography()
+    val adaptiveHeroMetric = rememberAdaptiveHeroMetric()
+
+    CompositionLocalProvider(
+        LocalHeroMetricDisplay provides adaptiveHeroMetric
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = adaptiveTypography,
+            shapes = Shapes,
+            content = content
+        )
+    }
 }
