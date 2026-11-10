@@ -11,6 +11,8 @@ interface PartnerRepository {
     fun getPartnerDailyFlow(partnerId: String, dateStr: String): Flow<PartnerDailyEntity?>
     fun getPartnerDailyFlow(dateStr: String): Flow<PartnerDailyEntity?>
     suspend fun getPartnerDaily(partnerId: String, dateStr: String): PartnerDailyEntity?
+    fun getLatestPartnerDailyFlow(partnerId: String): Flow<PartnerDailyEntity?>
+    suspend fun getLatestPartnerDaily(partnerId: String): PartnerDailyEntity?
 
     /**
      * Listens to partner's daily document at couples/{coupleId}/daily/{partnerUid_date}

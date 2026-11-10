@@ -36,6 +36,14 @@ class PartnerRepositoryImpl @Inject constructor(
         return healthDao.getPartnerDaily(partnerId, dateStr)
     }
 
+    override fun getLatestPartnerDailyFlow(partnerId: String): Flow<PartnerDailyEntity?> {
+        return healthDao.getLatestPartnerDailyFlow(partnerId)
+    }
+
+    override suspend fun getLatestPartnerDaily(partnerId: String): PartnerDailyEntity? {
+        return healthDao.getLatestPartnerDaily(partnerId)
+    }
+
     override suspend fun savePartnerDaily(entity: PartnerDailyEntity) {
         healthDao.insertPartnerDaily(entity)
     }
@@ -194,8 +202,31 @@ class PartnerRepositoryImpl @Inject constructor(
                 Timber.d("Direct remote sync cached partner daily to Room: $docId (steps: ${partnerDaily.steps})")
                 Result.success(partnerDaily)
             } else {
-                Timber.d("No remote daily document found yet for $docId")
-                Result.success(null)
+                Timber.d("No remote daily document found yet for $docId. Checking fallback for previous day...")
+                // Timezone & date-boundary fallback: attempt fetching yesterday's document
+                val parsedDate = try {
+                    java.time.LocalDate.parse(dateStr)
+                } catch (e: Exception) {
+                    java.time.LocalDate.now()
+                }
+                val yesterdayStr = parsedDate.minusDays(1).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+                val yesterdayDocId = "${partnerUid}_$yesterdayStr"
+                val yesterdaySnapshot = kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                    firestore.collection("couples")
+                        .document(coupleId)
+                        .collection("daily")
+                        .document(yesterdayDocId)
+                        .get().await()
+                }
+                if (yesterdaySnapshot != null && yesterdaySnapshot.exists()) {
+                    val fallbackDaily = parsePartnerDaily(yesterdayDocId, partnerUid, yesterdayStr, yesterdaySnapshot.data)
+                    healthDao.insertPartnerDaily(fallbackDaily)
+                    Timber.d("Fallback remote sync cached partner previous day daily to Room: $yesterdayDocId (steps: ${fallbackDaily.steps})")
+                    Result.success(fallbackDaily)
+                } else {
+                    Timber.d("No remote daily document found for $docId or $yesterdayDocId")
+                    Result.success(null)
+                }
             }
         } catch (e: Exception) {
             Timber.w(e, "Failed direct remote sync for partner daily: couples/$coupleId/daily/${partnerUid}_$dateStr")

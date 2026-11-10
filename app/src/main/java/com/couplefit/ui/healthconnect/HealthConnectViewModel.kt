@@ -227,16 +227,38 @@ class HealthConnectViewModel @Inject constructor(
                 val calories = myAggregate?.totalCalories ?: 0L
                 val hasData = steps > 0L || (myAggregate?.averageHeartRate ?: 0.0) > 0.0
 
-                val pSteps = partnerDaily?.steps ?: 0L
+                // Fallback to most recent partner daily record if today's document hasn't synced yet (PTR-03)
+                val effectivePartnerDaily = if (partnerDaily != null && (partnerDaily.steps > 0L || partnerDaily.avgHr > 0.0)) {
+                    partnerDaily
+                } else {
+                    partnerRepository.getLatestPartnerDaily(partnerId)
+                }
+
+                val pSteps = effectivePartnerDaily?.steps ?: 0L
                 val pProgress = (pSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
-                val pActiveMins = partnerDaily?.activeMinutes ?: 0L
+                val pActiveMins = effectivePartnerDaily?.activeMinutes ?: 0L
                 val pExProgress = (pActiveMins.toFloat() / 60f).coerceIn(0f, 1f)
-                val pCalories = partnerDaily?.calories ?: 0L
-                val pAvgHr = partnerDaily?.avgHr ?: 0.0
-                val pAvgSpo2 = partnerDaily?.avgSpo2 ?: 0.0
-                val pHasData = partnerDaily != null && (pSteps > 0L || pAvgHr > 0.0)
-                val pLastUpdated = partnerDaily?.lastUpdated
-                val pLastUpdatedLabel = formatLastUpdated(pLastUpdated)
+                val pCalories = effectivePartnerDaily?.calories ?: 0L
+                val pAvgHr = effectivePartnerDaily?.avgHr ?: 0.0
+                val pAvgSpo2 = effectivePartnerDaily?.avgSpo2 ?: 0.0
+                val pHasData = effectivePartnerDaily != null && (pSteps > 0L || pAvgHr > 0.0)
+                val pLastUpdated = effectivePartnerDaily?.lastUpdated
+                val pLastUpdatedLabel = if (effectivePartnerDaily != null && effectivePartnerDaily.dateStr != dateStr) {
+                    val daysAgo = try {
+                        java.time.temporal.ChronoUnit.DAYS.between(
+                            LocalDate.parse(effectivePartnerDaily.dateStr),
+                            LocalDate.now()
+                        )
+                    } catch (e: Exception) {
+                        1L
+                    }
+                    when (daysAgo) {
+                        1L -> "Yesterday • ${formatLastUpdated(pLastUpdated)}"
+                        else -> "${effectivePartnerDaily.dateStr} • ${formatLastUpdated(pLastUpdated)}"
+                    }
+                } else {
+                    formatLastUpdated(pLastUpdated)
+                }
 
                 _dashboardState.value = _dashboardState.value.copy(
                     steps = steps,

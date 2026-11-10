@@ -78,6 +78,10 @@ class HealthRepositoryImplTest {
         override suspend fun deletePartnerDailyData(partnerId: String) {
             partnerDailyMap.entries.removeIf { it.value.partnerId == partnerId }
         }
+        override fun getLatestPartnerDailyFlow(partnerId: String): Flow<com.couplefit.data.local.PartnerDailyEntity?> =
+            flowOf(partnerDailyMap.values.filter { it.partnerId == partnerId }.maxByOrNull { it.dateStr })
+        override suspend fun getLatestPartnerDaily(partnerId: String): com.couplefit.data.local.PartnerDailyEntity? =
+            partnerDailyMap.values.filter { it.partnerId == partnerId }.maxByOrNull { it.dateStr }
 
         val challengeMap = mutableMapOf<String, com.couplefit.data.local.CoupleChallengeEntity>()
         override suspend fun insertChallenge(challenge: com.couplefit.data.local.CoupleChallengeEntity) {

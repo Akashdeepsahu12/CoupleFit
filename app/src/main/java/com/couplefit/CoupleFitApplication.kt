@@ -53,6 +53,9 @@ class CoupleFitApplication : Application(), Configuration.Provider {
         // Initialize Notification Channels for Nudges and Milestones
         com.couplefit.util.NotificationHelper.createNotificationChannels(this)
 
+        // Schedule 15-Minute Background Synchronization Worker (WRK-03)
+        scheduleBackgroundSyncWorker()
+
         // Fetch and refresh FCM device token
         com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -80,4 +83,27 @@ class CoupleFitApplication : Application(), Configuration.Provider {
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
+    private fun scheduleBackgroundSyncWorker() {
+        try {
+            val constraints = androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build()
+
+            val syncRequest = androidx.work.PeriodicWorkRequestBuilder<com.couplefit.service.SyncWorker>(
+                15, java.util.concurrent.TimeUnit.MINUTES
+            )
+                .setConstraints(constraints)
+                .build()
+
+            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "CoupleFitSyncWorker",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                syncRequest
+            )
+            timber.log.Timber.d("Enqueued unique periodic work 'CoupleFitSyncWorker' (15 min interval)")
+        } catch (e: Exception) {
+            timber.log.Timber.w(e, "Failed to schedule background SyncWorker")
+        }
+    }
 }

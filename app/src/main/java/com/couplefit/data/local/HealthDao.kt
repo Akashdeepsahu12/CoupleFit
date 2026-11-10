@@ -75,6 +75,12 @@ interface HealthDao {
     @Query("DELETE FROM partnerDaily WHERE partnerId = :partnerId")
     suspend fun deletePartnerDailyData(partnerId: String)
 
+    @Query("SELECT * FROM partnerDaily WHERE partnerId = :partnerId ORDER BY dateStr DESC, lastUpdated DESC LIMIT 1")
+    fun getLatestPartnerDailyFlow(partnerId: String): Flow<PartnerDailyEntity?>
+
+    @Query("SELECT * FROM partnerDaily WHERE partnerId = :partnerId ORDER BY dateStr DESC, lastUpdated DESC LIMIT 1")
+    suspend fun getLatestPartnerDaily(partnerId: String): PartnerDailyEntity?
+
     // Challenge Queries
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChallenge(challenge: CoupleChallengeEntity)

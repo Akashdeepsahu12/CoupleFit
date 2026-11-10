@@ -306,4 +306,52 @@ class PartnerRepositoryTest {
         assertEquals("PENDING", captured["status"])
         assertEquals("Let's close our rings!", captured["message"])
     }
+
+    @Test
+    fun `getLatestPartnerDaily returns most recent cached partner daily entity`() = runTest {
+        val partnerId = "partner_recent_1"
+        val cached = PartnerDailyEntity(
+            id = "${partnerId}_2026-11-10",
+            partnerId = partnerId,
+            dateStr = "2026-11-10",
+            steps = 8420L,
+            activeMinutes = 55L,
+            calories = 360L,
+            avgHr = 72.0,
+            avgSpo2 = 98.4,
+            lastUpdated = 1729500000000L
+        )
+
+        coEvery { healthDao.getLatestPartnerDaily(partnerId) } returns cached
+
+        val result = partnerRepository.getLatestPartnerDaily(partnerId)
+        assertNotNull(result)
+        assertEquals(8420L, result?.steps)
+        assertEquals("2026-11-10", result?.dateStr)
+    }
+
+    @Test
+    fun `getLatestPartnerDailyFlow emits latest partner daily entity reactively`() = runTest {
+        val partnerId = "partner_recent_2"
+        val cached = PartnerDailyEntity(
+            id = "${partnerId}_2026-11-10",
+            partnerId = partnerId,
+            dateStr = "2026-11-10",
+            steps = 9100L,
+            activeMinutes = 60L,
+            calories = 410L,
+            avgHr = 70.0,
+            avgSpo2 = 99.0,
+            lastUpdated = 1729500000000L
+        )
+
+        every { healthDao.getLatestPartnerDailyFlow(partnerId) } returns flowOf(cached)
+
+        partnerRepository.getLatestPartnerDailyFlow(partnerId).test {
+            val item = awaitItem()
+            assertNotNull(item)
+            assertEquals(9100L, item?.steps)
+            awaitComplete()
+        }
+    }
 }

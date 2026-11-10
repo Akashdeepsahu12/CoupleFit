@@ -21,7 +21,10 @@ import javax.inject.Singleton
 @Singleton
 class HealthRepositoryImpl @Inject constructor(
     private val healthDao: HealthDao,
-    private val firebaseSyncManager: FirebaseSyncManager
+    private val firebaseSyncManager: FirebaseSyncManager,
+    private val authManager: com.couplefit.data.remote.FirebaseAuthManager? = null,
+    private val syncRepository: com.couplefit.domain.repository.SyncRepository? = null,
+    private val partnerRepository: com.couplefit.domain.repository.PartnerRepository? = null
 ) : HealthRepository {
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -54,12 +57,24 @@ class HealthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun syncWithPartner() {
-        val today = Date()
-        val defaultPrefs = SharingPreferences(
-            userId = "current_user",
-            partnerId = "partner_user"
-        )
-        syncWithPartner(defaultPrefs.partnerId, today, defaultPrefs)
+        val session = authManager?.getCurrentSession()
+        val coupleId = session?.coupleId
+        val myUid = session?.uid
+        val partnerId = session?.partnerId
+        val dateStr = formatDate(Date())
+
+        if (!coupleId.isNullOrBlank() && coupleId != "couple_1" && !myUid.isNullOrBlank() && syncRepository != null) {
+            syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = true)
+            if (!partnerId.isNullOrBlank() && partnerId != "partner_1" && partnerRepository != null) {
+                partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+            }
+        } else {
+            val defaultPrefs = SharingPreferences(
+                userId = myUid ?: "current_user",
+                partnerId = partnerId ?: "partner_user"
+            )
+            syncWithPartner(defaultPrefs.partnerId, Date(), defaultPrefs)
+        }
     }
 
     /**
