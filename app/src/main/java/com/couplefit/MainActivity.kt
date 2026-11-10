@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
             val isSystemAnimationDisabled = systemAnimationScale == 0f
 
             var isDarkTheme by remember {
-                mutableStateOf(prefs.getBoolean("is_dark_theme", systemDark))
+                mutableStateOf(prefs.getBoolean("is_dark_theme", true))
             }
             var userReduceMotion by remember {
                 mutableStateOf(prefs.getBoolean("reduce_motion", false))
@@ -175,7 +175,8 @@ class MainActivity : ComponentActivity() {
                                 AmbientVideoBackground(
                                     modifier = Modifier.fillMaxSize(),
                                     videoResId = currentAmbientBgAsset.resId,
-                                    reduceMotion = effectiveReduceMotion
+                                    reduceMotion = effectiveReduceMotion,
+                                    isDarkTheme = isDarkTheme
                                 )
                             }
 

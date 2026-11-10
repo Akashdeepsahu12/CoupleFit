@@ -1329,3 +1329,28 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Verified live Today, Challenges, and Couple Hub tabs via Google ARTEMIS.
 - **Release Tag**: `v2.9.45-fixinglist-convergence`
 
+---
+
+## Phase 60: Text Color & Contrast Hardening (`TXT-01`, `TXT-02`, `TXT-03`) 💎✨
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md)
+- **Verification Report**: [`Documentation/phase60_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase60_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Dark Theme Default & Dual-Scrim Architecture (`MainActivity.kt`, `AmbientVideoBackground.kt` - `TXT-01`)**:
+     - Fixed dark-text-on-dark-video defect by defaulting `is_dark_theme` to `true` (`prefs.getBoolean("is_dark_theme", true)`), establishing default obsidian Apple Fitness aesthetic out of the box.
+     - Implemented dynamic dual-scrim architecture in `AmbientVideoBackground.kt`: obsidian gradient scrim in dark mode (`0.50f` to `0.85f`), and luminous pearl frosted scrim in light mode (`0.84f` to `0.97f`), guaranteeing WCAG AAA contrast in both modes.
+  2. **Calibrated Semantic Text Tokens (`Color.kt`, `Theme.kt` - `TXT-02`)**:
+     - Upgraded `TextSecondaryDark` to `0xD9EBF2FA` (85% alpha, 8.5:1 contrast against `#1C1C1E`) and `TextTertiaryDark` to `0xA6CBD5E1` (65% alpha, 5.5:1 contrast against `#1C1C1E`).
+     - Upgraded light tokens to deep slate-900 (`#0F172A`), slate-700 (`#334155`), and slate-600 (`#475569`, 6.5:1 contrast on `#F2F2F7`).
+     - Mapped `outlineVariant` to high-clarity subtle divider tokens.
+  3. **Opacity Hygiene & Contrast Hardening across Screens (`TXT-03`)**:
+     - Pruned compound `.copy(alpha = 0.6f/0.7f/0.8f)` on text across `DashboardScreen.kt`, `SideBySideActivityCard.kt`, `MotionArcGauge.kt`, and `CoupleFitNavigationSuite.kt`.
+     - Boosted `InteractiveChart.kt` Y-axis paint alpha from 160 to 220 (`Color.argb(220, 225, 235, 248)` dark, `Color.argb(220, 51, 65, 85)` light) and pruned compound alpha on dismiss/delta labels.
+  4. **Automated WCAG 2.2 Contrast Test Suite (`TextColorContrastTest.kt`)**:
+     - Authored 7-test deterministic unit test suite testing primary, secondary, and tertiary contrast in dark and light modes, accent chip readability, and contrast formula accuracy.
+     - 106/106 tests passed 100% green on `./gradlew testDebugUnitTest`.
+  5. **Live Device Verification on Android Emulator (`emulator-5554`)**:
+     - Installed build on Google Pixel 10 Pro emulator and verified pristine contrast across Today, Challenges, Trends, Couple Hub, and Settings screens via Google ARTEMIS screenshots.
+- **Release Tag**: `v2.9.46-text-color-contrast`
+
+

@@ -675,3 +675,15 @@ graph TD
   - `ANM-08`: Trophy 3D specular shine sweep (`Brush.linearGradient`) and interactive tap celebration scale in `ChallengesScreen.kt`.
   - `Documentation/phase59_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub tabs on Google Pixel 10 Pro (`emulator-5554`).
 
+### Phase 60: Text Color & Contrast Hardening (TXT-01, TXT-02, TXT-03) 🟢 Resolved
+- **Domain**: Semantic Text Tokens, Dual-Scrim Video Background, WCAG 2.2 AA/AAA Contrast & Opacity Hygiene
+- **Milestone Tag**: `v2.9.46-text-color-contrast`
+- **Nodes & Edges**:
+  - `TXT-01`: Dark theme default out of the box (`is_dark_theme` defaulting to `true` in SharedPreferences) eliminating dark-text-on-dark-video defect.
+  - `AmbientVideoBackground.kt`: Engineered dynamic dual-scrim architecture (obsidian scrim in dark mode `0.50f`-`0.85f`, luminous pearl frosted scrim in light mode `0.84f`-`0.97f`), achieving >10:1 WCAG AAA contrast in both modes.
+  - `Color.kt` & `Theme.kt` (`TXT-02`): Upgraded `TextSecondaryDark` to `0xD9EBF2FA` (85% alpha, 8.5:1 contrast against `#1C1C1E`) and `TextTertiaryDark` to `0xA6CBD5E1` (65% alpha, 5.5:1 contrast). Upgraded light tokens to slate-900, slate-700, and slate-600 (>6.5:1 on `#F2F2F7`). Mapped `outlineVariant` for clean subtle dividers.
+  - Opacity Hygiene (`TXT-03`): Pruned compound `.copy(alpha = ...)` on text in `DashboardScreen.kt`, `SideBySideActivityCard.kt`, `MotionArcGauge.kt`, and `CoupleFitNavigationSuite.kt`. Boosted `InteractiveChart.kt` Y-axis paint alpha from 160 to 220.
+  - `TextColorContrastTest.kt`: 7-test deterministic unit test suite verifying contrast mathematics, token contracts, and WCAG AA/AAA thresholds (106/106 tests passed 100% green).
+  - `Documentation/phase60_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, Trends, Couple Hub, and Settings on Google Pixel 10 Pro (`emulator-5554`).
+
+

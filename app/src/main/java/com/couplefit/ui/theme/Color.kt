@@ -65,14 +65,14 @@ val BorderSubtleLight = Color(0x3C3C434A)
 val SeparatorLight = BorderSubtleLight
 val SeparatorDark = BorderSubtleDark
 
-// High-contrast Label & Text Tones (iOS Labels)
-val TextPrimaryDark = Color(0xFFFFFFFF)      // label
-val TextSecondaryDark = Color(0x99EBEBF5)    // secondaryLabel (60%)
-val TextTertiaryDark = Color(0x4DEBEBF5)     // tertiaryLabel (30%)
+// High-contrast Label & Text Tones (iOS 17 & WCAG 2.2 AA/AAA Compliant)
+val TextPrimaryDark = Color(0xFFFFFFFF)      // 100% pure white primary text
+val TextSecondaryDark = Color(0xD9EBF2FA)    // 85% alpha high-contrast secondary text (crisp on frosted glass)
+val TextTertiaryDark = Color(0xA6CBD5E1)     // 65% alpha tertiary text (clean captions, timestamps, overlines)
 
-val TextPrimaryLight = Color(0xFF000000)
-val TextSecondaryLight = Color(0x993C3C43)
-val TextTertiaryLight = Color(0x4D3C3C43)
+val TextPrimaryLight = Color(0xFF0F172A)     // Slate-900: Crisp deep neutral for primary text
+val TextSecondaryLight = Color(0xFF334155)   // Slate-700: High-contrast secondary text (> 7:1)
+val TextTertiaryLight = Color(0xFF475569)    // Slate-600: Clear legible tertiary text (> 6:1)
 
 // Backward-compatible label definitions
 val LabelSecondaryLight = TextSecondaryLight

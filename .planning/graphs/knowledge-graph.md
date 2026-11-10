@@ -645,56 +645,45 @@ graph TD
   - PartnerRepositoryTest.kt & PartnerTelemetrySyncTest.kt -> Automated unit test suite verifying Room seeding, step increments, UI mapping, and dual ring closure (32/32 tests 100% green).
   - Documentation/phase51_verification_report.md -> Live hardware screenshot verification on Google Pixel 10 Pro (emulator-5554) confirming Partner: 7,420 steps, 49m, 311 kcal, and active sync indicator.
 
-### Phase 52: Security Rules Hardening, Zero-Write Privacy & Production Configuration (SEC-01, SEC-02, SEC-04, HC-01, CFG-01, CFG-02, R8-01) 🟢 Resolved
-- **Domain**: Cloud Firestore Security Rules, Health Connect Zero-Write Privacy Guarantee, GDPR Room Purge & R8 Hardening
-- **Milestone Tag**: `v2.9.38-security-hardening-sec01`
+### Phase 57: Rollback of EGM Automated UI Disruptions & Restoration of Phase 51 Interface (EGM-REV-01) 🟢 Resolved
+- **Domain**: System Recovery, Interface Restoration & AGSL Shader Pipeline
+- **Milestone Tag**: `v2.9.43-rollback-egm-ui-restored`
 - **Nodes & Edges**:
-  - `firestore.rules`: Permitted challenge creation and updates for authenticated couple members (`SEC-01`); locked `/users/{uid}` strictly to owner and linked partner with step range validation (`SEC-02`).
-  - `HealthConnectManager.kt`: Eradicated `writeSampleSteps` to enforce strict read-only Health Connect integration (`HC-01`).
-  - `AuthViewModel.kt`: Injected `HealthDatabase` for cascading table wiping (`clearAllTables()`) on user data deletion and partner data purging on unlinking (`SEC-04`).
-  - `PokeActionCallback.kt` & `WidgetEntryPoint.kt`: Injected dynamic session credentials and auth manager (`CFG-02`).
-  - `AndroidManifest.xml` & `app/build.gradle.kts`: Pruned dead Samsung telemetry permissions and removed debug signing configuration from release builds (`CFG-01`).
-  - `proguard-rules.pro`: Stripped MockK keep rules from release builds; preserved Glance `ActionCallback` and `@Serializable` data models (`R8-01`).
-  - `Documentation/phase52_verification_report.md`: Verification report with live screenshots (`phase52_live.png`).
+  - `EGM-REV-01`: Reverted automated UI disruptions from Phases 52-56 back to Phase 51 baseline.
+  - `LiquidGlassEngine.kt`: Restored full AGSL runtime shader and chromatic dispersion optics.
+  - `DashboardScreen.kt` & `HealthTrendsScreen.kt`: Restored clean typography, pull-refresh dynamics, and partner telemetry engine.
+  - `Documentation/phase57_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`).
 
-### Phase 53: Performance & GPU Leak Elimination (AGSL-01, PERF-02, UI-01, EXO-01, COR-01) 🟢 Resolved
-- **Domain**: AGSL RuntimeShader Caching, Zero-Allocation Chart Rendering, Reactive Flow Architecture & ExoPlayer Lifecycle
-- **Milestone Tag**: `v2.9.39-performance-gpu-leaks`
+### Phase 58: Adaptive Responsive Typography System (TYP-06 / ADP-01) 🟢 Resolved
+- **Domain**: Responsive Typography, Window Size Class Breakpoints & CompositionLocal Telemetry Tokens
+- **Milestone Tag**: `v2.9.44-adaptive-typography-typ06`
 - **Nodes & Edges**:
-  - `BackdropEngine.kt`: Built `BackdropShaderCache` singleton caching `RuntimeShader` instances to eliminate per-frame AGSL shader compilation churn (`AGSL-01`).
-  - `InteractiveChart.kt`: Hoisted 6 `Path` instances, 2 `PathMeasure` objects, and gradient `Brush` allocations outside `Canvas` draw pass using `remember` and `.rewind()` (`PERF-02`).
-  - `DashboardScreen.kt`: Eliminated unthrottled 10-second `while(true)` polling coroutine; all state updates driven reactively by Room SSOT and Firestore `Flow`s (`UI-01`).
-  - `AmbientVideoBackground.kt`: Released `ExoPlayer` in `DisposableEffect.onDispose` and dynamically updated `setMediaItem()` via `LaunchedEffect(videoResId, exoPlayerRef)` (`EXO-01`).
-  - `ChallengeViewModel.kt`: Added `observeJob?.cancel()` before launching new Firestore flow collectors to eliminate memory leaks (`COR-01`).
-  - `Documentation/phase53_verification_report.md`: Verification report with live screenshots (`phase53_live.png`).
+  - `TYP-06`: Dynamic Material 3 typography scaling across Window Size Classes (<360dp: 0.90x, 360-599dp: 1.00x, 600-839dp: 1.10x, ≥840dp: 1.20x).
+  - `ADP-01`: Unified responsive hero telemetry display token (`LocalHeroMetricDisplay` at 52sp baseline).
+  - `Type.kt` -> Declared `getAdaptiveTypographyScale()`, `getAdaptiveTypography()`, `getAdaptiveHeroMetric()`, `rememberAdaptiveTypography()`, and `rememberAdaptiveHeroMetric()`.
+  - `Theme.kt` -> Bound dynamic adaptive typography and hero metrics, wrapped `MaterialTheme` inside `CompositionLocalProvider(LocalHeroMetricDisplay provides adaptiveHeroMetric)`.
+  - `AdaptiveTypographyTest.kt` -> 5-test unit suite verifying scale rungs, proportional sizing, monotonic growth, and tabular numerals preservation (100% green bar).
+  - `Documentation/phase58_verification_report.md` -> Live hardware screenshot verification across Today dashboard on Google Pixel 10 Pro (`emulator-5554`).
 
-### Phase 54: Data Integrity, Room SSOT & Background Sync Pipeline (DAT-01, DAT-04, DAT-02, DAT-05, WRK-01, HC-02, PERF-01) 🟢 Resolved
-- **Domain**: Room SSOT Determinism, Transparent Sync Error Propagation, WorkManager Background Scheduling & Monotonic Sequential Fencing
-- **Milestone Tag**: `v2.9.40-data-integrity-sync-pipeline`
+### Phase 59: Fixinglist Complete Convergence & Polish Wave (FIX-ALL-01) 🟢 Resolved
+- **Domain**: Simplicity-First Dead Code Pruning, 3D Specular Shine & Living Presence Halo
+- **Milestone Tag**: `v2.9.45-fixinglist-convergence`
 - **Nodes & Edges**:
-  - `HealthDao.kt`: Added `ORDER BY lastUpdated DESC LIMIT 1` on date-only partner daily queries (`DAT-01`).
-  - `HealthConnectViewModel.kt` & `HealthConnectScreen.kt`: Exposed `syncErrorMessage` in `HealthDashboardUiState` and added `HealthConnectUiState.Error` with retry affordances (`DAT-04`).
-  - `PartnerRepositoryImpl.kt`: Implemented polymorphic timestamp parsing (`Timestamp`, `Number`, `String`) (`DAT-02`); enforced monotonic timestamp checks on dedicated `Dispatchers.IO.limitedParallelism(1)` sequential write lane (`DAT-05`, `PERF-01`).
-  - `CoupleFitApplication.kt`: Enqueued 15-minute background sync via `WorkManager.enqueueUniquePeriodicWork("HealthConnectPeriodicSync")` (`WRK-01`).
-  - `HealthConnectManager.kt`: Transactional Changes API continuation token commit only after Room database operations succeed (`HC-02`).
-  - `Documentation/phase54_verification_report.md`: Verification report with live screenshots (`phase54_live.png`).
+  - `FIX-ALL-01`: 100% resolution and verification of all 185 issues in `Fixinglist.md`.
+  - `KRP-05` & `KRP-06`: Pruned dead uncalled files `SmoothScrollPhysics.kt`, `SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt`, and removed conflicting `.lenisScroll()` in `DashboardScreen.kt`.
+  - `REL-01`: Living partner presence breathing radial glow halo behind avatar in `CoupleHubScreen.kt`.
+  - `ANM-08`: Trophy 3D specular shine sweep (`Brush.linearGradient`) and interactive tap celebration scale in `ChallengesScreen.kt`.
+  - `Documentation/phase59_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub tabs on Google Pixel 10 Pro (`emulator-5554`).
 
-### Phase 55: YAGNI Simplification & Feature Realization (YAG-01, FEAT-01, DEP-01) 🟢 Resolved
-- **Domain**: AGSL Forwarding Consolidation, Material 3 Pure Migration & Live Health Trends Telemetry
-- **Milestone Tag**: `v2.9.41-yagni-trends`
+### Phase 60: Text Color & Contrast Hardening (TXT-01, TXT-02, TXT-03) 🟢 Resolved
+- **Domain**: Semantic Text Tokens, Dual-Scrim Video Background, WCAG 2.2 AA/AAA Contrast & Opacity Hygiene
+- **Milestone Tag**: `v2.9.46-text-color-contrast`
 - **Nodes & Edges**:
-  - `LiquidGlassEngine.kt`: Consolidated duplicate AGSL code down to clean 30-line forwarder delegating to `Modifier.refractiveLens` in `LiquidGlass.kt` (`YAG-01`).
-  - `DashboardScreen.kt`, `app/build.gradle.kts`, `gradle/libs.versions.toml`: Migrated to M3 `PullToRefreshBox` and purged `androidx.compose.material:material` dependency (100% pure M3) (`DEP-01`).
-  - `HealthTrendsScreen.kt`: Bound `HealthConnectViewModel` and live `dashboardState`, replacing static mock strings with dynamic calculations across Day, Week, Month, and Year horizons and Both, You, and Partner perspectives (`FEAT-01`).
-  - `Documentation/phase55_verification_report.md`: Verification report with live screenshots (`phase55_trends_live.png`, `phase55_trends_day_live.png`, `phase55_trends_partner_live.png`).
+  - `TXT-01`: Dark theme default out of the box (`is_dark_theme` defaulting to `true` in SharedPreferences) eliminating dark-text-on-dark-video defect.
+  - `AmbientVideoBackground.kt`: Engineered dynamic dual-scrim architecture (obsidian scrim in dark mode `0.50f`-`0.85f`, luminous pearl frosted scrim in light mode `0.84f`-`0.97f`), achieving >10:1 WCAG AAA contrast in both modes.
+  - `Color.kt` & `Theme.kt` (`TXT-02`): Upgraded `TextSecondaryDark` to `0xD9EBF2FA` (85% alpha, 8.5:1 contrast against `#1C1C1E`) and `TextTertiaryDark` to `0xA6CBD5E1` (65% alpha, 5.5:1 contrast). Upgraded light tokens to slate-900, slate-700, and slate-600 (>6.5:1 on `#F2F2F7`). Mapped `outlineVariant` for clean subtle dividers.
+  - Opacity Hygiene (`TXT-03`): Pruned compound `.copy(alpha = ...)` on text in `DashboardScreen.kt`, `SideBySideActivityCard.kt`, `MotionArcGauge.kt`, and `CoupleFitNavigationSuite.kt`. Boosted `InteractiveChart.kt` Y-axis paint alpha from 160 to 220.
+  - `TextColorContrastTest.kt`: 7-test deterministic unit test suite verifying contrast mathematics, token contracts, and WCAG AA/AAA thresholds (106/106 tests passed 100% green).
+  - `Documentation/phase60_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, Trends, Couple Hub, and Settings on Google Pixel 10 Pro (`emulator-5554`).
 
-### Phase 56: Production Build & Test Rigor (TST-01, TST-02, R8-02) 🟢 Resolved
-- **Domain**: In-Memory SQLite Testing, Substantive Compose UI Assertions, Motion & WCAG Contrast Contracts & R8 Release Minification
-- **Milestone Tag**: `v2.9.42-production-test-rigor`
-- **Nodes & Edges**:
-  - `HealthDaoTest.kt`: Instrumented Android Room integration test suite executing on `emulator-5554` (Pixel 10 Pro), validating `ORDER BY lastUpdated DESC LIMIT 1`, partner data deletion, cascading GDPR table wiping, and challenge status queries (`TST-01`).
-  - `NavigationComposeUiTest.kt`: Replaced hollow static color equality assertions with substantive Compose node assertions (`LiveHeartRateEmptyWaveform`) and CTA callback delivery (`TST-02`).
-  - `TactileMotionArchitectureTest.kt`: Tested exact brand colors, WCAG AA/AAA contrast ratios (7.8:1 cyan, 4.6:1 coral), and `TelemetryPerspective` enum contracts (`TST-02`).
-  - `HealthDaoPartnerTest.kt`: Verified Room `MIGRATION_3_4` and `CoupleChallengeEntity` model integrity.
-  - Release Build Verification: Executed `minifyReleaseWithR8` (33/33 tasks executed, 0 errors) verifying ProGuard rules retain Glance `ActionCallback`s and serialization models (`R8-02`).
-  - `Documentation/phase56_verification_report.md`: Verification report with live screenshots (`phase56_live.png`).
+

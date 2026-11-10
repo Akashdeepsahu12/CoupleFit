@@ -175,9 +175,9 @@ fun InteractiveChart(
     val yAxisPaint = remember(isDark, density) {
         Paint().apply {
             color = if (isDark) {
-                android.graphics.Color.argb(160, 160, 171, 190) // TextSecondaryDark
+                android.graphics.Color.argb(220, 225, 235, 248) // High-contrast calibrated TextSecondaryDark
             } else {
-                android.graphics.Color.argb(180, 90, 102, 122)   // TextSecondaryLight
+                android.graphics.Color.argb(220, 51, 65, 85)     // High-contrast Slate-700 TextSecondaryLight
             }
             textSize = with(density) { 10.sp.toPx() }
             isAntiAlias = true
@@ -374,7 +374,7 @@ fun InteractiveChart(
                             "Latest reading logged today"
                         },
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp
                     )
                 } else {
@@ -427,7 +427,7 @@ fun InteractiveChart(
                     Text(
                         text = "Release to dismiss",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 10.sp
                     )
                 }
@@ -895,7 +895,7 @@ fun InteractiveChart(
                                 Text(
                                     text = "  vs  ",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 10.sp
                                 )
                                 Box(

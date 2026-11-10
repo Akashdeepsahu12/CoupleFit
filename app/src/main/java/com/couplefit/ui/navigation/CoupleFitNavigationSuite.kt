@@ -273,7 +273,7 @@ fun CoupleFitNavigationSuite(
                                                 else -> tab3InteractionSource
                                             }
                                             val animatedColor by animateColorAsState(
-                                                targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else Color(0xFF8E95A5),
+                                                targetValue = if (isSelected) CoupleFitIdentityTokens.UserPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                                                 animationSpec = if (reduceMotion) snap() else tween(180),
                                                 label = "tabColor"
                                             )
@@ -345,8 +345,8 @@ fun CoupleFitNavigationSuite(
                         val railItemColors = NavigationRailItemDefaults.colors(
                             selectedIconColor = CoupleFitIdentityTokens.UserPrimary,
                             selectedTextColor = CoupleFitIdentityTokens.UserPrimary,
-                            unselectedIconColor = Color(0xFF8E95A5),
-                            unselectedTextColor = Color(0xFF8E95A5),
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             indicatorColor = CoupleFitIdentityTokens.UserPrimary.copy(alpha = 0.22f)
                         )
                         NavigationRail(

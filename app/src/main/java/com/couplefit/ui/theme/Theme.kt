@@ -11,6 +11,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -29,15 +30,16 @@ private val DarkColorScheme = darkColorScheme(
     surfaceVariant = SurfaceElevatedDark,
     onSurfaceVariant = TextSecondaryDark,
     outline = BorderSubtleDark,
+    outlineVariant = Color(0x33CBD5E1),
     error = SystemRedDark,
     onError = TextPrimaryDark
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = SystemBlueLight,
-    onPrimary = SurfaceLight,
+    onPrimary = androidx.compose.ui.graphics.Color.White,
     secondary = StepsAccent,
-    onSecondary = SurfaceLight,
+    onSecondary = androidx.compose.ui.graphics.Color.White,
     tertiary = MotionPartnerStart, // Vibrant Coral for Partner (DSN-01)
     background = BackgroundLight,
     onBackground = TextPrimaryLight,
@@ -46,8 +48,9 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = SurfaceElevatedLight,
     onSurfaceVariant = TextSecondaryLight,
     outline = BorderSubtleLight,
+    outlineVariant = Color(0x3364748B),
     error = SystemRedLight,
-    onError = SurfaceLight
+    onError = androidx.compose.ui.graphics.Color.White
 )
 
 @Composable

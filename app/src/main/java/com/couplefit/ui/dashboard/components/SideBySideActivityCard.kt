@@ -266,6 +266,7 @@ fun SideBySideActivityCard(
                             NumberPopInText(
                                 text = "${healthData.activeMinutes}m",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 animTrigger = animTrigger,
                                 reduceMotion = reduceMotion
                             )
@@ -276,6 +277,7 @@ fun SideBySideActivityCard(
                             NumberPopInText(
                                 text = "${healthData.caloriesBurned} kcal",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 animTrigger = animTrigger,
                                 reduceMotion = reduceMotion
                             )
@@ -364,6 +366,7 @@ fun SideBySideActivityCard(
                             NumberPopInText(
                                 text = "${healthData.partnerActiveMinutes}m",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 animTrigger = animTrigger,
                                 reduceMotion = reduceMotion
                             )
@@ -374,6 +377,7 @@ fun SideBySideActivityCard(
                             NumberPopInText(
                                 text = "${healthData.partnerCaloriesBurned} kcal",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 animTrigger = animTrigger,
                                 reduceMotion = reduceMotion
                             )

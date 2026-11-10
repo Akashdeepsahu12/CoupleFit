@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**phase60_verification_report.md**](phase60_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 60 verification report: Text color calibration, dynamic dual-scrim ambient background, WCAG 2.2 AA/AAA contrast compliance, opacity hygiene, and live device proof (`TXT-01`, `TXT-02`, `TXT-03`). |
+| [**PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md**](PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 60 milestone plan: Text Color Calibration, Dual-Scrim Ambient Video & High-Contrast Accessibility Hardening (`TXT-01`, `TXT-02`, `TXT-03`). |
 | [**phase59_verification_report.md**](phase59_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 59 verification report: Complete Fixinglist convergence pass, dead code pruning (`KRP-05`, `KRP-06`), trophy 3D shine (`ANM-08`), and partner presence halo (`REL-01`). |
 | [**PLAN_PHASE_59_FIXINGLIST_CONVERGENCE.md**](PLAN_PHASE_59_FIXINGLIST_CONVERGENCE.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 59 milestone plan: Fixinglist Complete Convergence & Polish Wave (`FIX-ALL-01`). |
 | [**phase58_verification_report.md**](phase58_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 58 verification report: Adaptive Responsive Typography System across window size classes, LocalHeroMetricDisplay token, and live device proof (`TYP-06`, `ADP-01`). |

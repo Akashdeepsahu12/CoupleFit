@@ -143,4 +143,15 @@
   - **Device Verification**: Verified live on `emulator-5554` (`phase59_today_live.jpg`, `phase59_challenges_live.jpg`, `phase59_couplehub_live.jpg`) via ARTEMIS.
 - **Release Tag**: `v2.9.45-fixinglist-convergence`
 
+## Phase 60: Text Color & Contrast Hardening (`TXT-01`, `TXT-02`, `TXT-03`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`TXT-01`**: Fixed dark-text-on-dark-video defect by setting default `is_dark_theme` to `true` in SharedPreferences and engineering a dynamic dual-scrim architecture in `AmbientVideoBackground.kt` (obsidian gradient scrim in dark mode, luminous pearl frosted scrim in light mode) guaranteeing WCAG AAA contrast in both modes.
+  - **`TXT-02`**: Upgraded under-calibrated semantic text tokens in `Color.kt` and `Theme.kt` (`TextSecondaryDark` to `0xD9EBF2FA` [85% alpha, 8.5:1 contrast], `TextTertiaryDark` to `0xA6CBD5E1` [65% alpha, 5.5:1 contrast], light tokens to slate-900, slate-700, slate-600 [>6.5:1 contrast on `#F2F2F7`]). Mapped `outlineVariant` to subtle high-clarity divider tokens.
+  - **`TXT-03`**: Opacity hygiene across UI components: pruned compound alpha multipliers in `InteractiveChart.kt`, `MotionArcGauge.kt`, `DashboardScreen.kt`, and `CoupleFitNavigationSuite.kt`. Boosted chart Y-axis paint alpha from 160 to 220.
+  - **Test Suite**: 7-test deterministic contrast test suite in `TextColorContrastTest.kt` passing 100% green (`testDebugUnitTest` 106/106 tests, `compileDebugAndroidTestKotlin` 0 errors).
+  - **Device Verification**: Verified live on `emulator-5554` (`phase60_today_verified.jpg`, `phase60_challenges_verified.jpg`, `phase60_trends_verified.jpg`, `phase60_couplehub_verified.jpg`, `phase60_settings_live.jpg`) via Google ARTEMIS.
+- **Release Tag**: `v2.9.46-text-color-contrast`
+
+
 

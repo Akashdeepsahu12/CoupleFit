@@ -4295,3 +4295,39 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`FIX-ALL-CHL`** | Live Challenges Vault (`ANM-08`) | Live capture on emulator-5554 via ARTEMIS | [`phase59_challenges_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase59_challenges_live.jpg) | 🟢 Verified |
 | **`FIX-ALL-HUB`** | Live Couple Hub Halo (`REL-01`) | Live capture on emulator-5554 via ARTEMIS | [`phase59_couplehub_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase59_couplehub_live.jpg) | 🟢 Verified |
 
+---
+
+## 85. Phase 60: Text Color & Contrast Hardening (`TXT-01`, `TXT-02`, `TXT-03`) 💎✨
+
+> **Verification Report**: [`Documentation/phase60_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase60_verification_report.md)  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_60_TEXT_COLOR_CONTRAST.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/ui/theme/Color.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/theme/Color.kt)
+> - [`app/src/main/java/com/couplefit/ui/theme/Theme.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/theme/Theme.kt)
+> - [`app/src/main/java/com/couplefit/MainActivity.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/MainActivity.kt)
+> - [`app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/AmbientVideoBackground.kt)
+> - [`app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/InteractiveChart.kt)
+> - [`app/src/main/java/com/couplefit/ui/components/MotionArcGauge.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/components/MotionArcGauge.kt)
+> - [`app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt)
+> - [`app/src/main/java/com/couplefit/ui/dashboard/components/SideBySideActivityCard.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/components/SideBySideActivityCard.kt)
+> - [`app/src/test/java/com/couplefit/ui/TextColorContrastTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/TextColorContrastTest.kt)
+
+### 85.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`TXT-01`** | User Bug Report & Live Audit | 🔴 **Theming P0** | `MainActivity.kt`, `AmbientVideoBackground.kt` | `isDarkTheme` defaulted to `systemDark` (false on default emulators/light mode devices), causing dark text on dark video (black-on-black). | Defaulted `is_dark_theme` to `true` in SharedPreferences and implemented dynamic dual-scrim architecture in `AmbientVideoBackground` (luminous pearl in light mode, obsidian in dark mode). | 🟢 **Resolved** |
+| **`TXT-02`** | Accessibility & WCAG Audit | 🔴 **Contrast P0** | `Color.kt`, `Theme.kt` | `TextSecondaryDark` (60% alpha) and `TextTertiaryDark` (30% alpha) had low contrast (4.8:1 and 2.2:1) over frosted glass. | Upgraded `TextSecondaryDark` to `0xD9EBF2FA` (85% alpha, 8.5:1 contrast) and `TextTertiaryDark` to `0xA6CBD5E1` (65% alpha, 5.5:1 contrast). Upgraded light tokens to slate-900, slate-700, slate-600. | 🟢 **Resolved** |
+| **`TXT-03`** | UI Polish & Opacity Hygiene | 🟡 **Contrast P1** | `InteractiveChart.kt`, `MotionArcGauge.kt`, `DashboardScreen.kt`, `CoupleFitNavigationSuite.kt` | Compounded `.copy(alpha = 0.6f/0.7f)` over `onSurfaceVariant` dropped effective opacity to ~35%; faint chart axis labels; muted nav icons. | Pruned compound alpha multipliers, boosted chart Y-axis paint alpha from 160 to 220, standardized nav bar unselected tabs on high-contrast semantic tokens. | 🟢 **Resolved** |
+
+### 85.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`TXT-01-UNT`** | Unit Test Suite (7 tests) | [`TextColorContrastTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/TextColorContrastTest.kt) executing via `./gradlew testDebugUnitTest` | 106/106 tests passed 100% green | 🟢 Verified |
+| **`TXT-01-DEV`** | Live Android Emulator Run | `./gradlew installDebug` on `emulator-5554` (Pixel 10 Pro) | [`phase60_today_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_today_verified.jpg) | 🟢 Verified |
+| **`TXT-02-DEV`** | Live Challenges Tab | ARTEMIS live screenshot capture | [`phase60_challenges_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_challenges_verified.jpg) | 🟢 Verified |
+| **`TXT-03-DEV`** | Live Trends Tab | ARTEMIS live screenshot capture | [`phase60_trends_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_trends_verified.jpg) | 🟢 Verified |
+| **`TXT-04-DEV`** | Live Couple Hub Tab | ARTEMIS live screenshot capture | [`phase60_couplehub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_couplehub_verified.jpg) | 🟢 Verified |
+| **`TXT-05-DEV`** | Live Settings Screen | ARTEMIS live screenshot capture | [`phase60_settings_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_settings_live.jpg) | 🟢 Verified |
+
+

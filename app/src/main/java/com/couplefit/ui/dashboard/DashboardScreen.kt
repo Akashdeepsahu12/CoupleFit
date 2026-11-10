@@ -467,7 +467,7 @@ fun DashboardScreen(
                 Text(
                     text = syncText,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -1113,7 +1113,7 @@ fun DashboardScreen(
                                             Text(
                                                 text = if (healthData.hasPermissions) "Records from Samsung Health will appear here once synced" else "Grant Health Connect permissions to view vitals",
                                                 style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 textAlign = TextAlign.Center
                                             )
                                             if (!healthData.hasPermissions) {
@@ -1181,7 +1181,7 @@ fun DashboardScreen(
                                             Text(
                                                 text = if (healthData.hasPermissions) "Records from Samsung Health will appear here once synced" else "Grant Health Connect permissions to view vitals",
                                                 style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 textAlign = TextAlign.Center
                                             )
                                         }
@@ -1404,7 +1404,7 @@ fun DashboardScreen(
                                     Text(
                                         text = "Daily average synchronized via Firestore",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -1468,7 +1468,7 @@ fun DashboardScreen(
                                     Text(
                                         text = "Daily average synchronized via Firestore",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
