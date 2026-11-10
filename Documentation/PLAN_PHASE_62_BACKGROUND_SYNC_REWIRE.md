@@ -85,3 +85,4 @@ Following the deep-dive diagnostic findings in `SYNC-02`, three critical archite
    - Inspect WorkManager job registration using `adb shell dumpsys jobscheduler`.
    - Verify `SyncWorker` manual execution using `adb shell cmd jobscheduler run -f com.couplefit <job_id>` or WorkManager trigger.
    - Inspect live device UI hierarchy and screenshot verifying that partner telemetry remains visible and does not drop to empty 0 steps across date boundaries.
+

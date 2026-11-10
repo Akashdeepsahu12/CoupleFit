@@ -144,6 +144,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) | `.\gradlew.bat assembleRelease` | **Releases & Ops** | Details for release v2.0.1: R8 ProGuard keep rules for Health Connect SDK reflection, build verification, and release APK metadata. |
 | [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.0.0: UI overhaul, dual ring mechanics, dynamic theming, and offline-first Room database sync. |
 | [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md) | Git & Refactor Tracking | **Releases & Ops** | Complete historical changelog documenting the transformation from legacy code into modern Clean Architecture. |
+| [**`allsam.md`**](allsam.md) | Ecosystem Master Summary | **Unified System Directory** | Master single-source-of-truth directory listing all **121 specialist agents**, **893+ modular skills**, and **7 active + 8 ecosystem MCP servers** across the entire installed Antigravity environment. |
 | [**`skillscommand.md`**](skillscommand.md) | Antigravity Skills Setup | **SDLC & Agent Manual** | Master directory and operations manual for all **23 installed agent plugins & suites** and **1,727+ modular skills** in Antigravity, including intent routers, EGM review swarms, Firebase security rules, MotionScore audits, and Stitch UI generation. |
 | [**`agents1.md`**](agents1.md) | Antigravity Agents Catalog | **Specialist Subagents** | Master catalog and full source definitions for all **118 specialized subagents** across ECC (71), GSD-Core (35), Google EGM (10), Firebase (1), and Motion (1). |
 | [**`MCP1.md`**](MCP1.md) | Antigravity MCP Architecture | **Model Context Protocol** | Comprehensive specification for all active MCP servers (`artemis`, `ecc_chrome-devtools`, `motion`, `paper`, `rea`) and ecosystem registries. |
@@ -193,6 +194,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md): Architectural migration history.
 
 ### 3. 🤖 Developer SDLC & Agent Automation
+- [**`allsam.md`**](allsam.md): Master ecosystem catalog of all 121 agents, 893+ skills, and 15 MCP servers.
 - [**`skillscommand.md`**](skillscommand.md): Master directory of 23 plugins and 1,727+ modular skills with intent routers.
 - [**`agents1.md`**](agents1.md): Master catalog of 118 specialist subagents across ECC, GSD-Core, EGM, Firebase, and Motion.
 - [**`MCP1.md`**](MCP1.md): Active Model Context Protocol (MCP) server configurations and tool definitions.
