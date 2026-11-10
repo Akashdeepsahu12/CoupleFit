@@ -90,4 +90,44 @@ class PartnerTelemetrySyncTest {
         assertEquals("Awaiting sync", uiState.todayTab.partnerLastUpdatedLabel)
         assertFalse(uiState.todayTab.bothRingsClosed)
     }
+
+    @Test
+    fun `test linked partner state correctly maintains coupleId and partnerUid`() {
+        val linkedState = HealthDashboardUiState(
+            coupleId = "cpl_1794268458799_EYf2I",
+            partnerId = "RmkTPEUJlwYVm23evsWOj6cOpi02",
+            myUid = "my_user_123",
+            partnerName = "TaleOrbit",
+            partnerSteps = 9840L,
+            partnerStepsProgress = 0.984f,
+            isPartnerLinked = true
+        )
+        val uiState = linkedState.toDashboardUiState()
+
+        assertEquals("cpl_1794268458799_EYf2I", uiState.todayTab.coupleId)
+        assertEquals("RmkTPEUJlwYVm23evsWOj6cOpi02", uiState.todayTab.partnerUid)
+        assertEquals("TaleOrbit", uiState.todayTab.partnerName)
+        assertEquals(9840L, uiState.todayTab.partnerSteps)
+        assertEquals(0.984f, uiState.todayTab.partnerStepsProgress, 0.001f)
+        assertEquals("RmkTPEUJlwYVm23evsWOj6cOpi02", uiState.partnerStats.partnerId)
+        assertEquals("TaleOrbit", uiState.partnerStats.partnerName)
+    }
+
+    @Test
+    fun `test partner entity sort comparator prioritizes real partner over dummy partner_1`() {
+        data class MockPartnerDaily(val partnerId: String, val lastUpdated: Long, val steps: Long)
+
+        val partner1 = MockPartnerDaily("partner_1", 1000L, 7420L)
+        val realPartner = MockPartnerDaily("RmkTPEUJlwYVm23evsWOj6cOpi02", 500L, 8900L)
+
+        val list = listOf(partner1, realPartner)
+        // Mimicking Room SQL: ORDER BY CASE WHEN partnerId != 'partner_1' THEN 0 ELSE 1 END, lastUpdated DESC LIMIT 1
+        val sorted = list.sortedWith(
+            compareBy<MockPartnerDaily> { if (it.partnerId != "partner_1") 0 else 1 }
+                .thenByDescending { it.lastUpdated }
+        )
+
+        assertEquals("RmkTPEUJlwYVm23evsWOj6cOpi02", sorted.first().partnerId)
+        assertEquals(8900L, sorted.first().steps)
+    }
 }

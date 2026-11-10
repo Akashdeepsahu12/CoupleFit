@@ -155,3 +155,13 @@
 
 
 
+
+## Phase 61: Real-Time Partner Telemetry Synchronization & Firestore Pipeline Hardening (`PTR-02`, `SYNC-01`, `DAT-06`)
+- **Status**: 🟢 Completed & Shipped
+- **Deliverables**:
+  - **`PTR-02`**: Fixed Room `HealthDao` query priority to prevent dummy seed rows (`partner_1`) from overriding real paired partners (`RmkTPEUJlwYVm23evsWOj6cOpi02`). Automatically purges dummy records upon verified session linking.
+  - **`SYNC-01`**: Eliminated cold-start race condition by pre-populating session state from synchronous cache, added 5s resilient timeout to all Firestore operations, and guaranteed `isSyncing = false` reset in `finally` block to prevent pull-to-refresh spinner freezes.
+  - **`DAT-06`**: Restricted `seedDemoPartnerDaily` strictly to demo accounts and implemented `syncPartnerDailyFromRemote` in `PartnerRepository` supporting polymorphic timestamp parsing (`Timestamp`, `Date`, numeric, String).
+  - **Test Suite**: 5-test unit suite in `PartnerTelemetrySyncTest.kt` passing 100% green (`testDebugUnitTest` 110/110 tests, `compileDebugAndroidTestKotlin` 0 errors).
+  - **Device Verification**: Verified live on `emulator-5554` (`phase61_both_synced_verified.jpg`, `phase61_partner_stats_page.jpg`, `phase61_pull_refresh_completed.jpg`) via Google ARTEMIS.
+- **Release Tag**: `v2.9.47-partner-sync-hardening`

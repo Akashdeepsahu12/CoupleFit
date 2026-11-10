@@ -101,23 +101,34 @@ class HealthConnectViewModel @Inject constructor(
     private var sessionObservationJob: Job? = null
     
     init {
-        checkStatusAndFetchData()
-        startObservingLocalDb()
+        // Pre-initialize session from synchronous cache to avoid starting with dummy couple_1/me
+        val initialSession = authManager.getCurrentSession()
+        if (initialSession != null) {
+            val cId = initialSession.coupleId ?: "couple_1"
+            val pId = initialSession.partnerId ?: "partner_1"
+            val uid = initialSession.uid
+            val isLinked = initialSession.isLinked
+            _dashboardState.value = _dashboardState.value.copy(
+                coupleId = cId,
+                partnerId = pId,
+                myUid = uid,
+                isPartnerLinked = isLinked
+            )
+        }
+        startObservingLocalDb(_dashboardState.value.partnerId)
         observeProfileNames()
         observeUserSessionAndPartnerSync()
+        checkStatusAndFetchData(force = false)
     }
 
     private fun observeUserSessionAndPartnerSync() {
         sessionObservationJob?.cancel()
         sessionObservationJob = viewModelScope.launch {
-            authManager.observeUserSession().collectLatest { session ->
+            authManager.observeUserSession().collect { session ->
                 if (session != null) {
                     val coupleId = session.coupleId ?: _dashboardState.value.coupleId
                     val partnerId = session.partnerId ?: _dashboardState.value.partnerId
                     val myUid = session.uid
-                    val partnerName = if (!session.displayName.isNullOrBlank()) {
-                        _dashboardState.value.partnerName
-                    } else _dashboardState.value.partnerName
                     val isLinked = session.isLinked
 
                     _dashboardState.value = _dashboardState.value.copy(
@@ -127,7 +138,27 @@ class HealthConnectViewModel @Inject constructor(
                         isPartnerLinked = isLinked
                     )
 
+                    // If linked with a real partner, purge any stale mock/dummy partner_1 row
+                    if (isLinked && partnerId != "partner_1") {
+                        try {
+                            healthDao.deletePartnerDailyData("partner_1")
+                        } catch (e: Exception) {
+                            Log.w("HealthConnectVM", "Error cleaning dummy partner data: ${e.message}")
+                        }
+                    }
+
+                    // Reconnect Room flow and remote Firestore listener for the verified partner
+                    startObservingLocalDb(partnerId)
                     startListeningToPartner(coupleId, partnerId)
+
+                    // Trigger immediate bi-directional sync if linked
+                    if (coupleId.isNotBlank() && coupleId != "couple_1") {
+                        val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                        syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = true)
+                        if (partnerId.isNotBlank() && partnerId != "partner_1") {
+                            partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+                        }
+                    }
                 }
             }
         }
@@ -178,13 +209,13 @@ class HealthConnectViewModel @Inject constructor(
         }
     }
 
-    private fun startObservingLocalDb() {
+    private fun startObservingLocalDb(partnerId: String = _dashboardState.value.partnerId) {
         dbObservationJob?.cancel()
         dbObservationJob = viewModelScope.launch {
             val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             
             // Expose combine(myFlow, partnerFlow) from Room repository
-            partnerRepository.getCombinedDashboardFlow(dateStr).collectLatest { combined ->
+            partnerRepository.getCombinedDashboardFlow(partnerId, dateStr).collectLatest { combined ->
                 val myAggregate = combined.myDaily
                 val partnerDaily = combined.partnerDaily
 
@@ -230,7 +261,7 @@ class HealthConnectViewModel @Inject constructor(
         }
 
         // Listen to partner's Firestore document and stream to Room (PTR-01)
-        startListeningToPartner(_dashboardState.value.coupleId, _dashboardState.value.partnerId)
+        startListeningToPartner(_dashboardState.value.coupleId, partnerId)
         
         viewModelScope.launch {
             val now = Instant.now()
@@ -260,7 +291,7 @@ class HealthConnectViewModel @Inject constructor(
     }
 
 
-    fun checkStatusAndFetchData() {
+    fun checkStatusAndFetchData(force: Boolean = true) {
         viewModelScope.launch {
             _dashboardState.value = _dashboardState.value.copy(isSyncing = true)
             _uiState.value = HealthConnectUiState.Loading
@@ -291,11 +322,11 @@ class HealthConnectViewModel @Inject constructor(
                 return@launch
             }
 
-            syncFromHealthConnectToRoom()
+            syncFromHealthConnectToRoom(force = force)
         }
     }
 
-    private suspend fun syncFromHealthConnectToRoom() {
+    private suspend fun syncFromHealthConnectToRoom(force: Boolean = true) {
         try {
             val now = Instant.now()
             val startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()
@@ -322,13 +353,25 @@ class HealthConnectViewModel @Inject constructor(
             }
 
             // 2. Upload MY daily aggregate (steps, activeMinutes, calories, avgHr) to couples/{coupleId}/daily/{myUid_date}
-            // strictly filtering for metrics enabled in sharing preferences, throttled to 15 minutes
+            // strictly filtering for metrics enabled in sharing preferences, throttled to 15 minutes unless forced
             val coupleId = _dashboardState.value.coupleId
             val myUid = _dashboardState.value.myUid
-            syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = false)
+            val partnerId = _dashboardState.value.partnerId
+
+            if (coupleId.isNotBlank() && coupleId != "couple_1") {
+                syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = force)
+            }
+
+            // 3. Actively sync PARTNER daily aggregate from Firestore (couples/{coupleId}/daily/{partnerId_date}) into Room
+            if (coupleId.isNotBlank() && coupleId != "couple_1" && partnerId.isNotBlank() && partnerId != "partner_1") {
+                try {
+                    partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+                } catch (e: Exception) {
+                    Log.w("Sync", "Explicit partner remote sync failed: ${e.message}")
+                }
+            }
 
             _dashboardState.value = _dashboardState.value.copy(
-                isSyncing = false,
                 lastSyncedAt = now
             )
             
@@ -336,22 +379,29 @@ class HealthConnectViewModel @Inject constructor(
             
         } catch (e: Exception) {
             Log.e("Sync", "Partial/failed sync", e)
-            _dashboardState.value = _dashboardState.value.copy(isSyncing = false)
             _uiState.value = HealthConnectUiState.Empty
+        } finally {
+            _dashboardState.value = _dashboardState.value.copy(isSyncing = false)
         }
     }
 
     /**
      * Called on app foreground:
-     * Triggers syncOnAppForeground to upload MY aggregate and refresh Health Connect
+     * Triggers syncOnAppForeground to upload MY aggregate and refresh Health Connect and partner data
      */
     fun onAppForeground() {
         viewModelScope.launch {
             val dateStr = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
             val coupleId = _dashboardState.value.coupleId
             val myUid = _dashboardState.value.myUid
-            syncRepository.syncOnAppForeground(coupleId, myUid, dateStr)
-            checkStatusAndFetchData()
+            val partnerId = _dashboardState.value.partnerId
+            if (coupleId.isNotBlank() && coupleId != "couple_1") {
+                syncRepository.syncOnAppForeground(coupleId, myUid, dateStr)
+                if (partnerId.isNotBlank() && partnerId != "partner_1") {
+                    partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+                }
+            }
+            checkStatusAndFetchData(force = false)
         }
     }
 

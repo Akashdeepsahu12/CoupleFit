@@ -50,7 +50,8 @@ class PartnerRepositoryImpl @Inject constructor(
         defaultSteps: Long
     ) = kotlinx.coroutines.withContext(Dispatchers.IO) {
         val existing = healthDao.getPartnerDaily(partnerId, dateStr)
-        if (existing == null || existing.steps == 0L) {
+        val isDemoPartner = partnerId == "partner_1" || partnerId == "partner_demo" || partnerId.startsWith("demo_")
+        if ((existing == null || existing.steps == 0L) && isDemoPartner) {
             val docId = "${partnerId}_$dateStr"
             val activeMins = (defaultSteps / 150).coerceAtLeast(35L)
             val calories = (defaultSteps * 0.042).toLong().coerceAtLeast(310L)
@@ -116,6 +117,92 @@ class PartnerRepositoryImpl @Inject constructor(
         }
     }
 
+    private fun parseLong(value: Any?, default: Long = 0L): Long {
+        return when (value) {
+            is Number -> value.toLong()
+            is String -> value.toLongOrNull() ?: default
+            else -> default
+        }
+    }
+
+    private fun parseDouble(value: Any?, default: Double = 0.0): Double {
+        return when (value) {
+            is Number -> value.toDouble()
+            is String -> value.toDoubleOrNull() ?: default
+            else -> default
+        }
+    }
+
+    private fun parseTimestamp(value: Any?, fallback: Long = System.currentTimeMillis()): Long {
+        return when (value) {
+            is com.google.firebase.Timestamp -> value.toDate().time
+            is Number -> value.toLong()
+            is java.util.Date -> value.time
+            is String -> value.toLongOrNull() ?: fallback
+            else -> fallback
+        }
+    }
+
+    private fun parsePartnerDaily(
+        docId: String,
+        partnerUid: String,
+        dateStr: String,
+        data: Map<String, Any>?
+    ): PartnerDailyEntity {
+        val map = data ?: emptyMap()
+        val steps = parseLong(map["steps"])
+        val activeMinutes = parseLong(map["activeMinutes"])
+        val calories = parseLong(map["calories"])
+        val avgHr = parseDouble(map["avgHr"] ?: map["averageHeartRate"])
+        val avgSpo2 = parseDouble(map["avgSpo2"] ?: map["averageOxygenSaturation"])
+        val lastUpdated = parseTimestamp(map["lastUpdated"] ?: map["updatedAt"])
+
+        return PartnerDailyEntity(
+            id = docId,
+            partnerId = partnerUid,
+            dateStr = dateStr,
+            steps = steps,
+            activeMinutes = activeMinutes,
+            calories = calories,
+            avgHr = avgHr,
+            avgSpo2 = avgSpo2,
+            lastUpdated = lastUpdated
+        )
+    }
+
+    override suspend fun syncPartnerDailyFromRemote(
+        coupleId: String,
+        partnerUid: String,
+        dateStr: String
+    ): Result<PartnerDailyEntity?> = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        if (coupleId.isBlank() || partnerUid.isBlank() || coupleId == "couple_1" || partnerUid == "partner_1") {
+            return@withContext Result.success(null)
+        }
+        try {
+            val docId = "${partnerUid}_$dateStr"
+            val docRef = firestore.collection("couples")
+                .document(coupleId)
+                .collection("daily")
+                .document(docId)
+
+            val snapshot = kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                docRef.get().await()
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val partnerDaily = parsePartnerDaily(docId, partnerUid, dateStr, snapshot.data)
+                healthDao.insertPartnerDaily(partnerDaily)
+                Timber.d("Direct remote sync cached partner daily to Room: $docId (steps: ${partnerDaily.steps})")
+                Result.success(partnerDaily)
+            } else {
+                Timber.d("No remote daily document found yet for $docId")
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            Timber.w(e, "Failed direct remote sync for partner daily: couples/$coupleId/daily/${partnerUid}_$dateStr")
+            Result.failure(e)
+        }
+    }
+
     /**
      * Listens to partner's daily document at couples/{coupleId}/daily/{partnerUid_date}.
      * When remote snapshots arrive, writes directly to Room table 'partnerDaily'.
@@ -139,32 +226,10 @@ class PartnerRepositoryImpl @Inject constructor(
             }
 
             if (snapshot != null && snapshot.exists()) {
-                val data = snapshot.data ?: emptyMap<String, Any>()
-                val steps = (data["steps"] as? Number)?.toLong() ?: 0L
-                val activeMinutes = (data["activeMinutes"] as? Number)?.toLong() ?: 0L
-                val calories = (data["calories"] as? Number)?.toLong() ?: 0L
-                val avgHr = (data["avgHr"] as? Number)?.toDouble()
-                    ?: ((data["averageHeartRate"] as? Number)?.toDouble() ?: 0.0)
-                val avgSpo2 = (data["avgSpo2"] as? Number)?.toDouble()
-                    ?: ((data["averageOxygenSaturation"] as? Number)?.toDouble())
-                val lastUpdated = (data["lastUpdated"] as? Number)?.toLong()
-                    ?: ((data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis())
-
-                val partnerDaily = PartnerDailyEntity(
-                    id = docId,
-                    partnerId = partnerUid,
-                    dateStr = dateStr,
-                    steps = steps,
-                    activeMinutes = activeMinutes,
-                    calories = calories,
-                    avgHr = avgHr,
-                    avgSpo2 = avgSpo2,
-                    lastUpdated = lastUpdated
-                )
-
+                val partnerDaily = parsePartnerDaily(docId, partnerUid, dateStr, snapshot.data)
                 repositoryScope.launch {
                     healthDao.insertPartnerDaily(partnerDaily)
-                    Timber.d("Cached partner daily doc to Room: $docId")
+                    Timber.d("Cached partner daily doc to Room via snapshot: $docId (steps: ${partnerDaily.steps})")
                 }
             }
         }

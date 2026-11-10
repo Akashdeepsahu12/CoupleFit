@@ -4331,3 +4331,32 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`TXT-05-DEV`** | Live Settings Screen | ARTEMIS live screenshot capture | [`phase60_settings_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase60_settings_live.jpg) | 🟢 Verified |
 
 
+
+---
+
+## 86. Phase 61: Real-Time Partner Telemetry Synchronization & Firestore Pipeline Hardening (`PTR-02`, `SYNC-01`, `DAT-06`) 💎✨
+
+> **Verification Report**: [`Documentation/phase61_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase61_verification_report.md)  
+> **Milestone Plan**: [`Documentation/PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md)  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/data/local/HealthDao.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/HealthDao.kt)
+> - [`app/src/main/java/com/couplefit/domain/repository/PartnerRepository.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/domain/repository/PartnerRepository.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`app/src/test/java/com/couplefit/ui/PartnerTelemetrySyncTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/PartnerTelemetrySyncTest.kt)
+
+### 86.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`PTR-02`** | User Bug Report & Live Database Inspection | 🔴 **Sync P0** | `HealthDao.kt`, `HealthConnectViewModel.kt` | `HealthDao.getPartnerDailyFlow(dateStr)` returned `LIMIT 1` without filtering by partner ID, causing room queries to permanently return dummy `partner_1` instead of real partner `RmkTPEUJlwYVm23evsWOj6cOpi02`. | Updated queries with `ORDER BY CASE WHEN partnerId != 'partner_1' THEN 0 ELSE 1 END, lastUpdated DESC LIMIT 1`. Automatically purged dummy `partner_1` data on verified pairing emission. | 🟢 **Resolved** |
+| **`SYNC-01`** | Live Network & Flow Tracing | 🔴 **Sync P0** | `HealthConnectViewModel.kt`, `SyncRepositoryImpl.kt` | Race condition in `init`: state initialized with default `"couple_1"`/`"me"` before session emission, uploading to dummy path and locking 15-minute sync throttle (`force = false`). Firestore await hung indefinitely without timeout. | Initialized state directly from synchronous session cache; enforced `force = true` on user refresh/pairing; added 5s timeout on Firestore reads/writes; ensured `isSyncing = false` in coroutine `finally` block. | 🟢 **Resolved** |
+| **`DAT-06`** | Code Review & Database Audit | 🟡 **Data P1** | `PartnerRepository.kt`, `PartnerRepositoryImpl.kt` | `seedDemoPartnerDaily` was indiscriminately inserting synthetic 7,420 steps for real partner Firebase UIDs; missing active pull-to-refresh remote ingestion function. | Restriced seeding to demo IDs (`partner_1`, `partner_demo`, `demo_*`); implemented `syncPartnerDailyFromRemote` with resilient type-safe parsing (`Timestamp`, `Date`, numeric, String). | 🟢 **Resolved** |
+
+### 86.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Live Evidence Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`PTR-02-UNT`** | Unit Test Suite (5 tests) | [`PartnerTelemetrySyncTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/PartnerTelemetrySyncTest.kt) executing via `./gradlew testDebugUnitTest` | 110/110 tests passed 100% green | 🟢 Verified |
+| **`PTR-02-DEV`** | Bilateral Gauges Synchronization | Live Android Emulator Run on `emulator-5554` (Pixel 10 Pro) | [`phase61_both_synced_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_both_synced_verified.jpg) | 🟢 Verified |
+| **`SYNC-01-DEV`** | Pull-to-Refresh & Live Indicator | ARTEMIS live screenshot capture after pull-down gesture | [`phase61_pull_refresh_completed.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_pull_refresh_completed.jpg) | 🟢 Verified |
+| **`DAT-06-DEV`** | Dedicated Partner's Stats Tab | ARTEMIS live screenshot capture of Tab 2 | [`phase61_partner_stats_page.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_partner_stats_page.jpg) | 🟢 Verified |

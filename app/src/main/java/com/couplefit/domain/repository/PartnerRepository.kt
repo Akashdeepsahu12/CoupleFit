@@ -20,6 +20,13 @@ interface PartnerRepository {
     fun listenToPartnerDaily(coupleId: String, partnerUid: String, dateStr: String): Flow<PartnerDailyEntity?>
 
     /**
+     * Actively fetches the latest partner daily document from Firestore:
+     * couples/{coupleId}/daily/{partnerUid}_{dateStr}
+     * Writes into Room table 'partnerDaily' and returns the entity (PTR-02).
+     */
+    suspend fun syncPartnerDailyFromRemote(coupleId: String, partnerUid: String, dateStr: String): Result<PartnerDailyEntity?>
+
+    /**
      * Directly inserts/updates partner daily entity in Room.
      */
     suspend fun savePartnerDaily(entity: PartnerDailyEntity)

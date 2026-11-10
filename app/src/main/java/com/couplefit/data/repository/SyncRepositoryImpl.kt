@@ -73,12 +73,14 @@ class SyncRepositoryImpl @Inject constructor(
 
             // 5. Upload to couples/{coupleId}/daily/{myUid_date}
             val docId = "${myUid}_$dateStr"
-            firestore.collection("couples")
-                .document(coupleId)
-                .collection("daily")
-                .document(docId)
-                .set(payload, SetOptions.merge())
-                .await()
+            kotlinx.coroutines.withTimeoutOrNull(5000L) {
+                firestore.collection("couples")
+                    .document(coupleId)
+                    .collection("daily")
+                    .document(docId)
+                    .set(payload, SetOptions.merge())
+                    .await()
+            }
 
             // 6. Record last sync timestamp
             dataStore.updateLastSyncTimestamp(now)

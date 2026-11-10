@@ -1354,3 +1354,29 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
 - **Release Tag**: `v2.9.46-text-color-contrast`
 
 
+
+---
+
+## Phase 61: Real-Time Partner Telemetry Synchronization & Firestore Pipeline Hardening (`PTR-02`, `SYNC-01`, `DAT-06`) 💎✨
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md)
+- **Verification Report**: [`Documentation/phase61_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase61_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **HealthDao Query Priority & Partner Demarcation (`HealthDao.kt` - `PTR-02`)**:
+     - Updated `getPartnerDailyFlow(dateStr)` and `getPartnerDaily(dateStr)` to prioritize real linked partners over dummy seed data:
+       `ORDER BY CASE WHEN partnerId != 'partner_1' THEN 0 ELSE 1 END, lastUpdated DESC LIMIT 1`.
+     - Automatically purges dummy `partner_1` data from Room on verified partner emission in `observeUserSessionAndPartnerSync`.
+  2. **Synchronous Session Pre-population & Throttling Fix (`HealthConnectViewModel.kt`, `SyncRepositoryImpl.kt` - `SYNC-01`)**:
+     - Pre-populated initial UI state directly from `authManager.getCurrentSession()` synchronous cache, eliminating the split-second fallback to dummy `"couple_1"`/`"me"` that was locking the 15-minute throttle lock.
+     - Enforced `force = true` during pairing events and user pull-to-refresh.
+     - Added 5-second resilient timeouts (`withTimeoutOrNull(5000L)`) on all Firestore reads and writes to eliminate coroutine deadlocks.
+     - Guaranteed `isSyncing = false` reset using a coroutine `finally` block, fixing the permanently stuck pull-to-refresh spinner.
+  3. **Explicit Remote Ingestion & Polymorphic Timestamp Parsing (`PartnerRepositoryImpl.kt` - `DAT-06`)**:
+     - Restricted `seedDemoPartnerDaily` strictly to demo accounts (`partner_1`, `partner_demo`, `demo_*`), preventing real linked partners from ever receiving synthetic mock steps.
+     - Implemented `syncPartnerDailyFromRemote(coupleId, partnerUid, dateStr)` with support for Firestore `Timestamp`, Java `Date`, numeric epoch, and String dates.
+  4. **Automated Unit Testing & Compilation**:
+     - 110/110 unit tests passed 100% green (`testDebugUnitTest`).
+     - `compileDebugAndroidTestKotlin` compiled with 0 errors.
+  5. **Live Device Verification on Android Emulator (`emulator-5554`)**:
+     - Live ARTEMIS verification on Pixel 10 Pro emulator: confirmed `0 steps` on cold start, real partner binding `RmkTPEUJlwYVm23evsWOj6cOpi02`, dynamic gauge update to `8,420 steps` (`56m`, `353 kcal`, `Last updated just now • Live ⚡`), user gauge update to `1,000 steps`, real-time competition difference calculation (`⚡ Partner is leading by 7420 steps!`), and smooth pull-to-refresh completion (`You & Partner are in sync • Updated 7:18 PM`).
+- **Release Tag**: `v2.9.47-partner-sync-hardening`

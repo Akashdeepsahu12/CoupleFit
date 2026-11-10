@@ -687,3 +687,14 @@ graph TD
   - `Documentation/phase60_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, Trends, Couple Hub, and Settings on Google Pixel 10 Pro (`emulator-5554`).
 
 
+
+### Phase 61: Real-Time Partner Telemetry Synchronization & Firestore Pipeline Hardening (PTR-02, SYNC-01, DAT-06) 🟢 Resolved
+- **Domain**: Real-Time Partner Sync, Room SSOT Priority Ordering, Cold-Start Race Elimination & Resilient Timeouts
+- **Milestone Tag**: `v2.9.47-partner-sync-hardening`
+- **Nodes & Edges**:
+  - `PTR-02`: Fixed `HealthDao.kt` query ordering with `ORDER BY CASE WHEN partnerId != 'partner_1' THEN 0 ELSE 1 END, lastUpdated DESC LIMIT 1`, eliminating dummy `partner_1` seed hijacking.
+  - `HealthConnectViewModel.kt`: Pre-populated initial UI state directly from `authManager.getCurrentSession()` synchronous cache, eliminating split-second `couple_1`/`me` fallback; purged dummy `partner_1` on verified pairing emission; wrapped `isSyncing = false` in `finally` block to fix frozen pull-to-refresh spinner.
+  - `SYNC-01`: Added 5-second resilient timeouts (`withTimeoutOrNull(5000L)`) on Firestore reads and writes in `SyncRepositoryImpl.kt` and `PartnerRepositoryImpl.kt`.
+  - `DAT-06`: Restricted `seedDemoPartnerDaily` in `PartnerRepositoryImpl.kt` strictly to demo accounts (`partner_1`, `partner_demo`, `demo_*`); implemented `syncPartnerDailyFromRemote` with polymorphic timestamp parsing (`Timestamp`, `Date`, numeric, String).
+  - `PartnerTelemetrySyncTest.kt`: 5-test unit suite verifying bilateral state mapping, 10,000-step dual ring celebration, empty state fallback, linked couple/partner persistence, and DAO sort comparator priority (110/110 tests passed 100% green).
+  - `Documentation/phase61_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) verifying real-time partner gauge increment, smooth pull-to-refresh completion, and dedicated Partner's Stats tab.
