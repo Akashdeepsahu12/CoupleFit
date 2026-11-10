@@ -699,6 +699,17 @@ graph TD
   - `PartnerTelemetrySyncTest.kt`: 5-test unit suite verifying bilateral state mapping, 10,000-step dual ring celebration, empty state fallback, linked couple/partner persistence, and DAO sort comparator priority (110/110 tests passed 100% green).
   - `Documentation/phase61_verification_report.md` -> Live hardware screenshot verification on Google Pixel 10 Pro (`emulator-5554`) verifying real-time partner gauge increment, smooth pull-to-refresh completion, and dedicated Partner's Stats tab.
 
+### Phase 62: Background Synchronization Pipeline Rewire & Recent Partner Telemetry Fallback (SYNC-02, WRK-02, WRK-03, PTR-03) 🟢 Resolved
+- **Domain**: WorkManager 15-Minute Periodic Background Sync, Health Connect Changes API Autonomous Ingestion, Dynamic Session Extraction & Timezone-Resilient Telemetry Fallback
+- **Milestone Tag**: `v2.9.48-background-sync-rewire`
+- **Nodes & Edges**:
+  - `WRK-02` (`SyncWorker.kt`): Completely rewired `SyncWorker` with Hilt Assisted Injection. Pulls Health Connect Changes API, extracts active `UserSession` via `FirebaseAuthManager`, uploads daily aggregates to `couples/{coupleId}/daily/{myUid}_{dateStr}` with `force = true`, and ingests partner updates directly into Room SSOT.
+  - `WRK-03` (`CoupleFitApplication.kt`): Enqueued 15-minute `PeriodicWorkRequest` with `NetworkType.CONNECTED` constraints via `WorkManager.getInstance(this).enqueueUniquePeriodicWork("CoupleFitSyncWorker", ExistingPeriodicWorkPolicy.KEEP, syncRequest)`.
+  - `SYNC-03` (`HealthRepositoryImpl.kt`): Eliminated dead dummy IDs (`"current_user"`, `"partner_user"`) and legacy `FirebaseSyncManager` writes to unauthorized paths; bound directly to `SyncRepository` and `PartnerRepository`.
+  - `PTR-03` (`HealthDao.kt`, `PartnerRepositoryImpl.kt`, `HealthConnectViewModel.kt`): Added `getLatestPartnerDaily` to Room DAO and fallback logic for previous day (`minusDays(1)`) in `syncPartnerDailyFromRemote`. Bound `HealthConnectViewModel` to show previous day's telemetry contextually (`"Yesterday • Last updated 5h ago • Cached"`) without dropping gauges to 0 across date boundaries.
+  - `BackgroundSyncWorkerTest.kt`: 3-test deterministic unit suite verifying Health Connect Changes API triggering, authenticated session sync, and unlinked session gating (115/115 tests passed 100% green).
+  - `Documentation/phase62_verification_report.md` -> Live ARTEMIS verification on `emulator-5554` confirming autonomous `SyncWorker` completion (`Result.SUCCESS`), user gauge (1,000 steps), and partner gauge persistence (8,420 steps).
+
 ### Phase 63: Comprehensive Skills & Specialist Agents Ecosystem Synchronization (AGT-01, SKL-01) 🟢 Resolved
 - **Domain**: Antigravity SDLC Ecosystem, Specialist Subagents Catalog & Modular Skills Integration
 - **Milestone Tag**: `v2.9.48-skills-agents-sync`
