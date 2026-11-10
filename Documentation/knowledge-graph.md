@@ -664,3 +664,14 @@ graph TD
   - `Theme.kt` -> Bound dynamic adaptive typography and hero metrics, wrapped `MaterialTheme` inside `CompositionLocalProvider(LocalHeroMetricDisplay provides adaptiveHeroMetric)`.
   - `AdaptiveTypographyTest.kt` -> 5-test unit suite verifying scale rungs, proportional sizing, monotonic growth, and tabular numerals preservation (100% green bar).
   - `Documentation/phase58_verification_report.md` -> Live hardware screenshot verification across Today dashboard on Google Pixel 10 Pro (`emulator-5554`).
+
+### Phase 59: Fixinglist Complete Convergence & Polish Wave (FIX-ALL-01) 🟢 Resolved
+- **Domain**: Simplicity-First Dead Code Pruning, 3D Specular Shine & Living Presence Halo
+- **Milestone Tag**: `v2.9.45-fixinglist-convergence`
+- **Nodes & Edges**:
+  - `FIX-ALL-01`: 100% resolution and verification of all 185 issues in `Fixinglist.md`.
+  - `KRP-05` & `KRP-06`: Pruned dead uncalled files `SmoothScrollPhysics.kt`, `SpinningCounter.kt`, `ReelDigit.kt`, `SpinConfig.kt`, and removed conflicting `.lenisScroll()` in `DashboardScreen.kt`.
+  - `REL-01`: Living partner presence breathing radial glow halo behind avatar in `CoupleHubScreen.kt`.
+  - `ANM-08`: Trophy 3D specular shine sweep (`Brush.linearGradient`) and interactive tap celebration scale in `ChallengesScreen.kt`.
+  - `Documentation/phase59_verification_report.md` -> Live hardware screenshot verification across Today, Challenges, and Couple Hub tabs on Google Pixel 10 Pro (`emulator-5554`).
+

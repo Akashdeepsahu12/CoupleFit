@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**phase59_verification_report.md**](phase59_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 59 verification report: Complete Fixinglist convergence pass, dead code pruning (`KRP-05`, `KRP-06`), trophy 3D shine (`ANM-08`), and partner presence halo (`REL-01`). |
+| [**PLAN_PHASE_59_FIXINGLIST_CONVERGENCE.md**](PLAN_PHASE_59_FIXINGLIST_CONVERGENCE.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 59 milestone plan: Fixinglist Complete Convergence & Polish Wave (`FIX-ALL-01`). |
 | [**phase58_verification_report.md**](phase58_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 58 verification report: Adaptive Responsive Typography System across window size classes, LocalHeroMetricDisplay token, and live device proof (`TYP-06`, `ADP-01`). |
 | [**PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md**](PLAN_PHASE_58_ADAPTIVE_TYPOGRAPHY.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 58 milestone plan: Adaptive Responsive Typography System across Window Size Classes (`TYP-06`, `ADP-01`). |
 | [**phase57_verification_report.md**](phase57_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 57 verification report: Rollback of EGM automated UI alterations, restoration of Phase 51 UI and AGSL glass engine, and device verification (EGM-REV-01). |

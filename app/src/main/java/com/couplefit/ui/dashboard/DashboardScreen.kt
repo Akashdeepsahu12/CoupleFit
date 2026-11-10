@@ -75,10 +75,7 @@ import androidx.compose.animation.core.animateFloat
 import com.couplefit.ui.components.ActivityRing
 import com.couplefit.ui.components.MotionArcProgressGauge
 import com.couplefit.ui.components.MotionPillChip
-import com.couplefit.ui.components.SpinConfig
-import com.couplefit.ui.components.SpinningCounter
 import com.couplefit.ui.components.WeeklyStreakRow
-import com.couplefit.ui.components.lenisScroll
 import com.couplefit.ui.components.ChartDataPoint
 import com.couplefit.ui.challenge.ActiveChallengePreviewCard
 import com.couplefit.ui.components.InteractiveChart
@@ -239,7 +236,7 @@ fun DashboardScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize().pullRefresh(pullRefreshState).lenisScroll()) {
+    Box(modifier = modifier.fillMaxSize().pullRefresh(pullRefreshState)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

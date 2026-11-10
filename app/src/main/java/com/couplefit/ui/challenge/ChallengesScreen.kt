@@ -2,9 +2,11 @@ package com.couplefit.ui.challenge
 
 import com.couplefit.ui.theme.duelCardPress
 import com.couplefit.ui.theme.iosGlass
+import com.couplefit.ui.theme.iosClickable
+import com.couplefit.ui.theme.CoupleFitHaptics
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,8 +26,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -635,19 +642,70 @@ private fun TrophyBadge(
     progress: Float = 1.0f,
     progressText: String = "Completed"
 ) {
+    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
+    var isTapped by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isTapped) 1.15f else 1.0f,
+        animationSpec = spring(dampingRatio = 0.65f, stiffness = Spring.StiffnessMedium),
+        finishedListener = { isTapped = false },
+        label = "trophyScale"
+    )
+
+    // ANM-08: Apple Watch-style 3D specular shine sweep
+    val infiniteTransition = rememberInfiniteTransition(label = "trophyShine")
+    val shineOffset by infiniteTransition.animateFloat(
+        initialValue = -1.2f,
+        targetValue = 2.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shineOffset"
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .width(96.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .semantics {
                 contentDescription = "$title: $subtitle ($progressText)"
             }
+            .then(
+                if (isUnlocked) {
+                    Modifier.iosClickable(pressedScale = 0.92f) {
+                        isTapped = true
+                        CoupleFitHaptics.performCelebration(context, haptic)
+                    }
+                } else Modifier
+            )
     ) {
         Surface(
             shape = CircleShape,
             color = if (isUnlocked) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.size(52.dp)
+            modifier = Modifier
+                .size(52.dp)
+                .then(
+                    if (isUnlocked) {
+                        Modifier.background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.White.copy(alpha = 0.28f),
+                                    Color.Transparent
+                                ),
+                                start = Offset(shineOffset * 100f, 0f),
+                                end = Offset(shineOffset * 100f + 50f, 100f)
+                            ),
+                            shape = CircleShape
+                        )
+                    } else Modifier
+                )
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Text(

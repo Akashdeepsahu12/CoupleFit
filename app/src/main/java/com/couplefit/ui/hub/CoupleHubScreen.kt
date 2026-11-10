@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,6 +66,27 @@ fun CoupleHubScreen(
     val heartScale = remember { Animatable(1f) }
     val rippleProgress = remember { Animatable(0f) }
     var heartbeatBannerVisible by remember { mutableStateOf(false) }
+
+    // REL-01: Living Partner Presence Breathing Radial Glow Halo
+    val infiniteTransition = rememberInfiniteTransition(label = "livingPresenceTransition")
+    val presenceGlowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.25f,
+        targetValue = 0.70f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "presenceGlowAlpha"
+    )
+    val presenceRadiusMultiplier by infiniteTransition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "presenceRadiusMultiplier"
+    )
 
     fun triggerHeartbeat() {
         CoupleFitHaptics.performHeartbeat(context, haptic)
@@ -150,6 +172,23 @@ fun CoupleHubScreen(
                                             }
                                         }
                                 ) {
+                                    // REL-01: Living Partner Presence Breathing Halo
+                                    if (isConnected) {
+                                        Canvas(modifier = Modifier.fillMaxSize()) {
+                                            val maxRadius = size.minDimension / 2f
+                                            drawCircle(
+                                                brush = Brush.radialGradient(
+                                                    colors = listOf(
+                                                        CoupleFitIdentityTokens.PartnerPrimary.copy(alpha = presenceGlowAlpha * 0.40f),
+                                                        CoupleFitIdentityTokens.PartnerPrimary.copy(alpha = presenceGlowAlpha * 0.12f),
+                                                        Color.Transparent
+                                                    ),
+                                                    radius = maxRadius * presenceRadiusMultiplier
+                                                ),
+                                                radius = maxRadius * presenceRadiusMultiplier
+                                            )
+                                        }
+                                    }
                                     if (rippleProgress.value > 0f && rippleProgress.value < 1f) {
                                         val r = rippleProgress.value
                                         Canvas(modifier = Modifier.fillMaxSize()) {
