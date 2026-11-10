@@ -23,7 +23,6 @@ class PartnerRepositoryImpl @Inject constructor(
 ) : PartnerRepository {
 
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
-    private val dbWriteDispatcher = Dispatchers.IO.limitedParallelism(1)
 
     override fun getPartnerDailyFlow(partnerId: String, dateStr: String): Flow<PartnerDailyEntity?> {
         return healthDao.getPartnerDailyFlow(partnerId, dateStr)
@@ -148,14 +147,8 @@ class PartnerRepositoryImpl @Inject constructor(
                     ?: ((data["averageHeartRate"] as? Number)?.toDouble() ?: 0.0)
                 val avgSpo2 = (data["avgSpo2"] as? Number)?.toDouble()
                     ?: ((data["averageOxygenSaturation"] as? Number)?.toDouble())
-                // Robust polymorphic timestamp parsing (DAT-02)
-                val lastUpdatedRaw = data["lastUpdated"] ?: data["updatedAt"]
-                val lastUpdated = when (lastUpdatedRaw) {
-                    is Number -> lastUpdatedRaw.toLong()
-                    is com.google.firebase.Timestamp -> lastUpdatedRaw.toDate().time
-                    is String -> lastUpdatedRaw.toLongOrNull() ?: System.currentTimeMillis()
-                    else -> System.currentTimeMillis()
-                }
+                val lastUpdated = (data["lastUpdated"] as? Number)?.toLong()
+                    ?: ((data["updatedAt"] as? Number)?.toLong() ?: System.currentTimeMillis())
 
                 val partnerDaily = PartnerDailyEntity(
                     id = docId,
@@ -169,15 +162,9 @@ class PartnerRepositoryImpl @Inject constructor(
                     lastUpdated = lastUpdated
                 )
 
-                // Monotonic sequential DB write fence (DAT-05, PERF-01)
-                repositoryScope.launch(dbWriteDispatcher) {
-                    val existing = healthDao.getPartnerDaily(partnerUid, dateStr)
-                    if (existing == null || partnerDaily.lastUpdated >= existing.lastUpdated) {
-                        healthDao.insertPartnerDaily(partnerDaily)
-                        Timber.d("Cached partner daily doc to Room: $docId (updated: ${partnerDaily.lastUpdated})")
-                    } else {
-                        Timber.d("Ignored stale partner daily snapshot for $docId (existing: ${existing.lastUpdated} > incoming: ${partnerDaily.lastUpdated})")
-                    }
+                repositoryScope.launch {
+                    healthDao.insertPartnerDaily(partnerDaily)
+                    Timber.d("Cached partner daily doc to Room: $docId")
                 }
             }
         }

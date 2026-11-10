@@ -87,19 +87,9 @@ fun AmbientVideoBackground(
         label = "ambientVideoFadeIn"
     )
 
-    // Reset rendering state and swap media item when videoResId changes on an active player
-    LaunchedEffect(videoResId, exoPlayerRef) {
+    // Reset rendering state on video change
+    LaunchedEffect(videoResId) {
         isVideoRendering = false
-        exoPlayerRef?.let { player ->
-            try {
-                val rawUri = RawResourceDataSource.buildRawResourceUri(videoResId)
-                player.setMediaItem(MediaItem.fromUri(rawUri))
-                player.prepare()
-                player.playWhenReady = !reduceMotion
-            } catch (e: Exception) {
-                Log.w(TAG, "Error switching ExoPlayer videoResId to $videoResId", e)
-            }
-        }
     }
 
     // Safety fallback: ensure fade-in completes even if hardware omits onRenderedFirstFrame
@@ -110,7 +100,7 @@ fun AmbientVideoBackground(
         }
     }
 
-    // Lifecycle observer for battery/CPU preservation and leak-free disposal
+    // Lifecycle observer for battery/CPU preservation
     DisposableEffect(lifecycleOwner, exoPlayerRef) {
         val observer = LifecycleEventObserver { _, event ->
             val player = exoPlayerRef ?: return@LifecycleEventObserver
@@ -137,16 +127,6 @@ fun AmbientVideoBackground(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            try {
-                exoPlayerRef?.run {
-                    playWhenReady = false
-                    release()
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Error releasing ExoPlayer on dispose", e)
-            }
-            exoPlayerRef = null
-            isVideoRendering = false
         }
     }
 

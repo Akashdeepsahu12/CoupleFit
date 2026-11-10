@@ -34,18 +34,12 @@ class PokeActionCallback : ActionCallback {
                 )
                 // Attempt to send nudge via repository if couple is paired
                 val partnerRepo = entryPoint.partnerRepository()
-                val sessionPrefs = context.applicationContext.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE)
-                val coupleId = sessionPrefs.getString("cached_couple_id", null) ?: "couple_1"
-                val partnerId = sessionPrefs.getString("cached_partner_id", null) ?: "partner_1"
-                val myUid = entryPoint.authManager().getCurrentSession()?.uid ?: sessionPrefs.getString("cached_user_id", null) ?: "user_1"
-                val senderName = sessionPrefs.getString("cached_display_name", "Partner") ?: "Partner"
-
                 // Send generic poke cheer to partner
                 partnerRepo.sendNudge(
-                    coupleId = coupleId,
-                    senderUid = myUid,
-                    senderName = senderName,
-                    recipientUid = partnerId,
+                    coupleId = "couple_1",
+                    senderUid = "user_1",
+                    senderName = "Partner",
+                    recipientUid = "partner_1",
                     message = "Poked you from Home Screen! 👋 Time to move!"
                 )
                 Timber.d("Successfully delivered widget poke nudge to partner")

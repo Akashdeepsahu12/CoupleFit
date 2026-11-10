@@ -32,7 +32,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -104,6 +107,7 @@ import java.time.format.FormatStyle
 import java.util.Locale
 
 @OptIn(
+    ExperimentalMaterialApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
@@ -205,6 +209,25 @@ fun DashboardScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = healthData.isSyncing,
+        onRefresh = {
+            isExplicitRefresh = true
+            healthConnectViewModel.checkStatusAndFetchData()
+            syncTrigger++
+        }
+    )
+
+    // Foreground fast-refresh loop (simulate 10s polling of local cache if flow wasn't active)
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10_000)
+            // Just increment sync trigger subtly, but we keep isExplicitRefresh = false 
+            // so we don't trigger the "dramatic" entrance animations on background tick
+            // In a real app this would trigger the DAO fetch if we weren't using Flow
+            syncTrigger++
+        }
+    }
 
     val todayFormatted = remember {
         try {
@@ -216,15 +239,7 @@ fun DashboardScreen(
         }
     }
 
-    PullToRefreshBox(
-        isRefreshing = healthData.isSyncing,
-        onRefresh = {
-            isExplicitRefresh = true
-            healthConnectViewModel.checkStatusAndFetchData()
-            syncTrigger++
-        },
-        modifier = modifier.fillMaxSize().lenisScroll()
-    ) {
+    Box(modifier = modifier.fillMaxSize().pullRefresh(pullRefreshState).lenisScroll()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -1469,6 +1484,15 @@ fun DashboardScreen(
             // Dock scroll clearance (GLS-10, APL-03)
             Spacer(modifier = Modifier.height(96.dp))
         }
+        
+        PullRefreshIndicator(
+            refreshing = healthData.isSyncing,
+            state = pullRefreshState,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding(),
+            contentColor = SystemRed
+        )
     }
 }
 

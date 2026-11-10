@@ -22,10 +22,10 @@
 -keep class androidx.glance.appwidget.** { *; }
 -keep class * extends androidx.glance.appwidget.GlanceAppWidget
 -keep class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver
--keep class * implements androidx.glance.appwidget.action.ActionCallback { <init>(); }
 
 # 5. Hilt / Dependency Injection
 -keep class * extends dagger.hilt.android.internal.managers.** { *; }
+-keep class * implements io.mockk.** { *; }
 -dontwarn dagger.hilt.**
 
 # 6. Firebase & Google Identity
@@ -41,11 +41,6 @@
 -keepclassmembers class * {
     @kotlinx.serialization.SerialName <fields>;
 }
--keepclassmembers class * {
-    @kotlinx.serialization.Serializable class *;
-}
--keep class * implements kotlinx.serialization.KSerializer { *; }
--keep class com.couplefit.data.model.** { *; }
 -dontwarn kotlinx.serialization.**
 
 # 8. ProfileInstaller

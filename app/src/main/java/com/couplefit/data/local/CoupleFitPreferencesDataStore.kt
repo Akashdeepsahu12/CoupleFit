@@ -295,10 +295,4 @@ class CoupleFitPreferencesDataStore @Inject constructor(
     suspend fun saveRelationshipType(type: String) {
         context.coupleFitDataStore.edit { it[KEY_RELATIONSHIP_TYPE] = type }
     }
-
-    suspend fun clearAll() {
-        context.coupleFitDataStore.edit { preferences ->
-            preferences.clear()
-        }
-    }
 }

@@ -9,7 +9,6 @@ import com.couplefit.data.model.UserSession
 import com.couplefit.data.remote.CoupleLinkManager
 import com.couplefit.data.remote.FirebaseAuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -37,8 +35,7 @@ class AuthViewModel @Inject constructor(
     private val authManager: FirebaseAuthManager,
     private val coupleLinkManager: CoupleLinkManager,
     private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
-    private val partnerRepository: com.couplefit.domain.repository.PartnerRepository,
-    private val healthDatabase: com.couplefit.data.local.HealthDatabase
+    private val partnerRepository: com.couplefit.domain.repository.PartnerRepository
 ) : ViewModel() {
 
     private val initialSession = authManager.getCurrentSession()
@@ -505,21 +502,9 @@ class AuthViewModel @Inject constructor(
     fun unlinkPartner(onComplete: () -> Unit = {}) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            val currentSession = _uiState.value.userSession ?: authManager.getCurrentSession()
-            val partnerId = currentSession?.partnerId
-            val coupleId = currentSession?.coupleId
             preferencesDataStore.setLinkedConfirmationShown(false)
             val result = coupleLinkManager.unlinkCouple()
             result.onSuccess {
-                withContext(Dispatchers.IO) {
-                    if (!partnerId.isNullOrBlank()) {
-                        healthDatabase.healthDao().deletePartnerData(partnerId)
-                        healthDatabase.healthDao().deletePartnerDailyData(partnerId)
-                    }
-                    if (!coupleId.isNullOrBlank()) {
-                        healthDatabase.healthDao().deleteCoupleChallenges(coupleId)
-                    }
-                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     currentStep = AuthFlowStep.InvitePartner,
@@ -545,10 +530,6 @@ class AuthViewModel @Inject constructor(
             preferencesDataStore.setLinkedConfirmationShown(false)
             val result = coupleLinkManager.deleteUserData()
             result.onSuccess {
-                withContext(Dispatchers.IO) {
-                    healthDatabase.clearAllTables()
-                    preferencesDataStore.clearAll()
-                }
                 authManager.signOut()
                 _uiState.value = AuthUiState(
                     currentStep = AuthFlowStep.SignIn,

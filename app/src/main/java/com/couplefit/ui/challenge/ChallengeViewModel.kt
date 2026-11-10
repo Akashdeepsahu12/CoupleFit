@@ -7,7 +7,6 @@ import com.couplefit.domain.repository.ChallengeRepository
 import com.couplefit.util.RemoteConfigManager
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +32,6 @@ class ChallengeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ChallengeUiState())
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
-    private var observeJob: Job? = null
 
     init {
         observeChallenges()
@@ -41,8 +39,7 @@ class ChallengeViewModel @Inject constructor(
 
     fun observeChallenges(coupleId: String = "couple_1", partnerUid: String = "partner_1") {
         val myUid = auth.currentUser?.uid ?: "me"
-        observeJob?.cancel()
-        observeJob = viewModelScope.launch {
+        viewModelScope.launch {
             challengeRepository.listenToCoupleChallenges(coupleId, myUid, partnerUid)
                 .collectLatest { list ->
                     val active = list.firstOrNull { it.status == "ACTIVE" }

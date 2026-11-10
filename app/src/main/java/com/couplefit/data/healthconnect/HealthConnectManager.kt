@@ -337,7 +337,6 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
         try {
             var currentToken = dataStore.getChangesToken()
             var shouldFullResync = false
-            var pendingToken: String? = null
 
             if (currentToken == null) {
                 Log.d(TAG, "Changes API: No token stored, performing initial full resync")
@@ -349,7 +348,7 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                     shouldFullResync = true
                 } else {
                     Log.d(TAG, "Changes API: Incremental update received (${changesResponse.changes.size} changes)")
-                    pendingToken = changesResponse.nextChangesToken
+                    dataStore.saveChangesToken(changesResponse.nextChangesToken)
                     shouldFullResync = changesResponse.changes.isNotEmpty()
                 }
             }
@@ -357,7 +356,7 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
             if (shouldFullResync) {
                 val freshToken = getChangesToken()
                 if (freshToken != null) {
-                    pendingToken = freshToken
+                    dataStore.saveChangesToken(freshToken)
                 }
             }
 
@@ -424,11 +423,6 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
                 healthDao.insertMetrics(hrEntities + o2Entities)
             }
 
-            // HC-02: Defer committing the next changes token until local database insertion succeeds
-            pendingToken?.let { token ->
-                dataStore.saveChangesToken(token)
-            }
-
             return Result.success(aggregateData)
         } catch (e: Exception) {
             Log.e(TAG, "Error in syncViaChangesApi", e)
@@ -463,6 +457,30 @@ class HealthConnectManager @Inject constructor(@ApplicationContext private val c
             steps.take(5).forEach { record ->
                 Log.d(TAG, "Diagnostic: Step record - count: ${record.count}, start: ${record.startTime}, source: ${record.metadata.dataOrigin.packageName}")
             }
+        }
+    }
+
+    suspend fun writeSampleSteps(count: Long = 1000L): Result<Unit> {
+        val client = getClient() ?: return Result.failure(IllegalStateException("Health Connect is not available"))
+        return try {
+            val endTime = Instant.now()
+            val startTime = endTime.minus(15, ChronoUnit.MINUTES)
+            val zoneOffset = ZoneId.systemDefault().rules.getOffset(endTime)
+            
+            val record = StepsRecord(
+                count = count,
+                startTime = startTime,
+                endTime = endTime,
+                startZoneOffset = zoneOffset,
+                endZoneOffset = zoneOffset,
+                metadata = androidx.health.connect.client.records.metadata.Metadata.manualEntry()
+            )
+            client.insertRecords(listOf(record))
+            Log.d(TAG, "Successfully wrote $count sample steps to Health Connect")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to write sample steps to Health Connect", e)
+            Result.failure(e)
         }
     }
 
