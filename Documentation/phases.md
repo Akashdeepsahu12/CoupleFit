@@ -1380,3 +1380,50 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
   5. **Live Device Verification on Android Emulator (`emulator-5554`)**:
      - Live ARTEMIS verification on Pixel 10 Pro emulator: confirmed `0 steps` on cold start, real partner binding `RmkTPEUJlwYVm23evsWOj6cOpi02`, dynamic gauge update to `8,420 steps` (`56m`, `353 kcal`, `Last updated just now • Live ⚡`), user gauge update to `1,000 steps`, real-time competition difference calculation (`⚡ Partner is leading by 7420 steps!`), and smooth pull-to-refresh completion (`You & Partner are in sync • Updated 7:18 PM`).
 - **Release Tag**: `v2.9.47-partner-sync-hardening`
+
+---
+
+## Phase 62: Background Synchronization Pipeline Rewire & Recent Partner Telemetry Fallback (`SYNC-02`, `WRK-02`, `WRK-03`, `PTR-03`) 💎⚙️
+- **Milestone Plan**: [`Documentation/PLAN_PHASE_62_BACKGROUND_SYNC_REWIRE.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_62_BACKGROUND_SYNC_REWIRE.md)
+- **Verification Report**: [`Documentation/phase62_verification_report.md`](file:///D:/Couple_fit/CoupleFit/Documentation/phase62_verification_report.md)
+- **Status**: Completed & Verified on Device (Google Pixel 10 Pro `emulator-5554`)
+- **Key Deliverables**:
+  1. **Background `SyncWorker` Modernization (`SyncWorker.kt` - `WRK-02`)**:
+     - Rewired `SyncWorker` to pull incremental sensor steps via `healthConnectManager.syncViaChangesApi(dataStore, healthDao)`.
+     - Injected `FirebaseAuthManager` to retrieve real authenticated session credentials.
+     - Uploads user steps to verified Firestore path `couples/{coupleId}/daily/{myUid}_{dateStr}` with `force = true`.
+     - Ingests partner daily telemetry into Room SSOT and refreshes Glance home widget.
+  2. **15-Minute WorkManager Scheduling (`CoupleFitApplication.kt` - `WRK-03`)**:
+     - Configured and enqueued recurring 15-minute `PeriodicWorkRequest` with `NetworkType.CONNECTED` constraint in `CoupleFitApplication.onCreate()`.
+  3. **`HealthRepositoryImpl.kt` Alignment (`SYNC-03`)**:
+     - Eliminated hardcoded dummy `"current_user"` / `"partner_user"` IDs and redirected `syncWithPartner()` to dynamic `SyncRepository` and `PartnerRepository`.
+  4. **Timezone & Date-Boundary Fallback Engine (`HealthDao.kt`, `PartnerRepositoryImpl.kt`, `HealthConnectViewModel.kt` - `PTR-03`)**:
+     - Added `getLatestPartnerDailyFlow` and `getLatestPartnerDaily` in `HealthDao`.
+     - Added fallback in `syncPartnerDailyFromRemote` to check previous day (`minusDays(1)`) if today's document is empty in Firestore.
+     - Formatted `HealthConnectViewModel` to display previous day's telemetry contextually (`"Yesterday • Last updated 5h ago • Cached"`) without resetting to 0.
+  5. **Automated Unit Testing & Device Verification**:
+     - 115/115 unit tests passed 100% green (`testDebugUnitTest`).
+     - `compileDebugAndroidTestKotlin` compiled with 0 errors.
+     - Live device verification on `emulator-5554` confirmed `SyncWorker` executed with `Result.SUCCESS`, uploaded user steps (`1,000 steps`), cached partner activity (`8,420 steps`), and eliminated zero-reset partner gauge drops.
+- **Release Tag**: `v2.9.48-background-sync-rewire`
+
+---
+
+## Phase 63: Comprehensive Skills & Specialist Agents Ecosystem Synchronization (`AGT-01`, `SKL-01`) 🤖🚀
+- **Target Specifications**: [`Documentation/agents1.md`](file:///D:/Couple_fit/CoupleFit/Documentation/agents1.md), [`Documentation/skillscommand.md`](file:///D:/Couple_fit/CoupleFit/Documentation/skillscommand.md), [`Documentation/MCP1.md`](file:///D:/Couple_fit/CoupleFit/Documentation/MCP1.md)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Git Plugin Ecosystem Rebase & Updates (`AGT-01`)**:
+     - Upstream rebase and fast-forward synchronization of all git repositories in `~/.gemini/config/plugins/`: `antislop` (v3.2.28), `ecc` (v2.2.3), `egm` (8f16812), `emilkowalski-skills` (715c180), `gsd-core` (v1.20.1 / `aa3bf0e98`), and `mobbin` (79124d9).
+  2. **118 Specialist Agents Catalog Expansion (`agents1.md`, `AGENTS.md` - `AGT-01`)**:
+     - Expanded `agents1.md` from 106 to 118 specialist agents across 5 ecosystem providers: ECC (71 agents), GSD-Core (35 agents), Google EGM (10 agents), Firebase Suite (1 agent: `firestore-rules-author`), and Motion Suite (1 agent: `motion-reviewer`).
+     - Aligned agent routing rules in `AGENTS.md`.
+  3. **1,727+ Modular Skills Directory Integration (`skillscommand.md` - `SKL-01`)**:
+     - Expanded `skillscommand.md` to catalog all 23 plugins & suites with 1,727+ skills.
+     - Added dedicated execution runbooks for Section 12 (Google Elephant-Goldfish Model Suite - 14 skills), Section 13 (Firebase Cloud Architecture & Security - 13 skills), Section 14 (Motion.dev Animation & Performance Suite), and Section 15 (Stitch UI & Design Systems Suite - 18 skills).
+  4. **Active System MCP Server Synchronization (`MCP1.md` - `SKL-01`)**:
+     - Updated `MCP1.md` with tool schemas and configurations for all 5 active system MCP servers: `artemis`, `ecc_chrome-devtools`, `motion`, `paper`, and `rea`.
+  5. **Deterministic Verification**:
+     - Local test suite (`testDebugUnitTest`) green with 100% pass rate.
+     - Android instrumented test compilation (`compileDebugAndroidTestKotlin`) green with 0 errors.
+- **Release Tag**: `v2.9.49-skills-agents-sync`

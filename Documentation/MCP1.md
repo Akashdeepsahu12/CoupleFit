@@ -1,7 +1,7 @@
 # Antigravity Ecosystem Model Context Protocol (MCP) Catalog (MCP1.md)
 
 > Comprehensive specification and configuration guide for all MCP servers and tools across the installed ecosystem:
-> - **Active & Available System MCP Servers**: `artemis`, `motion`
+> - **Active & Available System MCP Servers**: `artemis`, `ecc_chrome-devtools`, `motion`, `paper`, `rea`
 > - **ECC MCP Ecosystem** (`https://github.com/affaan-m/ecc`): `chrome-devtools`, `nexus`, `ito-compute`, and canonical registry
 > - **GSD-Core MCP Ecosystem** (`https://github.com/open-gsd/gsd-core`): `gsd-mcp-server` companion server & tools
 
@@ -19,21 +19,37 @@ Provides native Android and device automation, screen inspection, touch actions,
 - `mobile_manage_task`: Manages running tasks on devices (`list`, `status`, `stop`).
 - `mobile_run_task`: Dispatches exploratory or test automation tasks using Flash or Pro models.
 
-### 1.2 Motion Animation MCP Server (`motion`)
-Provides live access to Motion and Motion+ documentation, animation curves, and frame-rate diagnostics.
+### 1.2 Chrome DevTools MCP Server (`ecc_chrome-devtools`)
+Provides automated browser DOM inspection, element clicks, form fills, console logs, network analysis, lighthouse audits, and performance traces.
 
-**Configuration (`mcp.json`):**
-```json
-{
-  "mcpServers": {
-    "Motion": { "url": "https://mcp.motion.dev" },
-    "Motion+": { "url": "https://mcp.motion.dev/plus" }
-  }
-}
-```
+**Available Tools:**
+- `click`, `fill`, `hover`, `press_key`, `type_text`, `upload_file`, `wait_for`
+- `list_console_messages`, `get_console_message`, `list_network_requests`, `get_network_request`
+- `take_screenshot`, `take_snapshot`, `lighthouse_audit`, `performance_start_trace`, `performance_stop_trace`
+
+### 1.3 Motion Animation MCP Server (`motion`)
+Provides live access to Motion and Motion+ documentation, animation curves, and frame-rate diagnostics.
 
 **Available Tools:**
 - `search-motion-docs`: Real-time semantic search over Motion official API and animation guides.
+- `insert-motion-component`: Directly injects high-craft Motion animation components into projects.
+
+### 1.4 Paper Design MCP Server (`paper`)
+Provides visual canvas, artboard layout, design tokens, JSX extraction, screenshot capture, and node hierarchy management.
+
+**Available Tools:**
+- `open_file`, `create_file`, `create_artboard`, `create_page`, `update_pages`, `arrange_pages`
+- `get_tree_summary`, `get_node_info`, `get_children`, `get_screenshot`, `get_jsx`, `get_computed_styles`
+- `set_text_content`, `update_styles`, `get_tokens`, `create_tokens`, `set_tokens`, `export_combined_pdf`
+
+### 1.5 Reverse Engineer Anything MCP Server (`rea`)
+Provides enterprise binary analysis, decompilation, native load images, Mach-O/ELF/PE inspection, Frida instrumentation, Cutter/GDB debugging, ADB control, and runtime reconciliation.
+
+**Available Tools:**
+- Binary & Assembly: `inspect_pe_imports`, `inspect_elf_notes`, `inspect_macho`, `procedure_assembly`, `batch_decompile`
+- Debugging & Frida: `start_frida_session`, `load_frida_script`, `cutter_command`, `gdb_console`, `start_rizin_debug_session`
+- Mobile & Android: `inspect_android_package`, `inspect_android_class`, `pull_adb_file`, `start_adb_app`, `read_adb_logcat`
+- Web & Runtime: `trace_web_module_imports`, `observe_web_session`, `analyze_javascript_application`
 
 ---
 

@@ -43,9 +43,12 @@ This document establishes the binding development rules for any autonomous agent
 - `kotlin-reviewer`: Verifies Kotlin coroutines, Flow lifecycle, Compose state hoisting, Room database queries, and architectural purity.
 - `a11y-architect`: Verifies accessibility touch targets, semantics, color contrast (4.5:1 for body, 3:1 for large), and screen reader flow.
 - `security-reviewer`: Audits Health Connect permissions (strictly read-only), Firestore security rules, Firebase auth, and sensitive user vitals.
+- `firestore-rules-author`: Mandatory specialist agent for Cloud Firestore Security Rules (`firestore.rules`) authoring, refactoring, and adversarial testing.
 - `code-reviewer`: Reviews code quality, maintainability, defensive design, and idiomatic patterns.
 - `build-error-resolver`: Quickly diagnoses and resolves Gradle compilation and dependency issues with minimal diffs.
 - `performance-optimizer`: Analyzes Compose recomposition bounds, GPU overdraw, memory leaks, and frame rate stability.
+- `motion-reviewer`: Audits animation performance, MotionScore tiers (S/A/B/C/F), and frame budgets.
+- `egm-review`: Coordinates multi-persona documentation review swarms (`egm-design`, `egm-codebase-details`, `egm-style`, etc.).
 
 ---
 

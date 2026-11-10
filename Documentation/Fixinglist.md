@@ -4360,3 +4360,60 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PTR-02-DEV`** | Bilateral Gauges Synchronization | Live Android Emulator Run on `emulator-5554` (Pixel 10 Pro) | [`phase61_both_synced_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_both_synced_verified.jpg) | 🟢 Verified |
 | **`SYNC-01-DEV`** | Pull-to-Refresh & Live Indicator | ARTEMIS live screenshot capture after pull-down gesture | [`phase61_pull_refresh_completed.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_pull_refresh_completed.jpg) | 🟢 Verified |
 | **`DAT-06-DEV`** | Dedicated Partner's Stats Tab | ARTEMIS live screenshot capture of Tab 2 | [`phase61_partner_stats_page.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase61_partner_stats_page.jpg) | 🟢 Verified |
+
+
+---
+
+## 87. Phase 62: Deep Sync Diagnostics — Firestore Bilateral Telemetry & Background Sync Verification (`SYNC-02`) 🔍📡
+
+> **Investigation Date**: November 11, 2026  
+> **Target Files**:
+> - [`app/src/main/java/com/couplefit/service/SyncWorker.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/service/SyncWorker.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/HealthRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/HealthRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+
+### 87.1 Master Defect & Diagnostic Findings Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-02`** | User Bug Report & Live Device Inspection | 🔴 **Sync Pipeline** | `SyncWorker.kt`, `HealthRepositoryImpl.kt`, `HealthConnectViewModel.kt` | User reported inability to sync data with partner: (1) Background worker called legacy `HealthRepositoryImpl.syncWithPartner()` using dummy IDs (`current_user`, `partner_user`) targeting dead path `users/{userId}/sharedView`; (2) Background `SyncWorker` was never scheduled in `CoupleFitApplication.onCreate()`; (3) Midnight & timezone boundary caused partner gauge to drop to 0 steps with "Awaiting sync" when today's record wasn't present. | (1) Rewired `SyncWorker.kt` to pull Health Connect Changes API, fetch active session, and push/pull to `couples/{coupleId}/daily/...` with `force = true`; (2) Enqueued 15-min `PeriodicWorkRequest` in `CoupleFitApplication.kt`; (3) Implemented recent telemetry fallback in `HealthDao`, `PartnerRepository`, and `HealthConnectViewModel`. | 🟢 **Resolved** |
+| **`WRK-02`** | Background Worker Modernization | 🔴 **Worker P0** | `SyncWorker.kt` | `SyncWorker` lacked dependency injection for modern sync repositories and Health Connect Changes API. | Injected `HealthConnectManager`, `CoupleFitPreferencesDataStore`, `HealthDao`, `SyncRepository`, `PartnerRepository`, and `FirebaseAuthManager` via `@HiltWorker` and `@AssistedInject`. | 🟢 **Resolved** |
+| **`WRK-03`** | Application WorkManager Scheduling | 🟡 **Scheduling P1** | `CoupleFitApplication.kt` | Missing recurring 15-minute background sync registration. | Enqueued `CoupleFitSyncWorker` unique periodic work with `NetworkType.CONNECTED` constraint in `onCreate()`. | 🟢 **Resolved** |
+| **`PTR-03`** | Timezone & Midnight Fallback | 🔵 **Telemetry UX** | `HealthDao.kt`, `PartnerRepositoryImpl.kt`, `HealthConnectViewModel.kt` | Gauges dropped to 0 across date boundaries when partner hadn't logged today. | Added `getLatestPartnerDaily` in `HealthDao` and `PartnerRepositoryImpl` with previous-day remote fetch fallback; bound contextual label (`"Yesterday • Last updated 5h ago"`) in `HealthConnectViewModel`. | 🟢 **Resolved** |
+
+### 87.2 Live Verification Evidence
+| Evidence ID | Verification Scenario | Command / Observation | Result / Artifact | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-02-UP`** | Foreground & Background Upload | `SyncRepositoryImpl$uploadMyDailyAggregate` | Successfully synced daily aggregate to Firestore at `couples/cpl_1794268458799_EYf2I/daily/EYf2Io9WPDUasjbuqL9wKr1H8lD3_2026-11-11` | 🟢 Verified |
+| **`SYNC-02-DOWN`** | Partner Remote Sync & Fallback | `PartnerRepositoryImpl$syncPartnerDailyFromRemote` | Checked today and previous day fallback; cached partner daily into Room SSOT | 🟢 Verified |
+| **`SYNC-02-DEV`** | WorkManager Autonomous Run | `adb logcat` trace inspection | `SyncWorker` executed with `Result.SUCCESS` [id=d0d3e7ed-39aa-45e7-a03c-cc692954a908] | 🟢 Verified |
+| **`SYNC-02-UI`** | Bilateral Gauges Persistence | ARTEMIS live device inspection on `emulator-5554` | User: 1,000 steps; Partner: 8,420 steps (`🟡 Yesterday • Last updated 5h ago • Cached ℹ️`); Difference: 7,420 steps | 🟢 Verified |
+| **`SYNC-02-UNT`** | Unit Test Suite (3 tests) | [`BackgroundSyncWorkerTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/service/BackgroundSyncWorkerTest.kt) | 115/115 tests passed 100% green via `./gradlew testDebugUnitTest` | 🟢 Verified |
+
+---
+
+## 88. Phase 63: Comprehensive Skills & Specialist Agents Ecosystem Synchronization (`AGT-01`, `SKL-01`) 🤖🚀
+
+> **Target Documents**:
+> - [`Documentation/agents1.md`](file:///D:/Couple_fit/CoupleFit/Documentation/agents1.md)
+> - [`Documentation/skillscommand.md`](file:///D:/Couple_fit/CoupleFit/Documentation/skillscommand.md)
+> - [`Documentation/MCP1.md`](file:///D:/Couple_fit/CoupleFit/Documentation/MCP1.md)
+> - [`AGENTS.md`](file:///D:/Couple_fit/CoupleFit/AGENTS.md)
+> - [`Documentation/INDEX.md`](file:///D:/Couple_fit/CoupleFit/Documentation/INDEX.md)
+> - [`Documentation/knowledge-graph.md`](file:///D:/Couple_fit/CoupleFit/Documentation/knowledge-graph.md)
+
+### 88.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`AGT-01`** | User Request ("update all the skills and agents") | 🔵 **Architecture Synchronization** | `agents1.md`, `AGENTS.md`, `INDEX.md` | Specialist agents catalog was limited to ECC (71) and GSD-Core (35), omitting Google EGM agents (10), Firebase rules author (1), and Motion reviewer (1). Git repos in `plugins` were out of date. | Pulled latest git updates across all git plugins (`antislop` v3.2.28, `ecc` v2.2.3, `egm` 8f16812, `emilkowalski-skills` 715c180, `gsd-core` v1.20.1, `mobbin` 79124d9). Expanded `agents1.md` to document all 118 specialist agents across 5 ecosystem providers. Synchronized `AGENTS.md` specialist routing. | 🟢 **Resolved** |
+| **`SKL-01`** | Ecosystem Expansion Audit | 🔵 **Skills Synchronization** | `skillscommand.md`, `MCP1.md`, `INDEX.md` | Skills catalog listed 19 plugins and 688+ skills, omitting EGM (14 skills), Firebase (13 skills), Motion (MCP + tools), and Stitch design suite (18 skills). Active system MCP servers (`ecc_chrome-devtools`, `paper`, `rea`) were missing from `MCP1.md`. | Updated `skillscommand.md` to catalog all 23 plugin suites (1,727+ modular skill definitions) including detailed sections for EGM, Firebase, Motion, and Stitch. Updated `MCP1.md` with active tool schemas for `artemis`, `ecc_chrome-devtools`, `motion`, `paper`, and `rea`. | 🟢 **Resolved** |
+
+### 88.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`AGT-01-GIT`** | Git Plugin Repositories | Rebased and synchronized `antislop`, `ecc`, `egm`, `emilkowalski-skills`, `gsd-core`, `liqui-design`, and `mobbin` to latest tags | 🟢 Verified |
+| **`AGT-01-DOC`** | Agents Master Catalog | Verified `agents1.md` contains 118 subagent definitions formatted in valid markdown code fences | 🟢 Verified |
+| **`SKL-01-DOC`** | Skills Master Directory | Verified `skillscommand.md` indexes 23 plugins and 1,727+ skills across 16 primary sections | 🟢 Verified |
+| **`MCP-01-DOC`** | Model Context Protocol Catalog | Verified `MCP1.md` documents `artemis`, `ecc_chrome-devtools`, `motion`, `paper`, and `rea` | 🟢 Verified |

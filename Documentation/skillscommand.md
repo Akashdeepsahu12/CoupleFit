@@ -1,7 +1,7 @@
 ﻿# Antigravity Skills & Commands Directory
 
 > **Master Reference, Operations Manual & Task Router** for all installed agent skills in Antigravity.  
-> **19 Installed Plugins | 688+ Modular Skills | Global Storage:** `~/.gemini/config/plugins/`
+> **23 Installed Plugins & Suites | 1,727+ Modular Skills | Global Storage:** `~/.gemini/config/plugins/` & `~/.agents/skills/`
 
 ---
 
@@ -63,10 +63,22 @@
     - [11.2 The Two-Material Philosophy](#112-the-two-material-philosophy)
     - [11.3 38-Component Catalog & Usage Matrix](#113-38-component-catalog--usage-matrix)
     - [11.4 Android Jetpack Compose Porting Pattern](#114-android-jetpack-compose-porting-pattern)
-12. [How to Invoke & Routing Best Practices](#12-how-to-invoke--routing-best-practices)
-    - [12.1 Direct Slash Command Invocation](#121-direct-slash-command-invocation)
-    - [12.2 Natural Language Intent Matching](#122-natural-language-intent-matching)
-    - [12.3 Performance & Progressive Token Disclosure Architecture](#123-performance--progressive-token-disclosure-architecture)
+12. [Google Elephant-Goldfish Model (EGM) Suite (14 Skills)](#12-google-elephant-goldfish-model-egm-suite-14-skills)
+    - [12.1 Documentation Partitioning & Orchestration](#121-documentation-partitioning--orchestration)
+    - [12.2 Multi-Persona Review & Verification Swarm](#122-multi-persona-review--verification-swarm)
+13. [Firebase Cloud Architecture & Security Suite (13 Skills)](#13-firebase-cloud-architecture--security-suite-13-skills)
+    - [13.1 Authentication, Firestore & Data Connect](#131-authentication-firestore--data-connect)
+    - [13.2 Security Rules Authoring & Production Hardening](#132-security-rules-authoring--production-hardening)
+14. [Motion.dev Animation & Performance Suite](#14-motiondev-animation--performance-suite)
+    - [14.1 Motion MCP Server Integration](#141-motion-mcp-server-integration)
+    - [14.2 MotionScore Tiers & Frame Budget Auditing](#142-motionscore-tiers--frame-budget-auditing)
+15. [Stitch UI & Design Systems Suite (18 Skills)](#15-stitch-ui--design-systems-suite-18-skills)
+    - [15.1 AI-Powered Screen Generation & Design Systems](#151-ai-powered-screen-generation--design-systems)
+    - [15.2 Cross-Platform Porting (React & React Native)](#152-cross-platform-porting-react--react-native)
+16. [How to Invoke & Routing Best Practices](#16-how-to-invoke--routing-best-practices)
+    - [16.1 Direct Slash Command Invocation](#161-direct-slash-command-invocation)
+    - [16.2 Natural Language Intent Matching](#162-natural-language-intent-matching)
+    - [16.3 Performance & Progressive Token Disclosure Architecture](#163-performance--progressive-token-disclosure-architecture)
 
 
 ---
@@ -93,7 +105,11 @@
 | **`gsd-core`** | [open-gsd/gsd-core](https://github.com/open-gsd/gsd-core) | 72 | Git. Ship. Done. — Spec-driven milestone loops, context engineering, phase-loop autonomous execution, codebase mapping, memory palace |
 | **`mobbin`** | [mobbin/skills](https://github.com/mobbin/skills) | 4 | Real-world iOS/Android app patterns, screen redesigns, plain UI writing & Mobbin MCP |
 | **`liqui-design`** | [leefanv/liqui-design](https://github.com/leefanv/liqui-design) | 1 | Liquid glass design system: optical refraction, specular rims, 38 components & Jetpack Compose porting |
-| **TOTAL** | **19 Repositories** | **688+** | **Comprehensive Full-Stack, Spec-Driven & Enterprise AI Pair Programming Suite** |
+| **`egm`** | [google/elephant-goldfish-model](https://github.com/google/elephant-goldfish-model) | 14 | Elephant-Goldfish Model: multi-persona documentation review swarm, drift analysis, subtree partitioning |
+| **`firebase`** | [firebase/firebase-skills](https://github.com/firebase) | 13 | Firebase Auth, Firestore, Data Connect, Crashlytics, AI Logic, production security rules generation |
+| **`motion`** | [motion.dev](https://motion.dev) | 1 | Motion+ MCP live docs, animation curves, MotionScore tier auditing & performance benchmarks |
+| **`stitch-agents`** | [google-deepmind/stitch](https://github.com/google) | 18 | Stitch autonomous UI build loop, DESIGN.md synthesis, React/React Native porting, Remotion walkthroughs |
+| **TOTAL** | **23 Repositories & Suites** | **1,727+** | **Comprehensive Full-Stack, Spec-Driven & Enterprise AI Pair Programming Suite** |
 
 ---
 
@@ -160,7 +176,7 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 
 ## 3. UI, Visual Design & Motion Craft
 
-### 3.1 Emil Kowalski Design & Motion (15 Skills)
+### 3.1 Emil Kowalski Design & Motion (18 Skills)
 > Source: [github.com/emilkowalski/skills](https://github.com/emilkowalski/skills)  
 > Focus: Micro-interactions, spring physics, off-thread animations, 60/120fps frame budgets, and native mobile touch feel.
 
@@ -181,6 +197,9 @@ Use this lookup matrix to jump immediately to the ideal skill for your immediate
 | `/apple-design` | **Apple HIG Web** | Apple's approach to interface design and fluid, physical motion, translated for the web. Use when building or reviewing gesture-driven UI, spring animations, drag/swipe/sheet interactions, momentum and interruptible transitions, translucent materials and depth, typography (optical sizing, tracking, leading), reduced-motion, or the design foundations (feedback, spatial consistency, restraint) behind Apple-style interfaces. |
 | `/write-swift` | **Native Swift 6** | How to write modern Swift well — modeling with value types, Swift 6 data-race safety and approachable concurrency (@concurrent, main-actor-by-default, actors, task groups), protocols and generics (some vs any), API design, performance and ARC, Swift Testing, macros, and the modern language features agents don't know about yet. Use when writing, reviewing, or migrating Swift, or when a concurrency error, a hang, a data race, a retain cycle, or a performance problem needs fixing. |
 | `/ask-sonner` | **Toast System** | Guide to Sonner, the React toast library — install and wire up the Toaster, pick the right toast() call, promise and loading toasts, updating, dismissing and persisting toasts, styling, theming and icons, positioning and multiple toasters. Use when working with Sonner or troubleshooting it — toasts that don't appear, appear twice, lose their styles, ignore Tailwind classes, sit behind a modal, or don't follow dark mode. |
+| `/choreograph` | **Motion Orchestration** | Choreograph complex multi-element enter/exit animations, staggered lists, shared element morphs, and physics-aligned layout changes with zero collision. |
+| `/gestures` | **Native Touch & Physics** | Build momentum panning, pinch-to-zoom, rubber-banding edge resistance, and velocity-preserving gesture dismissals. |
+| `/remove-animations` | **Motion Restraint** | Audit and safely prune gratuitous, distracting, or performance-sapping animations to restore clarity and snappy responsiveness. |
 
 ### 3.2 Impeccable UI Craft (1 Skill)
 > Source: [github.com/pbakaus/impeccable](https://github.com/pbakaus/impeccable)  
@@ -857,9 +876,94 @@ fun LiquidGlassSurface(
 
 ---
 
-## 12. How to Invoke & Routing Best Practices
+## 12. Google Elephant-Goldfish Model (EGM) Suite (14 Skills)
+> Source: [github.com/google/elephant-goldfish-model](https://github.com/google/elephant-goldfish-model)  
+> Focus: Multi-agent documentation governance, stateless Goldfish review swarms, subtree partitioning, and architectural drift auditing.
 
-### 12.1 Direct Slash Command Invocation
+### 12.1 Documentation Partitioning & Orchestration
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/egm-bootstrap` | **Subtree Orchestration** | Partition codebase directory subtrees into parallel worker partitions and compile EGM-compliant contract READMEs. |
+| `/egm-draft` | **Drafting Contract** | Generate exhaustive package contracts specifying public interfaces, state invariants, failure modes, and test commands. |
+| `/egm-drift-report` | **Drift Audit** | Detect architectural drift and discrepancies between live source code and existing documentation contracts. |
+| `/egm-resolve` | **Feedback Resolution** | Systematically resolve and reconcile findings from multi-persona Goldfish reviewer swarms into implementation fixes. |
+
+### 12.2 Multi-Persona Review & Verification Swarm
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/egm-review` | **Multi-Perspective Review** | Dispatch parallel Goldfish personas (`design`, `codebase-details`, `comprehension`, `zoom-out`, `style`, `structural`) across documentation. |
+| `/egm-review-loop` | **Convergence Loop** | Execute continuous review-and-refine iterations until all blocking issues and architectural critiques reach zero. |
+| `/egm-brainstorm` | **Socratic Ideation** | Explore system architecture trade-offs, interface boundaries, and operational risks prior to drafting plans. |
+
+---
+
+## 13. Firebase Cloud Architecture & Security Suite (13 Skills)
+> Source: [github.com/firebase](https://github.com/firebase)  
+> Focus: Google Cloud Firebase integration, authentication, Firestore security rules authoring, Data Connect, and remote config.
+
+### 13.1 Authentication, Firestore & Data Connect
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/firebase-auth-basics` | **Auth Architecture** | Implement Firebase Authentication flows (Email/Password, OAuth, Anonymous, custom claims) with security rules linkage. |
+| `/firebase-firestore` | **Cloud Database** | Design scalable Firestore document schemas, composite indexes, offline cache persistence, and real-time listeners. |
+| `/firebase-data-connect` | **PostgreSQL Connector** | Connect Firebase services to managed Cloud SQL PostgreSQL using GraphQL schemas and type-safe query generation. |
+| `/firebase-ai-logic-basics` | **Multimodal AI** | Integrate Gemini API via Firebase AI Logic with structured outputs, prompt templates, and security gating. |
+| `/firebase-crashlytics` | **Crash Reporting** | Configure crash logging, non-fatal exception tracking, custom keys, and release monitoring. |
+
+### 13.2 Security Rules Authoring & Production Hardening
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/firestore-rules-author` | **Rules Specialist Agent** | Mandatory specialist agent to generate, refactor, and audit `firestore.rules` with adversarial verification. |
+| `/firestore-rules-creation` | **Rules Methodology** | 2-phase workflow: domain validator functions, update bypass prevention, RBAC token claims, string length & DoS bounds. |
+| `/firebase-security-rules-auditor` | **Rules Security Audit** | Penetration-testing audit of Firestore security rules to catch unauthenticated reads, update bypasses, and data leaks. |
+
+---
+
+## 14. Motion.dev Animation & Performance Suite
+> Source: [motion.dev](https://motion.dev)  
+> Focus: Motion and Motion+ integration, spring physics, MotionScore benchmarking, and hardware-accelerated animations.
+
+### 14.1 Motion MCP Server Integration
+| Command / Tool | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `search-motion-docs` | **MCP Semantic Search** | Real-time semantic search across Motion official documentation, API references, spring presets, and gesture hooks. |
+| `insert-motion-component` | **Component Generation** | Scaffolds production Motion components with accessible focus management, reduced-motion fallback, and exit transitions. |
+
+### 14.2 MotionScore Tiers & Frame Budget Auditing
+| Command / Agent | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/motion-reviewer` | **Performance Reviewer** | Specialist agent auditing animations project-wide, assigning MotionScore tiers (S/A/B/C/F), and eliminating layout thrashing. |
+
+---
+
+## 15. Stitch UI & Design Systems Suite (18 Skills)
+> Source: Google DeepMind Stitch Suite (`~/.agents/skills/`)  
+> Focus: AI-powered screen generation, DESIGN.md design system synthesis, and cross-platform React / React Native porting.
+
+### 15.1 AI-Powered Screen Generation & Design Systems
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/stitch-loop` | **Autonomous Loop** | Autonomous baton-passing loop pattern for iteratively generating, refining, and polishing web applications. |
+| `/design-md` | **Design System Synthesis** | Analyzes UI projects and synthesizes semantic design system tokens, typography hierarchies, and components into `DESIGN.md`. |
+| `/enhance-prompt` | **Prompt Optimization** | Transforms vague UI requests into high-fidelity Stitch-optimized prompts with design tokens and interaction keywords. |
+| `/site-md` | **Project Constitution** | Synthesizes project requirements, architectural guidelines, and styling rules into `SITE.md` for generative agents. |
+| `/taste-design` | **Art Direction** | Applies distinctive art direction, visual density calibration, and bespoke typography to generated screens. |
+| `/shadcn-ui` | **Component System** | Comprehensive integration guide for accessible Radix + Tailwind components in generated interfaces. |
+
+### 15.2 Cross-Platform Porting (React & React Native)
+| Command | Action / Category | Operational Description |
+| :--- | :--- | :--- |
+| `/stitch-react-native` | **React Native / Compose Port**| Converts Stitch HTML designs into React Native StyleSheet components and Jetpack Compose composables. |
+| `/stitch-react-components`| **React Component Extraction** | Refactors monolithic Stitch HTML into modular, reusable TypeScript React components with clean props. |
+| `/react-vite-dashboard` | **Dashboard Architecture** | Converts Stitch screen designs into production Vite dashboards with TanStack Query and state stores. |
+| `/remotion` | **Walkthrough Video Gen** | Generates dynamic walkthrough and demo videos from UI projects using Remotion code-driven video synthesis. |
+| `/reverse-engineer-anything`| **Codebase Reconstruction** | Deeply inspects and reverse-engineers binary, web, or mobile artifacts into clean modular source code. |
+
+---
+
+## 16. How to Invoke & Routing Best Practices
+
+### 16.1 Direct Slash Command Invocation
 To immediately force execution of any skill, type its slash command anywhere in your prompt (typically at the beginning):
 
 ```markdown
@@ -871,7 +975,7 @@ To immediately force execution of any skill, type its slash command anywhere in 
 /performance-optimization - Profile Web Vitals and diagnose main-thread latency
 ```
 
-### 12.2 Natural Language Intent Matching
+### 16.2 Natural Language Intent Matching
 Antigravity features native semantic routing: when you describe your goal in natural language, the assistant matches your request directly to the appropriate skill without requiring explicit slash commands.
 
 | Natural Language Prompt Pattern | Automatic Skill Trigger | Targeted Action |
@@ -894,7 +998,7 @@ Antigravity features native semantic routing: when you describe your goal in nat
 | *"Test this build on my connected physical iPhone"* | `/gstack-ios-qa` | Tests native views over USB tunnel with vision-driven feedback. |
 | *"Prepare production release, bump version, and open a PR"* | `/gstack-ship` | Merges base, runs test suites, bumps semver, and crafts PR. |
 
-### 12.3 Performance & Progressive Token Disclosure Architecture
+### 16.3 Performance & Progressive Token Disclosure Architecture
 Antigravity employs an intelligent **two-tier progressive disclosure engine** to keep your context window lean, fast, and token-efficient:
 
 1. **Tier 1 (Descriptor Mode):** All 683+ skills remain in memory as ultra-compact 2-line descriptors (name, category, trigger criteria), consuming less than 1.5% of the total context window.
