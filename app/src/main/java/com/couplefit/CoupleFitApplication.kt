@@ -53,7 +53,8 @@ class CoupleFitApplication : Application(), Configuration.Provider {
         // Initialize Notification Channels for Nudges and Milestones
         com.couplefit.util.NotificationHelper.createNotificationChannels(this)
 
-        // Schedule 15-Minute Background Synchronization Worker (WRK-03)
+        // Schedule Low-Frequency (6-Hour) Battery-Optimized Background Synchronization Worker (WRK-03)
+        // Background sync is throttled to minimum required; active telemetry is user-driven via foreground pull-to-refresh
         scheduleBackgroundSyncWorker()
 
         // Fetch and refresh FCM device token
@@ -88,20 +89,22 @@ class CoupleFitApplication : Application(), Configuration.Provider {
         try {
             val constraints = androidx.work.Constraints.Builder()
                 .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
                 .build()
 
+            // Throttled to 6 hours to minimize background battery drain & network bandwidth (PWR-01)
             val syncRequest = androidx.work.PeriodicWorkRequestBuilder<com.couplefit.service.SyncWorker>(
-                15, java.util.concurrent.TimeUnit.MINUTES
+                6, java.util.concurrent.TimeUnit.HOURS
             )
                 .setConstraints(constraints)
                 .build()
 
             androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "CoupleFitSyncWorker",
-                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                androidx.work.ExistingPeriodicWorkPolicy.UPDATE,
                 syncRequest
             )
-            timber.log.Timber.d("Enqueued unique periodic work 'CoupleFitSyncWorker' (15 min interval)")
+            timber.log.Timber.d("Enqueued unique periodic work 'CoupleFitSyncWorker' (6 hour low-power interval)")
         } catch (e: Exception) {
             timber.log.Timber.w(e, "Failed to schedule background SyncWorker")
         }

@@ -92,6 +92,7 @@ graph TD
         ATM["AuroraTelemetryMesh<br/>(Dual Radial Cyan/Coral Mesh GLS-03)"]:::ui
         ARBP["0-Step Breathing Ring Pulse<br/>(VIS-05 / TST-03)"]:::ui
         TDD["TelemetryDiagnosticDialog<br/>(Room SSOT Cache, Ping Partner)"]:::ui
+        ARI["AstryxRefreshIndicator.kt<br/>(Astryx Squircle Synchrony Glyph AST-01)"]:::ui
     end
 
     subgraph WidgetLayer["Widget & Quick Action Layer"]
@@ -107,6 +108,7 @@ graph TD
         AVM["AuthViewModel.kt"]:::data
         HCVM["HealthConnectViewModel.kt<br/>(Metric Sharing Flow)"]:::data
         DSSTORE["CoupleFitPreferencesDataStore.kt"]:::data
+        SWK["SyncWorker.kt<br/>(6-Hour Low-Power Throttle PWR-01)"]:::data
     end
 
     subgraph TestLayer["Instrumented Verification Layer"]

@@ -33,9 +33,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import com.couplefit.ui.components.AstryxRefreshIndicator
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -210,21 +210,12 @@ fun DashboardScreen(
         refreshing = healthData.isSyncing,
         onRefresh = {
             isExplicitRefresh = true
-            healthConnectViewModel.checkStatusAndFetchData()
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+            // User-driven immediate forced sync with Firebase backend and Health Connect (USR-01)
+            healthConnectViewModel.checkStatusAndFetchData(force = true)
             syncTrigger++
         }
     )
-
-    // Foreground fast-refresh loop (simulate 10s polling of local cache if flow wasn't active)
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(10_000)
-            // Just increment sync trigger subtly, but we keep isExplicitRefresh = false 
-            // so we don't trigger the "dramatic" entrance animations on background tick
-            // In a real app this would trigger the DAO fetch if we weren't using Flow
-            syncTrigger++
-        }
-    }
 
     val todayFormatted = remember {
         try {
@@ -1482,13 +1473,13 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(96.dp))
         }
         
-        PullRefreshIndicator(
+        // Custom Astryx Animated Refresh Indicator (AST-01)
+        AstryxRefreshIndicator(
             refreshing = healthData.isSyncing,
             state = pullRefreshState,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .statusBarsPadding(),
-            contentColor = SystemRed
+                .statusBarsPadding()
         )
     }
 }

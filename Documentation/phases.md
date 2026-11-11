@@ -1483,3 +1483,37 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Android test compilation (`compileDebugAndroidTestKotlin`): 100% green (31/31 tasks, 0 compilation errors).
 - **Release Tag**: `v2.9.51-unslop-taste-remediation`
 
+
+
+---
+
+## Phase 66: User-Driven Foreground Syncing & Astryx Refresh Indicator (`PWR-01`, `USR-01`, `AST-01`) ⚡🔄
+- **Target Specifications**: User Request / `orch-change-feature`, [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Background Sync WorkManager Optimization (`PWR-01`)**:
+     - `CoupleFitApplication.kt`: Throttled background `PeriodicWorkRequestBuilder<SyncWorker>` from 15 minutes to 6 hours.
+     - Added `.setRequiresBatteryNotLow(true)` to `Constraints.Builder()` to avoid battery drain during low-battery states.
+     - Switched enqueue policy to `ExistingPeriodicWorkPolicy.UPDATE` ensuring existing app installations replace aggressive 15-minute polling with low-power 6-hour interval.
+  2. **Custom Astryx Animated Refresh Indicator (`AST-01`)**:
+     - `AstryxRefreshIndicator.kt`: Designed and implemented custom Astryx refresh indicator replacing generic Material circular loading spinner.
+     - Visual Geometry: Dual interlocking squircle synchrony curves (`Brush.sweepGradient` from `StepsAccent` to `SystemOrangeLight`) with directional aerodynamic arrowheads.
+     - Motion & Vessels: Frosted glass pill vessel (`GlassPrimitives.SolidSlateCard.copy(alpha = 0.88f)`) with elevation shadow, pull-proportional rotation (0 -> 180 deg), infinite hardware-accelerated spring rotation (1100ms) and organic breathing scale (650ms `0.94f..1.06f`) during active sync.
+     - Accessibility: WCAG 2.2 AA compliant semantics (`"Syncing couple health data with partner"` / `"Pull down to refresh couple telemetry"`).
+  3. **User-Driven Swipe-to-Refresh & Firebase Integration (`USR-01`)**:
+     - `DashboardScreen.kt`: Wired `rememberPullRefreshState` to `healthData.isSyncing` and attached `pullRefresh` to root dashboard container.
+     - Manual Refresh Trigger: On pull-to-refresh, fires `HapticFeedbackType.LongPress` and invokes `healthConnectViewModel.checkStatusAndFetchData(force = true)` triggering immediate forced bilateral Firebase sync (`uploadMyDailyAggregate` and `syncPartnerDailyFromRemote`).
+     - Loop Elimination: Safely purged legacy 10-second mock foreground polling loop, preserving CPU and battery cycles.
+  4. **Unit & Build Testing**:
+     - Authored `UserDrivenForegroundSyncTest.kt` verifying 6-hour WorkManager interval duration, `setRequiresBatteryNotLow` constraints, and foreground sync state transitions.
+     - Local unit tests (`testDebugUnitTest`): 100% green (32 actionable tasks, BUILD SUCCESSFUL).
+     - Android test compilation (`compileDebugAndroidTestKotlin`): 100% green (31 actionable tasks, BUILD SUCCESSFUL).
+  5. **Live Verification via Google ARTEMIS**:
+     - Inspected emulator `Pixel_10_Pro` (`emulator-5554`) hierarchy and verified dashboard telemetry states.
+     - Executed live pull-down gesture via `adb shell input swipe`; confirmed in Logcat:
+       - `Sync: Starting Sync Cycle: Fetching from SDK.`
+       - `HealthConnectManager: Changes API: Incremental update received`
+       - `SyncRepositoryImpl: Successfully synced daily aggregate to Firestore at couples/cpl_...`
+       - UI timestamp updated immediately from `Updated 1:16 PM` to `Updated 1:18 PM`.
+     - Saved screenshot artifact: [`phase66_user_driven_sync_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase66_user_driven_sync_verified.jpg).
+- **Release Tag**: `v2.9.52-user-driven-foreground-sync`
