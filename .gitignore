@@ -17,6 +17,5 @@ google-services.json
 
 # Tooling and scratch artifacts
 .stitch_exports/
-.diorama/
 .diorama_src/
 node_modules/

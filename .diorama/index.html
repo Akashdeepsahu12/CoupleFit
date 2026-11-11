@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII Diorama • Codebase Reactor</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #090a0f;
+      color: #e0e6ed;
+      font-family: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, 'Courier New', monospace;
+      user-select: none;
+    }
+    canvas#diorama-canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    /* ASCII HUD Overlay */
+    #hud-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 460px;
+    }
+    .hud-card {
+      background: rgba(12, 16, 24, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(80, 180, 255, 0.28);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 200, 255, 0.1);
+      transition: all 0.25s ease;
+      pointer-events: auto;
+    }
+    .hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(80, 180, 255, 0.18);
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #4cd5ff;
+    }
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ffaa;
+      box-shadow: 0 0 8px #00ffaa;
+      margin-right: 6px;
+      animation: pulse-dot 1.8s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .hud-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .hud-meta {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #8da2b5;
+      word-break: break-all;
+    }
+    .hud-meta strong {
+      color: #ff9d00;
+    }
+    /* Pulse Reaction Banner */
+    #reaction-banner {
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(26, 15, 30, 0.9);
+      border: 1px solid rgba(255, 100, 180, 0.45);
+      box-shadow: 0 0 24px rgba(255, 80, 150, 0.25);
+    }
+    #reaction-banner.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .banner-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ff70b0;
+    }
+    /* Controls Bar */
+    .hud-controls {
+      display: flex;
+      gap: 8px;
+      font-size: 10px;
+      margin-top: 6px;
+    }
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #c0d0e0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 10px;
+      transition: background 0.15s;
+    }
+    .hud-btn:hover {
+      background: rgba(0, 200, 255, 0.2);
+      border-color: rgba(0, 200, 255, 0.5);
+      color: #ffffff;
+    }
+    /* Shockwave Flash Overlay */
+    #flash-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 5;
+      background: radial-gradient(circle at center, rgba(255, 200, 100, 0.25), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease-out;
+    }
+    #flash-overlay.flashing {
+      opacity: 1;
+      transition: opacity 0.05s ease-in;
+    }
+  </style>
+</head>
+<body>
+  <div id="flash-overlay"></div>
+  <canvas id="diorama-canvas"></canvas>
+
+  <div id="hud-overlay">
+    <div class="hud-card">
+      <div class="hud-header">
+        <div><span class="live-dot"></span>CODEBASE DIORAMA REACTOR</div>
+        <span id="pulse-badge">0 PULSES</span>
+      </div>
+      <div class="hud-title">Living ASCII Miniature</div>
+      <div class="hud-meta">
+        Watching: <span style="color:#4cd5ff">CoupleFit Codebase</span><br>
+        Diorama: Red Torii Path • Turquoise Sea • Walking Fox<br>
+        Status: <span id="sync-status" style="color:#00ffaa">Connected to file watcher</span>
+      </div>
+      <div class="hud-controls">
+        <button class="hud-btn" id="btn-simulate">⚡ Simulate Pulse [C]</button>
+        <button class="hud-btn" id="btn-audio">🔊 Audio: ON</button>
+        <button class="hud-btn" id="btn-pause">⏯ Pause [Space]</button>
+      </div>
+    </div>
+
+    <div class="hud-card" id="reaction-banner">
+      <div class="hud-header" style="color: #ff70b0; border-color: rgba(255, 100, 180, 0.2);">
+        <span>⚡ REACTION DETECTED</span>
+        <span id="reaction-time">JUST NOW</span>
+      </div>
+      <div class="banner-text" id="reaction-event">🌸 Code Modified</div>
+      <div class="hud-meta" id="reaction-detail" style="color: #f0a0c8;">
+        File: <strong>app/src/main/java/...</strong>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./build/main.js"></script>
+</body>
+</html>
+
