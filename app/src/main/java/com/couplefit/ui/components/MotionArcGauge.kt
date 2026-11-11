@@ -92,17 +92,21 @@ fun MotionArcProgressGauge(
         label = "gaugeStepCount"
     )
 
-    // Ambient breathing pulse for the leading tip glow
-    val infiniteTransition = rememberInfiniteTransition(label = "arcGlowPulse")
-    val pulseAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.55f,
-        targetValue = 0.95f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowAlpha"
-    )
+    // Ambient breathing pulse for the leading tip glow (softened, respects reduceMotion - AUD-P0-01)
+    val pulseAlpha = if (reduceMotion) {
+        0.75f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "arcGlowPulse")
+        infiniteTransition.animateFloat(
+            initialValue = 0.65f,
+            targetValue = 0.85f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2200, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glowAlpha"
+        ).value
+    }
 
     val density = LocalDensity.current
     val gaugeSize = if (compact) 160.dp else 240.dp

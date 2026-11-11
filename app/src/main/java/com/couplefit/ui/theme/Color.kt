@@ -67,7 +67,7 @@ val SeparatorDark = BorderSubtleDark
 
 // High-contrast Label & Text Tones (iOS 17 & WCAG 2.2 AA/AAA Compliant)
 val TextPrimaryDark = Color(0xFFFFFFFF)      // 100% pure white primary text
-val TextSecondaryDark = Color(0xD9EBF2FA)    // 85% alpha high-contrast secondary text (crisp on frosted glass)
+val TextSecondaryDark = Color(0xEBEBF2FA)    // 92% alpha high-contrast secondary text (crisp on frosted glass - AUD-P1-07)
 val TextTertiaryDark = Color(0xA6CBD5E1)     // 65% alpha tertiary text (clean captions, timestamps, overlines)
 
 val TextPrimaryLight = Color(0xFF0F172A)     // Slate-900: Crisp deep neutral for primary text
@@ -114,7 +114,7 @@ val MotionTrackLight = Color(0xFFE2E8F0)
 val MotionPartnerStart = Color(0xFFFF3366)
 val MotionPartnerMid = Color(0xFFFF5E3A)
 val MotionPartnerEnd = Color(0xFFFF9500)
-val MotionPartnerGlow = Color(0xFFFF453A)
+val MotionPartnerGlow = Color(0xFFE03D33)    // Calibrated desaturated coral-red preventing OLED halation (AUD-P1-08)
 
 // =========================================================================
 // Dual-User Signature Identity Tokens (DSN-01, CLR-01, CLR-02)

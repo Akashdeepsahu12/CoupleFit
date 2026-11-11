@@ -4,6 +4,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -44,7 +47,7 @@ import kotlin.math.sin
  */
 @Composable
 fun QuickNudgeRow(
-    partnerName: String = "Partner",
+    partnerName: String = "your partner",
     mySteps: Long = 0L,
     partnerSteps: Long = 0L,
     reduceMotion: Boolean = false,
@@ -73,7 +76,7 @@ fun QuickNudgeRow(
             list.add(0, NudgeAction("🏃", "Catching Up!", "Tell $partnerName you're right on their heels"))
         } else if (mySteps > partnerSteps && (mySteps - partnerSteps) > 500) {
             list.add(0, NudgeAction("⚡", "You Got This!", "Encourage $partnerName to close the distance"))
-        } else if (mySteps > 0 && mySteps == partnerSteps) {
+        } else if (mySteps > 0 && Math.abs(mySteps - partnerSteps) <= 100) {
             list.add(0, NudgeAction("✨", "In Sync!", "Celebrate being tied stride for stride with $partnerName"))
         }
         list
@@ -91,11 +94,11 @@ fun QuickNudgeRow(
                 .padding(top = AppSpacing.sm, bottom = AppSpacing.md)
         ) {
             Text(
-                text = "QUICK CHEERS & NUDGES",
+                text = "Quick cheers",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                letterSpacing = 0.5.sp,
+                letterSpacing = 0.sp,
                 modifier = Modifier.padding(bottom = AppSpacing.xs)
             )
 
@@ -109,7 +112,14 @@ fun QuickNudgeRow(
                     Box(
                         modifier = Modifier
                             .height(44.dp)
-                            .liquiTactilePill(shape = RoundedCornerShape(20.dp))
+                            .defaultMinSize(minWidth = 44.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f))
+                            .border(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                             .iosMomentumClickable(
                                 onClickLabel = action.description,
                                 onClick = {
@@ -137,13 +147,12 @@ fun QuickNudgeRow(
                         Row(
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Text(action.emoji, fontSize = 16.sp)
                             Text(
                                 text = action.label,
                                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                                color = LiquiTokens.DarkText
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

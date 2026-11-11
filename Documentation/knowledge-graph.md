@@ -718,3 +718,19 @@ graph TD
   - `SKL-01`: Expanded `Documentation/skillscommand.md` to catalog all 23 plugin suites and 1,727+ modular skills, adding dedicated sections for Google EGM (14 skills), Firebase (13 skills), Motion (MCP + tools), and Stitch design suite (18 skills).
   - `MCP1.md`: Synchronized active system MCP servers catalog with `artemis`, `ecc_chrome-devtools`, `motion`, `paper`, and `rea`.
   - `AGENTS.md`: Updated Section 2 to include key specialist subagents (`firestore-rules-author`, `motion-reviewer`, `egm-review`).
+
+### Phase 65: antislop + taste UI Remediation & Polish Wave (AUD-P0, AUD-P1, AUD-P2, AUD-P3) 🟢 Resolved
+- **Domain**: UI Anti-Slop, Design Engineering & Accessibility Hardening
+- **Milestone Tag**: `v2.9.51-unslop-taste-remediation`
+- **Nodes & Edges**:
+  - `AnimationTokens.kt` (`AUD-P1-10`): Canonical spring motion tokens (`SpringPhysical`, `SpringResponsive`, `SpringNavigation`).
+  - `Color.kt` (`AUD-P1-07`, `AUD-P1-08`): Raised `TextSecondaryDark` to 92% alpha (`Color(0xEBEBF2FA)`) for >7:1 WCAG AA contrast on frosted glass; desaturated `MotionPartnerGlow` by 12% to `Color(0xFFE03D33)` preventing OLED halation.
+  - `AnimatedIcons.kt` (`AUD-P0-04`): Added semantic `contentDescription: String? = null` across all 9 procedural animated icons for full TalkBack screen reader support.
+  - `MotionArcGauge.kt` (`AUD-P0-01`): Softened arc tip glow from 1500ms harsh strobe to 2200ms `0.65f..0.85f` breath; completely stops (`0.75f` static) when `reduceMotion` is active.
+  - `CoupleHubScreen.kt` (`AUD-P0-03`, `AUD-P1-04`, `AUD-P1-05`): Added `reduceMotion` guard to partner halo (static `0.35f`); pulse frequency dynamically adapts between online (2200ms) and offline (4000ms); elevated Milestone Relationship card with `SynchronyGold` border accent.
+  - `QuickNudgeRow.kt` (`AUD-P0-02`, `AUD-P1-02`, `AUD-P1-09`, `AUD-P2-02`, `AUD-P3-02`, `AUD-P3-04`): Removed raw emoji from pill faces; converted section header to sentence case `"Quick cheers"`; added `defaultMinSize(minWidth = 44.dp)`; upgraded to tactile surface with specular border; widened "In Sync!" trigger to approximate harmony (`<= 100` steps); set partner fallback to `"your partner"`.
+  - `ChallengesScreen.kt` (`AUD-P1-01`): Replaced static badge counts with dynamic active challenge count (`uiState.challenges.count { it.status == "ACTIVE" }`).
+  - `SettingsScreen.kt` (`AUD-P1-03`): Converted 8 local settings toggle states from `remember` to `rememberSaveable`.
+  - `SignInScreen.kt` (`AUD-P2-04`): Reset unauthenticated `ActivityRing` progress to `0f` (ready-to-pair state with breathing dot); mapped titles to `MaterialTheme.typography.displaySmall`.
+  - `Type.kt` (`AUD-P2-03`): Added `MaterialTheme.screenTitle` semantic role.
+  - `Documentation/phase65_verification_report.md` -> 100% unit tests passed (`testDebugUnitTest`), 100% Android test compilation passed (`compileDebugAndroidTestKotlin`).

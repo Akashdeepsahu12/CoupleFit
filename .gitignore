@@ -19,3 +19,4 @@ google-services.json
 .archify/
 .codebread/
 .stitch_exports/
+node_modules/

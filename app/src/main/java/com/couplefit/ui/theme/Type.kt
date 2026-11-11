@@ -157,6 +157,14 @@ val Typography = Typography(
 val LocalHeroMetricDisplay = compositionLocalOf { HeroMetricDisplay }
 
 /**
+ * Standard semantic ScreenTitle role (AUD-P2-03).
+ */
+val MaterialTheme.screenTitle: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = typography.headlineSmall
+
+/**
  * Convenience accessor for adaptive HeroMetricDisplay from MaterialTheme.
  */
 val MaterialTheme.heroMetricDisplay: TextStyle

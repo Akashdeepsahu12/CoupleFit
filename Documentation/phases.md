@@ -1427,3 +1427,59 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Local test suite (`testDebugUnitTest`) green with 100% pass rate.
      - Android instrumented test compilation (`compileDebugAndroidTestKotlin`) green with 0 errors.
 - **Release Tag**: `v2.9.49-skills-agents-sync`
+
+---
+
+## Phase 64: Astryx Design System, StyleX & Agent Docs Initialization (`AST-01`, `AST-02`) 🎨✨
+- **Target Specifications**: [`package.json`](file:///D:/Couple_fit/CoupleFit/package.json), [`AGENTS.md`](file:///D:/Couple_fit/CoupleFit/AGENTS.md), [`GEMINI.md`](file:///D:/Couple_fit/CoupleFit/GEMINI.md), [`astryx-themes.js`](file:///D:/Couple_fit/CoupleFit/astryx-themes.js)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Package Installation (`package.json` - `AST-01`)**:
+     - Installed `@astryxdesign/core` (v0.7.13, 174 design system components), `@stylexjs/stylex` (v0.19.1), and `@astryxdesign/theme-neutral` (v0.7.13).
+     - Installed `@astryxdesign/cli` (v0.7.13) in `devDependencies`.
+     - Configured `node_modules/` in `.gitignore`.
+  2. **Agent Documentation Initialization (`AGENTS.md`, `GEMINI.md` - `AST-02`)**:
+     - Preserved CoupleFit Multi-Agent Operating Manual by backing up to [`Documentation/AGENTS_COUPLEFIT_BACKUP.md`](file:///D:/Couple_fit/CoupleFit/Documentation/AGENTS_COUPLEFIT_BACKUP.md).
+     - Executed `npx.cmd @astryxdesign/cli init`, seamlessly embedding managed `<!-- ASTRYX:START --> ... <!-- ASTRYX:END -->` conventions in `AGENTS.md` and `@./AGENTS.md` import in `GEMINI.md`.
+  3. **Theme Module Generation (`astryx-themes.js` - `AST-02`)**:
+     - Executed `npx.cmd @astryxdesign/cli theme add neutral` generating canonical `astryx-themes.js` with neutral theme module, stylesheet, and font links.
+     - Verified system health with `npx.cmd @astryxdesign/cli doctor` (0 failures, 17 passes).
+  4. **Conventions Codification**:
+     - Synthesized core Astryx rules: frame-first layout, zero raw `<div>`/`<span>` usage, dense data edge-to-edge row architecture, semantic token hierarchy, controlled inputs, and `xstyle` StyleX integration.
+  5. **Native Android Test Verification**:
+     - Local test suite (`testDebugUnitTest`): 100% green (32/32 tasks up-to-date).
+     - Android test compilation (`compileDebugAndroidTestKotlin`): 100% green (0 errors).
+- **Release Tag**: `v2.9.50-astryx-design-system`
+
+---
+
+## Phase 65: antislop + taste UI Remediation & Polish Wave (`AUD-P0`, `AUD-P1`, `AUD-P2`, `AUD-P3`) 🎨💎
+- **Target Specifications**: [`Documentation/AUDIT_UNSLOP_TASTE_UI_REPORT.md`](file:///D:/Couple_fit/CoupleFit/Documentation/AUDIT_UNSLOP_TASTE_UI_REPORT.md), [`Documentation/PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Motion & Loop Hygiene (`AUD-P0-01`, `AUD-P0-03`, `AUD-P1-04`, `AUD-P1-10`)**:
+     - `MotionArcGauge.kt`: Softened arc tip glow pulse to gentle 2200ms `0.65f..0.85f` breath; completely stops (`0.75f` static) when `reduceMotion` is enabled (`AUD-P0-01`).
+     - `CoupleHubScreen.kt`: Added `reduceMotion` guard to partner presence halo (static `0.35f` alpha, `1.0f` scale); dynamic pulsing adapts between online active state (2200ms `0.25f..0.65f`) and offline state (4000ms `0.10f..0.25f`) (`AUD-P0-03`, `AUD-P1-04`).
+     - `AnimationTokens.kt`: Created canonical spring specifications (`SpringPhysical`, `SpringResponsive`, `SpringNavigation`) establishing standardized motion vocabulary (`AUD-P1-10`).
+  2. **Copy, Microcopy & Typography Craft (`AUD-P0-02`, `AUD-P1-02`, `AUD-P1-06`, `AUD-P2-03`, `AUD-P3-02`)**:
+     - `QuickNudgeRow.kt`: Removed decorative emoji from pill faces, preserving pure typography on chips while keeping emoji in the sent message payload and flight trajectory (`AUD-P0-02`).
+     - Converted shouting uppercase section header to natural sentence case: `"Quick cheers"`, synchronized Android UI test assertions (`AUD-P1-02`).
+     - `Type.kt`: Added `MaterialTheme.screenTitle` semantic typography role (`AUD-P2-03`).
+     - `DashboardScreen.kt`: Replaced inline `12.sp` buttons with `MaterialTheme.typography.labelSmall` (`AUD-P1-06`).
+     - `QuickNudgeRow.kt`: Updated default partner name to warmer `"your partner"` (`AUD-P3-02`).
+  3. **Color, Contrast & Accessibility Hardening (`AUD-P0-04`, `AUD-P1-07`, `AUD-P1-08`, `AUD-P3-04`)**:
+     - `Color.kt`: Boosted `TextSecondaryDark` alpha to 92% (`Color(0xEBEBF2FA)`), guaranteeing WCAG AA contrast (> 7:1) even on lighter frosted glass states (`AUD-P1-07`).
+     - `Color.kt`: Desaturated `MotionPartnerGlow` from `#FF453A` to `Color(0xFFE03D33)`, eliminating OLED halation and pixel blooming on dark canvases (`AUD-P1-08`).
+     - `AnimatedIcons.kt`: Added `contentDescription: String? = null` parameter across all 9 procedural animated icons, with semantic `Modifier.semantics { this.contentDescription = ... }` for TalkBack (`AUD-P0-04`).
+     - `QuickNudgeRow.kt`: Enforced 44dp minimum touch width with `Modifier.defaultMinSize(minWidth = 44.dp)` (`AUD-P3-04`).
+  4. **Data Integrity, State Resilience & Visual Hierarchy (`AUD-P1-01`, `AUD-P1-03`, `AUD-P1-05`, `AUD-P1-09`, `AUD-P2-02`, `AUD-P2-04`)**:
+     - `ChallengesScreen.kt`: Sub-tab badge counts dynamically calculated from `uiState.challenges.count { it.status == "ACTIVE" }` and rendered only when `> 0`, eliminating hardcoded placeholder counts (`AUD-P1-01`).
+     - `SettingsScreen.kt`: Converted local UI states (`isSamsungConnected`, `syncFrequency`, `notifyCritical`, etc.) from ephemeral `remember` to `rememberSaveable` (`AUD-P1-03`).
+     - `CoupleHubScreen.kt`: Promoted Milestone Relationship card with distinct `SynchronyGold` border accent, establishing clear visual hierarchy (`AUD-P1-05`).
+     - `SignInScreen.kt`: Reset unauthenticated `ActivityRing` progress from fake `0.85f` to `0f` (ready-to-pair state) and mapped titles to `MaterialTheme.typography.displaySmall` (`AUD-P2-04`).
+     - `QuickNudgeRow.kt`: Contextual "In Sync!" nudge fires on approximate step harmony (`Math.abs(mySteps - partnerSteps) <= 100`) (`AUD-P2-02`).
+  5. **Deterministic Verification**:
+     - Local unit test suite (`testDebugUnitTest`): 100% green (32/32 tasks up-to-date / passed).
+     - Android test compilation (`compileDebugAndroidTestKotlin`): 100% green (31/31 tasks, 0 compilation errors).
+- **Release Tag**: `v2.9.51-unslop-taste-remediation`
+

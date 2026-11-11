@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,15 +85,15 @@ fun SettingsScreen(
     var showSamsungBridgeDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
 
-    // Persistent & local UI toggles
-    var isSamsungConnected by remember { mutableStateOf(false) }
-    var syncFrequency by remember { mutableStateOf("Every 15 min") }
-    var notifyCritical by remember { mutableStateOf(true) }
-    var notifyNudges by remember { mutableStateOf(true) }
-    var notifySummary by remember { mutableStateOf(true) }
-    var quietHoursEnabled by remember { mutableStateOf(true) }
-    var useMetric by remember { mutableStateOf(true) }
-    var biometricLock by remember { mutableStateOf(false) }
+    // Persistent & local UI toggles (rememberSaveable for rotation & process resilience - AUD-P1-03)
+    var isSamsungConnected by rememberSaveable { mutableStateOf(false) }
+    var syncFrequency by rememberSaveable { mutableStateOf("Every 15 min") }
+    var notifyCritical by rememberSaveable { mutableStateOf(true) }
+    var notifyNudges by rememberSaveable { mutableStateOf(true) }
+    var notifySummary by rememberSaveable { mutableStateOf(true) }
+    var quietHoursEnabled by rememberSaveable { mutableStateOf(true) }
+    var useMetric by rememberSaveable { mutableStateOf(true) }
+    var biometricLock by rememberSaveable { mutableStateOf(false) }
     var savedBannerVisible by remember { mutableStateOf(false) }
 
     fun triggerAutoSaveNotice() {

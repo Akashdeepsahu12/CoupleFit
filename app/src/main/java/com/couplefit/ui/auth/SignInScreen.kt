@@ -60,7 +60,7 @@ fun SignInScreen(
                 .widthIn(max = 480.dp)
                 .fillMaxWidth()
         ) {
-            // App Branding Logo Motif
+            // App Branding Logo Motif (Ready-to-pair state - AUD-P2-04)
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -69,7 +69,7 @@ fun SignInScreen(
                 contentAlignment = Alignment.Center
             ) {
                 ActivityRing(
-                    progress = 0.85f,
+                    progress = 0f,
                     gradientStart = StepsAccent,
                     gradientEnd = ExerciseAccent,
                     modifier = Modifier.size(90.dp),
@@ -81,8 +81,7 @@ fun SignInScreen(
 
             Text(
                 text = "CoupleFit",
-                fontSize = 36.sp,
-                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.ExtraBold),
                 color = MaterialTheme.colorScheme.onBackground,
                 letterSpacing = (-0.5).sp
             )
@@ -91,8 +90,7 @@ fun SignInScreen(
 
             Text(
                 text = "Track steps, heart rate & milestones together with your partner in real time.",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 22.sp,

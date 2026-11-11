@@ -1,4 +1,4 @@
-﻿# CoupleFit Documentation Hub 📚
+# CoupleFit Documentation Hub 📚
 
 Welcome to the centralized documentation directory for the **CoupleFit** ecosystem. Below is an index of all architectural, operational, release, and agent skills documentation, complete with the exact command trigger and associated defect log mappings.
 
@@ -8,8 +8,12 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**phase65_verification_report.md**](phase65_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 65 verification report: antislop + taste UI remediation & polish wave (`AUD-P0-01`..`04`, `AUD-P1-01`..`10`, `AUD-P2-02`..`04`, `AUD-P3-02`..`04`). |
+| [**PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md**](PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 65 milestone plan: antislop + taste UI Remediation & Polish Wave (`AUD-P0`, `AUD-P1`, `AUD-P2`, `AUD-P3`). |
+| [**AUDIT_UNSLOP_TASTE_UI_REPORT.md**](AUDIT_UNSLOP_TASTE_UI_REPORT.md) | /audit + taste + unslop | **UI Quality Audit** | Full UI audit using antislop (R-01..R-40), antislop-ui, taste principles, and heydamir/unslop. 84/100 score (B+). 4 P0 issues, 10 P1, 10 P2, 8 P3 recommendations. Read-only report — no code changes. |
 | [**phase62_verification_report.md**](phase62_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 62 verification report: Background sync worker rewire, 15-min WorkManager scheduling, and recent partner telemetry fallback (`SYNC-02`, `WRK-02`, `WRK-03`, `PTR-03`). |
 | [**PLAN_PHASE_62_BACKGROUND_SYNC_REWIRE.md**](PLAN_PHASE_62_BACKGROUND_SYNC_REWIRE.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 62 milestone plan: Background Synchronization Pipeline Rewire & Recent Partner Telemetry Fallback (`SYNC-02`, `WRK-02`, `WRK-03`, `PTR-03`). |
+| [**AGENTS_COUPLEFIT_BACKUP.md**](AGENTS_COUPLEFIT_BACKUP.md) | Setup & Backup | **Agent Operating Manual** | Backup of the canonical CoupleFit Multi-Agent Operating Manual before Astryx CLI initialization. |
 | [**phase61_verification_report.md**](phase61_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 61 verification report: Real-time partner telemetry sync, Room SSOT priority ordering, session race elimination, pull-to-refresh hardening, and live device proof (`PTR-02`, `SYNC-01`, `DAT-06`). |
 | [**PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md**](PLAN_PHASE_61_PARTNER_SYNC_HARDENING.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 61 milestone plan: Real-Time Partner Telemetry Synchronization & Firestore Pipeline Hardening (`PTR-02`, `SYNC-01`, `DAT-06`). |
 | [**phase60_verification_report.md**](phase60_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 60 verification report: Text color calibration, dynamic dual-scrim ambient background, WCAG 2.2 AA/AAA contrast compliance, opacity hygiene, and live device proof (`TXT-01`, `TXT-02`, `TXT-03`). |
@@ -144,7 +148,6 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 | [**`RELEASE_NOTES_v2.0.1.md`**](RELEASE_NOTES_v2.0.1.md) | `.\gradlew.bat assembleRelease` | **Releases & Ops** | Details for release v2.0.1: R8 ProGuard keep rules for Health Connect SDK reflection, build verification, and release APK metadata. |
 | [**`RELEASE_NOTES_v2.0.0.md`**](RELEASE_NOTES_v2.0.0.md) | Release Deployment | **Releases & Ops** | Major release notes for CoupleFit v2.0.0: UI overhaul, dual ring mechanics, dynamic theming, and offline-first Room database sync. |
 | [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md) | Git & Refactor Tracking | **Releases & Ops** | Complete historical changelog documenting the transformation from legacy code into modern Clean Architecture. |
-| [**`allsam.md`**](allsam.md) | Ecosystem Master Summary | **Unified System Directory** | Master single-source-of-truth directory listing all **121 specialist agents**, **893+ modular skills**, and **7 active + 8 ecosystem MCP servers** across the entire installed Antigravity environment. |
 | [**`skillscommand.md`**](skillscommand.md) | Antigravity Skills Setup | **SDLC & Agent Manual** | Master directory and operations manual for all **23 installed agent plugins & suites** and **1,727+ modular skills** in Antigravity, including intent routers, EGM review swarms, Firebase security rules, MotionScore audits, and Stitch UI generation. |
 | [**`agents1.md`**](agents1.md) | Antigravity Agents Catalog | **Specialist Subagents** | Master catalog and full source definitions for all **118 specialized subagents** across ECC (71), GSD-Core (35), Google EGM (10), Firebase (1), and Motion (1). |
 | [**`MCP1.md`**](MCP1.md) | Antigravity MCP Architecture | **Model Context Protocol** | Comprehensive specification for all active MCP servers (`artemis`, `ecc_chrome-devtools`, `motion`, `paper`, `rea`) and ecosystem registries. |
@@ -194,7 +197,6 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 - [**`CHANGELOG_TRANSFORMATION.md`**](CHANGELOG_TRANSFORMATION.md): Architectural migration history.
 
 ### 3. 🤖 Developer SDLC & Agent Automation
-- [**`allsam.md`**](allsam.md): Master ecosystem catalog of all 121 agents, 893+ skills, and 15 MCP servers.
 - [**`skillscommand.md`**](skillscommand.md): Master directory of 23 plugins and 1,727+ modular skills with intent routers.
 - [**`agents1.md`**](agents1.md): Master catalog of 118 specialist subagents across ECC, GSD-Core, EGM, Firebase, and Motion.
 - [**`MCP1.md`**](MCP1.md): Active Model Context Protocol (MCP) server configurations and tool definitions.

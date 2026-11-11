@@ -1,0 +1,29 @@
+{
+  "name": "couplefit",
+  "version": "1.0.0",
+  "description": "**CoupleFit** is a modern, privacy-first, offline-first Android application designed for couples to track fitness, close activity rings, conquer challenges, and celebrate health milestones together in real time.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akashdeepsahu12/CoupleFit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Akashdeepsahu12/CoupleFit/issues"
+  },
+  "homepage": "https://github.com/Akashdeepsahu12/CoupleFit#readme",
+  "dependencies": {
+    "@astryxdesign/core": "^0.7.13",
+    "@astryxdesign/theme-neutral": "^0.7.13",
+    "@stylexjs/stylex": "^0.19.1"
+  },
+  "devDependencies": {
+    "@astryxdesign/cli": "^0.7.13"
+  }
+}

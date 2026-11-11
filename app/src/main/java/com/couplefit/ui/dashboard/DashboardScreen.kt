@@ -388,7 +388,7 @@ fun DashboardScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                             shape = RoundedCornerShape(AppSpacing.sm)
                         ) {
-                            Text("Get App", fontSize = 12.sp)
+                            Text("Get App", style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
@@ -439,7 +439,7 @@ fun DashboardScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(AppSpacing.sm)
                         ) {
-                            Text("Grant", fontSize = 12.sp)
+                            Text("Grant", style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }

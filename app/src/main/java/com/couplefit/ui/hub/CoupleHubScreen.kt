@@ -2,6 +2,7 @@ package com.couplefit.ui.hub
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
 fun CoupleHubScreen(
     modifier: Modifier = Modifier,
     onNavigateToPrivacySettings: () -> Unit = {},
+    reduceMotion: Boolean = false,
     networkViewModel: NetworkViewModel = hiltViewModel(),
     hubViewModel: CoupleHubViewModel = hiltViewModel()
 ) {
@@ -67,26 +69,36 @@ fun CoupleHubScreen(
     val rippleProgress = remember { Animatable(0f) }
     var heartbeatBannerVisible by remember { mutableStateOf(false) }
 
-    // REL-01: Living Partner Presence Breathing Radial Glow Halo
-    val infiniteTransition = rememberInfiniteTransition(label = "livingPresenceTransition")
-    val presenceGlowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.25f,
-        targetValue = 0.70f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "presenceGlowAlpha"
-    )
-    val presenceRadiusMultiplier by infiniteTransition.animateFloat(
-        initialValue = 0.85f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "presenceRadiusMultiplier"
-    )
+    // REL-01 & AUD-P0-03 & AUD-P1-04: Living Partner Presence Breathing Radial Glow Halo
+    val isPartnerActive = isConnected && uiState.partnerName != "Partner"
+    val presenceGlowAlpha = if (reduceMotion) {
+        0.35f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "livingPresenceTransition")
+        infiniteTransition.animateFloat(
+            initialValue = if (isPartnerActive) 0.25f else 0.10f,
+            targetValue = if (isPartnerActive) 0.65f else 0.25f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = if (isPartnerActive) 2200 else 4000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "presenceGlowAlpha"
+        ).value
+    }
+    val presenceRadiusMultiplier = if (reduceMotion) {
+        1.0f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "livingPresenceRadiusTransition")
+        infiniteTransition.animateFloat(
+            initialValue = if (isPartnerActive) 0.88f else 0.94f,
+            targetValue = if (isPartnerActive) 1.05f else 1.01f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = if (isPartnerActive) 2200 else 4000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "presenceRadiusMultiplier"
+        ).value
+    }
 
     fun triggerHeartbeat() {
         CoupleFitHaptics.performHeartbeat(context, haptic)
@@ -144,7 +156,15 @@ fun CoupleHubScreen(
                         .iosGlass(shape = MaterialTheme.shapes.large),
                     shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                    border = null
+                    border = BorderStroke(
+                        1.dp,
+                        Brush.horizontalGradient(
+                            listOf(
+                                CoupleFitIdentityTokens.SynchronyGold.copy(alpha = 0.55f),
+                                Color.White.copy(alpha = 0.15f)
+                            )
+                        )
+                    )
                 ) {
                     Column(
                         modifier = Modifier.padding(AppSpacing.md),

@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -50,6 +52,7 @@ fun AnimatedHeartIcon(
     isPulsing: Boolean = true,
     filled: Boolean = false,
     reduceMotion: Boolean = false,
+    contentDescription: String? = "Heart",
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -92,6 +95,7 @@ fun AnimatedHeartIcon(
 
     Box(
         modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -152,6 +156,7 @@ fun AnimatedSettingsIcon(
     tint: Color = LocalContentColor.current,
     isSpinning: Boolean = false,
     reduceMotion: Boolean = false,
+    contentDescription: String? = "Settings",
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -198,6 +203,7 @@ fun AnimatedSettingsIcon(
 
     Box(
         modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -287,6 +293,7 @@ fun AnimatedArrowBackIcon(
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current,
     reduceMotion: Boolean = false,
+    contentDescription: String? = "Back",
     onClick: (() -> Unit)? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -303,6 +310,7 @@ fun AnimatedArrowBackIcon(
 
     Box(
         modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -359,7 +367,8 @@ fun AnimatedArrowBackIcon(
 fun AnimatedWifiOffIcon(
     modifier: Modifier = Modifier,
     tint: Color = SystemRed,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = "Offline"
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "wifiOffTransition")
     val waveAlpha by infiniteTransition.animateFloat(
@@ -374,7 +383,11 @@ fun AnimatedWifiOffIcon(
 
     val currentAlpha = if (reduceMotion) 0.8f else waveAlpha
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier.then(
+            if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier
+        )
+    ) {
         val s = size.minDimension / 24f
         val strokeW = 2f * s
         val waveColor = tint.copy(alpha = currentAlpha)
@@ -439,7 +452,8 @@ fun AnimatedChevronIcon(
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = if (isExpanded) "Collapse" else "Expand"
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -451,9 +465,11 @@ fun AnimatedChevronIcon(
     )
 
     Canvas(
-        modifier = modifier.graphicsLayer {
-            rotationZ = if (reduceMotion) (if (isExpanded) 180f else 0f) else rotation
-        }
+        modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
+            .graphicsLayer {
+                rotationZ = if (reduceMotion) (if (isExpanded) 180f else 0f) else rotation
+            }
     ) {
         val s = size.minDimension / 24f
         val strokeW = 2f * s
@@ -483,7 +499,8 @@ fun AnimatedChevronRightIcon(
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current,
     isPressed: Boolean = false,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = "Navigate next"
 ) {
     val offsetX by animateFloatAsState(
         targetValue = if (isPressed && !reduceMotion) 3f else 0f,
@@ -495,9 +512,11 @@ fun AnimatedChevronRightIcon(
     )
 
     Canvas(
-        modifier = modifier.graphicsLayer {
-            this.translationX = offsetX * density
-        }
+        modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
+            .graphicsLayer {
+                this.translationX = offsetX * density
+            }
     ) {
         val s = size.minDimension / 24f
         val strokeW = 2f * s
@@ -526,7 +545,8 @@ fun AnimatedChevronRightIcon(
 fun AnimatedCheckIcon(
     modifier: Modifier = Modifier,
     tint: Color = ColorSuccess,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = "Success"
 ) {
     val scale by animateFloatAsState(
         targetValue = 1.0f,
@@ -538,10 +558,12 @@ fun AnimatedCheckIcon(
     )
 
     Canvas(
-        modifier = modifier.graphicsLayer {
-            scaleX = if (reduceMotion) 1f else scale
-            scaleY = if (reduceMotion) 1f else scale
-        }
+        modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
+            .graphicsLayer {
+                scaleX = if (reduceMotion) 1f else scale
+                scaleY = if (reduceMotion) 1f else scale
+            }
     ) {
         val s = size.minDimension / 24f
         val strokeW = 2.4f * s
@@ -571,7 +593,8 @@ fun AnimatedActivityIcon(
     modifier: Modifier = Modifier,
     tint: Color = VitalsAccent,
     isPulsing: Boolean = true,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = "Activity"
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "activityTransition")
     val pulseScale by infiniteTransition.animateFloat(
@@ -594,10 +617,12 @@ fun AnimatedActivityIcon(
     val currentScale = if (reduceMotion || !isPulsing) 1.0f else pulseScale
 
     Canvas(
-        modifier = modifier.graphicsLayer {
-            scaleX = currentScale
-            scaleY = currentScale
-        }
+        modifier = modifier
+            .then(if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier)
+            .graphicsLayer {
+                scaleX = currentScale
+                scaleY = currentScale
+            }
     ) {
         val s = size.minDimension / 24f
         val strokeW = 2f * s
@@ -629,7 +654,8 @@ fun AnimatedActivityIcon(
 fun AnimatedFootstepsIcon(
     modifier: Modifier = Modifier,
     tint: Color = StepsAccent,
-    reduceMotion: Boolean = false
+    reduceMotion: Boolean = false,
+    contentDescription: String? = "Steps"
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "footstepsTransition")
     val stepPhase by infiniteTransition.animateFloat(
@@ -653,7 +679,11 @@ fun AnimatedFootstepsIcon(
         else -> 0.45f
     }
 
-    Canvas(modifier = modifier) {
+    Canvas(
+        modifier = modifier.then(
+            if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier
+        )
+    ) {
         val s = size.minDimension / 24f
         val strokeW = 2f * s
 

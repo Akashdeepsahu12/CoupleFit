@@ -333,8 +333,8 @@ class NavigationComposeUiTest {
         composeTestRule.onNodeWithText("Send Heartbeat Nudge").performClick()
         assertTrue(nudgeSent)
 
-        // Verify Quick Nudge Pill interactions (ENG-03)
-        composeTestRule.onNodeWithText("QUICK CHEERS & NUDGES").assertIsDisplayed()
+        // Verify Quick Nudge Pill interactions (ENG-03, AUD-P1-02)
+        composeTestRule.onNodeWithText("Quick cheers").assertIsDisplayed()
         composeTestRule.onNodeWithText("Poke").assertIsDisplayed()
         composeTestRule.onNodeWithText("Poke").performClick()
         assertTrue(quickNudgeText.contains("Poke"))

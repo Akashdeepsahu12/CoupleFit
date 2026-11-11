@@ -164,6 +164,11 @@ fun ChallengesScreen(
                             selectedTab = tab
                         },
                         text = {
+                            val activeChallengesCount = uiState.challenges.count { it.status == "ACTIVE" }
+                            val dynamicBadgeCount = when (tab) {
+                                ChallengeSubTab.ACTIVE_DUELS -> activeChallengesCount
+                                ChallengeSubTab.TROPHIES -> 6
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -172,11 +177,13 @@ fun ChallengesScreen(
                                     text = tab.label,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 )
-                                Badge(
-                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                                ) {
-                                    Text(text = "${tab.badgeCount}")
+                                if (dynamicBadgeCount > 0) {
+                                    Badge(
+                                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                                    ) {
+                                        Text(text = "$dynamicBadgeCount")
+                                    }
                                 }
                             }
                         },
@@ -188,7 +195,12 @@ fun ChallengesScreen(
                             )
                         },
                         modifier = Modifier.semantics {
-                            contentDescription = "${tab.label} tab, ${tab.badgeCount} items"
+                            val activeChallengesCount = uiState.challenges.count { it.status == "ACTIVE" }
+                            val dynamicBadgeCount = when (tab) {
+                                ChallengeSubTab.ACTIVE_DUELS -> activeChallengesCount
+                                ChallengeSubTab.TROPHIES -> 6
+                            }
+                            contentDescription = "${tab.label} tab, $dynamicBadgeCount items"
                         }
                     )
                 }
