@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "erd",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\candidate.json",
+    "sha256": "b7287b4ecbc6bb3a00097d08c90f94087445abd28385f311314630ce9f4124b8",
+    "bytes": 11504
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\database-schema.html",
+    "sha256": "ec3dae7f297dded90f7109bd683e01bf760f1c693d1013a029c74a397187fdaa",
+    "bytes": 871903
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\database-schema.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\database-schema.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\database-schema.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T23:43:38.539Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 6017,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

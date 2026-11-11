@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "711e3df2-cc51-4937-a5c1-4d651aa86d52",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-health-sync-20261106-051130\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-health-sync-20261106-051130\\health-sync.html",
+  "specification": {
+    "sha256": "b064343af8e8ceaa085d20b7a92403def6a65f322bbdad41e803f31735fa9dd5",
+    "bytes": 7955
+  },
+  "artifact": {
+    "sha256": "1d45f99e235f545c176d3690584327ac09640bae2f928181b187a2d2ce89ee4d",
+    "bytes": 846669
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "CoupleFit Partner Challenge Lifecycle",
+    "output": ".archify/lifecycle-challenge-20261106-055245/challenge-lifecycle.html",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "mainPath": [
+    "proposed",
+    "scheduled",
+    "active",
+    "evaluating",
+    "completed"
+  ],
+  "states": [
+    {
+      "id": "proposed",
+      "type": "start",
+      "label": "Proposed",
+      "sublabel": "Target configured",
+      "tag": "Draft",
+      "step": "01",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt",
+          "line": 54,
+          "end_line": 85
+        }
+      ]
+    },
+    {
+      "id": "scheduled",
+      "type": "waiting",
+      "label": "Scheduled",
+      "sublabel": "Awaiting start",
+      "tag": "Pending",
+      "step": "02",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 58,
+          "end_line": 64
+        }
+      ]
+    },
+    {
+      "id": "active",
+      "type": "active",
+      "label": "Active",
+      "sublabel": "Pedometer telemetry",
+      "tag": "Running",
+      "step": "03",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/repository/ChallengeRepositoryImpl.kt",
+          "line": 60,
+          "end_line": 78
+        }
+      ]
+    },
+    {
+      "id": "evaluating",
+      "type": "decision",
+      "label": "Evaluating",
+      "sublabel": "Goal check",
+      "tag": "Review",
+      "step": "04",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt",
+          "line": 40,
+          "end_line": 52
+        }
+      ]
+    },
+    {
+      "id": "completed",
+      "type": "success",
+      "label": "Completed",
+      "sublabel": "Confetti win",
+      "tag": "Terminal",
+      "step": "05",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 65,
+          "end_line": 68
+        }
+      ]
+    },
+    {
+      "id": "behind_pace",
+      "type": "waiting",
+      "label": "Behind",
+      "sublabel": "Trailing target",
+      "tag": "Nudgeable",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/widget/PokeActionCallback.kt",
+          "line": 35,
+          "end_line": 48
+        }
+      ]
+    },
+    {
+      "id": "sync_lag",
+      "type": "failure",
+      "label": "Sync Lag",
+      "sublabel": "Offline drop",
+      "tag": "Recoverable",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/SyncWorker.kt",
+          "line": 30,
+          "end_line": 40
+        }
+      ]
+    },
+    {
+      "id": "expired",
+      "type": "failure",
+      "label": "Expired",
+      "sublabel": "Deadline ended",
+      "tag": "Terminal",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 62,
+          "end_line": 66
+        }
+      ]
+    },
+    {
+      "id": "forfeited",
+      "type": "failure",
+      "label": "Forfeited",
+      "sublabel": "Unlinked / cancel",
+      "tag": "Terminal",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthDao.kt",
+          "line": 94,
+          "end_line": 96
+        }
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "id": "trans-propose-schedule",
+      "from": "proposed",
+      "to": "scheduled",
+      "label": "create",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trans-schedule-active",
+      "from": "scheduled",
+      "to": "active",
+      "label": "start date",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trans-active-eval",
+      "from": "active",
+      "to": "evaluating",
+      "label": "sync",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trans-eval-complete",
+      "from": "evaluating",
+      "to": "completed",
+      "label": "won",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trans-active-behind",
+      "from": "active",
+      "to": "behind_pace",
+      "label": "trailing pace",
+      "variant": "default"
+    },
+    {
+      "id": "trans-behind-active",
+      "from": "behind_pace",
+      "to": "active",
+      "label": "nudge sent",
+      "variant": "dashed"
+    },
+    {
+      "id": "trans-active-lag",
+      "from": "active",
+      "to": "sync_lag",
+      "label": "offline",
+      "variant": "security"
+    },
+    {
+      "id": "trans-lag-active",
+      "from": "sync_lag",
+      "to": "active",
+      "label": "reconnect",
+      "variant": "dashed"
+    },
+    {
+      "id": "trans-eval-expire",
+      "from": "evaluating",
+      "to": "expired",
+      "label": "expired",
+      "variant": "security"
+    },
+    {
+      "id": "trans-behind-expire",
+      "from": "behind_pace",
+      "to": "expired",
+      "label": "deadline",
+      "variant": "security"
+    },
+    {
+      "id": "trans-schedule-cancel",
+      "from": "scheduled",
+      "to": "forfeited",
+      "label": "cancel",
+      "variant": "security"
+    },
+    {
+      "id": "trans-active-forfeit",
+      "from": "active",
+      "to": "forfeited",
+      "label": "unlink",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Primary Racing Lifecycle",
+      "items": [
+        "Challenges progress from Proposed to Scheduled, Active Racing, and Goal Achieved",
+        "Both partners log steps concurrently with live milestone evaluations"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Pacing & Recovery States",
+      "items": [
+        "Trailing partners enter Behind Pace, prompting quick nudges and poke cheers",
+        "Network disconnects enter Sync Lag and safely resume via WorkManager retry"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Explicit Terminal Outcomes",
+      "items": [
+        "Goal Achieved awards winner or mutual victory celebration",
+        "Expired and Forfeited are explicit terminal exits with zero hidden paths"
+      ]
+    }
+  ]
+}

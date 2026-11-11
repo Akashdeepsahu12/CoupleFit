@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\candidate.json",
+    "sha256": "ebca0faa74de4912cfc9a6fde4b197a15a47992555639afb001664de4580adda",
+    "bytes": 11166
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\partner-pairing.html",
+    "sha256": "bc86ebd12a51cccda1bf0fb4404d55e9a7988f6f4fac176bfea0153cdede7fca",
+    "bytes": 864666
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\partner-pairing.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\partner-pairing.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\partner-pairing.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-04T23:01:17.836Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 5863,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

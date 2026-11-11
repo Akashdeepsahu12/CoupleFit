@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "CoupleFit System Architecture",
+    "output": ".archify/architecture-couplefit-architecture-20261106-050100/couplefit-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User & Partner",
+      "sublabel": "Android Phone & Wear",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        110,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/MainActivity.kt",
+          "line": 8,
+          "end_line": 35
+        }
+      ]
+    },
+    {
+      "id": "compose_ui",
+      "type": "frontend",
+      "label": "Compose 4-Tab UI",
+      "sublabel": "Astryx Indicator & Glass Dock",
+      "pos": [
+        230,
+        40
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/MainActivity.kt",
+          "line": 40,
+          "end_line": 120
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/ui/navigation/CoupleFitNavigationSuite.kt",
+          "line": 20,
+          "end_line": 80
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/ui/components/AstryxRefreshIndicator.kt",
+          "line": 15,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "view_model",
+      "type": "frontend",
+      "label": "UI ViewModels",
+      "sublabel": "StateFlow & Coroutines",
+      "pos": [
+        430,
+        40
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt",
+          "line": 32,
+          "end_line": 55
+        }
+      ]
+    },
+    {
+      "id": "hc_manager",
+      "type": "backend",
+      "label": "Health Connect Mgr",
+      "sublabel": "Local Biometrics Aggregator",
+      "pos": [
+        630,
+        40
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 41,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "firebase_sync",
+      "type": "backend",
+      "label": "Sync & Partner Repos",
+      "sublabel": "couples/{id}/daily/{uid}_{date}",
+      "pos": [
+        860,
+        40
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "tag": "Zero Raw Vitals",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 34,
+          "end_line": 60
+        }
+      ]
+    },
+    {
+      "id": "firestore",
+      "type": "cloud",
+      "label": "Cloud Firestore",
+      "sublabel": "Real-time Partner Sync",
+      "pos": [
+        1080,
+        40
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 8,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "couple_link",
+      "type": "security",
+      "label": "Couple Link Mgr",
+      "sublabel": "6-Digit Pairing & Crypto",
+      "pos": [
+        230,
+        180
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "tag": "Pairing Auth",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 23,
+          "end_line": 50
+        }
+      ]
+    },
+    {
+      "id": "room_db",
+      "type": "database",
+      "label": "Room Database",
+      "sublabel": "Room v4 (5 SQLite Tables)",
+      "pos": [
+        430,
+        180
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthDatabase.kt",
+          "line": 9,
+          "end_line": 25
+        }
+      ],
+      "tag": "Local SSOT Priority"
+    },
+    {
+      "id": "health_connect",
+      "type": "external",
+      "label": "Health Connect",
+      "sublabel": "Android Health API",
+      "pos": [
+        630,
+        180
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "tag": "Read-only",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 8,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "sync_worker",
+      "type": "backend",
+      "label": "Sync Worker",
+      "sublabel": "6-Hr Throttled WorkManager",
+      "pos": [
+        860,
+        180
+      ],
+      "size": [
+        140,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/SyncWorker.kt",
+          "line": 15,
+          "end_line": 39
+        }
+      ],
+      "tag": "Battery Conscious"
+    },
+    {
+      "id": "fcm",
+      "type": "messagebus",
+      "label": "Cloud Messaging",
+      "sublabel": "FCM Nudges & Alerts",
+      "pos": [
+        1080,
+        180
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/NotificationSystem.kt",
+          "line": 12,
+          "end_line": 48
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Android Device Runtime",
+      "wraps": [
+        "compose_ui",
+        "view_model",
+        "hc_manager",
+        "firebase_sync",
+        "couple_link",
+        "room_db",
+        "health_connect",
+        "sync_worker"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Firebase Cloud Platform",
+      "wraps": [
+        "firestore",
+        "fcm"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "user-to-ui",
+      "from": "user",
+      "to": "compose_ui",
+      "label": "Interacts",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-to-vm",
+      "from": "compose_ui",
+      "to": "view_model",
+      "label": "Events",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-to-pairing",
+      "from": "compose_ui",
+      "to": "couple_link",
+      "label": "Pairing code",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "vm-to-hc",
+      "from": "view_model",
+      "to": "hc_manager",
+      "label": "Queries",
+      "variant": "emphasis"
+    },
+    {
+      "id": "db-to-vm",
+      "from": "room_db",
+      "to": "view_model",
+      "label": "StateFlow",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "hc-provider-to-mgr",
+      "from": "health_connect",
+      "to": "hc_manager",
+      "label": "Reads vitals",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "hc-to-cache",
+      "from": "hc_manager",
+      "to": "room_db",
+      "label": "Caches",
+      "variant": "default"
+    },
+    {
+      "id": "hc-to-sync",
+      "from": "hc_manager",
+      "to": "firebase_sync",
+      "label": "Aggregates",
+      "variant": "emphasis"
+    },
+    {
+      "id": "worker-to-sync",
+      "from": "sync_worker",
+      "to": "firebase_sync",
+      "label": "Triggers sync",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "sync-to-cloud",
+      "from": "firebase_sync",
+      "to": "firestore",
+      "label": "Syncs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cloud-to-fcm",
+      "from": "firestore",
+      "to": "fcm",
+      "label": "Partner nudges",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Client-Side Ingestion",
+      "items": [
+        "Compose UI drives the glassmorphic dashboard with StateFlow streams from ViewModels",
+        "HealthConnectManager reads device steps, calories, and heart rate with read-only permissions",
+        "HealthDatabase (Room v4) persists daily aggregates and offline snapshots locally"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Privacy & Cloud Sync",
+      "items": [
+        "FirebaseSyncManager strips raw vitals; only sanitized daily aggregates are uploaded",
+        "WorkManager (SyncWorker) flushes periodic partner updates with retry backoff",
+        "Cloud Firestore synchronizes active couples and triggers mutual milestone progress"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Pairing & Realtime Alerts",
+      "items": [
+        "CoupleLinkManager secures partner pairing via expiring 6-digit invite codes",
+        "Firebase Cloud Messaging dispatches instant partner nudges and critical alerts",
+        "Zero biometric data leaves the device unaggregated or without explicit user consent"
+      ]
+    }
+  ]
+}

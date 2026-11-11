@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\candidate.json",
+    "sha256": "5a268fcb9ddecc58d9d5c50fc3744ef9b6141bcc8737cd46351c7cb028ff5e5a",
+    "bytes": 8906
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\vitals-journey.html",
+    "sha256": "36a32d81186e990a05d2f15040e6b03eab70d9ec6025364dadf433e7f9576bd5",
+    "bytes": 851456
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\vitals-journey.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\vitals-journey.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\vitals-journey.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T23:43:38.539Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 5187,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

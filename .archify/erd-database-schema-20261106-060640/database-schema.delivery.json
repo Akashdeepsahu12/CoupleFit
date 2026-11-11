@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2f4951b9-8b41-4887-abf5-03a79971f661",
+  "status": "current",
+  "command": "deliver",
+  "type": "erd",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\erd-database-schema-20261106-060640\\database-schema.html",
+  "specification": {
+    "sha256": "b7287b4ecbc6bb3a00097d08c90f94087445abd28385f311314630ce9f4124b8",
+    "bytes": 11504
+  },
+  "artifact": {
+    "sha256": "ec3dae7f297dded90f7109bd683e01bf760f1c693d1013a029c74a397187fdaa",
+    "bytes": 871903
+  }
+}

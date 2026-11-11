@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "CoupleFit Daily Health Sync & Partner Relay",
+    "output": ".archify/sequence-health-sync-20261106-051130/health-sync.html",
+    "viewBox": [
+      1085,
+      695
+    ],
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "User",
+      "sublabel": "Android Client",
+      "icon": "person",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/MainActivity.kt",
+          "line": 8,
+          "end_line": 35
+        }
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Dashboard",
+      "sublabel": "Astryx Indicator",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt",
+          "line": 110,
+          "end_line": 160
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/ui/components/AstryxRefreshIndicator.kt",
+          "line": 20,
+          "end_line": 80
+        }
+      ]
+    },
+    {
+      "id": "vm",
+      "type": "frontend",
+      "label": "Health VM",
+      "sublabel": "StateFlow",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt",
+          "line": 40,
+          "end_line": 120
+        }
+      ]
+    },
+    {
+      "id": "hc",
+      "type": "backend",
+      "label": "Connect Mgr",
+      "sublabel": "Aggregator",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 41,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "hc_api",
+      "type": "external",
+      "label": "Health API",
+      "sublabel": "Android OS",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 8,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "Health DB",
+      "sublabel": "Room v4 SSOT",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthDatabase.kt",
+          "line": 9,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "sync",
+      "type": "backend",
+      "label": "Sync & Partner Repos",
+      "sublabel": "Canonical Sync",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt",
+          "line": 30,
+          "end_line": 90
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt",
+          "line": 35,
+          "end_line": 110
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/service/SyncWorker.kt",
+          "line": 25,
+          "end_line": 85
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "type": "cloud",
+      "label": "Firestore",
+      "sublabel": "couples/{id}",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 8,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "partner",
+      "type": "external",
+      "label": "Partner",
+      "sublabel": "FCM Push",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/NotificationSystem.kt",
+          "line": 12,
+          "end_line": 48
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 140,
+      "to": 280,
+      "label": "On-device Ingestion"
+    },
+    {
+      "from": 295,
+      "to": 405,
+      "label": "Local Room Cache"
+    },
+    {
+      "from": 425,
+      "to": 585,
+      "label": "Cloud Sync & Relay"
+    }
+  ],
+  "messages": [
+    {
+      "from": "user",
+      "to": "ui",
+      "label": "Pull-to-refresh swipe gesture",
+      "type": "sync"
+    },
+    {
+      "from": "ui",
+      "to": "vm",
+      "label": "checkStatusAndFetchData(force = true)",
+      "type": "sync"
+    },
+    {
+      "from": "vm",
+      "to": "hc",
+      "label": "syncViaChangesApi(dataStore, healthDao)",
+      "type": "sync"
+    },
+    {
+      "from": "hc",
+      "to": "hc_api",
+      "label": "getChanges(token) [Read-Only]",
+      "type": "sync"
+    },
+    {
+      "from": "hc_api",
+      "to": "hc",
+      "label": "incremental steps / heart rate",
+      "type": "return"
+    },
+    {
+      "from": "hc",
+      "to": "db",
+      "label": "insertAggregate(today)",
+      "type": "sync"
+    },
+    {
+      "from": "db",
+      "to": "hc",
+      "label": "confirmed Room SSOT commit",
+      "type": "return"
+    },
+    {
+      "from": "hc",
+      "to": "vm",
+      "label": "AggregatedHealthData",
+      "type": "return"
+    },
+    {
+      "from": "vm",
+      "to": "sync",
+      "label": "uploadMyDailyAggregate(force = true)",
+      "type": "async"
+    },
+    {
+      "from": "sync",
+      "to": "cloud",
+      "label": "set(couples/{coupleId}/daily/{uid}_{date})",
+      "type": "sync"
+    },
+    {
+      "from": "cloud",
+      "to": "sync",
+      "label": "200 OK merge written",
+      "type": "return"
+    },
+    {
+      "from": "sync",
+      "to": "cloud",
+      "label": "get(couples/.../partner_{date}) with -1d fallback",
+      "type": "sync"
+    },
+    {
+      "from": "cloud",
+      "to": "sync",
+      "label": "partner daily telemetry payload",
+      "type": "return"
+    },
+    {
+      "from": "sync",
+      "to": "db",
+      "label": "insertPartnerDaily(cachedPartner)",
+      "type": "sync"
+    },
+    {
+      "from": "db",
+      "to": "vm",
+      "label": "getLatestPartnerDailyFlow() emission",
+      "type": "return"
+    },
+    {
+      "from": "vm",
+      "to": "ui",
+      "label": "StateFlow<HealthDashboardUiState> (live & cached)",
+      "type": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ui",
+      "from": 154,
+      "to": 424,
+      "type": "frontend"
+    },
+    {
+      "participant": "vm",
+      "from": 182,
+      "to": 468,
+      "type": "frontend"
+    },
+    {
+      "participant": "hc",
+      "from": 210,
+      "to": 396,
+      "type": "backend"
+    },
+    {
+      "participant": "hc_api",
+      "from": 238,
+      "to": 296,
+      "type": "external"
+    },
+    {
+      "participant": "db",
+      "from": 312,
+      "to": 368,
+      "type": "database"
+    },
+    {
+      "participant": "sync",
+      "from": 456,
+      "to": 540,
+      "type": "backend"
+    },
+    {
+      "participant": "cloud",
+      "from": 484,
+      "to": 568,
+      "type": "cloud"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Device-Bound Ingestion",
+      "items": [
+        "Pull-to-refresh triggers asynchronous Health Connect record queries",
+        "Revoked permissions gracefully fall back to local cached snapshots without crashes"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Local Cache First",
+      "items": [
+        "Raw sensor records are aggregated immediately and persisted into Room v4",
+        "UI StateFlow updates before network sync, ensuring instant responsive feedback"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Zero-Raw-Vitals Cloud Relay",
+      "items": [
+        "FirebaseSyncManager enforces strict metric filtering before cloud transmission",
+        "Cloud Firestore dispatches silent push notifications to update partner metrics"
+      ]
+    }
+  ]
+}

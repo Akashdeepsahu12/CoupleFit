@@ -1,0 +1,449 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CoupleFit Partner Pairing & Linking Workflow",
+    "output": ".archify/workflow-partner-pairing-20261106-050830/partner-pairing.html",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "lanes": [
+    {
+      "id": "inviter",
+      "label": "Inviter (Partner A)"
+    },
+    {
+      "id": "invitee",
+      "label": "Invitee (Partner B)"
+    },
+    {
+      "id": "app_engine",
+      "label": "CoupleFit App Engine"
+    },
+    {
+      "id": "cloud",
+      "label": "Firebase Cloud Backend"
+    },
+    {
+      "id": "policy",
+      "label": "Validation & Exceptions",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "generation",
+      "label": "Code Generation & Sharing",
+      "fromCol": 0,
+      "toCol": 1,
+      "variant": "default"
+    },
+    {
+      "id": "submission",
+      "label": "Redemption & Verification",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "security"
+    },
+    {
+      "id": "linking",
+      "label": "Atomic Pairing & Sync",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "mainPath": [
+    "start_invite",
+    "gen_code",
+    "cloud_invite",
+    "share_code",
+    "receive_code",
+    "enter_code",
+    "validate_req",
+    "verify_gate",
+    "atomic_link",
+    "confirm_invitee",
+    "sync_init"
+  ],
+  "nodes": [
+    {
+      "id": "start_invite",
+      "lane": "inviter",
+      "col": 0,
+      "type": "frontend",
+      "label": "Request Pairing",
+      "sublabel": "Tap 'Invite Partner'",
+      "icon": "person",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/InvitePartnerScreen.kt",
+          "line": 38,
+          "end_line": 75
+        }
+      ]
+    },
+    {
+      "id": "gen_code",
+      "lane": "app_engine",
+      "col": 0,
+      "type": "backend",
+      "label": "Generate 6-Digit Code",
+      "sublabel": "Random 100000..999999",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 60,
+          "end_line": 110
+        }
+      ]
+    },
+    {
+      "id": "cloud_invite",
+      "lane": "cloud",
+      "col": 0,
+      "type": "cloud",
+      "label": "Create Invite Doc",
+      "sublabel": "couples/{id} \u00b7 24h TTL",
+      "tag": "PENDING",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 52,
+          "end_line": 85
+        }
+      ]
+    },
+    {
+      "id": "share_code",
+      "lane": "inviter",
+      "col": 1,
+      "type": "external",
+      "label": "Share Code",
+      "sublabel": "System share sheet / SMS",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/InvitePartnerScreen.kt",
+          "line": 76,
+          "end_line": 110
+        }
+      ]
+    },
+    {
+      "id": "receive_code",
+      "lane": "invitee",
+      "col": 1,
+      "type": "external",
+      "label": "Receive Code",
+      "sublabel": "6-digit code from Partner A",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/EnterCodeScreen.kt",
+          "line": 39,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "enter_code",
+      "lane": "invitee",
+      "col": 2,
+      "type": "frontend",
+      "label": "Enter Code",
+      "sublabel": "EnterCodeScreen input",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/EnterCodeScreen.kt",
+          "line": 66,
+          "end_line": 115
+        }
+      ]
+    },
+    {
+      "id": "validate_req",
+      "lane": "app_engine",
+      "col": 2,
+      "type": "backend",
+      "label": "Dispatch Redeem",
+      "sublabel": "Format & auth sanity check",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt",
+          "line": 383,
+          "end_line": 420
+        }
+      ]
+    },
+    {
+      "id": "verify_gate",
+      "lane": "cloud",
+      "col": 3,
+      "type": "security",
+      "label": "Verify Invite",
+      "sublabel": "Check TTL, exists, not self",
+      "tag": "Atomic gate",
+      "icon": "decision",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 156,
+          "end_line": 200
+        }
+      ]
+    },
+    {
+      "id": "err_invalid",
+      "lane": "policy",
+      "col": 3,
+      "type": "security",
+      "label": "Invalid Code",
+      "sublabel": "NotFound / SelfPairing",
+      "tag": "Reject",
+      "icon": "failure",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 201,
+          "end_line": 230
+        }
+      ]
+    },
+    {
+      "id": "atomic_link",
+      "lane": "cloud",
+      "col": 4,
+      "type": "cloud",
+      "label": "Firestore Transaction",
+      "sublabel": "Status -> PAIRED, set partnerId",
+      "tag": "Atomic write",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 190,
+          "end_line": 275
+        }
+      ]
+    },
+    {
+      "id": "err_expired",
+      "lane": "policy",
+      "col": 4,
+      "type": "security",
+      "label": "Expired / Paired",
+      "sublabel": ">24h TTL or already linked",
+      "tag": "Abort",
+      "icon": "failure",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt",
+          "line": 281,
+          "end_line": 310
+        }
+      ]
+    },
+    {
+      "id": "err_reinvite",
+      "lane": "policy",
+      "col": 5,
+      "type": "security",
+      "label": "Fresh Code Required",
+      "sublabel": "Re-trigger invite from Partner A",
+      "tag": "Exception Exit",
+      "icon": "waiting",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/InvitePartnerScreen.kt",
+          "line": 111,
+          "end_line": 130
+        }
+      ]
+    },
+    {
+      "id": "confirm_inviter",
+      "lane": "inviter",
+      "col": 5,
+      "type": "frontend",
+      "label": "Linked Celebration",
+      "sublabel": "Confetti & partner stats",
+      "tag": "Realtime update",
+      "icon": "success",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/LinkedConfirmationScreen.kt",
+          "line": 25,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "confirm_invitee",
+      "lane": "invitee",
+      "col": 5,
+      "type": "frontend",
+      "label": "Success Screen",
+      "sublabel": "Confetti celebration",
+      "icon": "success",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/auth/LinkedConfirmationScreen.kt",
+          "line": 71,
+          "end_line": 115
+        }
+      ]
+    },
+    {
+      "id": "sync_init",
+      "lane": "app_engine",
+      "col": 5,
+      "type": "backend",
+      "label": "Initialize SyncWorker",
+      "sublabel": "Periodic background health sync",
+      "tag": "WorkManager",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/SyncWorker.kt",
+          "line": 20,
+          "end_line": 41
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "start-to-gen",
+      "from": "start_invite",
+      "to": "gen_code",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gen-to-cloud",
+      "from": "gen_code",
+      "to": "cloud_invite",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cloud-to-share",
+      "from": "cloud_invite",
+      "to": "share_code",
+      "label": "Code created",
+      "variant": "emphasis"
+    },
+    {
+      "id": "share-to-receive",
+      "from": "share_code",
+      "to": "receive_code",
+      "label": "Send code",
+      "variant": "default"
+    },
+    {
+      "id": "receive-to-enter",
+      "from": "receive_code",
+      "to": "enter_code",
+      "variant": "emphasis"
+    },
+    {
+      "id": "enter-to-validate",
+      "from": "enter_code",
+      "to": "validate_req",
+      "label": "Submit",
+      "variant": "emphasis"
+    },
+    {
+      "id": "validate-to-gate",
+      "from": "validate_req",
+      "to": "verify_gate",
+      "label": "Verify",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gate-to-link",
+      "from": "verify_gate",
+      "to": "atomic_link",
+      "label": "Valid",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gate-to-invalid",
+      "from": "verify_gate",
+      "to": "err_invalid",
+      "label": "Not found / Self",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "gate-to-expired",
+      "from": "verify_gate",
+      "to": "err_expired",
+      "label": "Expired (>24h)",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "invalid-to-reinvite",
+      "from": "err_invalid",
+      "to": "err_reinvite",
+      "label": "Prompt retry",
+      "variant": "dashed",
+      "role": "error"
+    },
+    {
+      "id": "expired-to-reinvite",
+      "from": "err_expired",
+      "to": "err_reinvite",
+      "variant": "dashed",
+      "role": "error"
+    },
+    {
+      "id": "link-to-invitee",
+      "from": "atomic_link",
+      "to": "confirm_invitee",
+      "label": "Redeemed",
+      "variant": "emphasis"
+    },
+    {
+      "id": "link-to-inviter",
+      "from": "atomic_link",
+      "to": "confirm_inviter",
+      "label": "Realtime snapshot",
+      "variant": "emphasis",
+      "role": "branch"
+    },
+    {
+      "id": "invitee-to-sync",
+      "from": "confirm_invitee",
+      "to": "sync_init",
+      "label": "Schedule sync",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Invite Generation & TTL",
+      "items": [
+        "Inviter generates a 6-digit cryptographic code backed by a Firestore invite document",
+        "Each invite document enforces a strict 24-hour expiration time-to-live (TTL)"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Security & Prevention",
+      "items": [
+        "Redeem transaction verifies code existence and prevents self-pairing",
+        "Expired or already-linked invites are rejected immediately with user-friendly retry states"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Mutual Synchronization",
+      "items": [
+        "Firestore document state transitions atomically to PAIRED",
+        "Inviter's real-time snapshot listener triggers immediate mutual UI update and WorkManager sync"
+      ]
+    }
+  ]
+}

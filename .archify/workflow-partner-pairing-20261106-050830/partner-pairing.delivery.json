@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9cce90ca-8023-46ea-8e9b-a155f5dcd795",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\workflow-partner-pairing-20261106-050830\\partner-pairing.html",
+  "specification": {
+    "sha256": "ebca0faa74de4912cfc9a6fde4b197a15a47992555639afb001664de4580adda",
+    "bytes": 11166
+  },
+  "artifact": {
+    "sha256": "bc86ebd12a51cccda1bf0fb4404d55e9a7988f6f4fac176bfea0153cdede7fca",
+    "bytes": 864666
+  }
+}

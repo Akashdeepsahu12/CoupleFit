@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "diagram_type": "erd",
+  "meta": {
+    "title": "CoupleFit Database & Entity Relationship Schema",
+    "locale": "en",
+    "output": ".archify/erd-database-schema-20261106-060640/database-schema.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "layout": {
+    "mode": "grid",
+    "gapY": 42,
+    "gapX": 68
+  },
+  "entities": [
+    {
+      "id": "users",
+      "label": "users",
+      "tag": "auth & identity",
+      "row": 0,
+      "col": 0,
+      "width": 240,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/model/Models.kt",
+          "line": 7,
+          "end_line": 14
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "name",
+          "type": "TEXT"
+        },
+        {
+          "name": "gender",
+          "type": "TEXT"
+        },
+        {
+          "name": "partner_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "auth_provider",
+          "type": "TEXT"
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "couples",
+      "label": "couples",
+      "tag": "pairing hub",
+      "row": 0,
+      "col": 1,
+      "width": 250,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/model/Models.kt",
+          "line": 17,
+          "end_line": 24
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "user_a_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "user_b_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "connection_status",
+          "type": "TEXT"
+        },
+        {
+          "name": "invite_code",
+          "type": "TEXT",
+          "key": "uk"
+        },
+        {
+          "name": "created_at",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "couple_challenges",
+      "label": "coupleChallenges",
+      "tag": "gamification",
+      "row": 0,
+      "col": 2,
+      "width": 260,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 54,
+          "end_line": 68
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "couple_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "couples.id"
+        },
+        {
+          "name": "type",
+          "type": "TEXT"
+        },
+        {
+          "name": "goal",
+          "type": "INTEGER"
+        },
+        {
+          "name": "start",
+          "type": "TEXT"
+        },
+        {
+          "name": "end",
+          "type": "TEXT"
+        },
+        {
+          "name": "status",
+          "type": "TEXT"
+        },
+        {
+          "name": "my_progress",
+          "type": "INTEGER"
+        },
+        {
+          "name": "partner_progress",
+          "type": "INTEGER"
+        },
+        {
+          "name": "winner_user_id",
+          "type": "TEXT"
+        },
+        {
+          "name": "completed_at",
+          "type": "INTEGER"
+        },
+        {
+          "name": "last_updated",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "health_daily_aggregates",
+      "label": "health_daily_aggregates",
+      "tag": "local telemetry",
+      "row": 1,
+      "col": 0,
+      "width": 256,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 17,
+          "end_line": 26
+        }
+      ],
+      "attributes": [
+        {
+          "name": "date_str",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "total_steps",
+          "type": "INTEGER"
+        },
+        {
+          "name": "total_active_minutes",
+          "type": "INTEGER"
+        },
+        {
+          "name": "total_calories",
+          "type": "INTEGER"
+        },
+        {
+          "name": "average_heart_rate",
+          "type": "REAL"
+        },
+        {
+          "name": "average_spo2",
+          "type": "REAL"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "partner_daily_aggregates",
+      "label": "partner_daily_aggregates",
+      "tag": "partner telemetry",
+      "row": 1,
+      "col": 1,
+      "width": 256,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 28,
+          "end_line": 39
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "partner_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "date_str",
+          "type": "TEXT"
+        },
+        {
+          "name": "total_steps",
+          "type": "INTEGER"
+        },
+        {
+          "name": "total_active_minutes",
+          "type": "INTEGER"
+        },
+        {
+          "name": "total_calories",
+          "type": "INTEGER"
+        },
+        {
+          "name": "average_heart_rate",
+          "type": "REAL"
+        },
+        {
+          "name": "average_spo2",
+          "type": "REAL"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "health_metrics",
+      "label": "health_metrics",
+      "tag": "time series",
+      "row": 1,
+      "col": 2,
+      "width": 250,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 7,
+          "end_line": 16
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "date_str",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "health_daily_aggregates.date_str"
+        },
+        {
+          "name": "metric_type",
+          "type": "TEXT"
+        },
+        {
+          "name": "source_timestamp",
+          "type": "INTEGER"
+        },
+        {
+          "name": "raw_value",
+          "type": "REAL"
+        },
+        {
+          "name": "normalized_value",
+          "type": "REAL"
+        },
+        {
+          "name": "synced_to_remote",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "id": "partnerDaily",
+      "label": "partnerDaily",
+      "tag": "real-time partner cache",
+      "row": 2,
+      "col": 1,
+      "width": 260,
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthEntities.kt",
+          "line": 41,
+          "end_line": 52
+        }
+      ],
+      "attributes": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "key": "pk"
+        },
+        {
+          "name": "partner_id",
+          "type": "TEXT",
+          "key": "fk",
+          "references": "users.id"
+        },
+        {
+          "name": "date_str",
+          "type": "TEXT"
+        },
+        {
+          "name": "steps",
+          "type": "INTEGER"
+        },
+        {
+          "name": "active_minutes",
+          "type": "INTEGER"
+        },
+        {
+          "name": "calories",
+          "type": "INTEGER"
+        },
+        {
+          "name": "avg_hr",
+          "type": "REAL"
+        },
+        {
+          "name": "avg_spo2",
+          "type": "REAL"
+        },
+        {
+          "name": "last_updated",
+          "type": "INTEGER"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "rel_couple_user",
+      "from": "couples",
+      "to": "users",
+      "label": "formed by",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": true
+    },
+    {
+      "id": "rel_challenge_couple",
+      "from": "couple_challenges",
+      "to": "couples",
+      "label": "scoped to",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": true
+    },
+    {
+      "id": "rel_user_daily_agg",
+      "from": "health_daily_aggregates",
+      "to": "users",
+      "label": "logged by",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": true
+    },
+    {
+      "id": "rel_partner_daily_agg",
+      "from": "partner_daily_aggregates",
+      "to": "couples",
+      "label": "synced for",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": false
+    },
+    {
+      "id": "rel_metric_daily",
+      "from": "health_metrics",
+      "to": "health_daily_aggregates",
+      "label": "rolls up into",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": false
+    },
+    {
+      "id": "rel_partner_daily_ssot",
+      "from": "partnerDaily",
+      "to": "couples",
+      "label": "SSOT cache for",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "toOptional": false,
+      "identifying": false
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Primary Keys & Uniqueness",
+      "items": [
+        "health_daily_aggregates uses dateStr as single PK for quick day-based queries",
+        "partner_daily_aggregates prefixes partnerId onto dateStr for composite isolation",
+        "couples enforces a unique 6-digit invite_code for active pairing workflows"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Foreign Key Cardinality",
+      "items": [
+        "couples references users (one-to-many, optionality preserved for unlinked users)",
+        "coupleChallenges belongs to exactly one coupleId with zero or many historical entries",
+        "health_metrics samples roll up into the parent health_daily_aggregates row"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Data Isolation Architecture",
+      "items": [
+        "Raw time-series vitals (health_metrics) are isolated locally from partner views",
+        "Only aggregates (health_daily_aggregates) are shared and synced remotely"
+      ]
+    }
+  ]
+}

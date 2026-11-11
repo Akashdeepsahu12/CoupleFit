@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-partner-nudge-20261106-052630\\candidate.json",
+    "sha256": "31064b7c6da3628427bd0a1695bfcfaa19119b361fc1ec0901afeb7653cfc4cd",
+    "bytes": 6806
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-partner-nudge-20261106-052630\\partner-nudge.html",
+    "sha256": "fd051e92b676e364c2700457d945b94ca476f62c8208a8091108d80cef38e7e6",
+    "bytes": 844612
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-partner-nudge-20261106-052630\\partner-nudge.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-partner-nudge-20261106-052630\\partner-nudge.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\sequence-partner-nudge-20261106-052630\\partner-nudge.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T23:43:38.539Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 5621,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

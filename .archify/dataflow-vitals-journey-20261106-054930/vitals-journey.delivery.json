@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e4462200-3a21-4491-a5d2-562e9bc6fdef",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\dataflow-vitals-journey-20261106-054930\\vitals-journey.html",
+  "specification": {
+    "sha256": "5a268fcb9ddecc58d9d5c50fc3744ef9b6141bcc8737cd46351c7cb028ff5e5a",
+    "bytes": 8906
+  },
+  "artifact": {
+    "sha256": "36a32d81186e990a05d2f15040e6b03eab70d9ec6025364dadf433e7f9576bd5",
+    "bytes": 851456
+  }
+}

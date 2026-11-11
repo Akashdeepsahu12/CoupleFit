@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "CoupleFit Vitals Data Journey & Privacy Boundary",
+    "output": ".archify/dataflow-vitals-journey-20261106-054930/vitals-journey.html",
+    "viewBox": [
+      1080,
+      520
+    ],
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "stages": [
+    {
+      "label": "Sensors"
+    },
+    {
+      "label": "Ingestion"
+    },
+    {
+      "label": "Transform"
+    },
+    {
+      "label": "Dual Stores"
+    },
+    {
+      "label": "Consumers"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "wear_sensors",
+      "type": "external",
+      "label": "Wear Sensors",
+      "sublabel": "Heart Rate & Steps",
+      "stage": 0,
+      "row": 0,
+      "tag": "Continuous",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 8,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "phone_sensors",
+      "type": "external",
+      "label": "Phone Sensors",
+      "sublabel": "Pedometer Hardware",
+      "stage": 0,
+      "row": 2,
+      "tag": "Passive Steps",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 15,
+          "end_line": 30
+        }
+      ]
+    },
+    {
+      "id": "hc_api",
+      "type": "backend",
+      "label": "Health Connect",
+      "sublabel": "Android SDK API",
+      "stage": 1,
+      "row": 0,
+      "tag": "On-device API",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 41,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "samsung_health",
+      "type": "backend",
+      "label": "Samsung Health",
+      "sublabel": "Partner Provider",
+      "stage": 1,
+      "row": 2,
+      "tag": "Secondary SDK",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/samsunghealth/SamsungHealthManager.kt",
+          "line": 22,
+          "end_line": 45
+        }
+      ]
+    },
+    {
+      "id": "hc_aggregator",
+      "type": "backend",
+      "label": "Aggregator",
+      "sublabel": "Daily Sums & Mean",
+      "stage": 2,
+      "row": 0,
+      "tag": "In-memory reduction",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/healthconnect/HealthConnectManager.kt",
+          "line": 35,
+          "end_line": 40
+        }
+      ]
+    },
+    {
+      "id": "privacy_filter",
+      "type": "security",
+      "label": "Privacy Filter",
+      "sublabel": "Strips Raw Samples",
+      "stage": 2,
+      "row": 2,
+      "tag": "Zero raw vitals",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 34,
+          "end_line": 60
+        }
+      ]
+    },
+    {
+      "id": "room_db",
+      "type": "database",
+      "label": "Room Database",
+      "sublabel": "Room v4 (health_daily_aggregates & partnerDaily)",
+      "stage": 3,
+      "row": 0,
+      "tag": "Monotonic Write Fence",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/local/HealthDatabase.kt",
+          "line": 9,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "firestore",
+      "type": "cloud",
+      "label": "Cloud Firestore",
+      "sublabel": "couples/{id}/daily/{uid}_{date}",
+      "stage": 3,
+      "row": 2,
+      "tag": "Atomic Merge & Fallback",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 8,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "dashboard_ui",
+      "type": "frontend",
+      "label": "Dashboard Compose UI",
+      "sublabel": "Astryx Indicator & Bilateral Rings",
+      "stage": 4,
+      "row": 0,
+      "tag": "Compose Local",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt",
+          "line": 115,
+          "end_line": 140
+        }
+      ]
+    },
+    {
+      "id": "glance_widget",
+      "type": "frontend",
+      "label": "Glance Widget",
+      "sublabel": "Home Screen Glance",
+      "stage": 4,
+      "row": 1,
+      "tag": "Poke Action",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/widget/CoupleFitAppWidget.kt",
+          "line": 30,
+          "end_line": 65
+        }
+      ]
+    },
+    {
+      "id": "couple_hub",
+      "type": "frontend",
+      "label": "Couple Hub",
+      "sublabel": "Partner Shared Stats",
+      "stage": 4,
+      "row": 2,
+      "tag": "Live WebSocket",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt",
+          "line": 47,
+          "end_line": 80
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-wear-to-hc",
+      "from": "wear_sensors",
+      "to": "hc_api",
+      "label": "raw vitals",
+      "classification": "streaming",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow-phone-to-hc",
+      "from": "phone_sensors",
+      "to": "hc_api",
+      "label": "step events",
+      "classification": "event batch",
+      "variant": "default"
+    },
+    {
+      "id": "flow-phone-to-samsung",
+      "from": "phone_sensors",
+      "to": "samsung_health",
+      "label": "sensor data",
+      "classification": "optional stream",
+      "variant": "default",
+      "route": "straight"
+    },
+    {
+      "id": "flow-hc-to-agg",
+      "from": "hc_api",
+      "to": "hc_aggregator",
+      "label": "daily records",
+      "classification": "in-memory",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow-samsung-to-agg",
+      "from": "samsung_health",
+      "to": "hc_aggregator",
+      "label": "fallback stats",
+      "classification": "in-memory",
+      "variant": "dashed"
+    },
+    {
+      "id": "flow-agg-to-room",
+      "from": "hc_aggregator",
+      "to": "room_db",
+      "label": "daily snapshot",
+      "classification": "local SQLite",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow-agg-to-privacy",
+      "from": "hc_aggregator",
+      "to": "privacy_filter",
+      "label": "vitals payload",
+      "classification": "in-memory",
+      "variant": "security"
+    },
+    {
+      "id": "flow-privacy-to-cloud",
+      "from": "privacy_filter",
+      "to": "firestore",
+      "label": "sanitized sync",
+      "classification": "TLS batch",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow-room-to-ui",
+      "from": "room_db",
+      "to": "dashboard_ui",
+      "label": "StateFlow query",
+      "classification": "in-memory stream",
+      "variant": "emphasis",
+      "route": "straight"
+    },
+    {
+      "id": "flow-room-to-widget",
+      "from": "room_db",
+      "to": "glance_widget",
+      "label": "cached stats",
+      "classification": "local read",
+      "variant": "dashed"
+    },
+    {
+      "id": "flow-cloud-to-widget",
+      "from": "firestore",
+      "to": "glance_widget",
+      "label": "partner steps",
+      "classification": "cloud update",
+      "variant": "dashed"
+    },
+    {
+      "id": "flow-cloud-to-hub",
+      "from": "firestore",
+      "to": "couple_hub",
+      "label": "snapshot sync",
+      "classification": "WebSocket stream",
+      "variant": "emphasis",
+      "route": "straight"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "On-Device Lineage",
+      "items": [
+        "Sensors stream raw biometrics strictly into on-device Health Connect and Samsung Health APIs",
+        "HealthConnectManager calculates daily step totals and mean heart rate in memory"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Privacy Sanitization Wall",
+      "items": [
+        "FirebaseSyncManager strips individual biometric sample points and timestamp series",
+        "Only aggregated numbers (total steps, daily active minutes) cross the cloud network boundary"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Consumer Distribution",
+      "items": [
+        "Dashboard UI renders immediate animated feedback directly from local Room SQLite",
+        "Couple Hub and Glance App Widget subscribe to synchronized partner aggregates via Firestore"
+      ]
+    }
+  ]
+}

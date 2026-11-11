@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "0759d397-63f8-45a6-bf86-d8416d4afcff",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\couplefit-architecture.html",
+  "specification": {
+    "sha256": "4ad8fdfa59ec4feadec5a091ed1da491155112112c497c9af087010ea6a7fe8f",
+    "bytes": 9370
+  },
+  "artifact": {
+    "sha256": "4e99ebe4ffee9dea8726f13af7d6db6e609b549732ff96f4fd67992cadabff39",
+    "bytes": 857102
+  }
+}

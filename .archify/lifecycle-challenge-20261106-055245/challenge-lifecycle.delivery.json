@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ca205285-316e-4a99-9478-f14280583871",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\candidate.json",
+  "output": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\challenge-lifecycle.html",
+  "specification": {
+    "sha256": "6e578aee3aab23f3b6c35c53cb1cba47b50e9b45169ad7a049786ed9e8987edd",
+    "bytes": 6549
+  },
+  "artifact": {
+    "sha256": "a7e595344b9694655f0cff1adb63eb6adaab0ad5264763ef79e191210dc0578e",
+    "bytes": 850336
+  }
+}

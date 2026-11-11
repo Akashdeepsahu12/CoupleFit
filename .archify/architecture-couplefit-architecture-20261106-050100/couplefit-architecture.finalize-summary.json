@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\candidate.json",
+    "sha256": "4ad8fdfa59ec4feadec5a091ed1da491155112112c497c9af087010ea6a7fe8f",
+    "bytes": 9370
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\couplefit-architecture.html",
+    "sha256": "4e99ebe4ffee9dea8726f13af7d6db6e609b549732ff96f4fd67992cadabff39",
+    "bytes": 857102
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\couplefit-architecture.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\couplefit-architecture.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\architecture-couplefit-architecture-20261106-050100\\couplefit-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-04T23:01:17.836Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3945,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

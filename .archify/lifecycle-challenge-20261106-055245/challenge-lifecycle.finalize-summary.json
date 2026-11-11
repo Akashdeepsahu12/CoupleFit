@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "lifecycle",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\candidate.json",
+    "sha256": "6e578aee3aab23f3b6c35c53cb1cba47b50e9b45169ad7a049786ed9e8987edd",
+    "bytes": 6549
+  },
+  "artifact": {
+    "path": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\challenge-lifecycle.html",
+    "sha256": "a7e595344b9694655f0cff1adb63eb6adaab0ad5264763ef79e191210dc0578e",
+    "bytes": 850336
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\challenge-lifecycle.finalize.json",
+    "summaryReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\challenge-lifecycle.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Couple_fit\\CoupleFit\\.archify\\lifecycle-challenge-20261106-055245\\challenge-lifecycle.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-05T23:43:38.539Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3961,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

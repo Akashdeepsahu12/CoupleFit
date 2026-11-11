@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "CoupleFit Widget Poke & Partner Nudge Sequence",
+    "output": ".archify/sequence-partner-nudge-20261106-052630/partner-nudge.html",
+    "viewBox": [
+      985,
+      635
+    ],
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/Akashdeepsahu12/CoupleFit.git",
+      "revision": "fd269b1f4b6d96e4f700cbaaf8d28d207d1642fd"
+    }
+  },
+  "participants": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "Inviter",
+      "sublabel": "Home Screen",
+      "icon": "person",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/widget/PokeActionCallback.kt",
+          "line": 19,
+          "end_line": 30
+        }
+      ]
+    },
+    {
+      "id": "widget",
+      "type": "frontend",
+      "label": "Widget & QuickNudge",
+      "sublabel": "QuickNudgeRow",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/ui/components/QuickNudgeRow.kt",
+          "line": 20,
+          "end_line": 75
+        },
+        {
+          "path": "app/src/main/java/com/couplefit/widget/CoupleFitAppWidget.kt",
+          "line": 30,
+          "end_line": 90
+        }
+      ]
+    },
+    {
+      "id": "callback",
+      "type": "backend",
+      "label": "Poke Callback",
+      "sublabel": "ActionCallback",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/widget/PokeActionCallback.kt",
+          "line": 21,
+          "end_line": 48
+        }
+      ]
+    },
+    {
+      "id": "repo",
+      "type": "backend",
+      "label": "Partner Repo",
+      "sublabel": "Repository",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt",
+          "line": 134,
+          "end_line": 160
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "type": "cloud",
+      "label": "Firestore",
+      "sublabel": "couples/nudges",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/data/remote/FirebaseSyncManager.kt",
+          "line": 8,
+          "end_line": 28
+        }
+      ]
+    },
+    {
+      "id": "fcm",
+      "type": "messagebus",
+      "label": "Cloud Msg",
+      "sublabel": "FCM Gateway",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/NotificationSystem.kt",
+          "line": 12,
+          "end_line": 48
+        }
+      ]
+    },
+    {
+      "id": "partner_app",
+      "type": "frontend",
+      "label": "Partner App",
+      "sublabel": "FCM Receiver",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/CoupleFitFirebaseMessagingService.kt",
+          "line": 44,
+          "end_line": 70
+        }
+      ]
+    },
+    {
+      "id": "partner",
+      "type": "external",
+      "label": "Partner",
+      "sublabel": "Device / Wear",
+      "sources": [
+        {
+          "path": "app/src/main/java/com/couplefit/service/NotificationSystem.kt",
+          "line": 35,
+          "end_line": 50
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 140,
+      "to": 260,
+      "label": "Home Screen Widget Trigger"
+    },
+    {
+      "from": 270,
+      "to": 395,
+      "label": "Repository Dispatch & Local State"
+    },
+    {
+      "from": 405,
+      "to": 535,
+      "label": "Cloud Sync & Partner Alert"
+    }
+  ],
+  "messages": [
+    {
+      "from": "user",
+      "to": "widget",
+      "y": 160,
+      "label": "Tap 'Poke \ud83d\udc4b'",
+      "variant": "emphasis"
+    },
+    {
+      "from": "widget",
+      "to": "callback",
+      "y": 188,
+      "label": "onAction(glanceId)",
+      "variant": "emphasis",
+      "note": "Zero cold start"
+    },
+    {
+      "from": "callback",
+      "to": "widget",
+      "y": 232,
+      "label": "markPoked()",
+      "variant": "return",
+      "note": "Immediate visual update"
+    },
+    {
+      "from": "callback",
+      "to": "repo",
+      "y": 280,
+      "label": "sendNudge(msg)",
+      "variant": "emphasis"
+    },
+    {
+      "from": "repo",
+      "to": "cloud",
+      "y": 308,
+      "label": "addDoc(nudge)",
+      "variant": "emphasis",
+      "note": "Queues if offline"
+    },
+    {
+      "from": "cloud",
+      "to": "repo",
+      "y": 352,
+      "label": "200 write ack",
+      "variant": "return"
+    },
+    {
+      "from": "repo",
+      "to": "callback",
+      "y": 380,
+      "label": "Result.Success",
+      "variant": "return"
+    },
+    {
+      "from": "cloud",
+      "to": "fcm",
+      "y": 415,
+      "label": "trigger FCM nudge",
+      "variant": "dashed"
+    },
+    {
+      "from": "fcm",
+      "to": "partner_app",
+      "y": 443,
+      "label": "onMessageReceived()",
+      "variant": "dashed",
+      "note": "Background FCM payload"
+    },
+    {
+      "from": "partner_app",
+      "to": "partner",
+      "y": 490,
+      "label": "showNotification()",
+      "variant": "emphasis",
+      "note": "High importance haptic buzz"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "widget",
+      "from": 154,
+      "to": 238,
+      "type": "frontend"
+    },
+    {
+      "participant": "callback",
+      "from": 182,
+      "to": 386,
+      "type": "backend"
+    },
+    {
+      "participant": "repo",
+      "from": 274,
+      "to": 386,
+      "type": "backend"
+    },
+    {
+      "participant": "cloud",
+      "from": 302,
+      "to": 422,
+      "type": "cloud"
+    },
+    {
+      "participant": "fcm",
+      "from": 410,
+      "to": 450,
+      "type": "messagebus"
+    },
+    {
+      "participant": "partner_app",
+      "from": 438,
+      "to": 496,
+      "type": "frontend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Zero Cold Start",
+      "items": [
+        "Tapping the Glance widget directly executes PokeActionCallback without launching MainActivity",
+        "Widget UI transitions immediately to mark the poke before remote network calls"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Resilient Offline Delivery",
+      "items": [
+        "PartnerRepository writes nudge payloads asynchronously to Firestore",
+        "If network drops, WorkManager sync retries and flushes queued nudges on reconnect"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Haptic Engagement",
+      "items": [
+        "Cloud functions forward nudge events to Firebase Cloud Messaging",
+        "Partner device triggers a high-importance reminder channel notification with haptics"
+      ]
+    }
+  ]
+}
