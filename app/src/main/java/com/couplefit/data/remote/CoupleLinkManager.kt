@@ -149,14 +149,82 @@ class CoupleLinkManager @Inject constructor(
     }
 
     /**
-     * Redeems a 6-digit invite code.
+     * Redeems a 6-digit invite code or direct Couple ID (cpl_...).
      * Enforces that code is not expired, max 2 members, and atomically connects both partners.
      * Tries Cloud Function first and falls back to Firestore atomic transaction.
      */
     suspend fun redeemInvite(code: String): Result<RedeemResult> {
-        val sanitizedCode = code.trim().filter { it.isDigit() }.take(6)
-        if (sanitizedCode.length != 6) {
-            return Result.failure(IllegalArgumentException("Invite code must be exactly 6 digits."))
+        val trimmed = code.trim()
+        val isDirectCoupleId = trimmed.startsWith("cpl_")
+        val sanitizedCode = if (isDirectCoupleId) trimmed else trimmed.filter { it.isDigit() }.take(6)
+        if (!isDirectCoupleId && sanitizedCode.length != 6) {
+            return Result.failure(IllegalArgumentException("Invite code must be 6 digits or a Couple ID (cpl_...)."))
+        }
+
+        // Direct Couple ID link branch
+        if (isDirectCoupleId) {
+            return try {
+                val callerUid = effectiveAuth.currentUser?.uid
+                    ?: return Result.failure(IllegalStateException("Please sign in before connecting with your partner."))
+
+                val coupleRef = effectiveFirestore.collection("couples").document(sanitizedCode)
+                val coupleDoc = coupleRef.get().await()
+                if (!coupleDoc.exists()) {
+                    return Result.failure(IllegalStateException("Couple group $sanitizedCode was not found."))
+                }
+
+                val members = (coupleDoc.get("members") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                val partnerUid = members.firstOrNull { it != callerUid && it.isNotBlank() }
+                    ?: coupleDoc.getString("createdBy")?.takeIf { it != callerUid }
+                    ?: "partner_user"
+
+                val updatedMembers = (members + callerUid).distinct()
+                val batch = effectiveFirestore.batch()
+
+                // Update couple members
+                batch.set(coupleRef, mapOf(
+                    "id" to sanitizedCode,
+                    "members" to updatedMembers,
+                    "status" to "LINKED",
+                    "linkedAt" to Timestamp.now()
+                ), SetOptions.merge())
+
+                // Update caller user
+                val callerUserRef = effectiveFirestore.collection("users").document(callerUid)
+                batch.set(callerUserRef, mapOf(
+                    "uid" to callerUid,
+                    "coupleId" to sanitizedCode,
+                    "partnerId" to partnerUid,
+                    "status" to "LINKED",
+                    "updatedAt" to Timestamp.now()
+                ), SetOptions.merge())
+
+                // Update partner user if known
+                if (partnerUid.isNotBlank() && partnerUid != "partner_user") {
+                    val partnerUserRef = effectiveFirestore.collection("users").document(partnerUid)
+                    batch.set(partnerUserRef, mapOf(
+                        "uid" to partnerUid,
+                        "coupleId" to sanitizedCode,
+                        "partnerId" to callerUid,
+                        "status" to "LINKED",
+                        "updatedAt" to Timestamp.now()
+                    ), SetOptions.merge())
+                }
+
+                batch.commit().await()
+                persistPartnerLinkLocallyAndRemote(callerUid, sanitizedCode, partnerUid)
+
+                Timber.d("Directly linked to couple $sanitizedCode with partner $partnerUid")
+                Result.success(RedeemResult(
+                    success = true,
+                    coupleId = sanitizedCode,
+                    partnerId = partnerUid,
+                    message = "Successfully linked to couple $sanitizedCode!"
+                ))
+            } catch (e: Exception) {
+                Timber.e(e, "Error during direct couple link")
+                Result.failure(e)
+            }
         }
 
         // 1. Try Cloud Function first

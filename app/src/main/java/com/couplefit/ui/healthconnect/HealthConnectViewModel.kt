@@ -387,7 +387,12 @@ class HealthConnectViewModel @Inject constructor(
             // 3. Actively sync PARTNER daily aggregate from Firestore (couples/{coupleId}/daily/{partnerId_date}) into Room
             if (coupleId.isNotBlank() && coupleId != "couple_1" && partnerId.isNotBlank() && partnerId != "partner_1") {
                 try {
-                    partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+                    val partnerResult = partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
+                    partnerResult.onSuccess { partnerDaily ->
+                        if (partnerDaily != null) {
+                            Log.d("Sync", "Successfully synced partner daily: ${partnerDaily.steps} steps, ${partnerDaily.calories} kcal")
+                        }
+                    }
                 } catch (e: Exception) {
                     Log.w("Sync", "Explicit partner remote sync failed: ${e.message}")
                 }

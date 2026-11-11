@@ -4450,6 +4450,36 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`AST-02-AND`** | Android Gradle Unit Tests | `.\gradlew.bat testDebugUnitTest` passed 100% green (32/32 tasks up-to-date) | 🟢 Verified |
 | **`AST-02-KOT`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` compiled with 0 errors | 🟢 Verified |
 
+---
+
+## 90. Phase 67: Client-Side Firestore Security Rules & Direct Partner Sync Resolution (`SYNC-01`, `PAIR-01`) 🔄🛡️
+
+> **Target Documents & Code**:
+> - [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules)
+> - [`CoupleLinkManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt)
+> - [`AuthViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt)
+> - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+> - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`SecurityContractTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/SecurityContractTest.kt)
+> - [`CoupleLinkingSecurityTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/CoupleLinkingSecurityTest.kt)
+
+### 90.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-01`** | User Bug Report ("i am still not able to sync the data? can you suggest me more fix or shall i change the database") | 🔴 **Error / Architecture Defect** | `firestore.rules`, `CoupleLinkManager.kt` | Cloud Functions (`createInvite`, `redeemInvite`) return HTTP 404 because Firebase Functions are undeployed on the Spark plan. Client-side fallback pairing failed with `PERMISSION_DENIED` because `firestore.rules` originally enforced server-only writes (`allow write: if false`) on `/invites/{code}` and `/couples/{coupleId}`. | Updated `firestore.rules` allowing authenticated client invite creation, pending-only redemption, and open couple joins (`members.size() < 2`). Updated unit security contract tests to validate client fallback invariants. | 🟢 **Resolved** |
+| **`PAIR-01`** | Device Testing & ARTEMIS Verification | 🔵 **Correction / UX Enhancement** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleLinkManager.kt` | Devices were siloed in divergent couple IDs (`cpl_...`) with no in-app way to inspect the active couple ID or manually pair with a partner's couple ID without re-onboarding. | Added active Couple ID display with 1-tap copy in `SettingsScreen.kt`, plus a "Re-link / Switch Partner" modal dialog supporting both 6-digit invite codes and direct `cpl_...` Couple IDs. Protected cached partner and couple IDs in `FirebaseAuthManager`. Verified live sync on emulator with S24 data. | 🟢 **Resolved** |
+
+### 90.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`SYNC-01-RULES`** | Firestore Security Rules Validation | `SecurityContractTest.kt` & `CoupleLinkingSecurityTest.kt` unit test suite | 🟢 Passed (100% green) |
+| **`SYNC-01-TESTS`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` | 🟢 Passed (32/32 tasks green) |
+| **`SYNC-01-BUILD`** | AndroidTest Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` | 🟢 Passed (0 errors) |
+| **`SYNC-01-LIVE`** | Live Telemetry Bi-directional Sync | ARTEMIS UI Hierarchy inspection on `emulator-5554`: Verified partner card shows S24's live 99 steps, 933 kcal, with "You & Partner are in sync" and leading by 901 steps | 🟢 Verified |
+| **`SYNC-01-PHOTO`** | Visual Proof | Screenshot saved to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg) | 🟢 Verified |
+
+
 
 
 ---
@@ -4504,3 +4534,63 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`AUD-VISUAL-01`** | Visual audit using Phase 60/61 live ARTEMIS screenshots | Phase 60/61 artifact screenshots (Today, Challenges, Trends, Couple Hub, Settings) | 🟢 Complete |
 | **`AUD-NOCHANGE-01`** | Zero source code modifications | No Kotlin, XML, or build files touched during audit | 🟢 Verified |
 | **`AUD-REPORT-01`** | Full audit report generated | `Documentation/AUDIT_UNSLOP_TASTE_UI_REPORT.md` created | 🟢 Complete |
+
+---
+
+## 89. Phase 64: Astryx Design System, StyleX & Agent Docs Initialization (`AST-01`, `AST-02`) 🎨✨
+
+> **Target Documents**:
+> - [`package.json`](file:///D:/Couple_fit/CoupleFit/package.json)
+> - [`AGENTS.md`](file:///D:/Couple_fit/CoupleFit/AGENTS.md)
+> - [`Documentation/AGENTS_COUPLEFIT_BACKUP.md`](file:///D:/Couple_fit/CoupleFit/Documentation/AGENTS_COUPLEFIT_BACKUP.md)
+> - [`GEMINI.md`](file:///D:/Couple_fit/CoupleFit/GEMINI.md)
+> - [`astryx-themes.js`](file:///D:/Couple_fit/CoupleFit/astryx-themes.js)
+> - [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md)
+> - [`Documentation/INDEX.md`](file:///D:/Couple_fit/CoupleFit/Documentation/INDEX.md)
+
+### 89.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`AST-01`** | User Request ("Install @astryxdesign/core...") | 🔵 **Design System Integration** | `package.json`, `node_modules` | Required Astryx Design System packages (`@astryxdesign/core`, `@stylexjs/stylex`, `@astryxdesign/theme-neutral`, `@astryxdesign/cli`) were not installed in the workspace. | Installed `@astryxdesign/core` (v0.7.13), `@stylexjs/stylex` (v0.19.1), and `@astryxdesign/theme-neutral` (v0.7.13) via npm; installed `@astryxdesign/cli` (v0.7.13) as devDependency. Configured `node_modules/` in `.gitignore`. | 🟢 **Resolved** |
+| **`AST-02`** | User Request ("run npx @astryxdesign/cli init...") | 🔵 **Agent Docs & Conventions** | `AGENTS.md`, `GEMINI.md`, `astryx-themes.js` | Agent documentation needed setup via Astryx CLI while preserving existing CoupleFit Multi-Agent Operating Manual. | Backed up `AGENTS.md` to `Documentation/AGENTS_COUPLEFIT_BACKUP.md`; executed `npx @astryxdesign/cli init`; verified managed block in `AGENTS.md` and `GEMINI.md`; wired default neutral theme via `npx astryx theme add neutral` generating `astryx-themes.js`. Verified setup via `npx astryx doctor` (0 failures) and verified Android Gradle builds remain 100% green. | 🟢 **Resolved** |
+
+### 89.2 Verification Evidence
+| Evidence ID | Component / Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`AST-01-PKG`** | Package Installation | `package.json` inspection; verified `@astryxdesign/core`, `@stylexjs/stylex`, `@astryxdesign/theme-neutral`, `@astryxdesign/cli` | 🟢 Verified |
+| **`AST-02-INIT`** | Astryx Agent Docs Init | Executed `npx.cmd @astryxdesign/cli init`; verified managed `<!-- ASTRYX:START -->` block in `AGENTS.md` | 🟢 Verified |
+| **`AST-02-DOC`** | Astryx Doctor Diagnostics | `npx.cmd @astryxdesign/cli doctor` reported 0 failures (pass: 17, info: 9) | 🟢 Verified |
+| **`AST-02-THM`** | Theme Configuration | `astryx-themes.js` generated and exports `themes` and `defaultThemeSlug = "neutral"` | 🟢 Verified |
+| **`AST-02-AND`** | Android Gradle Unit Tests | `.\gradlew.bat testDebugUnitTest` passed 100% green (32/32 tasks up-to-date) | 🟢 Verified |
+| **`AST-02-KOT`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` compiled with 0 errors | 🟢 Verified |
+
+---
+
+## 90. Phase 67: Client-Side Firestore Security Rules & Direct Partner Sync Resolution (`SYNC-01`, `PAIR-01`) 🔄🛡️
+
+> **Target Documents & Code**:
+> - [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules)
+> - [`CoupleLinkManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt)
+> - [`AuthViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt)
+> - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+> - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`SecurityContractTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/SecurityContractTest.kt)
+> - [`CoupleLinkingSecurityTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/CoupleLinkingSecurityTest.kt)
+
+### 90.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-01`** | User Bug Report ("i am still not able to sync the data? can you suggest me more fix or shall i change the database") | 🔴 **Error / Architecture Defect** | `firestore.rules`, `CoupleLinkManager.kt` | Cloud Functions (`createInvite`, `redeemInvite`) return HTTP 404 because Firebase Functions are undeployed on the Spark plan. Client-side fallback pairing failed with `PERMISSION_DENIED` because `firestore.rules` originally enforced server-only writes (`allow write: if false`) on `/invites/{code}` and `/couples/{coupleId}`. | Updated `firestore.rules` allowing authenticated client invite creation, pending-only redemption, and open couple joins (`members.size() < 2`). Updated unit security contract tests to validate client fallback invariants. | 🟢 **Resolved** |
+| **`PAIR-01`** | Device Testing & ARTEMIS Verification | 🔵 **Correction / UX Enhancement** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleLinkManager.kt` | Devices were siloed in divergent couple IDs (`cpl_...`) with no in-app way to inspect the active couple ID or manually pair with a partner's couple ID without re-onboarding. | Added active Couple ID display with 1-tap copy in `SettingsScreen.kt`, plus a "Re-link / Switch Partner" modal dialog supporting both 6-digit invite codes and direct `cpl_...` Couple IDs. Protected cached partner and couple IDs in `FirebaseAuthManager`. Verified live sync on emulator with S24 data. | 🟢 **Resolved** |
+
+### 90.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`SYNC-01-RULES`** | Firestore Security Rules Validation | `SecurityContractTest.kt` & `CoupleLinkingSecurityTest.kt` unit test suite | 🟢 Passed (100% green) |
+| **`SYNC-01-TESTS`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` | 🟢 Passed (32/32 tasks green) |
+| **`SYNC-01-BUILD`** | AndroidTest Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` | 🟢 Passed (0 errors) |
+| **`SYNC-01-LIVE`** | Live Telemetry Bi-directional Sync | ARTEMIS UI Hierarchy inspection on `emulator-5554`: Verified partner card shows S24's live 99 steps, 933 kcal, with "You & Partner are in sync" and leading by 901 steps | 🟢 Verified |
+| **`SYNC-01-PHOTO`** | Visual Proof | Screenshot saved to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg) | 🟢 Verified |
+
+

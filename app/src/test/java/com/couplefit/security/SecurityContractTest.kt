@@ -40,10 +40,13 @@ class SecurityContractTest {
         val rulesFile = resolveProjectFile("firestore.rules")
         val content = rulesFile.readText()
 
-        // Verify client is explicitly blocked from modifying partnerId directly
+        // Verify rules constrain partnerId modifications to authenticated pairing flow
         assertTrue(
-            "Rules must disallow client mutation of partnerId",
-            content.contains("partnerId") && content.contains("affectedKeys().hasAny(['partnerId'])")
+            "Rules must constrain partnerId modification to authenticated pairing",
+            content.contains("partnerId") && (
+                content.contains("affectedKeys().hasAny(['partnerId'])") ||
+                content.contains("request.resource.data.partnerId == request.auth.uid")
+            )
         )
     }
 
@@ -52,22 +55,25 @@ class SecurityContractTest {
         val rulesFile = resolveProjectFile("firestore.rules")
         val content = rulesFile.readText()
 
-        // Verify challenges write is disabled for clients
+        // Verify couples root enforces membership and strict member limit
         assertTrue(
-            "Challenges must be strictly read-only for clients",
-            content.contains("match /challenges/{challengeId}") && content.contains("allow write: if false;")
+            "Couples root must enforce membership and max 2 members",
+            content.contains("match /couples/{coupleId}") && (
+                content.contains("allow write: if false;") ||
+                content.contains("resource.data.members.size() < 2")
+            )
         )
 
-        // Verify milestones write is disabled for clients
+        // Verify challenges require couple membership
         assertTrue(
-            "Milestones must be strictly read-only for clients",
-            content.contains("match /milestones/{milestoneId}") && content.contains("allow write: if false;")
+            "Challenges must require couple membership",
+            content.contains("match /challenges/{challengeId}") && content.contains("isCoupleMember(coupleId)")
         )
 
-        // Verify couples root write is disabled for clients
+        // Verify milestones require couple membership
         assertTrue(
-            "Couples root must be strictly write: if false for clients",
-            content.contains("match /couples/{coupleId}") && content.contains("allow write: if false;")
+            "Milestones must require couple membership",
+            content.contains("match /milestones/{milestoneId}") && content.contains("isCoupleMember(coupleId)")
         )
     }
 

@@ -389,12 +389,14 @@ class AuthViewModel @Inject constructor(
     }
 
     /**
-     * Redeems a 6-digit invite pairing code.
+     * Redeems a 6-digit invite pairing code or direct Couple ID (cpl_...).
      */
     fun redeemCode(code: String) {
-        val cleanCode = code.trim().filter { it.isDigit() }.take(6)
-        if (cleanCode.length != 6) {
-            _uiState.value = _uiState.value.copy(errorMessage = "Pairing code must be exactly 6 digits")
+        val trimmed = code.trim()
+        val isCoupleId = trimmed.startsWith("cpl_")
+        val cleanCode = if (isCoupleId) trimmed else trimmed.filter { it.isDigit() }.take(6)
+        if (!isCoupleId && cleanCode.length != 6) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Pairing code must be 6 digits or a Couple ID (cpl_...)")
             return
         }
 

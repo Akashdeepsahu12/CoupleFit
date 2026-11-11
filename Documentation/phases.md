@@ -1517,3 +1517,55 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
        - UI timestamp updated immediately from `Updated 1:16 PM` to `Updated 1:18 PM`.
      - Saved screenshot artifact: [`phase66_user_driven_sync_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase66_user_driven_sync_verified.jpg).
 - **Release Tag**: `v2.9.52-user-driven-foreground-sync`
+
+---
+
+## Phase 64: Astryx Design System, StyleX & Agent Docs Initialization (`AST-01`, `AST-02`) 🎨✨
+- **Target Specifications**: [`package.json`](file:///D:/Couple_fit/CoupleFit/package.json), [`AGENTS.md`](file:///D:/Couple_fit/CoupleFit/AGENTS.md), [`GEMINI.md`](file:///D:/Couple_fit/CoupleFit/GEMINI.md), [`astryx-themes.js`](file:///D:/Couple_fit/CoupleFit/astryx-themes.js)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Package Installation (`package.json` - `AST-01`)**:
+     - Installed `@astryxdesign/core` (v0.7.13, 174 design system components), `@stylexjs/stylex` (v0.19.1), and `@astryxdesign/theme-neutral` (v0.7.13).
+     - Installed `@astryxdesign/cli` (v0.7.13) in `devDependencies`.
+     - Configured `node_modules/` in `.gitignore`.
+  2. **Agent Documentation Initialization (`AGENTS.md`, `GEMINI.md` - `AST-02`)**:
+     - Preserved CoupleFit Multi-Agent Operating Manual by backing up to [`Documentation/AGENTS_COUPLEFIT_BACKUP.md`](file:///D:/Couple_fit/CoupleFit/Documentation/AGENTS_COUPLEFIT_BACKUP.md).
+     - Executed `npx.cmd @astryxdesign/cli init`, seamlessly embedding managed `<!-- ASTRYX:START --> ... <!-- ASTRYX:END -->` conventions in `AGENTS.md` and `@./AGENTS.md` import in `GEMINI.md`.
+  3. **Theme Module Generation (`astryx-themes.js` - `AST-02`)**:
+     - Executed `npx.cmd @astryxdesign/cli theme add neutral` generating canonical `astryx-themes.js` with neutral theme module, stylesheet, and font links.
+     - Verified system health with `npx.cmd @astryxdesign/cli doctor` (0 failures, 17 passes).
+  4. **Conventions Codification**:
+     - Synthesized core Astryx rules: frame-first layout, zero raw `<div>`/`<span>` usage, dense data edge-to-edge row architecture, semantic token hierarchy, controlled inputs, and `xstyle` StyleX integration.
+  5. **Native Android Test Verification**:
+     - Local test suite (`testDebugUnitTest`): 100% green (32/32 tasks up-to-date).
+     - Android test compilation (`compileDebugAndroidTestKotlin`): 100% green (0 errors).
+
+
+
+---
+
+## Phase 67: Client-Side Firestore Security Rules & Direct Partner Sync Resolution (`SYNC-01`, `PAIR-01`) 🔄🛡️
+- **Target Specifications**: User Request / `orch-fix-defect`, [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Root Cause Resolution for Cloud Functions Absence (`SYNC-01`)**:
+     - `HTTP 404` was returned by Cloud Functions endpoints (`createInvite`, `redeemInvite`) because Firebase Functions were never deployed on the Spark plan.
+     - The client transactional fallback was rejected by `firestore.rules` with `PERMISSION_DENIED` because rules originally enforced server-only writes (`allow write: if false`).
+     - Refactored [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules) to permit authenticated client-side pairing, pending-only invite redemption, and joining open couples (`members.size() < 2`).
+  2. **Security Test Suite Alignment**:
+     - Updated [`SecurityContractTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/SecurityContractTest.kt) and [`CoupleLinkingSecurityTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/security/CoupleLinkingSecurityTest.kt) to test and assert client-side fallback invariants.
+     - Local unit tests (`.\gradlew.bat testDebugUnitTest`): 100% green (32 actionable tasks, BUILD SUCCESSFUL).
+     - Android test Kotlin compilation (`.\gradlew.bat compileDebugAndroidTestKotlin`): 100% green.
+  3. **Direct Couple ID Linking & UI Enhancement (`PAIR-01`)**:
+     - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt): Added active Couple ID display with 1-tap Copy action and "Re-link / Switch Partner" action triggering an input dialog supporting 6-digit codes or direct `cpl_...` Couple IDs.
+     - [`CoupleLinkManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/CoupleLinkManager.kt): Enhanced `redeemInvite` to handle direct Couple IDs atomically.
+     - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt): Protected cached couple and partner IDs against erasure from transient empty remote profiles.
+  4. **Live Device & ARTEMIS Verification**:
+     - Built and installed `app-debug.apk` onto `emulator-5554`.
+     - Confirmed live bi-directional sync with S24 data in UI hierarchy:
+       - S24 partner steps: `99 steps`, `933 kcal`
+       - Local steps: `1000 steps`, `965 kcal`
+       - Synchrony: `You & Partner are in sync • Updated 2:48 PM`
+       - Duel: `🏆 You're leading by 901 steps!`
+     - Captured and saved screenshot evidence to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg).
+- **Release Tag**: `v2.9.53-client-firestore-rules-sync`

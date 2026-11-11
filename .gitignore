@@ -19,4 +19,6 @@ google-services.json
 .archify/
 .codebread/
 .stitch_exports/
+.diorama/
+.diorama_src/
 node_modules/

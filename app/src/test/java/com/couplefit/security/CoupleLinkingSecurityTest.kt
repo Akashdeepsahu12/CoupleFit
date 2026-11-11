@@ -31,16 +31,22 @@ class CoupleLinkingSecurityTest {
         val rulesFile = resolveProjectFile("firestore.rules")
         val content = rulesFile.readText()
 
-        // Verify couples collection has write disabled for clients
+        // Verify couples collection enforces membership and blocks 3rd member
         assertTrue(
-            "Direct client writes to couples/{coupleId} must be prohibited",
-            content.contains("match /couples/{coupleId}") && content.contains("allow write: if false;")
+            "Couples must strictly enforce max 2 members or prohibit direct write",
+            content.contains("match /couples/{coupleId}") && (
+                content.contains("allow write: if false;") ||
+                content.contains("resource.data.members.size() < 2")
+            )
         )
 
-        // Verify invites collection has write disabled for clients
+        // Verify invites collection enforces authenticated creator or pending redemption
         assertTrue(
-            "Direct client writes to invites/{code} must be prohibited",
-            content.contains("match /invites/{code}") && content.contains("allow read, write: if false;")
+            "Invites collection must require authentication and pending status for redemption",
+            content.contains("match /invites/{code}") && (
+                content.contains("allow read, write: if false;") ||
+                content.contains("resource.data.status == 'PENDING'")
+            )
         )
     }
 

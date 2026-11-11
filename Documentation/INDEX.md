@@ -8,6 +8,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**phase67_verification_report.md**](phase67_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 67 verification report: Client-side Firestore security rules, direct partner pairing (code or Couple ID), and live bi-directional sync proof with S24 telemetry (`SYNC-01`, `PAIR-01`). |
 | [**phase66_verification_report.md**](phase66_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 66 verification report: User-driven foreground sync, WorkManager 6-hour throttle, Astryx animated refresh indicator, and live device proof (`PWR-01`, `USR-01`, `AST-01`). |
 | [**phase65_verification_report.md**](phase65_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 65 verification report: antislop + taste UI remediation & polish wave (`AUD-P0-01`..`04`, `AUD-P1-01`..`10`, `AUD-P2-02`..`04`, `AUD-P3-02`..`04`). |
 | [**PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md**](PLAN_PHASE_65_UNSLOP_TASTE_UI_REMEDIATION.md) | /gsd-plan-phase | **Roadmap & Milestones** | Phase 65 milestone plan: antislop + taste UI Remediation & Polish Wave (`AUD-P0`, `AUD-P1`, `AUD-P2`, `AUD-P3`). |

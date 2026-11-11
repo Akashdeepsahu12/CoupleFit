@@ -1,5 +1,8 @@
 package com.couplefit.ui.settings
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import android.os.PowerManager
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -223,6 +227,7 @@ fun SettingsScreen(
                                     authUiState = authUiState,
                                     partnerName = healthData.partnerName,
                                     isPartnerLinked = healthData.isPartnerLinked,
+                                    onConnectPartner = { authViewModel.redeemCode(it) },
                                     onUnlinkClicked = { showUnlinkPartnerDialog = true },
                                     onSignOutClicked = { showSignOutDialog = true }
                                 )
@@ -586,6 +591,7 @@ internal fun PartnershipHubContent(
     authUiState: com.couplefit.ui.auth.AuthUiState,
     partnerName: String,
     isPartnerLinked: Boolean,
+    onConnectPartner: (String) -> Unit = {},
     onUnlinkClicked: () -> Unit,
     onSignOutClicked: () -> Unit
 ) {
@@ -687,6 +693,91 @@ internal fun PartnershipHubContent(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
+            }
+
+            val currentCoupleId = authUiState.userSession?.coupleId
+            val currentPartnerId = authUiState.userSession?.partnerId
+            val context = LocalContext.current
+            var showPairDialog by remember { mutableStateOf(false) }
+            var pairCodeInput by remember { mutableStateOf("") }
+
+            if (!currentCoupleId.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Couple ID",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            currentCoupleId,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    TextButton(onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Couple ID", currentCoupleId))
+                    }) {
+                        Text("Copy", fontSize = 12.sp)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            Button(
+                onClick = { showPairDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (isPartnerLinked) "Re-link / Switch Partner" else "Pair With Partner (Code or ID)")
+            }
+
+            if (showPairDialog) {
+                AlertDialog(
+                    onDismissRequest = { showPairDialog = false },
+                    title = { Text("Pair With Partner") },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                "Enter your partner's 6-digit invite code or Couple ID (cpl_...):",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            OutlinedTextField(
+                                value = pairCodeInput,
+                                onValueChange = { pairCodeInput = it.trim() },
+                                label = { Text("Code or Couple ID") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (pairCodeInput.isNotBlank()) {
+                                    onConnectPartner(pairCodeInput)
+                                    showPairDialog = false
+                                }
+                            }
+                        ) {
+                            Text("Connect")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showPairDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(4.dp))

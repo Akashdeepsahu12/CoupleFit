@@ -277,15 +277,19 @@ class FirebaseAuthManager @Inject constructor(
                             return@addSnapshotListener
                         }
                         if (snapshot != null) {
-                            val coupleId = snapshot.getString("coupleId")
-                            val partnerId = snapshot.getString("partnerId")
+                            val remoteCoupleId = snapshot.getString("coupleId")
+                            val remotePartnerId = snapshot.getString("partnerId")
+                            val cachedCoupleId = sessionPrefs.getString("cached_couple_id", null)
+                            val cachedPartnerId = sessionPrefs.getString("cached_partner_id", null)
+                            val effectiveCoupleId = remoteCoupleId?.takeIf { it.isNotBlank() } ?: cachedCoupleId
+                            val effectivePartnerId = remotePartnerId?.takeIf { it.isNotBlank() } ?: cachedPartnerId
                             val displayName = snapshot.getString("displayName") ?: firebaseUser.displayName ?: ""
                             val partnerName = snapshot.getString("partnerName")
 
                             // Persist latest state into local cache
                             sessionPrefs.edit().apply {
-                                putString("cached_couple_id", coupleId)
-                                putString("cached_partner_id", partnerId)
+                                putString("cached_couple_id", effectiveCoupleId)
+                                putString("cached_partner_id", effectivePartnerId)
                                 putString("cached_display_name", displayName)
                                 putString("cached_partner_name", partnerName)
                                 apply()
@@ -297,8 +301,8 @@ class FirebaseAuthManager @Inject constructor(
                                     displayName = displayName,
                                     email = snapshot.getString("email") ?: firebaseUser.email ?: "",
                                     photoUrl = snapshot.getString("photoUrl") ?: firebaseUser.photoUrl?.toString(),
-                                    coupleId = coupleId,
-                                    partnerId = partnerId
+                                    coupleId = effectiveCoupleId,
+                                    partnerId = effectivePartnerId
                                 )
                             )
                         }
