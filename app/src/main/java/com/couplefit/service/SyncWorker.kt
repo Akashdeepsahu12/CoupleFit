@@ -83,4 +83,35 @@ class SyncWorker @AssistedInject constructor(
             }
         }
     }
+
+    companion object {
+        const val ONE_TIME_SYNC_TAG = "com.couplefit.ONE_TIME_SYNC"
+
+        /**
+         * Enqueues an immediate one-time background sync request with NetworkType.CONNECTED constraints
+         * and exponential backoff, ensuring guaranteed delivery even if the foreground app is paused.
+         */
+        fun enqueueImmediateSync(context: Context) {
+            val constraints = androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build()
+
+            val syncRequest = androidx.work.OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(constraints)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    10,
+                    java.util.concurrent.TimeUnit.SECONDS
+                )
+                .addTag(ONE_TIME_SYNC_TAG)
+                .build()
+
+            androidx.work.WorkManager.getInstance(context).enqueueUniqueWork(
+                "OneTimeSyncWork",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                syncRequest
+            )
+            Timber.d("Enqueued immediate OneTimeWorkRequest for SyncWorker with NetworkType.CONNECTED")
+        }
+    }
 }

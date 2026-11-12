@@ -4479,6 +4479,34 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`SYNC-01-LIVE`** | Live Telemetry Bi-directional Sync | ARTEMIS UI Hierarchy inspection on `emulator-5554`: Verified partner card shows S24's live 99 steps, 933 kcal, with "You & Partner are in sync" and leading by 901 steps | 🟢 Verified |
 | **`SYNC-01-PHOTO`** | Visual Proof | Screenshot saved to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg) | 🟢 Verified |
 
+---
+
+## 91. Phase 68: Multi-Room Auto-Convergence, Dual-Write & Deterministic Pull-to-Refresh Sync (`SYNC-02`, `ROOM-01`) 🔄🛡️
+
+> **Target Documents & Code**:
+> - [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`SyncRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt)
+> - [`SyncWorker.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/service/SyncWorker.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules)
+
+### 91.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-02`** | User Bug Report ("the data are still not syncing, i can see the mismatch, please fix it") | 🔴 **Error / Data Mismatch** | `PartnerRepositoryImpl.kt`, `SyncRepositoryImpl.kt`, `HealthConnectViewModel.kt` | Data mismatch persisted across devices despite swipe-to-refresh due to 4 compound root causes: (1) **Room Divergence**: S24 uploaded to `cpl_1793319867725_RmkTP` while Emulator was partitioned into `cpl_1794268458799_EYf2I`; (2) **Negative Tombstone Serving**: `docRef.get()` defaulted to `Source.DEFAULT`, serving negative 151-byte local SQLite cache tombstones instead of querying Firestore servers; (3) **Silent Timeout Swallowing**: `withTimeoutOrNull(5000L)` silently timed out on network latency and returned fake success; (4) **0-Step Bug**: `HealthConnectViewModel` evaluated `partnerDaily.steps > 0L`, overriding valid today's 0-step records with stale records from yesterday. | Implemented automated room convergence in `PartnerRepositoryImpl.kt`: dynamically queries `users/{partnerUid}` with `Source.SERVER`, probes candidate rooms, writes to Room, and auto-converges local session cache, Firestore user doc, and couple `members` via `arrayUnion`. Refactored `SyncRepositoryImpl` with candidate room dual-write and 15s timeout. Added `SyncWorker.enqueueImmediateSync()` for guaranteed WorkManager retry on `NetworkType.CONNECTED`. Fixed `HealthConnectViewModel` daily fallback. | 🟢 **Resolved** |
+| **`ROOM-01`** | Live Device Diagnostics | 🔵 **Correction / Architecture Enhancement** | `PartnerRepositoryImpl.kt`, `SyncWorker.kt` | Firestore Security Rules prevented partner reads across rooms without explicit membership. | Added multi-room read permissions in `firestore.rules` allowing partner read if document owner's profile lists the reader as `partnerId`. Integrated dual-write background work enqueuing into `HealthConnectViewModel.checkStatusAndFetchData(force = true)`. Verified on live Samsung Galaxy S24 and Pixel 10 Pro emulator via ARTEMIS. | 🟢 **Resolved** |
+
+### 91.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`SYNC-02-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green | 🟢 Passed |
+| **`SYNC-02-BUILD`** | AndroidTest Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`SYNC-02-S24`** | S24 Live Telemetry | Live Logcat: `PartnerRepositoryImpl$syncPartnerDailyFromRemote: Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/EYf2Io9WPDUasjbuqL9wKr1H8lD3_2026-11-12 (steps: 0, 1048 kcal)`. Screen: You 82 steps, Partner 0 steps, "You & Partner are in sync • Updated 4:09 pm". | 🟢 Verified |
+| **`SYNC-02-EMU`** | Emulator Live Telemetry & PTR | Live Logcat: `SyncWorker$Companion: Enqueued immediate OneTimeWorkRequest for SyncWorker with NetworkType.CONNECTED`, `Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/RmkTPEUJlwYVm23evsWOj6cOpi02_2026-11-12 (steps: 82)`. Screen: Partner 82 steps, 1064 kcal, "🟢 Last updated just now • Live ⚡". | 🟢 Verified |
+| **`SYNC-02-PHOTO`** | Visual Proof | Screenshot saved to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg) | 🟢 Verified |
+
+
 
 
 
@@ -4592,5 +4620,33 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`SYNC-01-BUILD`** | AndroidTest Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` | 🟢 Passed (0 errors) |
 | **`SYNC-01-LIVE`** | Live Telemetry Bi-directional Sync | ARTEMIS UI Hierarchy inspection on `emulator-5554`: Verified partner card shows S24's live 99 steps, 933 kcal, with "You & Partner are in sync" and leading by 901 steps | 🟢 Verified |
 | **`SYNC-01-PHOTO`** | Visual Proof | Screenshot saved to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg) | 🟢 Verified |
+
+---
+
+## 91. Phase 68: Multi-Room Auto-Convergence, Dual-Write & Deterministic Pull-to-Refresh Sync (`SYNC-02`, `ROOM-01`) 🔄🛡️
+
+> **Target Documents & Code**:
+> - [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`SyncRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt)
+> - [`SyncWorker.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/service/SyncWorker.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`firestore.rules`](file:///D:/Couple_fit/CoupleFit/firestore.rules)
+
+### 91.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SYNC-02`** | User Bug Report ("the data are still not syncing, i can see the mismatch, please fix it") | 🔴 **Error / Data Mismatch** | `PartnerRepositoryImpl.kt`, `SyncRepositoryImpl.kt`, `HealthConnectViewModel.kt` | Data mismatch persisted across devices despite swipe-to-refresh due to 4 compound root causes: (1) **Room Divergence**: S24 uploaded to `cpl_1793319867725_RmkTP` while Emulator was partitioned into `cpl_1794268458799_EYf2I`; (2) **Negative Tombstone Serving**: `docRef.get()` defaulted to `Source.DEFAULT`, serving negative 151-byte local SQLite cache tombstones instead of querying Firestore servers; (3) **Silent Timeout Swallowing**: `withTimeoutOrNull(5000L)` silently timed out on network latency and returned fake success; (4) **0-Step Bug**: `HealthConnectViewModel` evaluated `partnerDaily.steps > 0L`, overriding valid today's 0-step records with stale records from yesterday. | Implemented automated room convergence in `PartnerRepositoryImpl.kt`: dynamically queries `users/{partnerUid}` with `Source.SERVER`, probes candidate rooms, writes to Room, and auto-converges local session cache, Firestore user doc, and couple `members` via `arrayUnion`. Refactored `SyncRepositoryImpl` with candidate room dual-write and 15s timeout. Added `SyncWorker.enqueueImmediateSync()` for guaranteed WorkManager retry on `NetworkType.CONNECTED`. Fixed `HealthConnectViewModel` daily fallback. | 🟢 **Resolved** |
+| **`ROOM-01`** | Live Device Diagnostics | 🔵 **Correction / Architecture Enhancement** | `PartnerRepositoryImpl.kt`, `SyncWorker.kt` | Firestore Security Rules prevented partner reads across rooms without explicit membership. | Added multi-room read permissions in `firestore.rules` allowing partner read if document owner's profile lists the reader as `partnerId`. Integrated dual-write background work enqueuing into `HealthConnectViewModel.checkStatusAndFetchData(force = true)`. Verified on live Samsung Galaxy S24 and Pixel 10 Pro emulator via ARTEMIS. | 🟢 **Resolved** |
+
+### 91.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`SYNC-02-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green | 🟢 Passed |
+| **`SYNC-02-BUILD`** | AndroidTest Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`SYNC-02-S24`** | S24 Live Telemetry | Live Logcat: `PartnerRepositoryImpl$syncPartnerDailyFromRemote: Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/EYf2Io9WPDUasjbuqL9wKr1H8lD3_2026-11-12 (steps: 0, 1048 kcal)`. Screen: You 82 steps, Partner 0 steps, "You & Partner are in sync • Updated 4:09 pm". | 🟢 Verified |
+| **`SYNC-02-EMU`** | Emulator Live Telemetry & PTR | Live Logcat: `SyncWorker$Companion: Enqueued immediate OneTimeWorkRequest for SyncWorker with NetworkType.CONNECTED`, `Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/RmkTPEUJlwYVm23evsWOj6cOpi02_2026-11-12 (steps: 82)`. Screen: Partner 82 steps, 1064 kcal, "🟢 Last updated just now • Live ⚡". | 🟢 Verified |
+| **`SYNC-02-PHOTO`** | Visual Proof | Screenshot saved to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg) | 🟢 Verified |
+
 
 

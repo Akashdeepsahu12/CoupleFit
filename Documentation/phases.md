@@ -1569,3 +1569,29 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
        - Duel: `🏆 You're leading by 901 steps!`
      - Captured and saved screenshot evidence to [`phase67_emulator_partner_synced_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase67_emulator_partner_synced_live.jpg).
 - **Release Tag**: `v2.9.53-client-firestore-rules-sync`
+
+---
+
+## Phase 68: Multi-Room Auto-Convergence, Dual-Write & Deterministic Pull-to-Refresh Sync (`SYNC-02`, `ROOM-01`) 🔄🛡️
+- **Target Specifications**: User Request / `orch-fix-defect`, [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md)
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Root Cause Analysis & Diagnosis**:
+     - **Room Divergence**: S24 uploaded to `cpl_1793319867725_RmkTP` while Emulator was partitioned into `cpl_1794268458799_EYf2I`.
+     - **Negative Tombstone Serving**: `docRef.get()` defaulted to `Source.DEFAULT`, returning cached negative 151-byte tombstones from local SQLite rather than fetching from Cloud Firestore servers.
+     - **Silent Timeout Swallowing**: `withTimeoutOrNull(5000L)` silently timed out during wireless network latency and returned fake success.
+     - **0-Step Bug**: `HealthConnectViewModel` evaluated `partnerDaily.steps > 0L`, overriding valid today's 0-step records with stale records from yesterday.
+  2. **Multi-Room Auto-Convergence Engine (`PartnerRepositoryImpl.kt`)**:
+     - Dynamically queries `users/{partnerUid}` using `Source.SERVER` to discover partner's remote active room.
+     - Performs multi-room probes across candidate rooms (`[partnerRemoteCoupleId, localCoupleId]`) using explicit `Source.SERVER` fetches.
+     - Automatically converges local SharedPreferences cache, Firestore user profile (`users/{currentUid}.coupleId`), and joins room `members` via `FieldValue.arrayUnion`.
+  3. **Candidate Room Dual-Write & Guaranteed WorkManager Background Delivery**:
+     - [`SyncRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/SyncRepositoryImpl.kt): Uploads daily aggregate across candidate rooms with explicit 15s timeout and strict failure propagation.
+     - [`SyncWorker.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/service/SyncWorker.kt): Added `enqueueImmediateSync(context)` with `NetworkType.CONNECTED` constraints and exponential backoff.
+     - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt): Enqueues WorkManager sync on forced refresh, corrects `effectivePartnerDaily = partnerDaily ?: partnerRepository.getLatestPartnerDaily(partnerId)`.
+  4. **Live Device Verification via Google ARTEMIS**:
+     - Built and deployed debug APK to physical Samsung Galaxy S24 (`SM_S921B`) and Pixel 10 Pro emulator (`emulator-5554`).
+     - S24 walked 82 steps; Emulator pulled to refresh and immediately updated partner card from 63 to 82 steps (`🟢 Last updated just now • Live ⚡`).
+     - S24 verified showing Emulator partner telemetry (0 steps, 1050 kcal, "You & Partner are in sync • Updated 4:09 pm").
+     - Captured and saved screenshot evidence to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg).
+- **Release Tag**: `v2.9.54-auto-converge-dualwrite-sync`

@@ -84,7 +84,8 @@ class HealthConnectViewModel @Inject constructor(
     private val partnerRepository: com.couplefit.domain.repository.PartnerRepository,
     private val syncRepository: com.couplefit.domain.repository.SyncRepository,
     private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore,
-    private val authManager: com.couplefit.data.remote.FirebaseAuthManager
+    private val authManager: com.couplefit.data.remote.FirebaseAuthManager,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HealthConnectUiState>(HealthConnectUiState.Loading)
@@ -227,12 +228,8 @@ class HealthConnectViewModel @Inject constructor(
                 val calories = myAggregate?.totalCalories ?: 0L
                 val hasData = steps > 0L || (myAggregate?.averageHeartRate ?: 0.0) > 0.0
 
-                // Fallback to most recent partner daily record if today's document hasn't synced yet (PTR-03)
-                val effectivePartnerDaily = if (partnerDaily != null && (partnerDaily.steps > 0L || partnerDaily.avgHr > 0.0)) {
-                    partnerDaily
-                } else {
-                    partnerRepository.getLatestPartnerDaily(partnerId)
-                }
+                // Fallback to most recent partner daily record only if today's document hasn't synced yet (PTR-03)
+                val effectivePartnerDaily = partnerDaily ?: partnerRepository.getLatestPartnerDaily(partnerId)
 
                 val pSteps = effectivePartnerDaily?.steps ?: 0L
                 val pProgress = (pSteps.toFloat() / goal.toFloat()).coerceIn(0f, 1f)
@@ -241,7 +238,7 @@ class HealthConnectViewModel @Inject constructor(
                 val pCalories = effectivePartnerDaily?.calories ?: 0L
                 val pAvgHr = effectivePartnerDaily?.avgHr ?: 0.0
                 val pAvgSpo2 = effectivePartnerDaily?.avgSpo2 ?: 0.0
-                val pHasData = effectivePartnerDaily != null && (pSteps > 0L || pAvgHr > 0.0)
+                val pHasData = effectivePartnerDaily != null && (pSteps > 0L || pAvgHr > 0.0 || effectivePartnerDaily.dateStr == dateStr)
                 val pLastUpdated = effectivePartnerDaily?.lastUpdated
                 val pLastUpdatedLabel = if (effectivePartnerDaily != null && effectivePartnerDaily.dateStr != dateStr) {
                     val daysAgo = try {
@@ -314,6 +311,9 @@ class HealthConnectViewModel @Inject constructor(
 
 
     fun checkStatusAndFetchData(force: Boolean = true) {
+        if (force && context != null) {
+            com.couplefit.service.SyncWorker.enqueueImmediateSync(context)
+        }
         viewModelScope.launch {
             _dashboardState.value = _dashboardState.value.copy(isSyncing = true)
             _uiState.value = HealthConnectUiState.Loading
@@ -381,20 +381,25 @@ class HealthConnectViewModel @Inject constructor(
             val partnerId = _dashboardState.value.partnerId
 
             if (coupleId.isNotBlank() && coupleId != "couple_1") {
-                syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = force)
+                val uploadResult = syncRepository.uploadMyDailyAggregate(coupleId, myUid, dateStr, force = force)
+                if (uploadResult is com.couplefit.domain.repository.SyncResult.Failure) {
+                    Log.w("Sync", "Upload daily aggregate failure: ${uploadResult.error.message}")
+                }
             }
 
-            // 3. Actively sync PARTNER daily aggregate from Firestore (couples/{coupleId}/daily/{partnerId_date}) into Room
-            if (coupleId.isNotBlank() && coupleId != "couple_1" && partnerId.isNotBlank() && partnerId != "partner_1") {
+            // 3. Actively sync PARTNER daily aggregate from Firestore into Room (with auto-convergence across candidate rooms)
+            if (partnerId.isNotBlank() && partnerId != "partner_1") {
                 try {
                     val partnerResult = partnerRepository.syncPartnerDailyFromRemote(coupleId, partnerId, dateStr)
                     partnerResult.onSuccess { partnerDaily ->
                         if (partnerDaily != null) {
                             Log.d("Sync", "Successfully synced partner daily: ${partnerDaily.steps} steps, ${partnerDaily.calories} kcal")
                         }
+                    }.onFailure { e ->
+                        Log.w("Sync", "Explicit partner remote sync failed: ${e.message}")
                     }
                 } catch (e: Exception) {
-                    Log.w("Sync", "Explicit partner remote sync failed: ${e.message}")
+                    Log.w("Sync", "Explicit partner remote sync exception: ${e.message}")
                 }
             }
 

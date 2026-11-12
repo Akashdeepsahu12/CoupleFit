@@ -1,5 +1,6 @@
 package com.couplefit.data.repository
 
+import android.content.Context
 import com.couplefit.data.local.CoupleFitPreferencesDataStore
 import com.couplefit.data.local.HealthDailyAggregateEntity
 import com.couplefit.data.local.HealthDao
@@ -7,6 +8,7 @@ import com.couplefit.domain.repository.SyncRepository
 import com.couplefit.domain.repository.SyncResult
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
@@ -19,7 +21,8 @@ import javax.inject.Singleton
 class SyncRepositoryImpl @Inject constructor(
     private val healthDao: HealthDao,
     private val dataStore: CoupleFitPreferencesDataStore,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    @ApplicationContext private val context: Context? = null
 ) : SyncRepository {
 
     companion object {
@@ -71,23 +74,36 @@ class SyncRepositoryImpl @Inject constructor(
                 payload["avgSpo2"] = aggregate!!.averageOxygenSaturation
             }
 
-            // 5. Upload to couples/{coupleId}/daily/{myUid_date}
+            // 5. Upload to couples/{coupleId}/daily/{myUid_date} with explicit 15s timeout
             val docId = "${myUid}_$dateStr"
-            kotlinx.coroutines.withTimeoutOrNull(5000L) {
-                firestore.collection("couples")
-                    .document(coupleId)
-                    .collection("daily")
-                    .document(docId)
-                    .set(payload, SetOptions.merge())
-                    .await()
+            val targetRooms = mutableListOf(coupleId)
+            context?.let { ctx ->
+                try {
+                    val prefs = ctx.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE)
+                    val cachedCoupleId = prefs.getString("cached_couple_id", null)
+                    if (!cachedCoupleId.isNullOrBlank() && cachedCoupleId != "couple_1") {
+                        targetRooms.add(cachedCoupleId)
+                    }
+                } catch (ignored: Exception) {}
             }
 
-            // 6. Record last sync timestamp
+            for (room in targetRooms.distinct().filter { it.isNotBlank() && it != "couple_1" }) {
+                kotlinx.coroutines.withTimeout(15000L) {
+                    firestore.collection("couples")
+                        .document(room)
+                        .collection("daily")
+                        .document(docId)
+                        .set(payload, SetOptions.merge())
+                        .await()
+                }
+                Timber.d("Successfully synced daily aggregate to Firestore at couples/$room/daily/$docId")
+            }
+
+            // 6. Record last sync timestamp strictly after confirmed upload success
             dataStore.updateLastSyncTimestamp(now)
-            Timber.d("Successfully synced daily aggregate to Firestore at couples/$coupleId/daily/$docId")
             SyncResult.Success(payload)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to upload daily aggregate to Firestore")
+            Timber.e(e, "Failed to upload daily aggregate to Firestore at couples/$coupleId/daily/${myUid}_$dateStr")
             SyncResult.Failure(e)
         }
     }
