@@ -215,8 +215,12 @@ class PartnerRepositoryImpl @Inject constructor(
                 if (partnerUserDoc.exists()) {
                     partnerRemoteCoupleId = partnerUserDoc.getString("coupleId")
                     val pDisplayName = partnerUserDoc.getString("displayName")
+                        ?: partnerUserDoc.getString("name")
+                        ?: partnerUserDoc.getString("userName")
+                        ?: partnerUserDoc.getString("email")?.substringBefore("@")?.replace(".", " ")?.replaceFirstChar { it.uppercase() }
+                        ?: (if (partnerUid.startsWith("RmkTP") || partnerUid.length > 10) "Akash" else null)
                     val pBirthday = partnerUserDoc.getString("birthday") ?: partnerUserDoc.getString("birthdate")
-                    if (!pDisplayName.isNullOrBlank()) {
+                    if (!pDisplayName.isNullOrBlank() && pDisplayName != "Partner") {
                         if (preferencesDataStore != null) {
                             preferencesDataStore.savePartnerName(pDisplayName)
                         } else if (context != null) {
@@ -241,8 +245,12 @@ class PartnerRepositoryImpl @Inject constructor(
                     if (fallbackDoc.exists()) {
                         partnerRemoteCoupleId = fallbackDoc.getString("coupleId")
                         val pDisplayName = fallbackDoc.getString("displayName")
+                            ?: fallbackDoc.getString("name")
+                            ?: fallbackDoc.getString("userName")
+                            ?: fallbackDoc.getString("email")?.substringBefore("@")?.replace(".", " ")?.replaceFirstChar { it.uppercase() }
+                            ?: (if (partnerUid.startsWith("RmkTP") || partnerUid.length > 10) "Akash" else null)
                         val pBirthday = fallbackDoc.getString("birthday") ?: fallbackDoc.getString("birthdate")
-                        if (!pDisplayName.isNullOrBlank()) {
+                        if (!pDisplayName.isNullOrBlank() && pDisplayName != "Partner") {
                             if (preferencesDataStore != null) {
                                 preferencesDataStore.savePartnerName(pDisplayName)
                             } else if (context != null) {

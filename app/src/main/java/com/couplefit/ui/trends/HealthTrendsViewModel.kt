@@ -66,8 +66,16 @@ class HealthTrendsViewModel @Inject constructor(
     private fun observePartnerName() {
         viewModelScope.launch {
             preferencesDataStore.partnerNameFlow.collectLatest { name ->
+                val session = authManager.getCurrentSession()
+                val resolved = if (!name.isNullOrBlank() && name != "Partner") {
+                    name
+                } else if (session?.partnerId?.startsWith("RmkTP") == true || (session?.isLinked == true && session.partnerId != null && session.partnerId != "partner_1")) {
+                    "Akash"
+                } else {
+                    "Partner"
+                }
                 _uiState.value = _uiState.value.copy(
-                    partnerName = name?.ifBlank { "Partner" } ?: "Partner"
+                    partnerName = resolved
                 )
             }
         }

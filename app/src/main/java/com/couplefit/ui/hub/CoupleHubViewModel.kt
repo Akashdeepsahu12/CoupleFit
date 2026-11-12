@@ -64,9 +64,18 @@ class CoupleHubViewModel @Inject constructor(
 
                 val days = ((System.currentTimeMillis() - effectivePairedTs) / 86_400_000L).coerceAtLeast(1L)
 
+                val effectivePartnerName = if (!partner.isNullOrBlank() && partner != "Partner") {
+                    partner
+                } else if (session?.partnerId?.startsWith("RmkTP") == true || (session?.isLinked == true && session.partnerId != null && session.partnerId != "partner_1")) {
+                    viewModelScope.launch { preferencesDataStore.savePartnerName("Akash") }
+                    "Akash"
+                } else {
+                    "Partner"
+                }
+
                 CoupleHubUiState(
-                    userName = user?.ifBlank { "Akash" } ?: "Akash",
-                    partnerName = partner?.ifBlank { "Partner" } ?: "Partner",
+                    userName = user?.ifBlank { "TaleOrbit" } ?: "TaleOrbit",
+                    partnerName = effectivePartnerName,
                     userBirthday = uBday.ifBlank { "June 14" },
                     partnerBirthday = pBday.ifBlank { "September 28" },
                     relationshipType = rel.ifBlank { "Life Comrades & Fitness Partners ❤️" },
@@ -134,11 +143,23 @@ class CoupleHubViewModel @Inject constructor(
     }
 
     fun updateUserName(name: String) {
-        viewModelScope.launch { preferencesDataStore.saveUserName(name) }
+        viewModelScope.launch {
+            preferencesDataStore.saveUserName(name)
+            val session = authManager.getCurrentSession()
+            if (session != null) {
+                preferencesDataStore.mirrorUserNameToFirestore(session.uid, session.coupleId, name)
+            }
+        }
     }
 
     fun updatePartnerName(name: String) {
-        viewModelScope.launch { preferencesDataStore.savePartnerName(name) }
+        viewModelScope.launch {
+            preferencesDataStore.savePartnerName(name)
+            val session = authManager.getCurrentSession()
+            if (session != null) {
+                preferencesDataStore.mirrorPartnerNameToFirestore(session.uid, session.coupleId, session.partnerId, name)
+            }
+        }
     }
 
     fun updateUserBirthday(bday: String) {

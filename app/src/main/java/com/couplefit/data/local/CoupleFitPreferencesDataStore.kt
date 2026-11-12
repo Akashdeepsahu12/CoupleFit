@@ -283,9 +283,41 @@ class CoupleFitPreferencesDataStore @Inject constructor(
         context.coupleFitDataStore.edit { it[KEY_USER_NAME] = name }
     }
 
+    suspend fun mirrorUserNameToFirestore(uid: String, coupleId: String?, name: String) {
+        if (uid.isBlank() || name.isBlank()) return
+        try {
+            saveUserName(name)
+            firestore.collection("users").document(uid)
+                .set(mapOf("displayName" to name, "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()), SetOptions.merge())
+            if (!coupleId.isNullOrBlank()) {
+                firestore.collection("couples").document(coupleId)
+                    .set(mapOf("memberNames" to mapOf(uid to name)), SetOptions.merge())
+            }
+            Timber.d("Successfully mirrored userName '$name' to users/$uid and couple $coupleId")
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to mirror userName to Firestore")
+        }
+    }
+
     suspend fun getPartnerName(): String? = partnerNameFlow.first()
     suspend fun savePartnerName(name: String) {
         context.coupleFitDataStore.edit { it[KEY_PARTNER_NAME] = name }
+    }
+
+    suspend fun mirrorPartnerNameToFirestore(uid: String, coupleId: String?, partnerId: String?, name: String) {
+        if (uid.isBlank() || name.isBlank()) return
+        try {
+            savePartnerName(name)
+            firestore.collection("users").document(uid)
+                .set(mapOf("partnerName" to name, "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()), SetOptions.merge())
+            if (!coupleId.isNullOrBlank() && !partnerId.isNullOrBlank()) {
+                firestore.collection("couples").document(coupleId)
+                    .set(mapOf("memberNames" to mapOf(partnerId to name)), SetOptions.merge())
+            }
+            Timber.d("Successfully mirrored partnerName '$name' to users/$uid and couple $coupleId")
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to mirror partnerName to Firestore")
+        }
     }
 
     suspend fun savePairedDateTimestamp(timestamp: Long) {

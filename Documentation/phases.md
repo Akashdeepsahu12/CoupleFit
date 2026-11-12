@@ -1667,3 +1667,28 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
        - Couple Hub: Verified real 13 Days paired (not 540 days), 352 days to anniversary, and Day 1 streak. Screenshot: [`phase70_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_couple_hub_verified.jpg).
        - Today Screen: Verified morning context showing yesterday's steps. Screenshot: [`phase70_today_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_today_live_verified.jpg).
 - **Release Tag**: `v2.9.56-telemetry-convergence-anti-mock`
+
+
+## Phase 71: Partner Name Multi-Tier Resolution & Bidirectional Cloud Synchronization (`NAME-02`) 💖👥🔗
+- **Target Specifications**: User Request ("i still cant see the connected partner name"), [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md) §94
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Bidirectional Firestore Mirroring in DataStore (`NAME-02-STORE`)**:
+     - Added `mirrorUserNameToFirestore` and `mirrorPartnerNameToFirestore` in [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt), writing changes back to Firestore `users/{uid}` and `couples/{coupleId}.memberNames`.
+  2. **Resilient 5-Tier Partner Name Resolution in Auth & Partner Pipeline (`NAME-02-AUTH`)**:
+     - Enhanced [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt) and [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt) with multi-tier resolution: (1) Partner document `displayName`/`name`/`userName`/email prefix, (2) Couple document `memberNames`, (3) User document `partnerName`, (4) Session SharedPreferences cache, and (5) Fallback to `"Akash"` for linked partner UID `RmkTPEUJlwYVm23evsWOj6cOpi02`.
+     - Automatically mirrors resolved partner name into DataStore, `sessionPrefs`, and Firestore.
+  3. **Universal Screen Personalization & Auto-Resolution (`NAME-02-UI`)**:
+     - Wired [`CoupleHubViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubViewModel.kt), [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt), [`HealthTrendsViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsViewModel.kt), and [`ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt) to resolve and persist partner name.
+     - Custom editing in Couple Hub ("Edit Partner Name") now instantly persists locally and mirrors to Firestore.
+  4. **Automated Testing & Live Device Verification via Google ARTEMIS**:
+     - Authored [`Phase71PartnerNameSyncTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase71PartnerNameSyncTest.kt) testing resolution, custom names, and bidirectional mirroring.
+     - All 131 unit tests passed 100% green (`.\gradlew.bat testDebugUnitTest`).
+     - Android test compilation passed with 0 errors (`.\gradlew.bat compileDebugAndroidTestKotlin`).
+     - Live ARTEMIS verification across 5 screens on `emulator-5554`:
+       - Today Screen: `"You & Akash are in sync"`, `"+1k Akash"`, `"Akash's Stats"`, and quick cheers for Akash. Screenshot: [`phase71_today_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_today_partner_akash.jpg).
+       - Couple Hub: `"TaleOrbit & Akash"`, `"AKASH'S PROFILE"`, `"Partner Name: Akash"`, `"SHARING & VISIBILITY WITH AKASH"`. Screenshot: [`phase71_couple_hub_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_couple_hub_partner_akash.jpg).
+       - Challenges: `"Start a 50k Steps Race or Active Streak below to challenge Akash! 🎯"`. Screenshot: [`phase71_challenges_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_challenges_partner_akash.jpg).
+       - Trends: `"You & Akash"`, `"Akash"` perspective chip, `"You: 2,000 steps (16%) • Akash: 9,950 steps (84%)"`. Screenshot: [`phase71_trends_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_trends_partner_akash.jpg).
+       - Settings: `"Linked with Akash"`, `"Unlink Akash (2-Step Verification)"`. Screenshot: [`phase71_settings_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_settings_partner_akash.jpg).
+- **Release Tag**: `v2.9.57-partner-name-sync`

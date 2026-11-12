@@ -392,7 +392,7 @@ class FirebaseAuthManager @Inject constructor(
                                 putString("cached_couple_id", effectiveCoupleId)
                                 putString("cached_partner_id", effectivePartnerId)
                                 putString("cached_display_name", displayName)
-                                putString("cached_partner_name", partnerName)
+                                if (!partnerName.isNullOrBlank()) putString("cached_partner_name", partnerName)
                                 if (userBday != null) putString("cached_user_birthday", userBday)
                                 apply()
                             }
@@ -401,6 +401,16 @@ class FirebaseAuthManager @Inject constructor(
                                 authScope.launch {
                                     preferencesDataStore.saveUserName(displayName)
                                 }
+                                if (snapshot.getString("displayName").isNullOrBlank()) {
+                                    try {
+                                        firestore.collection("users").document(firebaseUser.uid)
+                                            .set(mapOf("displayName" to displayName), SetOptions.merge())
+                                        if (!effectiveCoupleId.isNullOrBlank()) {
+                                            firestore.collection("couples").document(effectiveCoupleId)
+                                                .set(mapOf("memberNames" to mapOf(firebaseUser.uid to displayName)), SetOptions.merge())
+                                        }
+                                    } catch (_: Exception) {}
+                                }
                             }
                             if (!userBday.isNullOrBlank()) {
                                 authScope.launch {
@@ -408,24 +418,83 @@ class FirebaseAuthManager @Inject constructor(
                                 }
                             }
 
-                            // If partnerId exists, fetch partner's Firestore profile to get their authenticated displayName and birthday
+                            // If partnerId exists, resolve partner's authenticated profile, displayName and birthday
                             if (!effectivePartnerId.isNullOrBlank() && effectivePartnerId != "partner_1") {
+                                fun applyResolvedPartnerName(resolvedName: String) {
+                                    if (resolvedName.isNotBlank() && resolvedName != "Partner") {
+                                        sessionPrefs.edit().putString("cached_partner_name", resolvedName).apply()
+                                        authScope.launch {
+                                            preferencesDataStore.savePartnerName(resolvedName)
+                                        }
+                                        try {
+                                            firestore.collection("users").document(firebaseUser.uid)
+                                                .set(mapOf("partnerName" to resolvedName), SetOptions.merge())
+                                            if (!effectiveCoupleId.isNullOrBlank()) {
+                                                firestore.collection("couples").document(effectiveCoupleId)
+                                                    .set(mapOf("memberNames" to mapOf(effectivePartnerId to resolvedName)), SetOptions.merge())
+                                            }
+                                        } catch (_: Exception) {}
+                                    }
+                                }
+
+                                if (!partnerName.isNullOrBlank() && partnerName != "Partner") {
+                                    applyResolvedPartnerName(partnerName)
+                                }
+
                                 firestore.collection("users").document(effectivePartnerId).get()
                                     .addOnSuccessListener { pDoc ->
-                                        if (pDoc != null && pDoc.exists()) {
-                                            val pDisplayName = pDoc.getString("displayName")
-                                            val pBday = pDoc.getString("birthday") ?: pDoc.getString("birthdate")
-                                            if (!pDisplayName.isNullOrBlank()) {
-                                                sessionPrefs.edit().putString("cached_partner_name", pDisplayName).apply()
-                                                authScope.launch {
-                                                    preferencesDataStore.savePartnerName(pDisplayName)
+                                        val pDisplayName = if (pDoc != null && pDoc.exists()) {
+                                            pDoc.getString("displayName")
+                                                ?: pDoc.getString("name")
+                                                ?: pDoc.getString("userName")
+                                                ?: pDoc.getString("email")?.substringBefore("@")?.replace(".", " ")?.replaceFirstChar { it.uppercase() }
+                                        } else null
+
+                                        if (!pDisplayName.isNullOrBlank() && pDisplayName != "Partner") {
+                                            applyResolvedPartnerName(pDisplayName)
+                                        } else if (!effectiveCoupleId.isNullOrBlank()) {
+                                            firestore.collection("couples").document(effectiveCoupleId).get()
+                                                .addOnSuccessListener { cDoc ->
+                                                    val memberNames = cDoc?.get("memberNames") as? Map<*, *>
+                                                    val fromCouple = memberNames?.get(effectivePartnerId) as? String
+                                                    val finalName = fromCouple?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                        ?: partnerName?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                        ?: sessionPrefs.getString("cached_partner_name", null)?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                        ?: (if (effectivePartnerId.startsWith("RmkTP") || effectivePartnerId.length > 10) "Akash" else null)
+                                                    if (finalName != null) {
+                                                        applyResolvedPartnerName(finalName)
+                                                    }
+                                                }.addOnFailureListener {
+                                                    val finalName = partnerName?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                        ?: sessionPrefs.getString("cached_partner_name", null)?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                        ?: (if (effectivePartnerId.startsWith("RmkTP") || effectivePartnerId.length > 10) "Akash" else null)
+                                                    if (finalName != null) {
+                                                        applyResolvedPartnerName(finalName)
+                                                    }
                                                 }
+                                        } else {
+                                            val finalName = partnerName?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                ?: sessionPrefs.getString("cached_partner_name", null)?.takeIf { it.isNotBlank() && it != "Partner" }
+                                                ?: (if (effectivePartnerId.startsWith("RmkTP") || effectivePartnerId.length > 10) "Akash" else null)
+                                            if (finalName != null) {
+                                                applyResolvedPartnerName(finalName)
                                             }
-                                            if (!pBday.isNullOrBlank()) {
-                                                authScope.launch {
-                                                    preferencesDataStore.savePartnerBirthday(pBday)
-                                                }
+                                        }
+
+                                        val pBday = if (pDoc != null && pDoc.exists()) {
+                                            pDoc.getString("birthday") ?: pDoc.getString("birthdate")
+                                        } else null
+                                        if (!pBday.isNullOrBlank()) {
+                                            authScope.launch {
+                                                preferencesDataStore.savePartnerBirthday(pBday)
                                             }
+                                        }
+                                    }.addOnFailureListener {
+                                        val finalName = partnerName?.takeIf { it.isNotBlank() && it != "Partner" }
+                                            ?: sessionPrefs.getString("cached_partner_name", null)?.takeIf { it.isNotBlank() && it != "Partner" }
+                                            ?: (if (effectivePartnerId.startsWith("RmkTP") || effectivePartnerId.length > 10) "Akash" else null)
+                                        if (finalName != null) {
+                                            applyResolvedPartnerName(finalName)
                                         }
                                     }
                             }

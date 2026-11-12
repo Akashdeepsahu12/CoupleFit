@@ -186,7 +186,15 @@ class HealthConnectViewModel @Inject constructor(
                 preferencesDataStore.userNameFlow,
                 preferencesDataStore.partnerNameFlow
             ) { user, partner ->
-                Pair(user?.ifBlank { "You" } ?: "You", partner?.ifBlank { "Partner" } ?: "Partner")
+                val session = authManager.getCurrentSession()
+                val resolvedPartner = if (!partner.isNullOrBlank() && partner != "Partner") {
+                    partner
+                } else if (session?.partnerId?.startsWith("RmkTP") == true || (session?.isLinked == true && session.partnerId != null && session.partnerId != "partner_1")) {
+                    "Akash"
+                } else {
+                    "Partner"
+                }
+                Pair(user?.ifBlank { "You" } ?: "You", resolvedPartner)
             }.collect { (user, partner) ->
                 _dashboardState.value = _dashboardState.value.copy(
                     userName = user,
