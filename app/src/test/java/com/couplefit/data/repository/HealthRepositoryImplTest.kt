@@ -40,6 +40,14 @@ class HealthRepositoryImplTest {
             return userAggregates[dateStr]
         }
 
+        override fun getDailyAggregatesBetweenFlow(startDate: String, endDate: String): Flow<List<HealthDailyAggregateEntity>> {
+            return flowOf(userAggregates.values.filter { it.dateStr in startDate..endDate })
+        }
+
+        override suspend fun getDailyAggregatesBetween(startDate: String, endDate: String): List<HealthDailyAggregateEntity> {
+            return userAggregates.values.filter { it.dateStr in startDate..endDate }
+        }
+
         override suspend fun markAsSynced(ids: List<String>) {}
         override suspend fun getUnsyncedMetrics(): List<HealthMetricEntity> = emptyList()
 
@@ -82,6 +90,12 @@ class HealthRepositoryImplTest {
             flowOf(partnerDailyMap.values.filter { it.partnerId == partnerId }.maxByOrNull { it.dateStr })
         override suspend fun getLatestPartnerDaily(partnerId: String): com.couplefit.data.local.PartnerDailyEntity? =
             partnerDailyMap.values.filter { it.partnerId == partnerId }.maxByOrNull { it.dateStr }
+
+        override fun getPartnerDailyBetweenFlow(partnerId: String, startDate: String, endDate: String): Flow<List<com.couplefit.data.local.PartnerDailyEntity>> =
+            flowOf(partnerDailyMap.values.filter { (partnerId.isEmpty() || it.partnerId == partnerId) && it.dateStr in startDate..endDate })
+
+        override suspend fun getPartnerDailyBetween(partnerId: String, startDate: String, endDate: String): List<com.couplefit.data.local.PartnerDailyEntity> =
+            partnerDailyMap.values.filter { (partnerId.isEmpty() || it.partnerId == partnerId) && it.dateStr in startDate..endDate }
 
         val challengeMap = mutableMapOf<String, com.couplefit.data.local.CoupleChallengeEntity>()
         override suspend fun insertChallenge(challenge: com.couplefit.data.local.CoupleChallengeEntity) {

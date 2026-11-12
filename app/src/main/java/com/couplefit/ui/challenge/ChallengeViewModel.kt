@@ -3,6 +3,7 @@ package com.couplefit.ui.challenge
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.couplefit.data.local.CoupleChallengeEntity
+import com.couplefit.data.remote.FirebaseAuthManager
 import com.couplefit.domain.repository.ChallengeRepository
 import com.couplefit.util.RemoteConfigManager
 import com.google.firebase.auth.FirebaseAuth
@@ -20,6 +21,8 @@ data class ChallengeUiState(
     val challenges: List<CoupleChallengeEntity> = emptyList(),
     val activeChallenge: CoupleChallengeEntity? = null,
     val partnerName: String = "Partner",
+    val coupleId: String = "couple_1",
+    val partnerUid: String = "partner_1",
     val isLoading: Boolean = false,
     val userMessage: String? = null
 )
@@ -28,6 +31,7 @@ data class ChallengeUiState(
 class ChallengeViewModel @Inject constructor(
     private val challengeRepository: ChallengeRepository,
     private val auth: FirebaseAuth,
+    private val authManager: FirebaseAuthManager,
     private val remoteConfigManager: RemoteConfigManager,
     private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
 ) : ViewModel() {
@@ -36,7 +40,25 @@ class ChallengeViewModel @Inject constructor(
     val uiState: StateFlow<ChallengeUiState> = _uiState.asStateFlow()
 
     init {
-        observeChallenges()
+        val initialSession = authManager.getCurrentSession()
+        val initCoupleId = initialSession?.coupleId?.ifBlank { "couple_1" } ?: "couple_1"
+        val initPartnerId = initialSession?.partnerId?.ifBlank { "partner_1" } ?: "partner_1"
+        _uiState.value = _uiState.value.copy(coupleId = initCoupleId, partnerUid = initPartnerId)
+        observeChallenges(initCoupleId, initPartnerId)
+
+        viewModelScope.launch {
+            authManager.observeUserSession().collectLatest { session ->
+                if (session != null) {
+                    val cId = session.coupleId?.ifBlank { "couple_1" } ?: "couple_1"
+                    val pId = session.partnerId?.ifBlank { "partner_1" } ?: "partner_1"
+                    if (cId != _uiState.value.coupleId || pId != _uiState.value.partnerUid) {
+                        _uiState.value = _uiState.value.copy(coupleId = cId, partnerUid = pId)
+                        observeChallenges(cId, pId)
+                    }
+                }
+            }
+        }
+
         viewModelScope.launch {
             preferencesDataStore.partnerNameFlow.collectLatest { name ->
                 _uiState.value = _uiState.value.copy(partnerName = name?.ifBlank { "Partner" } ?: "Partner")
@@ -44,7 +66,7 @@ class ChallengeViewModel @Inject constructor(
         }
     }
 
-    fun observeChallenges(coupleId: String = "couple_1", partnerUid: String = "partner_1") {
+    fun observeChallenges(coupleId: String = _uiState.value.coupleId, partnerUid: String = _uiState.value.partnerUid) {
         val myUid = auth.currentUser?.uid ?: "me"
         viewModelScope.launch {
             challengeRepository.listenToCoupleChallenges(coupleId, myUid, partnerUid)
@@ -59,7 +81,7 @@ class ChallengeViewModel @Inject constructor(
     }
 
     fun createChallenge(
-        coupleId: String,
+        coupleId: String = _uiState.value.coupleId,
         type: String = "STEPS_RACE",
         goal: Long? = null,
         durationDays: Long = 7

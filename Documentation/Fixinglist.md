@@ -4546,6 +4546,46 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PHASE69-PHOTO-SYNC`** | Visual Evidence (Sync & Sharing) | Screenshot saved to [`phase69_settings_sync_sharing_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_sync_sharing_live.jpg) | 🟢 Verified |
 | **`PHASE69-PHOTO-DLG`** | Visual Evidence (Samsung Dialog) | Screenshot saved to [`phase69_samsung_dialog_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_samsung_dialog_verified.jpg) | 🟢 Verified |
 
+---
+
+## 93. Phase 70: End-to-End Dynamic Telemetry Convergence, Room DB Aggregation, Challenge Session Binding & Anti-Mock Sanitization (`TRENDS-01`, `CHALLENGE-01`, `HUB-02`, `ROLLOVER-01`) 📊⚡🔄
+
+> **Target Documents & Code**:
+> - [`HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt)
+> - [`HealthTrendsViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsViewModel.kt)
+> - [`HealthDao.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/HealthDao.kt)
+> - [`ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt)
+> - [`ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt)
+> - [`CoupleHubViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubViewModel.kt)
+> - [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`Phase70TelemetryConvergenceTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase70TelemetryConvergenceTest.kt)
+
+### 93.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`TRENDS-01`** | User Bug Report ("Still the datas are incorrect.") | 🔴 **Error / Hardcoded Mock Data** | `HealthTrendsScreen.kt`, `HealthTrendsViewModel.kt`, `HealthDao.kt` | Health & Trends screen displayed 100% hardcoded fake statistics (`48,200` vs `44,200`, `92,400 / 100k`, `532 active mins`, `4,630 kcal`, `94% synchrony`, and Solo stats `8,450 / 48,200 / 198,400 / 2,420,000`). It was completely disconnected from the local database. | Added range queries to `HealthDao`: `getDailyAggregatesBetweenFlow` and `getPartnerDailyBetweenFlow`. Created dedicated `HealthTrendsViewModel` computing dynamic aggregates (steps, active minutes, calories, averages, splits, and synchrony) for `Day`, `Week`, `Month`, `Year`. Bound all cards dynamically. | 🟢 **Resolved** |
+| **`CHALLENGE-01`** | Live Database & Code Audit | 🔴 **Error / Session Partitioning & Mock Duel** | `ChallengeViewModel.kt`, `ChallengesScreen.kt` | `ChallengeViewModel` hardcoded `coupleId = "couple_1"` and `partnerUid = "partner_1"`, failing to observe authenticated session; creating challenges wrote to `"couple_1"`; when empty, it displayed a hardcoded October 2026 demo duel (`24,500` vs `28,200` steps). | Wired `ChallengeViewModel` to `FirebaseAuthManager.observeUserSession()`; bound challenge creation to active `coupleId`; excised fake October 2026 card from `ChallengesScreen.kt` and added motivating empty state with 1-tap "Start 50k Steps Race ⚡" launcher. | 🟢 **Resolved** |
+| **`HUB-02`** | Live Database & Code Audit | 🔵 **Correction / Data Realism** | `CoupleHubViewModel.kt`, `CoupleHubScreen.kt`, `CoupleFitPreferencesDataStore.kt` | Couple Hub displayed hardcoded "Paired for 540 Days", static "🔥 42 Days Shared Goal Streak", and fake 190 days to anniversary due to fallback defaults in DataStore. | Extracted authoritative timestamp from active `coupleId` (`cpl_1793319867725_RmkTP` -> `1793319867725L`, 13 days ago); dynamically calculated `totalDaysPaired` (13 Days) and anniversary countdown (352 Days); implemented dynamic shared goal streak querying Room DB historical data (`🌱 Day 1: Start your shared streak today!`). | 🟢 **Resolved** |
+| **`ROLLOVER-01`** | Live Device Diagnostics | 💡 **UX Resilience / Rollover** | `HealthConnectViewModel.kt`, `DashboardScreen.kt` | During early morning hours when today's steps are naturally 0, users saw cold zeroes without context on whether sync succeeded or what happened yesterday. | Exposed `yesterdaySteps` and `yesterdayPartnerSteps` in `HealthDashboardUiState`; enhanced Today dashboard morning card to display yesterday's verified achievement context (`"Yesterday: You 0 steps • Partner 1,431 steps."`). | 🟢 **Resolved** |
+
+### 93.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE70-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (125/125 tests passing including `Phase70TelemetryConvergenceTest`) | 🟢 Passed |
+| **`PHASE70-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE70-TRENDS`** | Health Trends Dynamic Verification | ARTEMIS UI inspection: Verified live week calculations (`11,950 / 140,000` combined steps, You: 2,000 steps [16%] vs Partner: 9,950 steps [84%], 90 active mins, 6,603 kcal, 20% synchrony). Day calculations: 0 steps, 379 kcal, 100% synchrony. | 🟢 Verified |
+| **`PHASE70-CHALLENGES`** | Challenges Dynamic Verification | ARTEMIS UI inspection: Verified complete removal of fake October 2026 duel (`24,500` vs `28,200`), dynamic "No Active Duels Yet" card, and 1-tap "Start 50k Steps Race ⚡" launcher. | 🟢 Verified |
+| **`PHASE70-HUB`** | Couple Hub Dynamic Verification | ARTEMIS UI inspection: Verified dynamic "💍 Paired for 13 Days", "13 Days in CoupleFit", "🌱 Day 1: Start your shared streak today!", and "🎉 352 Days until Next Fitness Anniversary". | 🟢 Verified |
+| **`PHASE70-TODAY`** | Today Rollover Context | ARTEMIS UI inspection: Verified morning card rendering: `"Yesterday: You 0 steps • Partner 1,431 steps."`. | 🟢 Verified |
+| **`PHASE70-PHOTO-TRENDS`** | Visual Proof (Trends Screen) | Screenshot saved to [`phase70_trends_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_trends_live_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-CHAL`** | Visual Proof (Challenges Screen) | Screenshot saved to [`phase70_challenges_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_challenges_live_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-HUB`** | Visual Proof (Couple Hub) | Screenshot saved to [`phase70_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_couple_hub_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-TODAY`** | Visual Proof (Today Screen) | Screenshot saved to [`phase70_today_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_today_live_verified.jpg) | 🟢 Verified |
+
+
 
 
 
@@ -4728,6 +4768,46 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PHASE69-PHOTO-SET`** | Visual Evidence (Settings Avatar) | Screenshot saved to [`phase69_settings_profile_photo_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_profile_photo_verified.jpg) | 🟢 Verified |
 | **`PHASE69-PHOTO-SYNC`** | Visual Evidence (Sync & Sharing) | Screenshot saved to [`phase69_settings_sync_sharing_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_sync_sharing_live.jpg) | 🟢 Verified |
 | **`PHASE69-PHOTO-DLG`** | Visual Evidence (Samsung Dialog) | Screenshot saved to [`phase69_samsung_dialog_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_samsung_dialog_verified.jpg) | 🟢 Verified |
+
+---
+
+## 93. Phase 70: End-to-End Dynamic Telemetry Convergence, Room DB Aggregation, Challenge Session Binding & Anti-Mock Sanitization (`TRENDS-01`, `CHALLENGE-01`, `HUB-02`, `ROLLOVER-01`) 📊⚡🔄
+
+> **Target Documents & Code**:
+> - [`HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt)
+> - [`HealthTrendsViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsViewModel.kt)
+> - [`HealthDao.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/HealthDao.kt)
+> - [`ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt)
+> - [`ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt)
+> - [`CoupleHubViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubViewModel.kt)
+> - [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`Phase70TelemetryConvergenceTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase70TelemetryConvergenceTest.kt)
+
+### 93.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`TRENDS-01`** | User Bug Report ("Still the datas are incorrect.") | 🔴 **Error / Hardcoded Mock Data** | `HealthTrendsScreen.kt`, `HealthTrendsViewModel.kt`, `HealthDao.kt` | Health & Trends screen displayed 100% hardcoded fake statistics (`48,200` vs `44,200`, `92,400 / 100k`, `532 active mins`, `4,630 kcal`, `94% synchrony`, and Solo stats `8,450 / 48,200 / 198,400 / 2,420,000`). It was completely disconnected from the local database. | Added range queries to `HealthDao`: `getDailyAggregatesBetweenFlow` and `getPartnerDailyBetweenFlow`. Created dedicated `HealthTrendsViewModel` computing dynamic aggregates (steps, active minutes, calories, averages, splits, and synchrony) for `Day`, `Week`, `Month`, `Year`. Bound all cards dynamically. | 🟢 **Resolved** |
+| **`CHALLENGE-01`** | Live Database & Code Audit | 🔴 **Error / Session Partitioning & Mock Duel** | `ChallengeViewModel.kt`, `ChallengesScreen.kt` | `ChallengeViewModel` hardcoded `coupleId = "couple_1"` and `partnerUid = "partner_1"`, failing to observe authenticated session; creating challenges wrote to `"couple_1"`; when empty, it displayed a hardcoded October 2026 demo duel (`24,500` vs `28,200` steps). | Wired `ChallengeViewModel` to `FirebaseAuthManager.observeUserSession()`; bound challenge creation to active `coupleId`; excised fake October 2026 card from `ChallengesScreen.kt` and added motivating empty state with 1-tap "Start 50k Steps Race ⚡" launcher. | 🟢 **Resolved** |
+| **`HUB-02`** | Live Database & Code Audit | 🔵 **Correction / Data Realism** | `CoupleHubViewModel.kt`, `CoupleHubScreen.kt`, `CoupleFitPreferencesDataStore.kt` | Couple Hub displayed hardcoded "Paired for 540 Days", static "🔥 42 Days Shared Goal Streak", and fake 190 days to anniversary due to fallback defaults in DataStore. | Extracted authoritative timestamp from active `coupleId` (`cpl_1793319867725_RmkTP` -> `1793319867725L`, 13 days ago); dynamically calculated `totalDaysPaired` (13 Days) and anniversary countdown (352 Days); implemented dynamic shared goal streak querying Room DB historical data (`🌱 Day 1: Start your shared streak today!`). | 🟢 **Resolved** |
+| **`ROLLOVER-01`** | Live Device Diagnostics | 💡 **UX Resilience / Rollover** | `HealthConnectViewModel.kt`, `DashboardScreen.kt` | During early morning hours when today's steps are naturally 0, users saw cold zeroes without context on whether sync succeeded or what happened yesterday. | Exposed `yesterdaySteps` and `yesterdayPartnerSteps` in `HealthDashboardUiState`; enhanced Today dashboard morning card to display yesterday's verified achievement context (`"Yesterday: You 0 steps • Partner 1,431 steps."`). | 🟢 **Resolved** |
+
+### 93.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE70-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (125/125 tests passing including `Phase70TelemetryConvergenceTest`) | 🟢 Passed |
+| **`PHASE70-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE70-TRENDS`** | Health Trends Dynamic Verification | ARTEMIS UI inspection: Verified live week calculations (`11,950 / 140,000` combined steps, You: 2,000 steps [16%] vs Partner: 9,950 steps [84%], 90 active mins, 6,603 kcal, 20% synchrony). Day calculations: 0 steps, 379 kcal, 100% synchrony. | 🟢 Verified |
+| **`PHASE70-CHALLENGES`** | Challenges Dynamic Verification | ARTEMIS UI inspection: Verified complete removal of fake October 2026 duel (`24,500` vs `28,200`), dynamic "No Active Duels Yet" card, and 1-tap "Start 50k Steps Race ⚡" launcher. | 🟢 Verified |
+| **`PHASE70-HUB`** | Couple Hub Dynamic Verification | ARTEMIS UI inspection: Verified dynamic "💍 Paired for 13 Days", "13 Days in CoupleFit", "🌱 Day 1: Start your shared streak today!", and "🎉 352 Days until Next Fitness Anniversary". | 🟢 Verified |
+| **`PHASE70-TODAY`** | Today Rollover Context | ARTEMIS UI inspection: Verified morning card rendering: `"Yesterday: You 0 steps • Partner 1,431 steps."`. | 🟢 Verified |
+| **`PHASE70-PHOTO-TRENDS`** | Visual Proof (Trends Screen) | Screenshot saved to [`phase70_trends_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_trends_live_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-CHAL`** | Visual Proof (Challenges Screen) | Screenshot saved to [`phase70_challenges_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_challenges_live_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-HUB`** | Visual Proof (Couple Hub) | Screenshot saved to [`phase70_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_couple_hub_verified.jpg) | 🟢 Verified |
+| **`PHASE70-PHOTO-TODAY`** | Visual Proof (Today Screen) | Screenshot saved to [`phase70_today_live_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase70_today_live_verified.jpg) | 🟢 Verified |
+
 
 
 

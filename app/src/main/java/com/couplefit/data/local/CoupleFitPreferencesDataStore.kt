@@ -260,7 +260,7 @@ class CoupleFitPreferencesDataStore @Inject constructor(
     val userNameFlow: Flow<String?> = context.coupleFitDataStore.data.map { it[KEY_USER_NAME] }
     val partnerNameFlow: Flow<String?> = context.coupleFitDataStore.data.map { it[KEY_PARTNER_NAME] }
     val pairedDateTimestampFlow: Flow<Long> = context.coupleFitDataStore.data.map {
-        it[KEY_PAIRED_DATE_TIMESTAMP] ?: (System.currentTimeMillis() - 540L * 86_400_000L) // Default 540 days
+        it[KEY_PAIRED_DATE_TIMESTAMP] ?: 0L
     }
     val userBirthdayFlow: Flow<String> = context.coupleFitDataStore.data.map {
         it[KEY_USER_BIRTHDAY] ?: "June 14"

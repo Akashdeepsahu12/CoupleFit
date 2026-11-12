@@ -37,6 +37,8 @@ enum class TelemetryPerspective(val label: String, val icon: String) {
     PARTNER("Partner", "💖")
 }
 
+private fun formatThousands(value: Long): String = "%,d".format(value)
+
 /**
  * Health & Trends Screen (Tab 3).
  * Designed according to `card-sort-analysis.md` §7.2 (Wireframe 3).
@@ -49,15 +51,21 @@ enum class TelemetryPerspective(val label: String, val icon: String) {
 @Composable
 fun HealthTrendsScreen(
     modifier: Modifier = Modifier,
-    healthConnectViewModel: com.couplefit.ui.healthconnect.HealthConnectViewModel = hiltViewModel()
+    trendsViewModel: HealthTrendsViewModel = hiltViewModel()
 ) {
-    val healthData by healthConnectViewModel.dashboardState.collectAsState()
-    val partnerName = healthData.partnerName.ifBlank { "Partner" }
+    val uiState by trendsViewModel.uiState.collectAsState()
+    val partnerName = uiState.partnerName.ifBlank { "Partner" }
 
     var selectedTimeHorizon by remember { mutableStateOf("Week") }
     var selectedPerspective by remember { mutableStateOf(TelemetryPerspective.COMBINED) }
 
     val timeHorizons = remember { listOf("Day", "Week", "Month", "Year") }
+    val currentHorizonData = when (selectedTimeHorizon) {
+        "Day" -> uiState.dayData
+        "Week" -> uiState.weekData
+        "Month" -> uiState.monthData
+        else -> uiState.yearData
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -151,43 +159,22 @@ fun HealthTrendsScreen(
                     ) { perspective ->
                         when (perspective) {
                             TelemetryPerspective.COMBINED -> {
-                                CombinedTelemetryCard(selectedTimeHorizon = selectedTimeHorizon, partnerName = partnerName)
+                                CombinedTelemetryCard(
+                                    selectedTimeHorizon = selectedTimeHorizon,
+                                    partnerName = partnerName,
+                                    data = currentHorizonData
+                                )
                             }
                             TelemetryPerspective.YOU -> {
                                 SoloTelemetryCard(
                                     ownerName = "You",
                                     timeHorizon = selectedTimeHorizon,
-                                    steps = when (selectedTimeHorizon) {
-                                        "Day" -> "8,450"
-                                        "Week" -> "48,200"
-                                        "Month" -> "198,400"
-                                        else -> "2,420,000"
-                                    },
-                                    goal = when (selectedTimeHorizon) {
-                                        "Day" -> "10,000"
-                                        "Week" -> "50,000"
-                                        "Month" -> "200,000"
-                                        else -> "2,500,000"
-                                    },
-                                    targetRatio = when (selectedTimeHorizon) {
-                                        "Day" -> 0.845f
-                                        "Week" -> 0.964f
-                                        "Month" -> 0.992f
-                                        else -> 0.968f
-                                    },
-                                    dailyAvg = "6,885",
-                                    activeMins = when (selectedTimeHorizon) {
-                                        "Day" -> "45"
-                                        "Week" -> "280"
-                                        "Month" -> "1,120"
-                                        else -> "13,440"
-                                    },
-                                    calories = when (selectedTimeHorizon) {
-                                        "Day" -> "420"
-                                        "Week" -> "2,450"
-                                        "Month" -> "10,200"
-                                        else -> "122,500"
-                                    },
+                                    steps = formatThousands(currentHorizonData.userSteps),
+                                    goal = formatThousands(currentHorizonData.userGoal),
+                                    targetRatio = currentHorizonData.userRatio,
+                                    dailyAvg = formatThousands(currentHorizonData.userDailyAvg),
+                                    activeMins = formatThousands(currentHorizonData.userActiveMins),
+                                    calories = formatThousands(currentHorizonData.userCalories),
                                     accentColor = CoupleFitIdentityTokens.UserPrimary // Electric Cyan (DSN-01)
                                 )
                             }
@@ -195,37 +182,12 @@ fun HealthTrendsScreen(
                                 SoloTelemetryCard(
                                     ownerName = partnerName,
                                     timeHorizon = selectedTimeHorizon,
-                                    steps = when (selectedTimeHorizon) {
-                                        "Day" -> "7,800"
-                                        "Week" -> "44,200"
-                                        "Month" -> "185,600"
-                                        else -> "2,280,000"
-                                    },
-                                    goal = when (selectedTimeHorizon) {
-                                        "Day" -> "10,000"
-                                        "Week" -> "50,000"
-                                        "Month" -> "200,000"
-                                        else -> "2,500,000"
-                                    },
-                                    targetRatio = when (selectedTimeHorizon) {
-                                        "Day" -> 0.780f
-                                        "Week" -> 0.884f
-                                        "Month" -> 0.928f
-                                        else -> 0.912f
-                                    },
-                                    dailyAvg = "6,314",
-                                    activeMins = when (selectedTimeHorizon) {
-                                        "Day" -> "40"
-                                        "Week" -> "252"
-                                        "Month" -> "1,040"
-                                        else -> "12,200"
-                                    },
-                                    calories = when (selectedTimeHorizon) {
-                                        "Day" -> "380"
-                                        "Week" -> "2,180"
-                                        "Month" -> "9,100"
-                                        else -> "110,400"
-                                    },
+                                    steps = formatThousands(currentHorizonData.partnerSteps),
+                                    goal = formatThousands(currentHorizonData.partnerGoal),
+                                    targetRatio = currentHorizonData.partnerRatio,
+                                    dailyAvg = formatThousands(currentHorizonData.partnerDailyAvg),
+                                    activeMins = formatThousands(currentHorizonData.partnerActiveMins),
+                                    calories = formatThousands(currentHorizonData.partnerCalories),
                                     accentColor = CoupleFitIdentityTokens.PartnerPrimary // Vibrant Coral (DSN-01)
                                 )
                             }
@@ -401,15 +363,13 @@ fun <T> FluidSegmentedSwitcher(
 }
 
 @Composable
-private fun CombinedTelemetryCard(selectedTimeHorizon: String, partnerName: String = "Partner") {
-    val targetRatio = when (selectedTimeHorizon) {
-        "Day" -> 0.81f
-        "Week" -> 0.92f
-        "Month" -> 0.96f
-        else -> 0.94f
-    }
+private fun CombinedTelemetryCard(
+    selectedTimeHorizon: String,
+    partnerName: String = "Partner",
+    data: TimeHorizonData
+) {
     val animatedRatio by animateFloatAsState(
-        targetValue = targetRatio,
+        targetValue = data.combinedRatio,
         animationSpec = spring(dampingRatio = 0.80f, stiffness = 450f),
         label = "combinedRatioAnimation"
     )
@@ -438,12 +398,7 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String, partnerName: Stri
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                 )
                 Text(
-                    text = when (selectedTimeHorizon) {
-                        "Day" -> "16,250 / 20k"
-                        "Week" -> "92,400 / 100k"
-                        "Month" -> "384,000 / 400k"
-                        else -> "4,700,000 / 5M"
-                    },
+                    text = "${formatThousands(data.combinedSteps)} / ${formatThousands(data.combinedGoal)}",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -457,24 +412,24 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String, partnerName: Stri
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
-                Row(modifier = Modifier.fillMaxWidth(animatedRatio).fillMaxHeight()) {
+                Row(modifier = Modifier.fillMaxWidth(animatedRatio.coerceIn(0.01f, 1f)).fillMaxHeight()) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(0.52f)
+                            .weight((data.userSplitPercent / 100f).coerceIn(0.01f, 0.99f))
                             .background(CoupleFitIdentityTokens.UserPrimary)
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(0.48f)
+                            .weight((data.partnerSplitPercent / 100f).coerceIn(0.01f, 0.99f))
                             .background(CoupleFitIdentityTokens.PartnerPrimary)
                     )
                 }
             }
 
             Text(
-                text = "You: 48,200 steps (52%) • $partnerName: 44,200 steps (48%)",
+                text = "You: ${formatThousands(data.userSteps)} steps (${data.userSplitPercent}%) • $partnerName: ${formatThousands(data.partnerSteps)} steps (${data.partnerSplitPercent}%)",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -487,17 +442,17 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String, partnerName: Stri
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "⚡ 532 active mins",
+                    text = "⚡ ${formatThousands(data.totalActiveMins)} active mins",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "🔥 4,630 kcal burned",
+                    text = "🔥 ${formatThousands(data.totalCalories)} kcal burned",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Synchrony: 94% ✨",
+                    text = "Synchrony: ${data.synchronyPercent}% ✨",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = SystemGreen
                 )

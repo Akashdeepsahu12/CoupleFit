@@ -246,7 +246,7 @@ fun ChallengesScreen(
         StartChallengeDialog(
             onDismiss = { showCreateDialog = false },
             onStartChallenge = { type, goal ->
-                viewModel.createChallenge(coupleId = "couple_1", type = type, goal = goal)
+                viewModel.createChallenge(type = type, goal = goal)
             }
         )
     }
@@ -286,24 +286,45 @@ private fun ActiveDuelsSection(
 
         if (challenges.isEmpty()) {
             item {
-                // Interactive Demo Card
-                val sampleChallenge = remember {
-                    CoupleChallengeEntity(
-                        id = "demo_duel_1",
-                        coupleId = "couple_demo",
-                        type = "STEPS_RACE",
-                        goal = 50_000L,
-                        start = "2026-10-21",
-                        end = "2026-10-28",
-                        myProgress = 24_500L,
-                        partnerProgress = 28_200L,
-                        status = "ACTIVE"
-                    )
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .iosGlass(shape = MaterialTheme.shapes.large),
+                    shape = MaterialTheme.shapes.large,
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                    border = null
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(AppSpacing.lg),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
+                    ) {
+                        Text(text = "🌱", fontSize = 36.sp)
+                        Text(
+                            text = "No Active Duels Yet",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Start a 50k Steps Race or Active Streak below to challenge $partnerName! 🎯",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Button(
+                            onClick = {
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                onStartFormat("STEPS_RACE", 50_000L)
+                            },
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text("Start 50k Steps Race ⚡")
+                        }
+                    }
                 }
-                SideBySideChallengeCard(
-                    challenge = sampleChallenge,
-                    partnerName = partnerName
-                )
             }
         } else {
             items(challenges) { challenge ->

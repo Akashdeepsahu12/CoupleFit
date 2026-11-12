@@ -489,13 +489,19 @@ fun DashboardScreen(
                         ) {
                             Text("🌱", fontSize = 20.sp)
                             Column {
+                                val pName = healthData.partnerName.ifBlank { "Partner" }
+                                val morningSubtitle = if (healthData.steps == 0L && healthData.partnerSteps == 0L && (healthData.yesterdaySteps > 0L || healthData.yesterdayPartnerSteps > 0L)) {
+                                    "Yesterday: You ${"%,d".format(healthData.yesterdaySteps)} steps • $pName ${"%,d".format(healthData.yesterdayPartnerSteps)} steps."
+                                } else {
+                                    "Take your first morning steps with your partner."
+                                }
                                 Text(
                                     text = "A fresh day together!",
                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = "Take your first morning steps with your partner.",
+                                    text = morningSubtitle,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

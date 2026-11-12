@@ -63,6 +63,8 @@ data class HealthDashboardUiState(
     val partnerHasTodayData: Boolean = false,
     val partnerLastUpdated: Long? = null,
     val partnerLastUpdatedLabel: String = "Awaiting sync",
+    val yesterdaySteps: Long = 0L,
+    val yesterdayPartnerSteps: Long = 0L,
     val coupleId: String = "couple_1",
     val myUid: String = "me",
     val nudgeSentMessage: String? = null
@@ -257,6 +259,10 @@ class HealthConnectViewModel @Inject constructor(
                     formatLastUpdated(pLastUpdated)
                 }
 
+                val yesterdayStr = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE)
+                val yesterdayMy = healthDao.getDailyAggregate(yesterdayStr)?.totalSteps ?: 0L
+                val yesterdayPartner = healthDao.getPartnerDaily(partnerId, yesterdayStr)?.steps ?: 0L
+
                 _dashboardState.value = _dashboardState.value.copy(
                     steps = steps,
                     stepsProgress = progress,
@@ -274,7 +280,9 @@ class HealthConnectViewModel @Inject constructor(
                     partnerAverageOxygenSaturation = pAvgSpo2,
                     partnerHasTodayData = pHasData,
                     partnerLastUpdated = pLastUpdated,
-                    partnerLastUpdatedLabel = pLastUpdatedLabel
+                    partnerLastUpdatedLabel = pLastUpdatedLabel,
+                    yesterdaySteps = yesterdayMy,
+                    yesterdayPartnerSteps = yesterdayPartner
                 )
             }
         }

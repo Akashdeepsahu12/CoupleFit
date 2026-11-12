@@ -442,8 +442,13 @@ fun CoupleHubScreen(
                         modifier = Modifier.padding(AppSpacing.md),
                         verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
                     ) {
+                        val streakText = if (uiState.sharedGoalStreak > 0) {
+                            "🔥 ${uiState.sharedGoalStreak} Days Shared Goal Streak"
+                        } else {
+                            "🌱 Day 1: Start your shared streak today!"
+                        }
                         Text(
-                            text = "🔥 42 Days Shared Goal Streak",
+                            text = streakText,
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                         )
                         Text(

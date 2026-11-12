@@ -30,6 +30,12 @@ interface HealthDao {
 
     @Query("SELECT * FROM health_daily_aggregates WHERE dateStr = :dateStr")
     suspend fun getDailyAggregate(dateStr: String): HealthDailyAggregateEntity?
+
+    @Query("SELECT * FROM health_daily_aggregates WHERE dateStr >= :startDate AND dateStr <= :endDate ORDER BY dateStr ASC")
+    fun getDailyAggregatesBetweenFlow(startDate: String, endDate: String): Flow<List<HealthDailyAggregateEntity>>
+
+    @Query("SELECT * FROM health_daily_aggregates WHERE dateStr >= :startDate AND dateStr <= :endDate ORDER BY dateStr ASC")
+    suspend fun getDailyAggregatesBetween(startDate: String, endDate: String): List<HealthDailyAggregateEntity>
     
     @Query("UPDATE health_metrics SET syncedToRemote = 1 WHERE id IN (:ids)")
     suspend fun markAsSynced(ids: List<String>)
@@ -80,6 +86,12 @@ interface HealthDao {
 
     @Query("SELECT * FROM partnerDaily WHERE partnerId = :partnerId ORDER BY dateStr DESC, lastUpdated DESC LIMIT 1")
     suspend fun getLatestPartnerDaily(partnerId: String): PartnerDailyEntity?
+
+    @Query("SELECT * FROM partnerDaily WHERE (partnerId = :partnerId OR :partnerId = '') AND dateStr >= :startDate AND dateStr <= :endDate ORDER BY dateStr ASC")
+    fun getPartnerDailyBetweenFlow(partnerId: String, startDate: String, endDate: String): Flow<List<PartnerDailyEntity>>
+
+    @Query("SELECT * FROM partnerDaily WHERE (partnerId = :partnerId OR :partnerId = '') AND dateStr >= :startDate AND dateStr <= :endDate ORDER BY dateStr ASC")
+    suspend fun getPartnerDailyBetween(partnerId: String, startDate: String, endDate: String): List<PartnerDailyEntity>
 
     // Challenge Queries
     @Insert(onConflict = OnConflictStrategy.REPLACE)
