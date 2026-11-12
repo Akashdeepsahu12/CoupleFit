@@ -8,6 +8,8 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**phase69_verification_report.md**](phase69_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 69 verification report: Feature refinement, Couple Hub declutter, profile photo upload flow, Google OAuth birthday extraction fix, and real-time permission states (`HUB-01`, `NAME-01`, `AUTH-01`, `BDAY-01`, `PERM-01`). |
+| [**phase68_verification_report.md**](phase68_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 68 verification report: Multi-room auto-convergence, dual-write pipeline, and deterministic pull-to-refresh sync (`SYNC-02`, `ROOM-01`). |
 | [**phase67_verification_report.md**](phase67_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 67 verification report: Client-side Firestore security rules, direct partner pairing (code or Couple ID), and live bi-directional sync proof with S24 telemetry (`SYNC-01`, `PAIR-01`). |
 | [**phase66_verification_report.md**](phase66_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 66 verification report: User-driven foreground sync, WorkManager 6-hour throttle, Astryx animated refresh indicator, and live device proof (`PWR-01`, `USR-01`, `AST-01`). |
 | [**phase65_verification_report.md**](phase65_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 65 verification report: antislop + taste UI remediation & polish wave (`AUD-P0-01`..`04`, `AUD-P1-01`..`10`, `AUD-P2-02`..`04`, `AUD-P3-02`..`04`). |

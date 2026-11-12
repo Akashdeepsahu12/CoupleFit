@@ -1,6 +1,7 @@
 package com.couplefit.data.repository
 
 import android.content.Context
+import com.couplefit.data.local.CoupleFitPreferencesDataStore
 import com.couplefit.data.local.HealthDao
 import com.couplefit.data.local.PartnerDailyEntity
 import com.couplefit.domain.repository.PartnerRepository
@@ -33,7 +34,8 @@ class PartnerRepositoryImpl @Inject constructor(
     private val healthDao: HealthDao,
     private val firestore: FirebaseFirestore,
     @ApplicationContext private val context: Context? = null,
-    private val auth: FirebaseAuth? = null
+    private val auth: FirebaseAuth? = null,
+    private val preferencesDataStore: CoupleFitPreferencesDataStore? = null
 ) : PartnerRepository {
 
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
@@ -212,6 +214,22 @@ class PartnerRepositoryImpl @Inject constructor(
                     .await()
                 if (partnerUserDoc.exists()) {
                     partnerRemoteCoupleId = partnerUserDoc.getString("coupleId")
+                    val pDisplayName = partnerUserDoc.getString("displayName")
+                    val pBirthday = partnerUserDoc.getString("birthday") ?: partnerUserDoc.getString("birthdate")
+                    if (!pDisplayName.isNullOrBlank()) {
+                        if (preferencesDataStore != null) {
+                            preferencesDataStore.savePartnerName(pDisplayName)
+                        } else if (context != null) {
+                            try { CoupleFitPreferencesDataStore(context, firestore).savePartnerName(pDisplayName) } catch (_: Exception) {}
+                        }
+                    }
+                    if (!pBirthday.isNullOrBlank()) {
+                        if (preferencesDataStore != null) {
+                            preferencesDataStore.savePartnerBirthday(pBirthday)
+                        } else if (context != null) {
+                            try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(pBirthday) } catch (_: Exception) {}
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 Timber.w(e, "Could not fetch users/$partnerUid via Source.SERVER, trying fallback")
@@ -222,6 +240,22 @@ class PartnerRepositoryImpl @Inject constructor(
                         .await()
                     if (fallbackDoc.exists()) {
                         partnerRemoteCoupleId = fallbackDoc.getString("coupleId")
+                        val pDisplayName = fallbackDoc.getString("displayName")
+                        val pBirthday = fallbackDoc.getString("birthday") ?: fallbackDoc.getString("birthdate")
+                        if (!pDisplayName.isNullOrBlank()) {
+                            if (preferencesDataStore != null) {
+                                preferencesDataStore.savePartnerName(pDisplayName)
+                            } else if (context != null) {
+                                try { CoupleFitPreferencesDataStore(context, firestore).savePartnerName(pDisplayName) } catch (_: Exception) {}
+                            }
+                        }
+                        if (!pBirthday.isNullOrBlank()) {
+                            if (preferencesDataStore != null) {
+                                preferencesDataStore.savePartnerBirthday(pBirthday)
+                            } else if (context != null) {
+                                try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(pBirthday) } catch (_: Exception) {}
+                            }
+                        }
                     }
                 } catch (ignored: Exception) {}
             }

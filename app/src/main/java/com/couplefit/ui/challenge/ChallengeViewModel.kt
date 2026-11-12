@@ -19,6 +19,7 @@ import javax.inject.Inject
 data class ChallengeUiState(
     val challenges: List<CoupleChallengeEntity> = emptyList(),
     val activeChallenge: CoupleChallengeEntity? = null,
+    val partnerName: String = "Partner",
     val isLoading: Boolean = false,
     val userMessage: String? = null
 )
@@ -27,7 +28,8 @@ data class ChallengeUiState(
 class ChallengeViewModel @Inject constructor(
     private val challengeRepository: ChallengeRepository,
     private val auth: FirebaseAuth,
-    private val remoteConfigManager: RemoteConfigManager
+    private val remoteConfigManager: RemoteConfigManager,
+    private val preferencesDataStore: com.couplefit.data.local.CoupleFitPreferencesDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChallengeUiState())
@@ -35,6 +37,11 @@ class ChallengeViewModel @Inject constructor(
 
     init {
         observeChallenges()
+        viewModelScope.launch {
+            preferencesDataStore.partnerNameFlow.collectLatest { name ->
+                _uiState.value = _uiState.value.copy(partnerName = name?.ifBlank { "Partner" } ?: "Partner")
+            }
+        }
     }
 
     fun observeChallenges(coupleId: String = "couple_1", partnerUid: String = "partner_1") {

@@ -39,6 +39,7 @@ import com.couplefit.ui.theme.readableMeasure
 fun PrivacyTransparencyScreen(
     onNavigateBack: () -> Unit,
     sharingPrefs: MetricSharingPreferences = MetricSharingPreferences(),
+    partnerName: String = "Partner",
     onUnlinkPartner: () -> Unit = {},
     onDeleteMyData: () -> Unit = {},
     isUnlinking: Boolean = false,
@@ -47,6 +48,7 @@ fun PrivacyTransparencyScreen(
     var showUnlinkDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var deleteConfirmationText by remember { mutableStateOf("") }
+    val pName = partnerName.ifBlank { "Partner" }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -129,8 +131,9 @@ fun PrivacyTransparencyScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // SECTION 1: What is shared with your partner
+            val pName = partnerName.ifBlank { "Partner" }
             Text(
-                "SHARED WITH YOUR PARTNER",
+                "SHARED WITH ${pName.uppercase()}",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -141,7 +144,7 @@ fun PrivacyTransparencyScreen(
             PrivacyDataCard(
                 icon = Icons.Default.Share,
                 iconTint = SystemBlue,
-                title = "Partner Visible Metrics (Only If Toggled ON)",
+                title = "$pName Visible Metrics (Only If Toggled ON)",
                 items = listOf(
                     PrivacyItem(
                         "Daily Step Count",
@@ -251,14 +254,14 @@ fun PrivacyTransparencyScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Unlink Partner",
+                            "Unlink $pName",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        "Sever connection with your partner. Live data sharing will immediately stop, and your partner's cached data will be removed from your device.",
+                        "Sever connection with $pName. Live data sharing will immediately stop, and ${pName}'s cached data will be removed from your device.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -272,7 +275,7 @@ fun PrivacyTransparencyScreen(
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-                        Text("Unlink From Partner")
+                        Text("Unlink From $pName")
                     }
                 }
             }
@@ -345,9 +348,9 @@ fun PrivacyTransparencyScreen(
             modifier = Modifier.dialogMeasure(),
             onDismissRequest = { showUnlinkDialog = false },
             icon = { Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            title = { Text("Unlink Partner?") },
+            title = { Text("Unlink $pName?") },
             text = {
-                Text("This will disconnect your account from your partner. Neither of you will see each other's live health rings, charts, or challenges until you pair again.")
+                Text("This will disconnect your account from $pName. Neither of you will see each other's live health rings, charts, or challenges until you pair again.")
             },
             confirmButton = {
                 Button(

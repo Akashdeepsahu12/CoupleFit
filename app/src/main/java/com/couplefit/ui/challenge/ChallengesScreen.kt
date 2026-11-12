@@ -225,6 +225,7 @@ fun ChallengesScreen(
                     ChallengeSubTab.ACTIVE_DUELS -> {
                         ActiveDuelsSection(
                             challenges = uiState.challenges,
+                            partnerName = uiState.partnerName,
                             onStartFormat = { _, _ ->
                                 showCreateDialog = true
                             }
@@ -254,6 +255,7 @@ fun ChallengesScreen(
 @Composable
 private fun ActiveDuelsSection(
     challenges: List<CoupleChallengeEntity>,
+    partnerName: String = "Partner",
     onStartFormat: (type: String, goal: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -300,14 +302,14 @@ private fun ActiveDuelsSection(
                 }
                 SideBySideChallengeCard(
                     challenge = sampleChallenge,
-                    partnerName = "Partner"
+                    partnerName = partnerName
                 )
             }
         } else {
             items(challenges) { challenge ->
                 SideBySideChallengeCard(
                     challenge = challenge,
-                    partnerName = "Partner"
+                    partnerName = partnerName
                 )
             }
         }

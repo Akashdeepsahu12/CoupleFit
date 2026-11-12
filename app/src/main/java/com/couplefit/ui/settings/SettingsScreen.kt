@@ -6,10 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -28,18 +31,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import android.os.PowerManager
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import coil.compose.AsyncImage
 import com.couplefit.ui.components.AnimatedArrowBackIcon
 import com.couplefit.ui.components.AnimatedCheckIcon
 import com.couplefit.ui.components.AnimatedChevronRightIcon
@@ -90,7 +102,22 @@ fun SettingsScreen(
     var showLicensesDialog by remember { mutableStateOf(false) }
 
     // Persistent & local UI toggles (rememberSaveable for rotation & process resilience - AUD-P1-03)
-    var isSamsungConnected by rememberSaveable { mutableStateOf(false) }
+    val isSamsungConnected by authViewModel.isSamsungConnected.collectAsState()
+    val customPhotoUri by authViewModel.customProfilePhotoUri.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                healthConnectViewModel.checkStatusAndFetchData(force = false)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     var syncFrequency by rememberSaveable { mutableStateOf("Every 15 min") }
     var notifyCritical by rememberSaveable { mutableStateOf(true) }
     var notifyNudges by rememberSaveable { mutableStateOf(true) }
@@ -112,6 +139,7 @@ fun SettingsScreen(
         PrivacyTransparencyScreen(
             onNavigateBack = { showPrivacyDetailScreen = false },
             sharingPrefs = sharingPrefs,
+            partnerName = healthData.partnerName,
             onUnlinkPartner = {
                 authViewModel.unlinkPartner {
                     showPrivacyDetailScreen = false
@@ -227,6 +255,11 @@ fun SettingsScreen(
                                     authUiState = authUiState,
                                     partnerName = healthData.partnerName,
                                     isPartnerLinked = healthData.isPartnerLinked,
+                                    customPhotoUri = customPhotoUri,
+                                    onPhotoSelected = { uri ->
+                                        authViewModel.updateProfilePhoto(uri.toString())
+                                        triggerAutoSaveNotice()
+                                    },
                                     onConnectPartner = { authViewModel.redeemCode(it) },
                                     onUnlinkClicked = { showUnlinkPartnerDialog = true },
                                     onSignOutClicked = { showSignOutDialog = true }
@@ -238,7 +271,7 @@ fun SettingsScreen(
                                     onManagePermissions = { permissionLauncher.launch(healthConnectViewModel.permissions) },
                                     isSamsungConnected = isSamsungConnected,
                                     onToggleSamsung = {
-                                        isSamsungConnected = it
+                                        authViewModel.setSamsungHealthBridge(it)
                                         if (it) showSamsungBridgeDialog = true
                                         triggerAutoSaveNotice()
                                     },
@@ -357,16 +390,18 @@ fun SettingsScreen(
                 unlinkConfirmationText = ""
             },
             title = {
+                val pName = healthData.partnerName.ifBlank { "Partner" }
                 Text(
-                    "Unlink Partner?",
+                    "Unlink $pName?",
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.error
                 )
             },
             text = {
+                val pName = healthData.partnerName.ifBlank { "your partner" }
                 Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)) {
                     Text(
-                        "Unlinking stops real-time telemetry sharing, closes all active duels, and freezes your couple streak.",
+                        "Unlinking stops real-time telemetry sharing with $pName, closes all active duels, and freezes your couple streak.",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
@@ -591,10 +626,20 @@ internal fun PartnershipHubContent(
     authUiState: com.couplefit.ui.auth.AuthUiState,
     partnerName: String,
     isPartnerLinked: Boolean,
+    customPhotoUri: String? = null,
+    onPhotoSelected: (Uri) -> Unit = {},
     onConnectPartner: (String) -> Unit = {},
     onUnlinkClicked: () -> Unit,
     onSignOutClicked: () -> Unit
 ) {
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            onPhotoSelected(uri)
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -608,28 +653,71 @@ internal fun PartnershipHubContent(
             verticalArrangement = Arrangement.spacedBy(AppSpacing.sm)
         ) {
             Text(
-                "USER PROFILE",
+                "USER PROFILE & AVATAR",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                val effectivePhotoUrl = customPhotoUri ?: authUiState.userSession?.photoUrl
+                val currentUserName = authUiState.userSession?.displayName?.ifBlank { "You" } ?: "You"
+
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(56.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape)
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = "Change profile photo for $currentUserName"
+                        ) {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                        .semantics {
+                            contentDescription = "Profile photo for $currentUserName. Tap to upload custom photo."
+                        },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    if (!effectivePhotoUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = effectivePhotoUrl,
+                            contentDescription = "Profile photo for $currentUserName",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    // Camera edit badge
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(10.dp)
+                        )
+                    }
                 }
+
                 Column {
                     Text(
                         authUiState.userSession?.displayName?.ifBlank { "CoupleFit User" } ?: "CoupleFit User",
@@ -640,6 +728,12 @@ internal fun PartnershipHubContent(
                         authUiState.userSession?.email?.ifBlank { "Synced with Firebase Auth" } ?: "Synced with Firebase Auth",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (!effectivePhotoUrl.isNullOrBlank()) "Tap avatar to change photo 📷" else "Tap avatar to add photo 📷",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
             }
@@ -823,7 +917,8 @@ internal fun PartnershipHubContent(
             ) {
                 Icon(Icons.Default.Warning, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Unlink Partner (2-Step Verification)", fontWeight = FontWeight.Bold)
+                val unlinkLabel = if (partnerName.isNotBlank() && partnerName != "Partner") "Unlink $partnerName (2-Step Verification)" else "Unlink Partner (2-Step Verification)"
+                Text(unlinkLabel, fontWeight = FontWeight.Bold)
             }
         }
     }

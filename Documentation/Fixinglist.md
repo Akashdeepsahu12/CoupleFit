@@ -4506,6 +4506,47 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`SYNC-02-EMU`** | Emulator Live Telemetry & PTR | Live Logcat: `SyncWorker$Companion: Enqueued immediate OneTimeWorkRequest for SyncWorker with NetworkType.CONNECTED`, `Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/RmkTPEUJlwYVm23evsWOj6cOpi02_2026-11-12 (steps: 82)`. Screen: Partner 82 steps, 1064 kcal, "🟢 Last updated just now • Live ⚡". | 🟢 Verified |
 | **`SYNC-02-PHOTO`** | Visual Proof | Screenshot saved to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg) | 🟢 Verified |
 
+---
+
+## 92. Phase 69: Feature Refinement, Couple Hub Declutter, Profile Photo Flow, Google OAuth Birthday Fix & Real-Time Permissions (`HUB-01`, `NAME-01`, `AUTH-01`, `BDAY-01`, `PERM-01`) 🎨👤⚡
+
+> **Target Documents & Code**:
+> - [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+> - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+> - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt)
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`AuthViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt)
+> - [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`PrivacyTransparencyScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/PrivacyTransparencyScreen.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt)
+> - [`ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt)
+> - [`HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt)
+> - [`Phase69FeatureRefinementTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase69FeatureRefinementTest.kt)
+
+### 92.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`HUB-01`** | Orchestrator Feature Request (`/ecc:orch-change-feature`) | 💡 **UI Optimization / Code Cleanup** | `CoupleHubScreen.kt` | Couple Hub layout was cluttered with deprecated "Fitness Identity" components, orphan state, and verbose labels. | Excised both "Fitness Identity" rows completely from user and partner cards; updated partner section headers to dynamic uppercase partner name; simplified sharing & visibility header and heartbeat ripple accessibility semantics. | 🟢 **Resolved** |
+| **`NAME-01`** | Design Debt Audit (`/design-debt-audit`) | 🔵 **Correction / Personalization** | `CoupleHubScreen.kt`, `SettingsScreen.kt`, `PrivacyTransparencyScreen.kt`, `DashboardScreen.kt`, `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `FirebaseAuthManager.kt`, `PartnerRepositoryImpl.kt` | Hardcoded string `"Partner"` or `"partner"` permeated across multiple screens, failing to display the partner's actual authenticated name fetched from Firestore. | Synchronized partner's authenticated `displayName` through `FirebaseAuthManager` and `PartnerRepositoryImpl` into `CoupleFitPreferencesDataStore`; mapped dynamic partner name across all headers, cards, perspective switchers, unlinking dialogs, and toasts. | 🟢 **Resolved** |
+| **`AUTH-01`** | Orchestrator Feature Request & WCAG 2.2 Audit | 💡 **Feature Addition / Accessibility** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` | "Partnership" tab in Settings lacked profile photo customization and photo picker flow; avatar fallback was basic. | Added `customProfilePhotoUri` preference, exposed `PickVisualMedia` launcher in `SettingsScreen.kt` with accessible 56x56dp container (>48x48dp touch target), TalkBack semantics (`"Profile photo for $name. Tap to upload custom photo"`), camera badge indicator, and graceful fallback: Custom URI -> Google avatar `photoUrl` -> Default `Person` icon. | 🟢 **Resolved** |
+| **`BDAY-01`** | Silent Failure & Debugger Investigation | 🔴 **Silent Bug / Data Extraction** | `FirebaseAuthManager.kt` | Google Sign-In credential payload failed to extract user's date of birth due to lack of OIDC JWT claim decoding, leaving birthday blank in Firestore profile. | Implemented `extractBirthdayFromIdToken` decoding JWT payload with regex and Base64 parsing for `birthdate`, `birthday`, and `dob` claims; implemented `formatBirthday` standardizing ISO/OIDC formats (`YYYY-MM-DD`, `--MM-DD`, `MM/DD/YYYY`) to `"MMMM d"` representation (e.g., `"June 14"`); persisted to DataStore and Firestore `users/{uid}`. | 🟢 **Resolved** |
+| **`PERM-01`** | Code Simplification & Reactive State | 💡 **Reactive Architecture / UX** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` | Samsung Health Data SDK bridge and Health Connect permission badges required manual page reloads or remained static upon granting permissions in system settings. | Wired Samsung Health Bridge toggle to DataStore StateFlow; attached `Lifecycle.Event.ON_RESUME` observer to `SettingsScreen.kt` calling `healthConnectViewModel.checkStatusAndFetchData(force = false)` on return to immediately refresh badges to `Connected ✓` in real time. | 🟢 **Resolved** |
+
+### 92.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE69-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (122/122 tests passing including `Phase69FeatureRefinementTest`) | 🟢 Passed |
+| **`PHASE69-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE69-HUB`** | Couple Hub Live Verification | ARTEMIS UI inspection on `emulator-5554`: Verified decluttered user and partner dossiers, complete absence of "Fitness Identity" rows, dynamic partner name, and June 14 birthday. | 🟢 Verified |
+| **`PHASE69-PHOTO`** | Profile Photo & Fallback | ARTEMIS UI inspection: Verified accessible avatar container (`[96,687][264,855]`, 168x168px = 56x56dp), content description `"Profile photo for TaleOrbit. Tap to upload custom photo."`, and fallback to Google avatar. | 🟢 Verified |
+| **`PHASE69-SYNC`** | Real-Time Permissions & Samsung Bridge | ARTEMIS UI inspection: Verified green "Connected ✓" Health Connect badge, Samsung Health Bridge toggle, and "Samsung Bridge Active" confirmation modal dialog. | 🟢 Verified |
+| **`PHASE69-PHOTO-HUB`** | Visual Evidence (Couple Hub) | Screenshot saved to [`phase69_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_couple_hub_verified.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-SET`** | Visual Evidence (Settings Avatar) | Screenshot saved to [`phase69_settings_profile_photo_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_profile_photo_verified.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-SYNC`** | Visual Evidence (Sync & Sharing) | Screenshot saved to [`phase69_settings_sync_sharing_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_sync_sharing_live.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-DLG`** | Visual Evidence (Samsung Dialog) | Screenshot saved to [`phase69_samsung_dialog_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_samsung_dialog_verified.jpg) | 🟢 Verified |
+
+
 
 
 
@@ -4647,6 +4688,47 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`SYNC-02-S24`** | S24 Live Telemetry | Live Logcat: `PartnerRepositoryImpl$syncPartnerDailyFromRemote: Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/EYf2Io9WPDUasjbuqL9wKr1H8lD3_2026-11-12 (steps: 0, 1048 kcal)`. Screen: You 82 steps, Partner 0 steps, "You & Partner are in sync • Updated 4:09 pm". | 🟢 Verified |
 | **`SYNC-02-EMU`** | Emulator Live Telemetry & PTR | Live Logcat: `SyncWorker$Companion: Enqueued immediate OneTimeWorkRequest for SyncWorker with NetworkType.CONNECTED`, `Found partner daily with Source.SERVER in couples/cpl_1793319867725_RmkTP/daily/RmkTPEUJlwYVm23evsWOj6cOpi02_2026-11-12 (steps: 82)`. Screen: Partner 82 steps, 1064 kcal, "🟢 Last updated just now • Live ⚡". | 🟢 Verified |
 | **`SYNC-02-PHOTO`** | Visual Proof | Screenshot saved to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg) | 🟢 Verified |
+
+---
+
+## 92. Phase 69: Feature Refinement, Couple Hub Declutter, Profile Photo Flow, Google OAuth Birthday Fix & Real-Time Permissions (`HUB-01`, `NAME-01`, `AUTH-01`, `BDAY-01`, `PERM-01`) 🎨👤⚡
+
+> **Target Documents & Code**:
+> - [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+> - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+> - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt)
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`AuthViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/auth/AuthViewModel.kt)
+> - [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`PrivacyTransparencyScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/PrivacyTransparencyScreen.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`ChallengesScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengesScreen.kt)
+> - [`ChallengeViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/challenge/ChallengeViewModel.kt)
+> - [`HealthTrendsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/trends/HealthTrendsScreen.kt)
+> - [`Phase69FeatureRefinementTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase69FeatureRefinementTest.kt)
+
+### 92.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`HUB-01`** | Orchestrator Feature Request (`/ecc:orch-change-feature`) | 💡 **UI Optimization / Code Cleanup** | `CoupleHubScreen.kt` | Couple Hub layout was cluttered with deprecated "Fitness Identity" components, orphan state, and verbose labels. | Excised both "Fitness Identity" rows completely from user and partner cards; updated partner section headers to dynamic uppercase partner name; simplified sharing & visibility header and heartbeat ripple accessibility semantics. | 🟢 **Resolved** |
+| **`NAME-01`** | Design Debt Audit (`/design-debt-audit`) | 🔵 **Correction / Personalization** | `CoupleHubScreen.kt`, `SettingsScreen.kt`, `PrivacyTransparencyScreen.kt`, `DashboardScreen.kt`, `ChallengesScreen.kt`, `HealthTrendsScreen.kt`, `FirebaseAuthManager.kt`, `PartnerRepositoryImpl.kt` | Hardcoded string `"Partner"` or `"partner"` permeated across multiple screens, failing to display the partner's actual authenticated name fetched from Firestore. | Synchronized partner's authenticated `displayName` through `FirebaseAuthManager` and `PartnerRepositoryImpl` into `CoupleFitPreferencesDataStore`; mapped dynamic partner name across all headers, cards, perspective switchers, unlinking dialogs, and toasts. | 🟢 **Resolved** |
+| **`AUTH-01`** | Orchestrator Feature Request & WCAG 2.2 Audit | 💡 **Feature Addition / Accessibility** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` | "Partnership" tab in Settings lacked profile photo customization and photo picker flow; avatar fallback was basic. | Added `customProfilePhotoUri` preference, exposed `PickVisualMedia` launcher in `SettingsScreen.kt` with accessible 56x56dp container (>48x48dp touch target), TalkBack semantics (`"Profile photo for $name. Tap to upload custom photo"`), camera badge indicator, and graceful fallback: Custom URI -> Google avatar `photoUrl` -> Default `Person` icon. | 🟢 **Resolved** |
+| **`BDAY-01`** | Silent Failure & Debugger Investigation | 🔴 **Silent Bug / Data Extraction** | `FirebaseAuthManager.kt` | Google Sign-In credential payload failed to extract user's date of birth due to lack of OIDC JWT claim decoding, leaving birthday blank in Firestore profile. | Implemented `extractBirthdayFromIdToken` decoding JWT payload with regex and Base64 parsing for `birthdate`, `birthday`, and `dob` claims; implemented `formatBirthday` standardizing ISO/OIDC formats (`YYYY-MM-DD`, `--MM-DD`, `MM/DD/YYYY`) to `"MMMM d"` representation (e.g., `"June 14"`); persisted to DataStore and Firestore `users/{uid}`. | 🟢 **Resolved** |
+| **`PERM-01`** | Code Simplification & Reactive State | 💡 **Reactive Architecture / UX** | `SettingsScreen.kt`, `AuthViewModel.kt`, `CoupleFitPreferencesDataStore.kt` | Samsung Health Data SDK bridge and Health Connect permission badges required manual page reloads or remained static upon granting permissions in system settings. | Wired Samsung Health Bridge toggle to DataStore StateFlow; attached `Lifecycle.Event.ON_RESUME` observer to `SettingsScreen.kt` calling `healthConnectViewModel.checkStatusAndFetchData(force = false)` on return to immediately refresh badges to `Connected ✓` in real time. | 🟢 **Resolved** |
+
+### 92.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE69-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (122/122 tests passing including `Phase69FeatureRefinementTest`) | 🟢 Passed |
+| **`PHASE69-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE69-HUB`** | Couple Hub Live Verification | ARTEMIS UI inspection on `emulator-5554`: Verified decluttered user and partner dossiers, complete absence of "Fitness Identity" rows, dynamic partner name, and June 14 birthday. | 🟢 Verified |
+| **`PHASE69-PHOTO`** | Profile Photo & Fallback | ARTEMIS UI inspection: Verified accessible avatar container (`[96,687][264,855]`, 168x168px = 56x56dp), content description `"Profile photo for TaleOrbit. Tap to upload custom photo."`, and fallback to Google avatar. | 🟢 Verified |
+| **`PHASE69-SYNC`** | Real-Time Permissions & Samsung Bridge | ARTEMIS UI inspection: Verified green "Connected ✓" Health Connect badge, Samsung Health Bridge toggle, and "Samsung Bridge Active" confirmation modal dialog. | 🟢 Verified |
+| **`PHASE69-PHOTO-HUB`** | Visual Evidence (Couple Hub) | Screenshot saved to [`phase69_couple_hub_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_couple_hub_verified.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-SET`** | Visual Evidence (Settings Avatar) | Screenshot saved to [`phase69_settings_profile_photo_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_profile_photo_verified.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-SYNC`** | Visual Evidence (Sync & Sharing) | Screenshot saved to [`phase69_settings_sync_sharing_live.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_settings_sync_sharing_live.jpg) | 🟢 Verified |
+| **`PHASE69-PHOTO-DLG`** | Visual Evidence (Samsung Dialog) | Screenshot saved to [`phase69_samsung_dialog_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase69_samsung_dialog_verified.jpg) | 🟢 Verified |
+
 
 
 

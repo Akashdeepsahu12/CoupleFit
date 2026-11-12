@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.couplefit.ui.theme.*
 
 enum class TelemetryPerspective(val label: String, val icon: String) {
@@ -47,8 +48,12 @@ enum class TelemetryPerspective(val label: String, val icon: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthTrendsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    healthConnectViewModel: com.couplefit.ui.healthconnect.HealthConnectViewModel = hiltViewModel()
 ) {
+    val healthData by healthConnectViewModel.dashboardState.collectAsState()
+    val partnerName = healthData.partnerName.ifBlank { "Partner" }
+
     var selectedTimeHorizon by remember { mutableStateOf("Week") }
     var selectedPerspective by remember { mutableStateOf(TelemetryPerspective.COMBINED) }
 
@@ -107,7 +112,7 @@ fun HealthTrendsScreen(
                 ) {
                     Text(perspective.icon, fontSize = 13.sp)
                     Text(
-                        text = perspective.label,
+                        text = if (perspective == TelemetryPerspective.PARTNER) partnerName else perspective.label,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         style = MaterialTheme.typography.labelMedium
                     )
@@ -123,9 +128,9 @@ fun HealthTrendsScreen(
             ) {
                 item {
                     val perspectiveTitle = when (selectedPerspective) {
-                        TelemetryPerspective.COMBINED -> "STEPS & ACTIVITY COMPARISON ($selectedTimeHorizon • Both Partners)"
+                        TelemetryPerspective.COMBINED -> "STEPS & ACTIVITY COMPARISON ($selectedTimeHorizon • You & $partnerName)"
                         TelemetryPerspective.YOU -> "YOUR PERSONAL TELEMETRY ($selectedTimeHorizon)"
-                        TelemetryPerspective.PARTNER -> "PARTNER'S TELEMETRY ($selectedTimeHorizon)"
+                        TelemetryPerspective.PARTNER -> "${partnerName.uppercase()}'S TELEMETRY ($selectedTimeHorizon)"
                     }
                     Text(
                         text = perspectiveTitle,
@@ -146,7 +151,7 @@ fun HealthTrendsScreen(
                     ) { perspective ->
                         when (perspective) {
                             TelemetryPerspective.COMBINED -> {
-                                CombinedTelemetryCard(selectedTimeHorizon = selectedTimeHorizon)
+                                CombinedTelemetryCard(selectedTimeHorizon = selectedTimeHorizon, partnerName = partnerName)
                             }
                             TelemetryPerspective.YOU -> {
                                 SoloTelemetryCard(
@@ -188,7 +193,7 @@ fun HealthTrendsScreen(
                             }
                             TelemetryPerspective.PARTNER -> {
                                 SoloTelemetryCard(
-                                    ownerName = "Partner",
+                                    ownerName = partnerName,
                                     timeHorizon = selectedTimeHorizon,
                                     steps = when (selectedTimeHorizon) {
                                         "Day" -> "7,800"
@@ -396,7 +401,7 @@ fun <T> FluidSegmentedSwitcher(
 }
 
 @Composable
-private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
+private fun CombinedTelemetryCard(selectedTimeHorizon: String, partnerName: String = "Partner") {
     val targetRatio = when (selectedTimeHorizon) {
         "Day" -> 0.81f
         "Week" -> 0.92f
@@ -469,7 +474,7 @@ private fun CombinedTelemetryCard(selectedTimeHorizon: String) {
             }
 
             Text(
-                text = "You: 48,200 steps (52%) • Partner: 44,200 steps (48%)",
+                text = "You: 48,200 steps (52%) • $partnerName: 44,200 steps (48%)",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

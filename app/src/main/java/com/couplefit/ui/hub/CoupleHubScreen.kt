@@ -186,7 +186,7 @@ fun CoupleHubScreen(
                                         .size(72.dp)
                                         .semantics(mergeDescendants = true) {
                                             contentDescription = "Partner profile avatar. Tap to send live heartbeat ripple."
-                                            onClick(label = "Send heartbeat to Partner") {
+                                            onClick(label = "Send heartbeat to ${uiState.partnerName}") {
                                                 triggerHeartbeat()
                                                 true
                                             }
@@ -362,13 +362,6 @@ fun CoupleHubScreen(
                                 showEditDialog = true
                             }
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
-                        ProfileDetailRow(
-                            label = "Fitness Identity",
-                            value = "Electric Cyan / Lead Runner",
-                            icon = "⚡",
-                            onEdit = null
-                        )
                     }
                 }
             }
@@ -376,7 +369,7 @@ fun CoupleHubScreen(
             // 3. PARTNER'S DETAILS CARD (CPX-07: Partner Profile Dossier)
             item {
                 Text(
-                    text = "CONNECTED PARTNER DOSSIER",
+                    text = "${uiState.partnerName.uppercase()}'S PROFILE",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = MotionPartnerStart
                 )
@@ -423,13 +416,6 @@ fun CoupleHubScreen(
                             icon = "📅",
                             onEdit = null
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
-                        ProfileDetailRow(
-                            label = "Fitness Identity",
-                            value = "Vibrant Coral / Sprint Champion",
-                            icon = "🔥",
-                            onEdit = null
-                        )
                     }
                 }
             }
@@ -472,7 +458,7 @@ fun CoupleHubScreen(
             // 5. PRIVACY & SHARING RULES
             item {
                 Text(
-                    text = "PARTNER VISIBILITY & SHARING RULES",
+                    text = "SHARING & VISIBILITY WITH ${uiState.partnerName.uppercase()}",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
                 )

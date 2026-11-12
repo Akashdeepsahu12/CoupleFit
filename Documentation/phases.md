@@ -1595,3 +1595,42 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - S24 verified showing Emulator partner telemetry (0 steps, 1050 kcal, "You & Partner are in sync • Updated 4:09 pm").
      - Captured and saved screenshot evidence to [`phase68_emulator_synced_82_steps.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase68_emulator_synced_82_steps.jpg).
 - **Release Tag**: `v2.9.54-auto-converge-dualwrite-sync`
+
+
+---
+
+## Phase 69: Feature Refinement, Couple Hub Declutter, Profile Photo Flow, Google OAuth Birthday Fix & Real-Time Permissions (`HUB-01`, `NAME-01`, `AUTH-01`, `BDAY-01`, `PERM-01`) 🎨👤⚡
+- **Target Specifications**: User Request / `orch-change-feature`, [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md) §92
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Couple Hub Layout Declutter & Deprecation (`CoupleHubScreen.kt`)**:
+     - Excised both deprecated "Fitness Identity" rows from the user card and partner card.
+     - Stripped out unused state and dead code to create clean, focused relationship dossiers.
+     - Updated section headers to dynamic uppercase partner name: `"${uiState.partnerName.uppercase()}'S PROFILE"` and `"SHARING & VISIBILITY WITH ${uiState.partnerName.uppercase()}"`.
+     - Updated heartbeat ripple semantic label to `"Send heartbeat to ${uiState.partnerName}"`.
+  2. **Partner Name Mapping & Design Debt Audit Across the Entire App**:
+     - Audited and eliminated hardcoded "Partner" string instances across composables.
+     - Synchronized authenticated partner `displayName` through `FirebaseAuthManager` and `PartnerRepositoryImpl` into `CoupleFitPreferencesDataStore`.
+     - Mapped dynamic partner name across `CoupleHubScreen.kt`, `SettingsScreen.kt`, `PrivacyTransparencyScreen.kt`, `DashboardScreen.kt`, `ChallengesScreen.kt`, and `HealthTrendsScreen.kt`.
+  3. **Profile Photo Upload Flow & Auth Fallback Hierarchy (`SettingsScreen.kt`)**:
+     - Implemented custom profile photo selection in `PartnershipHubContent` using `ActivityResultContracts.PickVisualMedia()`.
+     - Enforced WCAG 2.2 AA accessibility standards with an oversized 56x56dp avatar container (>48x48dp touch target) and screen-reader TalkBack description: `"Profile photo for $name. Tap to upload custom photo."`.
+     - Implemented graceful three-tier fallback hierarchy: Custom Photo URI -> Google OAuth account avatar `photoUrl` -> Default Material `Person` icon with subtle initials fallback.
+     - Added camera badge indicator (`📷`) to indicate photo editability.
+  4. **Google OAuth Birthday Extraction & Standardization (`FirebaseAuthManager.kt`)**:
+     - Resolved silent extraction failure where Google ID token claims were swallowed.
+     - Implemented `extractBirthdayFromIdToken` decoding JWT payload with Base64 and regex claim extraction for `birthdate`, `birthday`, and `dob`.
+     - Implemented `formatBirthday` standardizing various ISO and OIDC date formats (`YYYY-MM-DD`, `--MM-DD`, `MM/DD/YYYY`) into clean, human-readable format (`"June 14"`).
+     - Persisted extracted birthday into local `DataStore` and Cloud Firestore `users/{uid}`.
+  5. **Real-Time Permission & Samsung Health Bridge State**:
+     - Added `samsungHealthBridgeEnabled` preference in `CoupleFitPreferencesDataStore` and exposed as reactive `StateFlow` in `AuthViewModel`.
+     - Added `LocalLifecycleOwner.current` observer for `Lifecycle.Event.ON_RESUME` in `SettingsScreen.kt` to trigger `healthConnectViewModel.checkStatusAndFetchData(force = false)` upon returning from system settings, instantly refreshing status badges to `Connected ✓` without manual refresh.
+  6. **Automated Testing & Live Device Verification via ARTEMIS**:
+     - Authored comprehensive test suite in [`Phase69FeatureRefinementTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase69FeatureRefinementTest.kt).
+     - All 122 unit tests passing 100% green (`.\gradlew.bat testDebugUnitTest`).
+     - Android test Kotlin compilation green (`.\gradlew.bat compileDebugAndroidTestKotlin`).
+     - Deployed debug APK to `emulator-5554` and verified live UI screens via ARTEMIS:
+       - Couple Hub: Decluttered dossiers without fitness identity rows, dynamic partner name, birthday June 14 (`phase69_couple_hub_verified.jpg`).
+       - Settings Avatar: Profile photo container with camera edit icon and TalkBack description (`phase69_settings_profile_photo_verified.jpg`).
+       - Sync & Sharing: Green "Connected ✓" Health Connect badge, Samsung Health Bridge toggle, and confirmation dialog (`phase69_settings_sync_sharing_live.jpg`, `phase69_samsung_dialog_verified.jpg`, `phase69_samsung_bridge_enabled_verified.jpg`).
+- **Release Tag**: `v2.9.55-hub-optimization-profile-photo-permissions`

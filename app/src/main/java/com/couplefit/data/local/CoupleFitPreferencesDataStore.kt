@@ -75,6 +75,8 @@ class CoupleFitPreferencesDataStore @Inject constructor(
         val KEY_USER_BIRTHDAY = stringPreferencesKey("user_birthday")
         val KEY_PARTNER_BIRTHDAY = stringPreferencesKey("partner_birthday")
         val KEY_RELATIONSHIP_TYPE = stringPreferencesKey("relationship_type")
+        val KEY_CUSTOM_PROFILE_PHOTO_URI = stringPreferencesKey("custom_profile_photo_uri")
+        val KEY_SAMSUNG_HEALTH_BRIDGE_ENABLED = booleanPreferencesKey("samsung_health_bridge_enabled")
     }
 
     val isLinkedConfirmationShown: Flow<Boolean> = context.coupleFitDataStore.data.map { preferences ->
@@ -269,6 +271,12 @@ class CoupleFitPreferencesDataStore @Inject constructor(
     val relationshipTypeFlow: Flow<String> = context.coupleFitDataStore.data.map {
         it[KEY_RELATIONSHIP_TYPE] ?: "Fitness Partners & Life Comrades ❤️"
     }
+    val customProfilePhotoUriFlow: Flow<String?> = context.coupleFitDataStore.data.map {
+        it[KEY_CUSTOM_PROFILE_PHOTO_URI]
+    }
+    val samsungHealthBridgeEnabledFlow: Flow<Boolean> = context.coupleFitDataStore.data.map {
+        it[KEY_SAMSUNG_HEALTH_BRIDGE_ENABLED] ?: false
+    }
 
     suspend fun getUserName(): String? = userNameFlow.first()
     suspend fun saveUserName(name: String) {
@@ -294,5 +302,21 @@ class CoupleFitPreferencesDataStore @Inject constructor(
 
     suspend fun saveRelationshipType(type: String) {
         context.coupleFitDataStore.edit { it[KEY_RELATIONSHIP_TYPE] = type }
+    }
+
+    suspend fun saveCustomProfilePhotoUri(uri: String?) {
+        context.coupleFitDataStore.edit {
+            if (uri != null) {
+                it[KEY_CUSTOM_PROFILE_PHOTO_URI] = uri
+            } else {
+                it.remove(KEY_CUSTOM_PROFILE_PHOTO_URI)
+            }
+        }
+    }
+
+    suspend fun setSamsungHealthBridgeEnabled(enabled: Boolean) {
+        context.coupleFitDataStore.edit {
+            it[KEY_SAMSUNG_HEALTH_BRIDGE_ENABLED] = enabled
+        }
     }
 }

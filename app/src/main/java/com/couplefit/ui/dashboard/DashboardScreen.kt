@@ -512,7 +512,8 @@ fun DashboardScreen(
                                 onClick = { healthConnectViewModel.addSamplePartnerSteps(1000L) },
                                 shape = RoundedCornerShape(AppSpacing.sm)
                             ) {
-                                Text("+1k Partner", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                                val pName = healthData.partnerName.ifBlank { "Partner" }
+                                Text("+1k $pName", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1312,7 +1313,7 @@ fun DashboardScreen(
 
                             Column(modifier = Modifier.padding(bottom = AppSpacing.xs)) {
                                 Text(
-                                    text = "PARTNER'S VITALS",
+                                    text = "${healthData.partnerName.uppercase()}'S VITALS",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,

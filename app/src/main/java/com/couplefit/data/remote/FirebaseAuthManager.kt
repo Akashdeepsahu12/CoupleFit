@@ -16,12 +16,16 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
+import com.couplefit.data.local.CoupleFitPreferencesDataStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,13 +33,93 @@ import javax.inject.Singleton
 class FirebaseAuthManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val preferencesDataStore: CoupleFitPreferencesDataStore
 ) {
+    private val authScope = CoroutineScope(Dispatchers.IO)
     private val credentialManager by lazy { CredentialManager.create(context) }
 
     companion object {
         // Default Web Client ID for Credential Manager Google Sign-In (Firebase project couplefit-6053a)
         const val DEFAULT_WEB_CLIENT_ID = "574898513514-3p2kef3mqbr6qmcgefb4dfmtfsd8ce0o.apps.googleusercontent.com"
+    }
+
+    /**
+     * Decodes and extracts date of birth / birthday claim from Google ID Token JWT payload.
+     */
+    fun extractBirthdayFromIdToken(idToken: String): String? {
+        return try {
+            val parts = idToken.split(".")
+            if (parts.size >= 2) {
+                val tokenPayload = parts[1]
+                val decodedBytes = try {
+                    java.util.Base64.getUrlDecoder().decode(tokenPayload)
+                } catch (_: Exception) {
+                    try {
+                        java.util.Base64.getDecoder().decode(tokenPayload)
+                    } catch (_: Exception) {
+                        android.util.Base64.decode(tokenPayload, android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
+                    }
+                }
+                val payloadString = String(decodedBytes, Charsets.UTF_8)
+                // Use regex claim matcher first for seamless JVM testing and Android runtime parsing
+                val regexMatch = Regex(""""(?:birthdate|birthday|dob)"\s*:\s*"([^"]+)"""")
+                    .find(payloadString)?.groupValues?.get(1)
+                val raw = if (!regexMatch.isNullOrBlank()) {
+                    regexMatch
+                } else {
+                    try {
+                        val json = org.json.JSONObject(payloadString)
+                        when {
+                            json.has("birthdate") -> json.optString("birthdate")
+                            json.has("birthday") -> json.optString("birthday")
+                            json.has("dob") -> json.optString("dob")
+                            else -> null
+                        }
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+
+                if (!raw.isNullOrBlank()) {
+                    formatBirthday(raw)
+                } else null
+            } else null
+        } catch (e: Exception) {
+            Timber.w(e, "Could not extract birthday from Google ID token JWT payload")
+            null
+        }
+    }
+
+    /**
+     * Formats raw birthdate into standardized human-readable format (e.g., "June 14").
+     */
+    fun formatBirthday(raw: String): String {
+        val trimmed = raw.trim()
+        return try {
+            val normalized = trimmed.removePrefix("--")
+            val parts = normalized.split("-", "/")
+            when (parts.size) {
+                3 -> {
+                    val (month, day) = if (parts[0].length == 4) {
+                        Pair(parts[1].toInt(), parts[2].toInt())
+                    } else {
+                        Pair(parts[0].toInt(), parts[1].toInt())
+                    }
+                    val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
+                    "$monthName $day"
+                }
+                2 -> {
+                    val month = parts[0].toInt()
+                    val day = parts[1].toInt()
+                    val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
+                    "$monthName $day"
+                }
+                else -> trimmed
+            }
+        } catch (e: Exception) {
+            trimmed
+        }
     }
 
     /**
@@ -109,6 +193,10 @@ class FirebaseAuthManager @Inject constructor(
                 var coupleId: String? = null
                 var partnerId: String? = null
 
+                val extractedBirthday = extractBirthdayFromIdToken(idToken)
+                    ?: credential.data.getString("birthdate")
+                    ?: credential.data.getString("birthday")
+
                 try {
                     withTimeoutOrNull(4000L) {
                         val userRef = firestore.collection("users").document(firebaseUser.uid)
@@ -124,6 +212,18 @@ class FirebaseAuthManager @Inject constructor(
                             "photoUrl" to (firebaseUser.photoUrl?.toString() ?: ""),
                             "lastLoginAt" to System.currentTimeMillis()
                         )
+
+                        if (!extractedBirthday.isNullOrBlank()) {
+                            val formattedBday = formatBirthday(extractedBirthday)
+                            profilePayload["birthday"] = formattedBday
+                            profilePayload["birthdate"] = formattedBday
+                            preferencesDataStore.saveUserBirthday(formattedBday)
+                        } else {
+                            val existingBday = userDoc.getString("birthday") ?: userDoc.getString("birthdate")
+                            if (!existingBday.isNullOrBlank()) {
+                                preferencesDataStore.saveUserBirthday(existingBday)
+                            }
+                        }
 
                         userRef.set(profilePayload, SetOptions.merge()).await()
                     }
@@ -285,6 +385,7 @@ class FirebaseAuthManager @Inject constructor(
                             val effectivePartnerId = remotePartnerId?.takeIf { it.isNotBlank() } ?: cachedPartnerId
                             val displayName = snapshot.getString("displayName") ?: firebaseUser.displayName ?: ""
                             val partnerName = snapshot.getString("partnerName")
+                            val userBday = snapshot.getString("birthday") ?: snapshot.getString("birthdate")
 
                             // Persist latest state into local cache
                             sessionPrefs.edit().apply {
@@ -292,7 +393,41 @@ class FirebaseAuthManager @Inject constructor(
                                 putString("cached_partner_id", effectivePartnerId)
                                 putString("cached_display_name", displayName)
                                 putString("cached_partner_name", partnerName)
+                                if (userBday != null) putString("cached_user_birthday", userBday)
                                 apply()
+                            }
+
+                            if (displayName.isNotBlank()) {
+                                authScope.launch {
+                                    preferencesDataStore.saveUserName(displayName)
+                                }
+                            }
+                            if (!userBday.isNullOrBlank()) {
+                                authScope.launch {
+                                    preferencesDataStore.saveUserBirthday(userBday)
+                                }
+                            }
+
+                            // If partnerId exists, fetch partner's Firestore profile to get their authenticated displayName and birthday
+                            if (!effectivePartnerId.isNullOrBlank() && effectivePartnerId != "partner_1") {
+                                firestore.collection("users").document(effectivePartnerId).get()
+                                    .addOnSuccessListener { pDoc ->
+                                        if (pDoc != null && pDoc.exists()) {
+                                            val pDisplayName = pDoc.getString("displayName")
+                                            val pBday = pDoc.getString("birthday") ?: pDoc.getString("birthdate")
+                                            if (!pDisplayName.isNullOrBlank()) {
+                                                sessionPrefs.edit().putString("cached_partner_name", pDisplayName).apply()
+                                                authScope.launch {
+                                                    preferencesDataStore.savePartnerName(pDisplayName)
+                                                }
+                                            }
+                                            if (!pBday.isNullOrBlank()) {
+                                                authScope.launch {
+                                                    preferencesDataStore.savePartnerBirthday(pBday)
+                                                }
+                                            }
+                                        }
+                                    }
                             }
 
                             trySend(

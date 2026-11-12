@@ -58,6 +58,42 @@ class AuthViewModel @Inject constructor(
             initialValue = initialSession
         )
 
+    val customProfilePhotoUri: StateFlow<String?> = preferencesDataStore.customProfilePhotoUriFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
+
+    val isSamsungConnected: StateFlow<Boolean> = preferencesDataStore.samsungHealthBridgeEnabledFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    fun updateProfilePhoto(uriString: String) {
+        viewModelScope.launch {
+            preferencesDataStore.saveCustomProfilePhotoUri(uriString)
+            val uid = _uiState.value.userSession?.uid
+            if (!uid.isNullOrBlank()) {
+                try {
+                    val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    firestore.collection("users").document(uid)
+                        .set(mapOf("photoUrl" to uriString), com.google.firebase.firestore.SetOptions.merge())
+                } catch (e: Exception) {
+                    Timber.w(e, "Could not mirror custom photoUrl to Firestore")
+                }
+            }
+        }
+    }
+
+    fun setSamsungHealthBridge(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesDataStore.setSamsungHealthBridgeEnabled(enabled)
+        }
+    }
+
     init {
         // Observe user session to automatically update flow step
         viewModelScope.launch {
