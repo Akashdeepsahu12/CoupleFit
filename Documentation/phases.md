@@ -1692,3 +1692,30 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
        - Trends: `"You & Akash"`, `"Akash"` perspective chip, `"You: 2,000 steps (16%) • Akash: 9,950 steps (84%)"`. Screenshot: [`phase71_trends_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_trends_partner_akash.jpg).
        - Settings: `"Linked with Akash"`, `"Unlink Akash (2-Step Verification)"`. Screenshot: [`phase71_settings_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_settings_partner_akash.jpg).
 - **Release Tag**: `v2.9.57-partner-name-sync`
+
+
+## Phase 72: Bidirectional Cloud Birthday Sync, Multi-Format Date Parsing & Interactive Calendar Picker (`BDAY-02`) 🎂📅✨
+- **Target Specifications**: User Request ("birthday is not updated"), [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md) §95
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Bidirectional Firestore Birthday Mirroring in DataStore (`BDAY-02-STORE`)**:
+     - Added `mirrorUserBirthdayToFirestore(uid, coupleId, birthday)` and `mirrorPartnerBirthdayToFirestore(uid, coupleId, partnerId, birthday)` in [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt).
+     - Updates `users/{uid}` with fields `birthday`, `birthdate`, and `dob`, and atomically mirrors to `couples/{coupleId}.memberBirthdays` for instant cross-device and partner visibility.
+  2. **Multi-Format Regex Date Parser & Claim Extraction (`BDAY-02-PARSER`)**:
+     - Enhanced `formatBirthday(raw: String?)` in [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt) to parse ISO-8601 (`YYYY-MM-DD`), European/Indian (`DD-MM-YYYY` / `DD/MM/YYYY`), US (`MM/DD/YYYY`), and natural month name strings (`"June 14"`, `"28 September"`).
+     - Enhanced `extractBirthdayFromIdToken` to probe all potential claim aliases: `birthdate`, `birthday`, `dob`, `birth_date`, `birthDate`, and `dateOfBirth`.
+  3. **Multi-Field Resilient Firestore Resolution (`BDAY-02-RESOLVE`)**:
+     - Enhanced [`FirebaseAuthManager.observeUserSession()`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt) and [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt) with multi-field probing across `birthday`, `birthdate`, `birthDate`, `dob`, `dateOfBirth`, `bday`, `couples/{coupleId}.memberBirthdays`, and `sessionPrefs`.
+     - Automatically backfills resolved birthdays into Firestore and local cache.
+  4. **Native Calendar Date Picker Integration (`BDAY-02-UI`)**:
+     - Added `"📅 Pick from Calendar"` button in [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt) for user and partner birthday dialogs, launching native `android.app.DatePickerDialog`.
+     - Bound [`CoupleHubViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubViewModel.kt) to format input, update UI state, save to DataStore, and invoke cloud mirroring.
+  5. **Automated Testing & Live Device Verification via Google ARTEMIS**:
+     - Authored [`Phase72BirthdayResolutionTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase72BirthdayResolutionTest.kt) testing multi-format parsing, JWT claim extraction, and ViewModel date formatting + Firestore mirroring.
+     - All 135 unit tests passed 100% green (`.\gradlew.bat testDebugUnitTest`).
+     - Android test Kotlin compilation passed with 0 errors (`.\gradlew.bat compileDebugAndroidTestKotlin`).
+     - Live ARTEMIS verification on `emulator-5554`:
+       - DatePickerDialog: Selected Day 24, populated "November 24", verified UI updated immediately. Screenshot: [`phase72_calendar_picker_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase72_calendar_picker_verified.jpg).
+       - Partner Birthday: Input ISO "1998-10-15", verified UI parsed and updated to "October 15". Screenshot: [`phase72_couple_hub_birthday_updated.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase72_couple_hub_birthday_updated.jpg).
+       - Logcat verified cloud mirroring calls to Firestore `users/EYf2Io9WPDUasjbuqL9wKr1H8lD3` and `couples/cpl_1793319867725_RmkTP`.
+- **Release Tag**: `v2.9.58-birthday-cloud-sync`

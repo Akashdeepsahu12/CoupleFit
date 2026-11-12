@@ -163,11 +163,27 @@ class CoupleHubViewModel @Inject constructor(
     }
 
     fun updateUserBirthday(bday: String) {
-        viewModelScope.launch { preferencesDataStore.saveUserBirthday(bday) }
+        viewModelScope.launch {
+            val formatted = authManager.formatBirthday(bday)
+            preferencesDataStore.saveUserBirthday(formatted)
+            _uiState.value = _uiState.value.copy(userBirthday = formatted)
+            val session = authManager.getCurrentSession()
+            if (session != null) {
+                preferencesDataStore.mirrorUserBirthdayToFirestore(session.uid, session.coupleId, formatted)
+            }
+        }
     }
 
     fun updatePartnerBirthday(bday: String) {
-        viewModelScope.launch { preferencesDataStore.savePartnerBirthday(bday) }
+        viewModelScope.launch {
+            val formatted = authManager.formatBirthday(bday)
+            preferencesDataStore.savePartnerBirthday(formatted)
+            _uiState.value = _uiState.value.copy(partnerBirthday = formatted)
+            val session = authManager.getCurrentSession()
+            if (session != null) {
+                preferencesDataStore.mirrorPartnerBirthdayToFirestore(session.uid, session.coupleId, session.partnerId, formatted)
+            }
+        }
     }
 
     fun updateRelationshipType(type: String) {

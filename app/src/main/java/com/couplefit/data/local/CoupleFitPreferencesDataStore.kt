@@ -328,8 +328,60 @@ class CoupleFitPreferencesDataStore @Inject constructor(
         context.coupleFitDataStore.edit { it[KEY_USER_BIRTHDAY] = bday }
     }
 
+    suspend fun mirrorUserBirthdayToFirestore(uid: String, coupleId: String?, birthday: String) {
+        if (uid.isBlank() || birthday.isBlank()) return
+        try {
+            saveUserBirthday(birthday)
+            firestore.collection("users").document(uid)
+                .set(
+                    mapOf(
+                        "birthday" to birthday,
+                        "birthdate" to birthday,
+                        "dob" to birthday,
+                        "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    ),
+                    SetOptions.merge()
+                )
+            if (!coupleId.isNullOrBlank()) {
+                firestore.collection("couples").document(coupleId)
+                    .set(
+                        mapOf("memberBirthdays" to mapOf(uid to birthday)),
+                        SetOptions.merge()
+                    )
+            }
+            Timber.d("Successfully mirrored user birthday '$birthday' to users/$uid and couple $coupleId")
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to mirror user birthday to Firestore")
+        }
+    }
+
     suspend fun savePartnerBirthday(bday: String) {
         context.coupleFitDataStore.edit { it[KEY_PARTNER_BIRTHDAY] = bday }
+    }
+
+    suspend fun mirrorPartnerBirthdayToFirestore(uid: String, coupleId: String?, partnerId: String?, birthday: String) {
+        if (uid.isBlank() || birthday.isBlank()) return
+        try {
+            savePartnerBirthday(birthday)
+            firestore.collection("users").document(uid)
+                .set(
+                    mapOf(
+                        "partnerBirthday" to birthday,
+                        "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    ),
+                    SetOptions.merge()
+                )
+            if (!coupleId.isNullOrBlank() && !partnerId.isNullOrBlank()) {
+                firestore.collection("couples").document(coupleId)
+                    .set(
+                        mapOf("memberBirthdays" to mapOf(partnerId to birthday)),
+                        SetOptions.merge()
+                    )
+            }
+            Timber.d("Successfully mirrored partner birthday '$birthday' to users/$uid and couple $coupleId")
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to mirror partner birthday to Firestore")
+        }
     }
 
     suspend fun saveRelationshipType(type: String) {

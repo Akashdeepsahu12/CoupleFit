@@ -4849,3 +4849,33 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PHASE71-PHOTO-CHAL`** | Visual Proof (Challenges Screen) | Screenshot saved to [`phase71_challenges_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_challenges_partner_akash.jpg) | 🟢 Verified |
 | **`PHASE71-PHOTO-TRENDS`** | Visual Proof (Trends Screen) | Screenshot saved to [`phase71_trends_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_trends_partner_akash.jpg) | 🟢 Verified |
 | **`PHASE71-PHOTO-SET`** | Visual Proof (Settings Screen) | Screenshot saved to [`phase71_settings_partner_akash.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase71_settings_partner_akash.jpg) | 🟢 Verified |
+
+
+---
+
+## 95. Phase 72: Bidirectional Cloud Birthday Sync, Multi-Format Date Parsing & Interactive Calendar Picker (`BDAY-02`) 🎂📅✨
+
+> **Target Documents & Code**:
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`FirebaseAuthManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/remote/FirebaseAuthManager.kt)
+> - [`PartnerRepositoryImpl.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/repository/PartnerRepositoryImpl.kt)
+> - [`CoupleHubViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubViewModel.kt)
+> - [`CoupleHubScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/hub/CoupleHubScreen.kt)
+> - [`Phase72BirthdayResolutionTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase72BirthdayResolutionTest.kt)
+
+### 95.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`BDAY-02`** | User Bug Report ("birthday is not updated") | 🔴 **Data Sync / Identity & Personalization** | `FirebaseAuthManager.kt`, `CoupleFitPreferencesDataStore.kt`, `PartnerRepositoryImpl.kt`, `CoupleHubViewModel.kt`, `CoupleHubScreen.kt` | User reported birthdays were not updating across the app (screens displayed empty dates or static fallbacks). Compound root causes: (1) Google ID Token from Credential Manager strictly delivers OpenID Connect profile claims (`email`, `name`, `picture`), never returning date of birth; (2) `CoupleFitPreferencesDataStore` methods `saveUserBirthday` and `savePartnerBirthday` only wrote to local DataStore and never mirrored to Cloud Firestore; (3) Rigid ISO-8601 parsing in `formatBirthday` threw `DateTimeParseException` on European/Indian (`DD-MM-YYYY`), US, and verbal formats; (4) Lack of interactive date picker UI required error-prone manual typing. | (1) Added `mirrorUserBirthdayToFirestore` and `mirrorPartnerBirthdayToFirestore` in `CoupleFitPreferencesDataStore.kt` writing bidirectionally to `users/{uid}` (`birthday`, `birthdate`, `dob`) and `couples/{coupleId}.memberBirthdays`; (2) Upgraded `formatBirthday` with multi-format regex parser supporting ISO, European/Indian, US, and month name strings; (3) Added multi-alias claim probing (`birthdate`, `birthday`, `dob`, `birth_date`, `birthDate`, `dateOfBirth`); (4) Implemented multi-field fallback resolution in `FirebaseAuthManager.observeUserSession` and `PartnerRepositoryImpl.kt` with automatic cloud backfill; (5) Integrated native Android `DatePickerDialog` with Material 3 styling triggered via `"📅 Pick from Calendar"` in `CoupleHubScreen.kt`. | 🟢 **Resolved** |
+
+### 95.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE72-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (135/135 tests passing including `Phase72BirthdayResolutionTest`) | 🟢 Passed |
+| **`PHASE72-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE72-CALENDAR`** | Native Calendar DatePickerDialog | ARTEMIS UI inspection: Tapped "Edit Birthday" on User Profile, opened DatePickerDialog, selected Day 24, field populated with "November 24", tapped Save. UI immediately updated to "November 24". | 🟢 Verified |
+| **`PHASE72-USER-SYNC`** | User Birthday Cloud Mirroring | Logcat inspection: Verified `Successfully mirrored user birthday 'November 24' to users/EYf2Io9WPDUasjbuqL9wKr1H8lD3 and couple cpl_1793319867725_RmkTP`. | 🟢 Verified |
+| **`PHASE72-PARTNER-INPUT`** | Partner Birthday Multi-Format Parsing | ARTEMIS UI inspection: Tapped "Edit Birthday" on Akash's Profile, typed ISO "1998-10-15", tapped Save. UI immediately parsed and displayed "October 15". | 🟢 Verified |
+| **`PHASE72-PARTNER-SYNC`** | Partner Birthday Cloud Mirroring | Logcat inspection: Verified `Successfully mirrored partner birthday 'October 15' to users/EYf2Io9WPDUasjbuqL9wKr1H8lD3 and couple cpl_1793319867725_RmkTP`. | 🟢 Verified |
+| **`PHASE72-PHOTO-CALENDAR`** | Visual Proof (Calendar DatePicker) | Screenshot saved to [`phase72_calendar_picker_verified.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase72_calendar_picker_verified.jpg) | 🟢 Verified |
+| **`PHASE72-PHOTO-HUB`** | Visual Proof (Couple Hub Birthday Updated) | Screenshot saved to [`phase72_couple_hub_birthday_updated.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase72_couple_hub_birthday_updated.jpg) | 🟢 Verified |

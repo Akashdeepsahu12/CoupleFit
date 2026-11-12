@@ -38,89 +38,141 @@ class FirebaseAuthManager @Inject constructor(
 ) {
     private val authScope = CoroutineScope(Dispatchers.IO)
     private val credentialManager by lazy { CredentialManager.create(context) }
+    private val sessionPrefs by lazy { context.getSharedPreferences("couplefit_session_cache", Context.MODE_PRIVATE) }
 
     companion object {
         // Default Web Client ID for Credential Manager Google Sign-In (Firebase project couplefit-6053a)
         const val DEFAULT_WEB_CLIENT_ID = "574898513514-3p2kef3mqbr6qmcgefb4dfmtfsd8ce0o.apps.googleusercontent.com"
-    }
 
-    /**
-     * Decodes and extracts date of birth / birthday claim from Google ID Token JWT payload.
-     */
-    fun extractBirthdayFromIdToken(idToken: String): String? {
-        return try {
-            val parts = idToken.split(".")
-            if (parts.size >= 2) {
-                val tokenPayload = parts[1]
-                val decodedBytes = try {
-                    java.util.Base64.getUrlDecoder().decode(tokenPayload)
-                } catch (_: Exception) {
-                    try {
-                        java.util.Base64.getDecoder().decode(tokenPayload)
+        /**
+         * Decodes and extracts date of birth / birthday claim from Google ID Token JWT payload.
+         */
+        fun extractBirthdayFromIdToken(idToken: String): String? {
+            return try {
+                val parts = idToken.split(".")
+                if (parts.size >= 2) {
+                    val tokenPayload = parts[1]
+                    val decodedBytes = try {
+                        java.util.Base64.getUrlDecoder().decode(tokenPayload)
                     } catch (_: Exception) {
-                        android.util.Base64.decode(tokenPayload, android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
-                    }
-                }
-                val payloadString = String(decodedBytes, Charsets.UTF_8)
-                // Use regex claim matcher first for seamless JVM testing and Android runtime parsing
-                val regexMatch = Regex(""""(?:birthdate|birthday|dob)"\s*:\s*"([^"]+)"""")
-                    .find(payloadString)?.groupValues?.get(1)
-                val raw = if (!regexMatch.isNullOrBlank()) {
-                    regexMatch
-                } else {
-                    try {
-                        val json = org.json.JSONObject(payloadString)
-                        when {
-                            json.has("birthdate") -> json.optString("birthdate")
-                            json.has("birthday") -> json.optString("birthday")
-                            json.has("dob") -> json.optString("dob")
-                            else -> null
+                        try {
+                            java.util.Base64.getDecoder().decode(tokenPayload)
+                        } catch (_: Exception) {
+                            android.util.Base64.decode(tokenPayload, android.util.Base64.URL_SAFE or android.util.Base64.NO_PADDING or android.util.Base64.NO_WRAP)
                         }
-                    } catch (_: Throwable) {
-                        null
                     }
-                }
-
-                if (!raw.isNullOrBlank()) {
-                    formatBirthday(raw)
-                } else null
-            } else null
-        } catch (e: Exception) {
-            Timber.w(e, "Could not extract birthday from Google ID token JWT payload")
-            null
-        }
-    }
-
-    /**
-     * Formats raw birthdate into standardized human-readable format (e.g., "June 14").
-     */
-    fun formatBirthday(raw: String): String {
-        val trimmed = raw.trim()
-        return try {
-            val normalized = trimmed.removePrefix("--")
-            val parts = normalized.split("-", "/")
-            when (parts.size) {
-                3 -> {
-                    val (month, day) = if (parts[0].length == 4) {
-                        Pair(parts[1].toInt(), parts[2].toInt())
+                    val payloadString = String(decodedBytes, Charsets.UTF_8)
+                    // Use regex claim matcher first for seamless JVM testing and Android runtime parsing
+                    val regexMatch = Regex(""""(?:birthdate|birthday|dob|birth_date|birthDate|dateOfBirth)"\s*:\s*"([^"]+)"""")
+                        .find(payloadString)?.groupValues?.get(1)
+                    val raw = if (!regexMatch.isNullOrBlank()) {
+                        regexMatch
                     } else {
-                        Pair(parts[0].toInt(), parts[1].toInt())
+                        try {
+                            val json = org.json.JSONObject(payloadString)
+                            when {
+                                json.has("birthdate") -> json.optString("birthdate")
+                                json.has("birthday") -> json.optString("birthday")
+                                json.has("dob") -> json.optString("dob")
+                                json.has("birth_date") -> json.optString("birth_date")
+                                json.has("birthDate") -> json.optString("birthDate")
+                                json.has("dateOfBirth") -> json.optString("dateOfBirth")
+                                else -> null
+                            }
+                        } catch (_: Throwable) {
+                            null
+                        }
                     }
-                    val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
-                    "$monthName $day"
-                }
-                2 -> {
-                    val month = parts[0].toInt()
-                    val day = parts[1].toInt()
-                    val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
-                    "$monthName $day"
-                }
-                else -> trimmed
+
+                    if (!raw.isNullOrBlank()) {
+                        formatBirthday(raw)
+                    } else null
+                } else null
+            } catch (e: Exception) {
+                Timber.w(e, "Could not extract birthday from Google ID token JWT payload")
+                null
             }
-        } catch (e: Exception) {
-            trimmed
+        }
+
+        /**
+         * Formats raw birthdate into standardized human-readable format (e.g., "June 14").
+         */
+        fun formatBirthday(raw: String): String {
+            val trimmed = raw.trim()
+            if (trimmed.isBlank()) return trimmed
+            return try {
+                // Check month names like "June 14", "14 June", "September 28, 1998", "14th June 1995"
+                val monthRegex = Regex("""(?i)\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b""")
+                val mMatch = monthRegex.find(trimmed)
+                if (mMatch != null) {
+                    val monthStr = mMatch.value.lowercase()
+                    val monthNum = when {
+                        monthStr.startsWith("jan") -> 1
+                        monthStr.startsWith("feb") -> 2
+                        monthStr.startsWith("mar") -> 3
+                        monthStr.startsWith("apr") -> 4
+                        monthStr.startsWith("may") -> 5
+                        monthStr.startsWith("jun") -> 6
+                        monthStr.startsWith("jul") -> 7
+                        monthStr.startsWith("aug") -> 8
+                        monthStr.startsWith("sep") -> 9
+                        monthStr.startsWith("oct") -> 10
+                        monthStr.startsWith("nov") -> 11
+                        monthStr.startsWith("dec") -> 12
+                        else -> null
+                    }
+                    val dayMatch = Regex("""\b(\d{1,2})(?:st|nd|rd|th)?\b""").find(trimmed)
+                    val dayNum = dayMatch?.groupValues?.get(1)?.toIntOrNull()
+                    if (monthNum != null && dayNum != null && dayNum in 1..31) {
+                        val monthName = java.time.Month.of(monthNum).name.lowercase().replaceFirstChar { it.uppercase() }
+                        return "$monthName $dayNum"
+                    }
+                }
+
+                val normalized = trimmed.removePrefix("--")
+                val parts = normalized.split("-", "/")
+                when (parts.size) {
+                    3 -> {
+                        val (month, day) = if (parts[0].length == 4) {
+                            // YYYY-MM-DD or YYYY-DD-MM
+                            val p1 = parts[1].toInt()
+                            val p2 = parts[2].toInt()
+                            if (p1 in 1..12 && p2 in 1..31) Pair(p1, p2)
+                            else if (p2 in 1..12 && p1 in 1..31) Pair(p2, p1)
+                            else Pair(p1, p2)
+                        } else if (parts[2].length == 4) {
+                            // MM/DD/YYYY or DD-MM-YYYY
+                            val p0 = parts[0].toInt()
+                            val p1 = parts[1].toInt()
+                            if (p0 > 12 && p1 in 1..12) Pair(p1, p0)
+                            else if (p1 > 12 && p0 in 1..12) Pair(p0, p1)
+                            else Pair(p0, p1)
+                        } else {
+                            val p0 = parts[0].toInt()
+                            val p1 = parts[1].toInt()
+                            Pair(p0, p1)
+                        }
+                        val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
+                        "$monthName $day"
+                    }
+                    2 -> {
+                        val p0 = parts[0].toInt()
+                        val p1 = parts[1].toInt()
+                        val (month, day) = if (p0 > 12 && p1 in 1..12) Pair(p1, p0)
+                        else Pair(p0, p1)
+                        val monthName = java.time.Month.of(month).name.lowercase().replaceFirstChar { it.uppercase() }
+                        "$monthName $day"
+                    }
+                    else -> trimmed
+                }
+            } catch (e: Exception) {
+                trimmed
+            }
         }
     }
+
+    fun extractBirthdayFromIdToken(idToken: String): String? = Companion.extractBirthdayFromIdToken(idToken)
+    fun formatBirthday(raw: String): String = Companion.formatBirthday(raw)
 
     /**
      * Resolves the Web Client ID dynamically:
@@ -196,6 +248,9 @@ class FirebaseAuthManager @Inject constructor(
                 val extractedBirthday = extractBirthdayFromIdToken(idToken)
                     ?: credential.data.getString("birthdate")
                     ?: credential.data.getString("birthday")
+                    ?: credential.data.getString("dob")
+                    ?: credential.data.getString("birthDate")
+                    ?: credential.data.getString("dateOfBirth")
 
                 try {
                     withTimeoutOrNull(4000L) {
@@ -217,11 +272,20 @@ class FirebaseAuthManager @Inject constructor(
                             val formattedBday = formatBirthday(extractedBirthday)
                             profilePayload["birthday"] = formattedBday
                             profilePayload["birthdate"] = formattedBday
+                            profilePayload["dob"] = formattedBday
                             preferencesDataStore.saveUserBirthday(formattedBday)
+                            sessionPrefs.edit().putString("cached_user_birthday", formattedBday).apply()
                         } else {
-                            val existingBday = userDoc.getString("birthday") ?: userDoc.getString("birthdate")
+                            val existingBday = userDoc.getString("birthday")
+                                ?: userDoc.getString("birthdate")
+                                ?: userDoc.getString("birthDate")
+                                ?: userDoc.getString("dob")
+                                ?: userDoc.getString("dateOfBirth")
+                                ?: sessionPrefs.getString("cached_user_birthday", null)
                             if (!existingBday.isNullOrBlank()) {
-                                preferencesDataStore.saveUserBirthday(existingBday)
+                                val formatted = formatBirthday(existingBday)
+                                preferencesDataStore.saveUserBirthday(formatted)
+                                sessionPrefs.edit().putString("cached_user_birthday", formatted).apply()
                             }
                         }
 
@@ -385,7 +449,13 @@ class FirebaseAuthManager @Inject constructor(
                             val effectivePartnerId = remotePartnerId?.takeIf { it.isNotBlank() } ?: cachedPartnerId
                             val displayName = snapshot.getString("displayName") ?: firebaseUser.displayName ?: ""
                             val partnerName = snapshot.getString("partnerName")
-                            val userBday = snapshot.getString("birthday") ?: snapshot.getString("birthdate")
+                            val userBday = snapshot.getString("birthday")
+                                ?: snapshot.getString("birthdate")
+                                ?: snapshot.getString("birthDate")
+                                ?: snapshot.getString("dob")
+                                ?: snapshot.getString("dateOfBirth")
+                                ?: snapshot.getString("bday")
+                                ?: sessionPrefs.getString("cached_user_birthday", null)
 
                             // Persist latest state into local cache
                             sessionPrefs.edit().apply {
@@ -393,7 +463,7 @@ class FirebaseAuthManager @Inject constructor(
                                 putString("cached_partner_id", effectivePartnerId)
                                 putString("cached_display_name", displayName)
                                 if (!partnerName.isNullOrBlank()) putString("cached_partner_name", partnerName)
-                                if (userBday != null) putString("cached_user_birthday", userBday)
+                                if (!userBday.isNullOrBlank()) putString("cached_user_birthday", userBday)
                                 apply()
                             }
 
@@ -407,14 +477,32 @@ class FirebaseAuthManager @Inject constructor(
                                             .set(mapOf("displayName" to displayName), SetOptions.merge())
                                         if (!effectiveCoupleId.isNullOrBlank()) {
                                             firestore.collection("couples").document(effectiveCoupleId)
-                                                .set(mapOf("memberNames" to mapOf(firebaseUser.uid to displayName)), SetOptions.merge())
+                                              .set(mapOf("memberNames" to mapOf(firebaseUser.uid to displayName)), SetOptions.merge())
                                         }
                                     } catch (_: Exception) {}
                                 }
                             }
                             if (!userBday.isNullOrBlank()) {
+                                val formattedUserBday = formatBirthday(userBday)
                                 authScope.launch {
-                                    preferencesDataStore.saveUserBirthday(userBday)
+                                    preferencesDataStore.saveUserBirthday(formattedUserBday)
+                                }
+                                if (snapshot.getString("birthday").isNullOrBlank()) {
+                                    try {
+                                        firestore.collection("users").document(firebaseUser.uid)
+                                            .set(
+                                                mapOf(
+                                                    "birthday" to formattedUserBday,
+                                                    "birthdate" to formattedUserBday,
+                                                    "dob" to formattedUserBday
+                                                ),
+                                                SetOptions.merge()
+                                            )
+                                        if (!effectiveCoupleId.isNullOrBlank()) {
+                                            firestore.collection("couples").document(effectiveCoupleId)
+                                                .set(mapOf("memberBirthdays" to mapOf(firebaseUser.uid to formattedUserBday)), SetOptions.merge())
+                                        }
+                                    } catch (_: Exception) {}
                                 }
                             }
 
@@ -432,6 +520,22 @@ class FirebaseAuthManager @Inject constructor(
                                             if (!effectiveCoupleId.isNullOrBlank()) {
                                                 firestore.collection("couples").document(effectiveCoupleId)
                                                     .set(mapOf("memberNames" to mapOf(effectivePartnerId to resolvedName)), SetOptions.merge())
+                                            }
+                                        } catch (_: Exception) {}
+                                    }
+                                }
+
+                                fun applyResolvedPartnerBirthday(rawBday: String) {
+                                    val formatted = formatBirthday(rawBday)
+                                    if (formatted.isNotBlank()) {
+                                        sessionPrefs.edit().putString("cached_partner_birthday", formatted).apply()
+                                        authScope.launch {
+                                            preferencesDataStore.savePartnerBirthday(formatted)
+                                        }
+                                        try {
+                                            if (!effectiveCoupleId.isNullOrBlank()) {
+                                                firestore.collection("couples").document(effectiveCoupleId)
+                                                    .set(mapOf("memberBirthdays" to mapOf(effectivePartnerId to formatted)), SetOptions.merge())
                                             }
                                         } catch (_: Exception) {}
                                     }
@@ -482,11 +586,39 @@ class FirebaseAuthManager @Inject constructor(
                                         }
 
                                         val pBday = if (pDoc != null && pDoc.exists()) {
-                                            pDoc.getString("birthday") ?: pDoc.getString("birthdate")
+                                            pDoc.getString("birthday")
+                                                ?: pDoc.getString("birthdate")
+                                                ?: pDoc.getString("birthDate")
+                                                ?: pDoc.getString("dob")
+                                                ?: pDoc.getString("dateOfBirth")
+                                                ?: pDoc.getString("bday")
                                         } else null
+
                                         if (!pBday.isNullOrBlank()) {
-                                            authScope.launch {
-                                                preferencesDataStore.savePartnerBirthday(pBday)
+                                            applyResolvedPartnerBirthday(pBday)
+                                        } else if (!effectiveCoupleId.isNullOrBlank()) {
+                                            firestore.collection("couples").document(effectiveCoupleId).get()
+                                                .addOnSuccessListener { cDoc ->
+                                                    val memberBirthdays = cDoc?.get("memberBirthdays") as? Map<*, *>
+                                                    val fromCouple = memberBirthdays?.get(effectivePartnerId) as? String
+                                                    val finalBday = fromCouple?.takeIf { it.isNotBlank() }
+                                                        ?: snapshot.getString("partnerBirthday")?.takeIf { it.isNotBlank() }
+                                                        ?: sessionPrefs.getString("cached_partner_birthday", null)?.takeIf { it.isNotBlank() }
+                                                    if (finalBday != null) {
+                                                        applyResolvedPartnerBirthday(finalBday)
+                                                    }
+                                                }.addOnFailureListener {
+                                                    val fallbackBday = snapshot.getString("partnerBirthday")?.takeIf { it.isNotBlank() }
+                                                        ?: sessionPrefs.getString("cached_partner_birthday", null)?.takeIf { it.isNotBlank() }
+                                                    if (fallbackBday != null) {
+                                                        applyResolvedPartnerBirthday(fallbackBday)
+                                                    }
+                                                }
+                                        } else {
+                                            val fallbackBday = snapshot.getString("partnerBirthday")?.takeIf { it.isNotBlank() }
+                                                ?: sessionPrefs.getString("cached_partner_birthday", null)?.takeIf { it.isNotBlank() }
+                                            if (fallbackBday != null) {
+                                                applyResolvedPartnerBirthday(fallbackBday)
                                             }
                                         }
                                     }.addOnFailureListener {
@@ -495,6 +627,11 @@ class FirebaseAuthManager @Inject constructor(
                                             ?: (if (effectivePartnerId.startsWith("RmkTP") || effectivePartnerId.length > 10) "Akash" else null)
                                         if (finalName != null) {
                                             applyResolvedPartnerName(finalName)
+                                        }
+                                        val fallbackBday = snapshot.getString("partnerBirthday")?.takeIf { it.isNotBlank() }
+                                            ?: sessionPrefs.getString("cached_partner_birthday", null)?.takeIf { it.isNotBlank() }
+                                        if (fallbackBday != null) {
+                                            applyResolvedPartnerBirthday(fallbackBday)
                                         }
                                     }
                             }

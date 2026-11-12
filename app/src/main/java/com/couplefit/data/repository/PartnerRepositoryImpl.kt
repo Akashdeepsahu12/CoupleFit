@@ -4,6 +4,7 @@ import android.content.Context
 import com.couplefit.data.local.CoupleFitPreferencesDataStore
 import com.couplefit.data.local.HealthDao
 import com.couplefit.data.local.PartnerDailyEntity
+import com.couplefit.data.remote.FirebaseAuthManager
 import com.couplefit.domain.repository.PartnerRepository
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -219,7 +220,12 @@ class PartnerRepositoryImpl @Inject constructor(
                         ?: partnerUserDoc.getString("userName")
                         ?: partnerUserDoc.getString("email")?.substringBefore("@")?.replace(".", " ")?.replaceFirstChar { it.uppercase() }
                         ?: (if (partnerUid.startsWith("RmkTP") || partnerUid.length > 10) "Akash" else null)
-                    val pBirthday = partnerUserDoc.getString("birthday") ?: partnerUserDoc.getString("birthdate")
+                    val pBirthday = partnerUserDoc.getString("birthday")
+                        ?: partnerUserDoc.getString("birthdate")
+                        ?: partnerUserDoc.getString("birthDate")
+                        ?: partnerUserDoc.getString("dob")
+                        ?: partnerUserDoc.getString("dateOfBirth")
+                        ?: partnerUserDoc.getString("bday")
                     if (!pDisplayName.isNullOrBlank() && pDisplayName != "Partner") {
                         if (preferencesDataStore != null) {
                             preferencesDataStore.savePartnerName(pDisplayName)
@@ -228,10 +234,13 @@ class PartnerRepositoryImpl @Inject constructor(
                         }
                     }
                     if (!pBirthday.isNullOrBlank()) {
+                        val formatted = try {
+                            FirebaseAuthManager.formatBirthday(pBirthday)
+                        } catch (_: Exception) { pBirthday }
                         if (preferencesDataStore != null) {
-                            preferencesDataStore.savePartnerBirthday(pBirthday)
+                            preferencesDataStore.savePartnerBirthday(formatted)
                         } else if (context != null) {
-                            try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(pBirthday) } catch (_: Exception) {}
+                            try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(formatted) } catch (_: Exception) {}
                         }
                     }
                 }
@@ -249,7 +258,12 @@ class PartnerRepositoryImpl @Inject constructor(
                             ?: fallbackDoc.getString("userName")
                             ?: fallbackDoc.getString("email")?.substringBefore("@")?.replace(".", " ")?.replaceFirstChar { it.uppercase() }
                             ?: (if (partnerUid.startsWith("RmkTP") || partnerUid.length > 10) "Akash" else null)
-                        val pBirthday = fallbackDoc.getString("birthday") ?: fallbackDoc.getString("birthdate")
+                        val pBirthday = fallbackDoc.getString("birthday")
+                            ?: fallbackDoc.getString("birthdate")
+                            ?: fallbackDoc.getString("birthDate")
+                            ?: fallbackDoc.getString("dob")
+                            ?: fallbackDoc.getString("dateOfBirth")
+                            ?: fallbackDoc.getString("bday")
                         if (!pDisplayName.isNullOrBlank() && pDisplayName != "Partner") {
                             if (preferencesDataStore != null) {
                                 preferencesDataStore.savePartnerName(pDisplayName)
@@ -258,10 +272,13 @@ class PartnerRepositoryImpl @Inject constructor(
                             }
                         }
                         if (!pBirthday.isNullOrBlank()) {
+                            val formatted = try {
+                                FirebaseAuthManager.formatBirthday(pBirthday)
+                            } catch (_: Exception) { pBirthday }
                             if (preferencesDataStore != null) {
-                                preferencesDataStore.savePartnerBirthday(pBirthday)
+                                preferencesDataStore.savePartnerBirthday(formatted)
                             } else if (context != null) {
-                                try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(pBirthday) } catch (_: Exception) {}
+                                try { CoupleFitPreferencesDataStore(context, firestore).savePartnerBirthday(formatted) } catch (_: Exception) {}
                             }
                         }
                     }

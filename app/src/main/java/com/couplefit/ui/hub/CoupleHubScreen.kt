@@ -537,17 +537,43 @@ fun CoupleHubScreen(
             "RELATION" -> "Edit Relationship Description"
             else -> "Edit Profile Info"
         }
+        val isBirthdayEdit = editType == "USER_BDAY" || editType == "PARTNER_BDAY"
 
         AlertDialog(
             onDismissRequest = { showEditDialog = false },
             title = { Text(dialogTitle, fontWeight = FontWeight.Bold) },
             text = {
-                OutlinedTextField(
-                    value = inputValue,
-                    onValueChange = { inputValue = it },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = inputValue,
+                        onValueChange = { inputValue = it },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = if (isBirthdayEdit) {
+                            { Text("e.g. September 28 or YYYY-MM-DD") }
+                        } else null
+                    )
+                    if (isBirthdayEdit) {
+                        val calendar = java.util.Calendar.getInstance()
+                        TextButton(
+                            onClick = {
+                                android.app.DatePickerDialog(
+                                    context,
+                                    { _, _, month, dayOfMonth ->
+                                        val monthName = java.time.Month.of(month + 1).name.lowercase().replaceFirstChar { it.uppercase() }
+                                        inputValue = "$monthName $dayOfMonth"
+                                    },
+                                    calendar.get(java.util.Calendar.YEAR),
+                                    calendar.get(java.util.Calendar.MONTH),
+                                    calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                ).show()
+                            },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("📅 Pick from Calendar", style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
             },
             confirmButton = {
                 Button(
