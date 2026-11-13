@@ -1719,3 +1719,37 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
        - Partner Birthday: Input ISO "1998-10-15", verified UI parsed and updated to "October 15". Screenshot: [`phase72_couple_hub_birthday_updated.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase72_couple_hub_birthday_updated.jpg).
        - Logcat verified cloud mirroring calls to Firestore `users/EYf2Io9WPDUasjbuqL9wKr1H8lD3` and `couples/cpl_1793319867725_RmkTP`.
 - **Release Tag**: `v2.9.58-birthday-cloud-sync`
+
+
+## Phase 73: Production Android Launcher Icon Suite from `Icon.png` (`ICON-01`) 📱🎨✨
+- **Target Specifications**: User Request ("Use Icon.png as my app icon"), [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md) §96
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Full Density Mipmap Suite Downsampling (`ICON-01-ASSETS`)**:
+     - Analyzed master asset [`icon.png`](file:///D:/Couple_fit/CoupleFit/icon.png) (4096×4096 px, Format24bppRgb) with content bounds `X: [704, 3424]`, `Y: [1120, 2976]`.
+     - Built [`scripts/generate_app_icons.ps1`](file:///D:/Couple_fit/CoupleFit/scripts/generate_app_icons.ps1) providing high-quality bicubic downsampling (`System.Drawing`), alpha edge feathering, and linear gradient generation.
+     - Generated 20 PNG assets across all 5 Android density buckets in [`app/src/main/res/`](file:///D:/Couple_fit/CoupleFit/app/src/main/res/):
+       - `mipmap-mdpi`: `ic_launcher.png` (48×48), `ic_launcher_round.png` (48×48), `ic_launcher_foreground.png` (108×108), `ic_launcher_background.png` (108×108)
+       - `mipmap-hdpi`: `ic_launcher.png` (72×72), `ic_launcher_round.png` (72×72), `ic_launcher_foreground.png` (162×162), `ic_launcher_background.png` (162×162)
+       - `mipmap-xhdpi`: `ic_launcher.png` (96×96), `ic_launcher_round.png` (96×96), `ic_launcher_foreground.png` (216×216), `ic_launcher_background.png` (216×216)
+       - `mipmap-xxhdpi`: `ic_launcher.png` (144×144), `ic_launcher_round.png` (144×144), `ic_launcher_foreground.png` (324×324), `ic_launcher_background.png` (324×324)
+       - `mipmap-xxxhdpi`: `ic_launcher.png` (192×192), `ic_launcher_round.png` (192×192), `ic_launcher_foreground.png` (432×432), `ic_launcher_background.png` (432×432)
+     - Generated Google Play Store 512×512 store graphic: [`app/src/main/ic_launcher-web.png`](file:///D:/Couple_fit/CoupleFit/app/src/main/ic_launcher-web.png).
+  2. **Adaptive & Material You Vector Configuration (`ICON-01-XML`)**:
+     - Authored [`res/mipmap-anydpi-v26/ic_launcher.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml) and [`res/mipmap-anydpi-v26/ic_launcher_round.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml) declaring `<background>`, `<foreground>`, and `<monochrome>`.
+     - Authored [`res/drawable/ic_launcher_monochrome.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/res/drawable/ic_launcher_monochrome.xml) providing a 108×108dp vector silhouette with frosted glass card geometries and dual runner/heart glyphs for Android 13+ dynamic system theming.
+     - Preserved exact 72dp adaptive icon safe zone (scaled artwork to 92% canvas size), eliminating clipping across Pixel circular masks and Samsung squircle masks.
+  3. **Manifest Integration (`ICON-01-MANIFEST`)**:
+     - Updated [`app/src/main/AndroidManifest.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/AndroidManifest.xml), binding `android:icon="@mipmap/ic_launcher"` and `android:roundIcon="@mipmap/ic_launcher_round"`, eradicating legacy placeholder `@android:drawable/sym_def_app_icon`.
+  4. **Automated Testing Suite (`ICON-01-TEST`)**:
+     - Authored [`app/src/test/java/com/couplefit/ui/Phase73AppIconSuiteTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase73AppIconSuiteTest.kt) with portable binary PNG `IHDR` chunk parser.
+     - Verified all 21 PNG dimensions, all 3 XML resource declarations, vector viewport bounds, and manifest attributes.
+     - Passed 100% green: 140/140 unit tests passing (`.\gradlew.bat testDebugUnitTest`).
+     - Android test compilation: 0 errors (`.\gradlew.bat compileDebugAndroidTestKotlin`).
+     - APK build: Success in 49s (`.\gradlew.bat assembleDebug`).
+  5. **Live Device Verification via Google ARTEMIS (`ICON-01-DEVICE`)**:
+     - Deployed debug APK via `adb install -r app-debug.apk` to active Android 17 emulator (`emulator-5554`).
+     - Inspected Pixel launcher home screen dock: Verified crisp CoupleFit frosted glass icon rendered next to Chrome without clipping or distortion. Screenshot: [`phase73_home_screen.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_home_screen.jpg).
+     - Inspected App Drawer: Verified CoupleFit entry in alphabetized grid. Screenshot: [`phase73_app_drawer.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_app_drawer.jpg).
+     - Inspected Recents task switcher: Verified header icon and application title. Screenshot: [`phase73_recents_overview.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_recents_overview.jpg).
+- **Release Tag**: `v2.9.59-production-app-icon`

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- CoupleFit Themed Icon Monochrome Silhouette (Android 13+) -->
+    <!-- Left Frosted Squircle (Intimacy / Heart) -->
+    <group
+        android:pivotX="42"
+        android:pivotY="54"
+        android:rotation="45">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.85"
+            android:pathData="M 33,45 C 33,41.7 35.7,39 39,39 L 45,39 C 48.3,39 51,41.7 51,45 L 51,63 C 51,66.3 48.3,69 45,69 L 39,69 C 35.7,69 33,66.3 33,63 Z" />
+    </group>
+
+    <!-- Right Frosted Squircle (Fitness / Runner) -->
+    <group
+        android:pivotX="66"
+        android:pivotY="54"
+        android:rotation="45">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillAlpha="0.85"
+            android:pathData="M 57,45 C 57,41.7 59.7,39 63,39 L 69,39 C 72.3,39 75,41.7 75,45 L 75,63 C 75,66.3 72.3,69 69,69 L 63,69 C 59.7,69 57,66.3 57,63 Z" />
+    </group>
+
+    <!-- Heart Glyph (Left Card) -->
+    <path
+        android:fillColor="#000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 42,59 C 42,59 36,54.5 36,50.5 C 36,48.5 37.5,47 39.5,47 C 40.8,47 41.6,47.8 42,48.5 C 42.4,47.8 43.2,47 44.5,47 C 46.5,47 48,48.5 48,50.5 C 48,54.5 42,59 42,59 Z" />
+
+    <!-- Runner Glyph (Right Card) -->
+    <!-- Head -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M 66,48 A 1.8,1.8 0 1,0 66,44.4 A 1.8,1.8 0 1,0 66,48 Z" />
+    <!-- Torso and Limbs -->
+    <path
+        android:fillColor="#000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 64.5,49 L 66.5,53 L 64,57 M 66.5,53 L 68.5,56 L 70.5,58 M 63,52 L 65.5,51 L 68,52.5 L 69.5,51" />
+
+</vector>
