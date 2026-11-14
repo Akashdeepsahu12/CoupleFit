@@ -4910,3 +4910,40 @@ The user instructed: *"Can you apply this to bottom bar https://docs.expo.dev/ve
 | **`PHASE73-RECENTS`** | Task Switcher Overview | ARTEMIS live screenshot verified CoupleFit task header card displaying new icon and app title | 🟢 Verified |
 | **`PHASE73-PHOTO-HOME`** | Visual Proof (Home Screen Dock) | Screenshot saved to [`phase73_home_screen.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_home_screen.jpg) | 🟢 Verified |
 | **`PHASE73-PHOTO-RECENTS`** | Visual Proof (Recents Task Switcher) | Screenshot saved to [`phase73_recents_overview.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_recents_overview.jpg) | 🟢 Verified |
+
+
+---
+
+## 97. Phase 74: Self-Healing Health Connect Pipeline, Hardware Step Fallback & 1-Tap Diagnostics (`SYNC-03`, `HC-02`, `DIAG-01`, `DIAG-02`) 🏥🔄⚡
+
+> **Target Documents & Code**:
+> - [`PHASE74_SYNC_DIAGNOSTICS_PLAN.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PHASE74_SYNC_DIAGNOSTICS_PLAN.md)
+> - [`HardwareStepSensorManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/sensor/HardwareStepSensorManager.kt)
+> - [`HealthSyncIntentHelper.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/util/HealthSyncIntentHelper.kt)
+> - [`SyncDiagnosticBanner.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/components/SyncDiagnosticBanner.kt)
+> - [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt)
+> - [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt)
+> - [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt)
+> - [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt)
+> - [`AndroidManifest.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/AndroidManifest.xml)
+> - [`Phase74SyncDiagnosticsTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase74SyncDiagnosticsTest.kt)
+
+### 97.1 Master Defect & Remediation Log
+| ID | Origin Source | Category | Component | Description & Root Cause | Correction / Action | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`HC-02`** | User Bug Report ("partner unable to fetch data from health connect") | 🔴 **Sensor Hardware / Health Data Synchronization** | `HardwareStepSensorManager.kt`, `HealthConnectViewModel.kt`, `AndroidManifest.xml` | Empty Hub Problem: Health Connect is a passive storage bridge. When a user's phone does not have Samsung Health or Google Fit actively writing step records into Health Connect, Health Connect returns 0 steps even with permissions granted. | Created `HardwareStepSensorManager.kt` wrapping Android's native `Sensor.TYPE_STEP_COUNTER`. Computes real-time daily delta steps via persistent boot baselines in SharedPreferences, handling same-day accumulation, midnight date rollover, and device reboots. Arbitrates in `HealthConnectViewModel` via `max(healthConnectSteps, hardwareSteps)`. Writes steps to local Room DB and Cloud Firestore while strictly adhering to ADR-002 Zero-Write Policy (never writes synthetic records into Health Connect). Added `android.permission.ACTIVITY_RECOGNITION`. | 🟢 **Resolved** |
+| **`SYNC-03`** | User Bug Report / Latency & Stale Data | 🟡 **Background Sync / Lifecycle Management** | `HealthConnectViewModel.kt`, `DashboardScreen.kt` | User had to manually pull-to-refresh or restart app to sync fresh steps after walking or opening other health apps. | Implemented `onDashboardResumed()` in `HealthConnectViewModel.kt` with a 60-second debounce cooldown (`System.currentTimeMillis() - lastForegroundAutoSyncMs > 60_000L`). Bound to `Lifecycle.Event.ON_RESUME` in `DashboardScreen.kt` so steps automatically refresh and sync to Firestore whenever the app returns to the foreground. | 🟢 **Resolved** |
+| **`DIAG-01`** | User Experience / Missing Feeder Guidance | 🟡 **Diagnostic UI / Android Intents** | `HealthSyncIntentHelper.kt`, `SyncDiagnosticBanner.kt`, `DashboardScreen.kt`, `SettingsScreen.kt` | Users and partners had no clear visibility into why step count showed 0, whether permissions were missing, if Health Connect needed an update, or if the feeder app (Samsung Health, Google Fit) was unlinked. | Built `HealthSyncIntentHelper.kt` detecting installed feeder apps (`com.sec.android.app.shealth`, `com.google.android.apps.fitness`), opening feeder app settings, managing Health Connect Play Store links, and handling battery optimization whitelist intents. Created `SyncDiagnosticBanner.kt` rendered atop `DashboardScreen.kt` displaying actionable blocker cards and partner sync hints. Added 1-tap "Open Primary Feeder App" card to `SettingsScreen.kt`. | 🟢 **Resolved** |
+| **`DIAG-02`** | Telemetry Sharing & Remote Diagnostics | 🟡 **Cloud Telemetry / Preferences** | `CoupleFitPreferencesDataStore.kt`, `HealthConnectViewModel.kt` | If metric sharing was toggled off, partner sync failed silently without diagnostic logs. | Added `enableAllTelemetrySharing()` in `CoupleFitPreferencesDataStore.kt` enabling steps, calories, heart rate, and workouts in one tap. Added `mirrorSyncDiagnosticsToFirestore()` persisting diagnostic blocker metadata (`lastSyncTime`, `syncSource`, `healthConnectAvailable`, `hasPermissions`, `usingHardwareSensor`) to Firestore for instant partner observability. | 🟢 **Resolved** |
+
+### 97.2 Verification Evidence
+| Evidence ID | Scenario | Verification Method | Status |
+| :--- | :--- | :--- | :--- |
+| **`PHASE74-UNIT`** | Local Gradle Test Suite | `.\gradlew.bat testDebugUnitTest` passed 100% green (148/148 tests passing including all 10 tests in `Phase74SyncDiagnosticsTest`) | 🟢 Passed |
+| **`PHASE74-BUILD`** | AndroidTest Kotlin Compilation | `.\gradlew.bat compileDebugAndroidTestKotlin` passed with 0 errors | 🟢 Passed |
+| **`PHASE74-APK`** | Debug APK Compilation & Packaging | `.\gradlew.bat assembleDebug` compiled AAPT2 resources and built APK in 33s | 🟢 Passed |
+| **`PHASE74-FALLBACK`** | Step Arbitration Unit Tests | Verified `testResolveEffectiveSteps_healthConnectTakesPriorityOverHardware`, `testResolveEffectiveSteps_hardwareFallbackUsedWhenHealthConnectReturnsZero`, and `testResolveEffectiveSteps_emptyHubWhenBothZero` | 🟢 Passed |
+| **`PHASE74-BASELINE`** | Hardware Baseline Delta Tests | Verified same-day accumulation, midnight date rollover, and reboot baseline reset | 🟢 Passed |
+| **`PHASE74-DIAGNOSTIC`** | Blocker Diagnostic Logic | Verified SDK update required, permission revoked, sharing disabled, empty hub feeder unlinked, and battery optimization blocker models | 🟢 Passed |
+| **`PHASE74-COOLDOWN`** | 60-Second Debounce Logic | Verified `testForegroundAutoSync_respectsSixtySecondCooldown` enforces minimum 60,000ms delay between auto-syncs | 🟢 Passed |
+

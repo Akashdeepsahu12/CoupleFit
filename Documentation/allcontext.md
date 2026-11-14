@@ -390,6 +390,7 @@ CoupleFit is a native Android application designed for romantic partners to shar
 
 | Release Tag | Commit SHA | Phase / Milestone Title | Core Accomplishment |
 | :--- | :---: | :--- | :--- |
+| `v2.9.60-sync-diagnostics-hardware-fallback` | `HEAD` | Phase 74: Self-Healing Sync & Hardware Fallback | Low-power `Sensor.TYPE_STEP_COUNTER` fallback (`HC-02`), 60s foreground auto-sync (`SYNC-03`), 1-tap feeder diagnostics banner (`DIAG-01`), default-ON telemetry (`DIAG-02`). |
 | `v2.9.59-production-app-icon` | `01b6d07` | Phase 73: Production App Icon Suite | Full 20-asset density suite from `Icon.png`, adaptive XML, Material You vector, unit tests. |
 | `v2.9.58-birthday-cloud-sync` | `b2f483c` | Phase 72: Birthday Cloud Sync | Bidirectional Firestore birthday sync, multi-format parsing, native DatePickerDialog. |
 | `v2.9.57-partner-name-sync` | `984b7f9` | Phase 71: Partner Name Sync | 5-tier resilient partner name resolution, bidirectional cloud sync, universal personalization. |

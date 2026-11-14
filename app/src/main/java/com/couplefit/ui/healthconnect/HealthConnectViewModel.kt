@@ -12,7 +12,11 @@ import androidx.lifecycle.viewModelScope
 import com.couplefit.data.healthconnect.AggregatedHealthData
 import com.couplefit.data.healthconnect.HealthConnectManager
 import com.couplefit.data.local.HealthDao
+import com.couplefit.data.sensor.HardwareStepSensorManager
 import com.couplefit.ui.components.ChartDataPoint
+import com.couplefit.ui.dashboard.components.SyncBlockerType
+import com.couplefit.ui.dashboard.components.SyncDiagnosticUiModel
+import com.couplefit.util.HealthSyncIntentHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -67,7 +71,10 @@ data class HealthDashboardUiState(
     val yesterdayPartnerSteps: Long = 0L,
     val coupleId: String = "couple_1",
     val myUid: String = "me",
-    val nudgeSentMessage: String? = null
+    val nudgeSentMessage: String? = null,
+    val syncDiagnostic: SyncDiagnosticUiModel = SyncDiagnosticUiModel(),
+    val isUsingHardwareSensorFallback: Boolean = false,
+    val hardwareSensorSteps: Int = 0
 )
 
 sealed class HealthConnectUiState {
@@ -81,6 +88,7 @@ sealed class HealthConnectUiState {
 @HiltViewModel
 class HealthConnectViewModel @Inject constructor(
     private val healthConnectManager: HealthConnectManager,
+    private val hardwareStepSensorManager: HardwareStepSensorManager,
     private val healthDao: HealthDao,
     private val healthRepository: com.couplefit.domain.repository.HealthRepository,
     private val partnerRepository: com.couplefit.domain.repository.PartnerRepository,
@@ -271,6 +279,13 @@ class HealthConnectViewModel @Inject constructor(
                 val yesterdayMy = healthDao.getDailyAggregate(yesterdayStr)?.totalSteps ?: 0L
                 val yesterdayPartner = healthDao.getPartnerDaily(partnerId, yesterdayStr)?.steps ?: 0L
 
+                val currentDiag = _dashboardState.value.syncDiagnostic
+                val updatedPartnerNote = if (pSteps > 0L || pHasData) {
+                    null
+                } else {
+                    currentDiag.partnerDiagnosticNote ?: "💡 Partner showing 0 steps? Make sure their Samsung Health or Google Fit has Health Connect sync turned ON."
+                }
+
                 _dashboardState.value = _dashboardState.value.copy(
                     steps = steps,
                     stepsProgress = progress,
@@ -290,7 +305,8 @@ class HealthConnectViewModel @Inject constructor(
                     partnerLastUpdated = pLastUpdated,
                     partnerLastUpdatedLabel = pLastUpdatedLabel,
                     yesterdaySteps = yesterdayMy,
-                    yesterdayPartnerSteps = yesterdayPartner
+                    yesterdayPartnerSteps = yesterdayPartner,
+                    syncDiagnostic = currentDiag.copy(partnerDiagnosticNote = updatedPartnerNote)
                 )
             }
         }
@@ -326,6 +342,111 @@ class HealthConnectViewModel @Inject constructor(
     }
 
 
+    private var lastForegroundAutoSyncMs: Long = 0L
+
+    fun onDashboardResumed() {
+        val now = System.currentTimeMillis()
+        if (now - lastForegroundAutoSyncMs > 60_000L) {
+            lastForegroundAutoSyncMs = now
+            checkStatusAndFetchData(force = true)
+        }
+    }
+
+    fun enableAllTelemetrySharing() {
+        viewModelScope.launch {
+            preferencesDataStore.enableAllTelemetrySharing(_dashboardState.value.myUid)
+            checkStatusAndFetchData(force = true)
+        }
+    }
+
+    internal suspend fun resolveEffectiveSteps(
+        healthConnectSteps: Int,
+        readHardwareSteps: suspend () -> Int
+    ): Pair<Int, String> {
+        if (healthConnectSteps > 0) {
+            return healthConnectSteps to "HEALTH_CONNECT"
+        }
+        val hwSteps = readHardwareSteps()
+        return if (hwSteps > 0) {
+            hwSteps to "HARDWARE_SENSOR_FALLBACK"
+        } else {
+            0 to "EMPTY_HUB"
+        }
+    }
+
+    companion object {
+        internal fun computeDiagnosticModel(
+            availabilityStatus: Int,
+            hasPermissions: Boolean,
+            sharingPrefs: com.couplefit.data.local.MetricSharingPreferences?,
+            totalSteps: Long,
+            usingHardwareSensor: Boolean,
+            partnerSteps: Long,
+            partnerHasTodayData: Boolean,
+            context: Context?
+        ): SyncDiagnosticUiModel {
+            val isIgnoringBattery = context?.let { HealthSyncIntentHelper.isIgnoringBatteryOptimizations(it) } ?: true
+            val feederApp = context?.let { HealthSyncIntentHelper.detectInstalledFeederAppName(it) }
+
+            val blockerType = when {
+                availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED ||
+                availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE -> SyncBlockerType.SDK_UPDATE_REQUIRED
+
+                !hasPermissions -> SyncBlockerType.PERMISSION_REVOKED
+
+                sharingPrefs != null && !sharingPrefs.shareSteps -> SyncBlockerType.SHARING_DISABLED
+
+                totalSteps == 0L && !usingHardwareSensor && feederApp != null -> SyncBlockerType.EMPTY_HUB_FEEDER_UNLINKED
+
+                !isIgnoringBattery -> SyncBlockerType.BATTERY_OPTIMIZED
+
+                else -> SyncBlockerType.NONE
+            }
+
+            val (title, description, actionLabel) = when (blockerType) {
+                SyncBlockerType.SDK_UPDATE_REQUIRED -> Triple(
+                    "Health Connect Update Needed",
+                    "Health Connect needs to be installed or updated from Google Play Store.",
+                    "Install / Update"
+                )
+                SyncBlockerType.PERMISSION_REVOKED -> Triple(
+                    "Health Permissions Required",
+                    "CoupleFit needs read permission to access your daily step count.",
+                    "Grant Permissions"
+                )
+                SyncBlockerType.SHARING_DISABLED -> Triple(
+                    "Step Sharing Paused",
+                    "Step sharing is disabled in your settings.",
+                    "Enable Sharing"
+                )
+                SyncBlockerType.EMPTY_HUB_FEEDER_UNLINKED -> Triple(
+                    "$feederApp Not Syncing to Health Connect",
+                    "Health Connect is empty. Open $feederApp -> Settings -> Health Connect to enable step sync.",
+                    "Open $feederApp"
+                )
+                SyncBlockerType.BATTERY_OPTIMIZED -> Triple(
+                    "Background Sync Restricted",
+                    "Battery optimization may delay step updates when the app is closed.",
+                    "Allow Background"
+                )
+                SyncBlockerType.NONE -> Triple("", "", "")
+            }
+
+            val partnerNote = if (partnerSteps == 0L && !partnerHasTodayData) {
+                "💡 Partner showing 0 steps? Make sure their Samsung Health or Google Fit has Health Connect sync turned ON."
+            } else null
+
+            return SyncDiagnosticUiModel(
+                blockerType = blockerType,
+                title = title,
+                description = description,
+                actionLabel = actionLabel,
+                usingHardwareSensorFallback = usingHardwareSensor,
+                partnerDiagnosticNote = partnerNote
+            )
+        }
+    }
+
     fun checkStatusAndFetchData(force: Boolean = true) {
         if (force && context != null) {
             com.couplefit.service.SyncWorker.enqueueImmediateSync(context)
@@ -342,8 +463,22 @@ class HealthConnectViewModel @Inject constructor(
             )
 
             if (!isSupported) {
+                val diag = computeDiagnosticModel(
+                    availabilityStatus = status,
+                    hasPermissions = false,
+                    sharingPrefs = null,
+                    totalSteps = 0L,
+                    usingHardwareSensor = false,
+                    partnerSteps = _dashboardState.value.partnerSteps,
+                    partnerHasTodayData = _dashboardState.value.partnerHasTodayData,
+                    context = context
+                )
                 _uiState.value = HealthConnectUiState.NotAvailable
-                _dashboardState.value = _dashboardState.value.copy(isSyncing = false, hasPermissions = false)
+                _dashboardState.value = _dashboardState.value.copy(
+                    isSyncing = false,
+                    hasPermissions = false,
+                    syncDiagnostic = diag
+                )
                 return@launch
             }
 
@@ -355,8 +490,21 @@ class HealthConnectViewModel @Inject constructor(
             )
 
             if (!hasAnyPerms) {
+                val diag = computeDiagnosticModel(
+                    availabilityStatus = status,
+                    hasPermissions = false,
+                    sharingPrefs = null,
+                    totalSteps = 0L,
+                    usingHardwareSensor = false,
+                    partnerSteps = _dashboardState.value.partnerSteps,
+                    partnerHasTodayData = _dashboardState.value.partnerHasTodayData,
+                    context = context
+                )
                 _uiState.value = HealthConnectUiState.PermissionRevoked
-                _dashboardState.value = _dashboardState.value.copy(isSyncing = false)
+                _dashboardState.value = _dashboardState.value.copy(
+                    isSyncing = false,
+                    syncDiagnostic = diag
+                )
                 return@launch
             }
 
@@ -390,6 +538,35 @@ class HealthConnectViewModel @Inject constructor(
                 }
             }
 
+            // Phase 74: Hardware Step Sensor Fallback (HC-02)
+            var effectiveSteps = aggregatedData.totalSteps
+            var usedHwFallback = false
+            var hwStepsValue = 0
+
+            if (effectiveSteps == 0L && hardwareStepSensorManager.isHardwareSensorAvailable) {
+                try {
+                    val hw = hardwareStepSensorManager.readTodayHardwareSteps()
+                    hwStepsValue = hw
+                    if (hw > 0) {
+                        effectiveSteps = hw.toLong()
+                        usedHwFallback = true
+                        val existing = healthDao.getDailyAggregate(dateStr)
+                        val updated = (existing ?: com.couplefit.data.local.HealthDailyAggregateEntity(
+                            dateStr = dateStr,
+                            lastUpdatedTimestamp = now.toEpochMilli()
+                        )).copy(
+                            totalSteps = effectiveSteps,
+                            lastUpdatedTimestamp = now.toEpochMilli()
+                        )
+                        healthDao.insertAggregate(updated)
+                        Log.d("Sync", "Applied hardware step sensor fallback: $effectiveSteps steps")
+                    }
+                } catch (e: Exception) {
+                    Log.w("Sync", "Failed to read hardware step sensor", e)
+                }
+            }
+            val finalAggregatedData = aggregatedData.copy(totalSteps = effectiveSteps)
+
             // 2. Upload MY daily aggregate (steps, activeMinutes, calories, avgHr) to couples/{coupleId}/daily/{myUid_date}
             // strictly filtering for metrics enabled in sharing preferences, throttled to 15 minutes unless forced
             val coupleId = _dashboardState.value.coupleId
@@ -419,11 +596,41 @@ class HealthConnectViewModel @Inject constructor(
                 }
             }
 
+            val currentSharing = preferencesDataStore.getSharingPreferences()
+            val diag = computeDiagnosticModel(
+                availabilityStatus = _dashboardState.value.healthConnectAvailabilityStatus,
+                hasPermissions = _dashboardState.value.hasPermissions,
+                sharingPrefs = currentSharing,
+                totalSteps = effectiveSteps,
+                usingHardwareSensor = usedHwFallback,
+                partnerSteps = _dashboardState.value.partnerSteps,
+                partnerHasTodayData = _dashboardState.value.partnerHasTodayData,
+                context = context
+            )
+
             _dashboardState.value = _dashboardState.value.copy(
-                lastSyncedAt = now
+                lastSyncedAt = now,
+                syncDiagnostic = diag,
+                isUsingHardwareSensorFallback = usedHwFallback,
+                hardwareSensorSteps = hwStepsValue
             )
             
-            _uiState.value = HealthConnectUiState.Success(data = aggregatedData, lastSyncedAt = now)
+            _uiState.value = HealthConnectUiState.Success(data = finalAggregatedData, lastSyncedAt = now)
+
+            // Mirror diagnostic telemetry to Firestore (DIAG-02)
+            val diagPayload = mapOf(
+                "hcStatus" to _dashboardState.value.healthConnectAvailabilityStatus,
+                "hasPermissions" to _dashboardState.value.hasPermissions,
+                "sharingEnabled" to currentSharing.shareSteps,
+                "stepSource" to if (usedHwFallback) "HARDWARE_SENSOR_FALLBACK" else if (effectiveSteps > 0) "HEALTH_CONNECT" else "EMPTY_HUB",
+                "effectiveSteps" to effectiveSteps,
+                "batteryUnrestricted" to (context?.let { HealthSyncIntentHelper.isIgnoringBatteryOptimizations(it) } ?: true)
+            )
+            preferencesDataStore.mirrorSyncDiagnosticsToFirestore(
+                uid = myUid,
+                coupleId = coupleId,
+                diagnostics = diagPayload
+            )
             
         } catch (e: Exception) {
             Log.e("Sync", "Partial/failed sync", e)

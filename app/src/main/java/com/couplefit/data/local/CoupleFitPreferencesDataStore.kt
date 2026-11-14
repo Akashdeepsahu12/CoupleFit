@@ -196,6 +196,41 @@ class CoupleFitPreferencesDataStore @Inject constructor(
         }
     }
 
+    suspend fun enableAllTelemetrySharing(uid: String? = null) {
+        updateAllSharingPreferences(
+            MetricSharingPreferences(
+                shareSteps = true,
+                shareWorkouts = true,
+                shareCalories = true,
+                shareHr = true,
+                shareSpo2 = true
+            ),
+            uid
+        )
+    }
+
+    suspend fun mirrorSyncDiagnosticsToFirestore(
+        uid: String,
+        coupleId: String?,
+        diagnostics: Map<String, Any>
+    ) {
+        try {
+            val payload = mapOf(
+                "syncDiagnostics" to diagnostics,
+                "lastDiagnosticsUpdated" to System.currentTimeMillis()
+            )
+            firestore.collection("users").document(uid)
+                .set(payload, SetOptions.merge())
+            if (!coupleId.isNullOrBlank() && coupleId != "couple_1") {
+                firestore.collection("couples").document(coupleId)
+                    .set(mapOf("memberSyncDiagnostics" to mapOf(uid to diagnostics)), SetOptions.merge())
+            }
+            Timber.d("Successfully mirrored sync diagnostics to Firestore for user $uid")
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to mirror sync diagnostics to Firestore")
+        }
+    }
+
     // Changes API Token
     val changesTokenFlow: Flow<String?> = context.coupleFitDataStore.data.map { preferences ->
         preferences[KEY_CHANGES_TOKEN]

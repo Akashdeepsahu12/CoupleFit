@@ -1006,6 +1006,20 @@ internal fun HealthSyncHubContent(
                 Text("Manage Health Permissions (10 Metrics)")
             }
 
+            val detectedFeeder = remember { com.couplefit.util.HealthSyncIntentHelper.detectInstalledFeederAppName(context) }
+            if (detectedFeeder != null) {
+                OutlinedButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        com.couplefit.util.HealthSyncIntentHelper.openPrimaryFeederApp(context)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Open $detectedFeeder (Sync Steps to Health Connect)")
+                }
+            }
+
             Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
             Row(

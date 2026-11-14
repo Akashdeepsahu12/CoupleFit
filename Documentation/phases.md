@@ -1753,3 +1753,32 @@ Execute a holistic, cohesive redesign of CoupleFit's visual hierarchy, surfaces,
      - Inspected App Drawer: Verified CoupleFit entry in alphabetized grid. Screenshot: [`phase73_app_drawer.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_app_drawer.jpg).
      - Inspected Recents task switcher: Verified header icon and application title. Screenshot: [`phase73_recents_overview.jpg`](file:///C:/Users/akash/.gemini/antigravity-cli/brain/91e5cd80-eb86-4574-a6a8-5ce6afc5cba7/phase73_recents_overview.jpg).
 - **Release Tag**: `v2.9.59-production-app-icon`
+
+
+## Phase 74: Self-Healing Health Connect Pipeline, Hardware Step Fallback & 1-Tap Diagnostics (`SYNC-03`, `HC-02`, `DIAG-01`, `DIAG-02`) 🏥🔄⚡
+- **Target Specifications**: User Bug Report ("partner is unable to fetch data from health connect"), [`PHASE74_SYNC_DIAGNOSTICS_PLAN.md`](file:///D:/Couple_fit/CoupleFit/Documentation/PHASE74_SYNC_DIAGNOSTICS_PLAN.md), [`Documentation/Fixinglist.md`](file:///D:/Couple_fit/CoupleFit/Documentation/Fixinglist.md) §97
+- **Status**: Completed & Verified
+- **Key Deliverables**:
+  1. **Zero-Write Hardware Step Sensor Fallback (`HC-02`)**:
+     - Built [`HardwareStepSensorManager.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/sensor/HardwareStepSensorManager.kt) utilizing Android's low-power `Sensor.TYPE_STEP_COUNTER`.
+     - Maintains persistent daily baseline delta calculations via SharedPreferences (`todayKey = YYYY-MM-DD`, `savedBaseline`). Automatically handles device reboots (boot counter reset) and midnight date rollovers.
+     - Implemented dynamic arbitration in [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt) (`resolveEffectiveSteps`): prioritizes Health Connect when steps > 0; seamlessly falls back to Hardware Step Sensor when Health Connect returns 0 steps due to an Empty Hub condition.
+     - Strictly preserves ADR-002 Zero-Write Privacy Policy: writes resolved steps directly to local Room DB (`HealthDao`) and Cloud Firestore, while never writing synthetic step records into Health Connect.
+     - Declared `<uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />` and `<queries>` for Google Fit and Samsung Health in [`AndroidManifest.xml`](file:///D:/Couple_fit/CoupleFit/app/src/main/AndroidManifest.xml).
+  2. **Auto-Foreground Sync on Resume (`SYNC-03`)**:
+     - Implemented `onDashboardResumed()` in [`HealthConnectViewModel.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/healthconnect/HealthConnectViewModel.kt) with a 60-second debounce cooldown (`System.currentTimeMillis() - lastForegroundAutoSyncMs > 60_000L`).
+     - Wired to `Lifecycle.Event.ON_RESUME` in [`DashboardScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/DashboardScreen.kt) to ensure steps and partner metrics automatically sync and push to Firestore every time the app returns to the foreground.
+  3. **1-Tap Feeder App Intent & OS Diagnostics (`DIAG-01`)**:
+     - Authored [`HealthSyncIntentHelper.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/util/HealthSyncIntentHelper.kt) to detect installed feeder health apps (`com.sec.android.app.shealth` for Samsung Health, `com.google.android.apps.fitness` for Google Fit).
+     - Provides robust intent dispatching: direct feeder app launch with Play Store fallback, Health Connect Play Store installer link, and OS battery optimization ignore request (`ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`).
+     - Designed [`SyncDiagnosticBanner.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/dashboard/components/SyncDiagnosticBanner.kt) rendered at the top of the dashboard for actionable guidance when blockers occur (SDK update needed, permissions revoked, sharing paused, empty hub feeder unlinked, battery optimized).
+     - Added a dedicated "Open Primary Feeder App" 1-tap card in [`SettingsScreen.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/ui/settings/SettingsScreen.kt).
+  4. **Telemetry Sharing & Remote Diagnostics (`DIAG-02`)**:
+     - Added `enableAllTelemetrySharing()` in [`CoupleFitPreferencesDataStore.kt`](file:///D:/Couple_fit/CoupleFit/app/src/main/java/com/couplefit/data/local/CoupleFitPreferencesDataStore.kt) enabling steps, calories, heart rate, and workouts in one tap.
+     - Added `mirrorSyncDiagnosticsToFirestore()` to write diagnostic metadata (`lastSyncTime`, `syncSource`, `healthConnectAvailable`, `hasPermissions`, `usingHardwareSensor`) to Firestore for partner observability.
+  5. **Automated Testing Suite (`PHASE74-TEST`)**:
+     - Authored [`Phase74SyncDiagnosticsTest.kt`](file:///D:/Couple_fit/CoupleFit/app/src/test/java/com/couplefit/ui/Phase74SyncDiagnosticsTest.kt) covering 10 deterministic test cases across hardware fallback arbitration, same-day baseline accumulation, midnight date rollover, reboot handling, all 5 blocker type diagnostic models, and the 60s foreground auto-sync cooldown.
+     - All 148 unit tests passed 100% green (`.\gradlew.bat testDebugUnitTest`).
+     - Android test compilation: 0 errors (`.\gradlew.bat compileDebugAndroidTestKotlin`).
+     - APK build: Success in 33s (`.\gradlew.bat assembleDebug`).
+- **Release Tag**: `v2.9.60-sync-diagnostics-hardware-fallback`

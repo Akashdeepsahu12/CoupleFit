@@ -180,6 +180,7 @@ fun DashboardScreen(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 healthConnectViewModel.onAppForeground()
+                healthConnectViewModel.onDashboardResumed()
                 popInTrigger++ // Triggers pop-in animation every time the app opens or resumes
             }
         }
@@ -280,6 +281,34 @@ fun DashboardScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+
+            // Phase 74 1-Tap Sync Diagnostic Banner (DIAG-01)
+            com.couplefit.ui.dashboard.components.SyncDiagnosticBanner(
+                diagnostic = healthData.syncDiagnostic,
+                onPrimaryActionClick = { blockerType ->
+                    when (blockerType) {
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.SDK_UPDATE_REQUIRED -> {
+                            com.couplefit.util.HealthSyncIntentHelper.openHealthConnectSettingsOrStore(context)
+                        }
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.PERMISSION_REVOKED -> {
+                            permissionLauncher.launch(healthConnectViewModel.permissions)
+                        }
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.SHARING_DISABLED -> {
+                            healthConnectViewModel.enableAllTelemetrySharing()
+                        }
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.EMPTY_HUB_FEEDER_UNLINKED -> {
+                            val opened = com.couplefit.util.HealthSyncIntentHelper.openPrimaryFeederApp(context)
+                            if (!opened) {
+                                com.couplefit.util.HealthSyncIntentHelper.openHealthConnectSettingsOrStore(context)
+                            }
+                        }
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.BATTERY_OPTIMIZED -> {
+                            com.couplefit.util.HealthSyncIntentHelper.requestIgnoreBatteryOptimizations(context)
+                        }
+                        com.couplefit.ui.dashboard.components.SyncBlockerType.NONE -> Unit
+                    }
+                }
+            )
 
             // Contextual "Medication Due" Pill (CSA-03 / Tree Test TS-04)
             // Gated strictly to +/- 1 hour around scheduled dose time (CPX-02)
