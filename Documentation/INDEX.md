@@ -8,6 +8,7 @@ Welcome to the centralized documentation directory for the **CoupleFit** ecosyst
 
 | Document | Generation Command / Trigger | Category | Primary Focus & Associated Defect Logs |
 | :--- | :--- | :--- | :--- |
+| [**allcontext.md**](allcontext.md) | User Request / Master Ledger | **Context & Session History** | Complete session history dossier: All 144 turns, architectural decisions, code changes, verification runs, and git tags. |
 | [**phase73_verification_report.md**](phase73_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 73 verification report: Production Android launcher icon suite from `Icon.png`, full density mipmaps, adaptive layers, and live device proof (`ICON-01`). |
 | [**phase72_verification_report.md**](phase72_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 72 verification report: Bidirectional cloud birthday sync, multi-format date parsing, and interactive calendar picker (`BDAY-02`). |
 | [**phase71_verification_report.md**](phase71_verification_report.md) | /gsd-verify-work | **Verification & UAT** | Phase 71 verification report: Partner name multi-tier resolution, bidirectional cloud synchronization, and universal UI personalization (`NAME-02`). |
