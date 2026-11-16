@@ -1,0 +1,14 @@
+# Generated visualization outputs (derived from the code; ~15k-line HTML each)
+.archify/
+.codebread/
+.diorama/
+graphify-out/
+# Binary media with no extractable semantics (background videos, launcher icons, textures)
+*.mp4
+*.png
+*.jpg
+# Root-level duplicates of Documentation/ copies
+/liquideffect.md
+/refraction.md
+# Generic multi-agent prompt catalog (28k lines, not project-specific)
+Documentation/agents1.md
